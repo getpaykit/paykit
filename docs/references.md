@@ -11,6 +11,7 @@
 - [Resend](https://resend.com/)
 - [Linear](https://linear.app/)
 - [Better Auth](https://better-auth.com/)
+- [Featurebase](https://featurebase.app/)
 
 ## Dashboard
 
