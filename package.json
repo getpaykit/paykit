@@ -7,5 +7,30 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/getpaykit/paykit"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "format": "biome format . --write",
+    "lint": "biome check . --error-on-warnings",
+    "lint:fix": "biome check . --fix --unsafe",
+    "typecheck": "tsc --build",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.14",
+    "@types/node": "catalog:",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "turbo": "^2.8.10",
+    "typescript": "catalog:"
+  },
+  "lint-staged": {
+    "*": [
+      "biome check --fix --no-errors-on-unmatched"
+    ]
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

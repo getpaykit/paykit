@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "verbatimModuleSyntax": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": false,
+    "incremental": true,
+    "noErrorTruncation": true,
+    "composite": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "types": ["node"],
+    // Put the .d.ts files output and cache file (tsbuildinfo) in a directory
+    // that will be ignored by other tools.
+    "outDir": "${configDir}/node_modules/.cache/ts/out",
+    "tsBuildInfoFile": "${configDir}/node_modules/.cache/ts/tsbuildinfo",
+    "customConditions": []
+  },
+  "exclude": ["**/dist/**", "**/node_modules/**"]
+}

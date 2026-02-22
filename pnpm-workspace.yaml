@@ -1,0 +1,22 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+catalog:
+  typescript: "5.9.2"
+  zod: "^4.3.6"
+  "@types/node": "^25.0.3"
+
+catalogs:
+  react19:
+    "@types/react": "^19.2.14"
+    "@types/react-dom": "^19.2.3"
+    react: "^19.2.4"
+    react-dom: "^19.2.4"
+  next16:
+    next: "16.1.6"
+  tailwind:
+    "@tailwindcss/postcss": "^4.1.18"
+    "@tailwindcss/vite": "^4.1.18"
+    tailwindcss: "^4.1.18"
+    tailwindcss-animate: "^1.0.7"
