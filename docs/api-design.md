@@ -83,58 +83,6 @@ app.all("/api/paykit/*", pk.toNodeHandler());
 
 ---
 
-## Products & Prices
-
-Define products and prices in your database via the SDK.
-
-### Create a Product
-
-```typescript
-await pk.api.createProduct({
-  name: "Pro Plan",
-  description: "Everything you need",
-  metadata: { tier: "pro" },
-});
-```
-
-### Create Prices for a Product
-
-```typescript
-// Recurring price
-await pk.api.createPrice({
-  productId: "prod_abc",
-  amount: 2900, // $29.00 in cents
-  currency: "usd",
-  interval: "month",
-});
-
-// One-time price
-await pk.api.createPrice({
-  productId: "prod_abc",
-  amount: 9900,
-  currency: "usd",
-  type: "one_time",
-});
-
-// Usage-based price
-await pk.api.createPrice({
-  productId: "prod_abc",
-  currency: "usd",
-  type: "usage",
-  unitAmount: 10, // $0.10 per unit
-  usageMetric: "api_calls",
-});
-```
-
-### List Products
-
-```typescript
-const products = await pk.api.listProducts();
-const product = await pk.api.getProduct({ id: "prod_abc" });
-```
-
----
-
 ## Customers
 
 Customers are created automatically on first interaction when using
@@ -158,17 +106,19 @@ const customer = await pk.api.getCustomerByExternalId({ externalId: "user_123" }
 
 ## Checkout
 
-Redirect the user to a provider-hosted checkout page.
+One-time payment via provider-hosted checkout. Pass the amount and
+description inline — no pre-created products or prices needed.
 
 ### Server-side
 
 ```typescript
 const checkout = await pk.api.createCheckout({
   customerId: "cust_abc",
-  priceId: "price_xyz",
+  amount: 9900, // $99.00 in cents
+  description: "Lifetime License",
   successURL: "https://myapp.com/success",
   cancelURL: "https://myapp.com/cancel",
-  quantity: 1,
+  attachMethod: true, // also save the payment method for future charges
   metadata: { referral: "campaign_42" },
 });
 
@@ -179,9 +129,11 @@ const checkout = await pk.api.createCheckout({
 
 ```typescript
 const { data, error } = await pk.checkout.create({
-  priceId: "price_xyz",
+  amount: 9900,
+  description: "Lifetime License",
   successURL: "/success",
   cancelURL: "/cancel",
+  attachMethod: true,
 });
 
 if (data) {
@@ -193,12 +145,18 @@ if (data) {
 
 ## Subscriptions
 
+Subscriptions store their amount and interval inline. Your app decides
+what to charge — PayKit doesn't need a product catalog.
+
 ### Create a Subscription
 
 ```typescript
 const subscription = await pk.api.createSubscription({
   customerId: "cust_abc",
-  priceId: "price_xyz",
+  amount: 2900, // $29.00 in cents
+  interval: "month", // "month" | "year" | "week"
+  description: "Pro Plan",
+  paymentMethodId: "pm_xyz",
   trialDays: 14,
   metadata: { source: "onboarding" },
 });
@@ -212,16 +170,6 @@ const sub = await pk.api.getSubscription({ id: "sub_abc" });
 const subs = await pk.api.listSubscriptions({
   customerId: "cust_abc",
   status: "active", // "active" | "trialing" | "past_due" | "canceled" | "paused"
-});
-```
-
-### Change Plan (Up/Downgrade)
-
-```typescript
-await pk.api.updateSubscription({
-  id: "sub_abc",
-  priceId: "price_new",
-  proration: "always", // "always" | "never" | "on_upgrade"
 });
 ```
 
@@ -254,12 +202,12 @@ await pk.api.resumeSubscription({ id: "sub_abc" });
 ### Attach a Payment Method
 
 ```typescript
-// Returns a setup URL for the customer to enter their card
-const setup = await pk.api.createSetupSession({
+// Returns a provider-hosted URL for the customer to enter their card
+const result = await pk.api.attachPaymentMethod({
   customerId: "cust_abc",
   returnURL: "https://myapp.com/settings/billing",
 });
-// setup.url -> redirect user
+// result.url -> redirect user
 ```
 
 ### List / Manage
@@ -347,44 +295,124 @@ const usage = await pk.api.getUsage({
 
 ---
 
-## Webhooks
+## Events
 
-Webhooks are handled automatically. The provider adapter verifies
-signatures, normalizes events, updates your database, then calls your
-handlers.
-
-### Normalized Events
-
-All events follow a consistent shape regardless of provider:
+PayKit emits two kinds of events: **provider events** (from webhooks)
+and **lifecycle events** (from PayKit's own billing engine). Both are
+handled in the same `on` config.
 
 ```typescript
 on: {
-  // Subscription lifecycle
+  // --- Provider events (from webhooks) ---
+
+  // Payment method updates
+  "payment_method.attached": ({ paymentMethod, customer }) => {},
+  "payment_method.detached": ({ paymentMethod, customer }) => {},
+  "payment_method.expiring": ({ paymentMethod, customer }) => {},
+
+  // Charge results (from checkout or billing engine charges)
+  "charge.succeeded":        ({ charge, customer }) => {},
+  "charge.failed":           ({ charge, customer, error }) => {},
+  "charge.disputed":         ({ charge, customer, dispute }) => {},
+  "charge.refunded":         ({ charge, customer, refund }) => {},
+
+  // --- Lifecycle events (from PayKit's billing engine) ---
+
+  // Subscription state machine transitions
   "subscription.created":    ({ subscription, customer }) => {},
   "subscription.activated":  ({ subscription, customer }) => {},
-  "subscription.updated":    ({ subscription, customer, changes }) => {},
+  "subscription.renewed":    ({ subscription, customer, invoice }) => {},
+  "subscription.past_due":   ({ subscription, customer, invoice }) => {},
   "subscription.paused":     ({ subscription, customer }) => {},
   "subscription.resumed":    ({ subscription, customer }) => {},
   "subscription.canceled":   ({ subscription, customer }) => {},
 
-  // Payments
-  "payment.succeeded":       ({ payment, customer }) => {},
-  "payment.failed":          ({ payment, customer, error }) => {},
-  "payment.refunded":        ({ payment, customer, refund }) => {},
-
-  // Invoices
+  // Invoice lifecycle
   "invoice.created":         ({ invoice, customer }) => {},
   "invoice.paid":            ({ invoice, customer }) => {},
-  "invoice.payment_failed":  ({ invoice, customer }) => {},
-
-  // Payment methods
-  "payment_method.attached": ({ paymentMethod, customer }) => {},
-  "payment_method.detached": ({ paymentMethod, customer }) => {},
+  "invoice.payment_failed":  ({ invoice, customer, error }) => {},
 
   // Catch-all
-  "*":                       ({ event, provider }) => {},
+  "*":                       ({ event }) => {},
 }
 ```
+
+---
+
+## Billing Engine
+
+PayKit runs its own billing engine to manage subscription renewals,
+usage calculation, and failed payment retries. Since providers don't
+manage subscriptions, this is what drives the billing cycle.
+
+### How It Works
+
+On each billing cycle tick, the engine:
+
+1. Finds subscriptions due for renewal
+2. Calculates the amount (fixed price + usage-based charges)
+3. Creates an invoice in your database
+4. Charges the customer's default payment method via the provider
+5. On success: marks invoice paid, renews the subscription period
+6. On failure: marks invoice failed, applies retry/dunning policy
+
+### Configuration
+
+```typescript
+export const pk = paykit({
+  // ...providers, database, etc.
+
+  billing: {
+    // How often the engine checks for due subscriptions
+    // In production, this runs as a cron job or background worker
+    interval: "1h", // default: "1h"
+
+    // What happens when a charge fails
+    dunning: {
+      retries: 3,              // number of retry attempts
+      retryInterval: "3d",     // wait between retries
+      gracePeriod: "7d",       // how long before canceling
+      onRetry: async ({ subscription, attempt }) => {
+        await sendEmail(subscription.customer.email,
+          `Payment failed (attempt ${attempt}/3)`);
+      },
+      onGracePeriodExpired: async ({ subscription }) => {
+        // subscription is automatically canceled after this
+        await sendEmail(subscription.customer.email,
+          "Your subscription has been canceled");
+      },
+    },
+  },
+});
+```
+
+### Running the Engine
+
+```typescript
+// Development: run inline (blocks the process)
+await pk.billing.start();
+
+// Production: trigger from an external cron / task scheduler
+// e.g., a Next.js API route called by Vercel Cron
+export async function GET() {
+  await pk.billing.tick(); // process one cycle
+  return Response.json({ ok: true });
+}
+```
+
+### Subscription States
+
+- **trialing** — trial period active, no charges yet. Transitions to
+  `active` when trial ends (and first charge succeeds).
+- **active** — subscription is current. Renewed automatically each
+  billing cycle. Transitions to `past_due` if a charge fails.
+- **past_due** — charge failed, retrying per dunning policy. Transitions
+  back to `active` if a retry succeeds, or to `canceled` if retries
+  are exhausted and the grace period expires.
+- **paused** — manually paused by the user or your app. No charges.
+  Transitions back to `active` on resume.
+- **canceled** — subscription ended. No further charges. Can be
+  terminal or allow reactivation depending on your config.
 
 ---
 
@@ -410,28 +438,29 @@ function BillingPage() {
 
   return (
     <div>
-      <p>Plan: {subscription?.product.name ?? "Free"}</p>
+      <p>Plan: {subscription?.description ?? "Free"}</p>
       <p>Status: {subscription?.status}</p>
       <p>Next invoice: {subscription?.currentPeriodEnd}</p>
 
-      <UpgradeButton />
+      <BuyButton />
       <InvoiceHistory />
     </div>
   );
 }
 
-function UpgradeButton() {
+function BuyButton() {
   const pk = usePayKit();
 
-  const handleUpgrade = async () => {
+  const handleCheckout = async () => {
     const { data, error } = await pk.checkout.create({
-      priceId: "price_pro_monthly",
-      successURL: "/billing?upgraded=true",
+      amount: 9900,
+      description: "Lifetime License",
+      successURL: "/billing?purchased=true",
     });
     if (data) window.location.href = data.url;
   };
 
-  return <button onClick={handleUpgrade}>Upgrade to Pro</button>;
+  return <button onClick={handleCheckout}>Buy Now</button>;
 }
 
 function InvoiceHistory() {
@@ -441,7 +470,7 @@ function InvoiceHistory() {
     <ul>
       {invoices.map((inv) => (
         <li key={inv.id}>
-          {inv.total / 100} {inv.currency.toUpperCase()} — {inv.status}
+          ${inv.total / 100} — {inv.status}
           {inv.pdfURL && <a href={inv.pdfURL}>PDF</a>}
         </li>
       ))}
@@ -456,40 +485,36 @@ function InvoiceHistory() {
 
 All methods are available on `pk.api.*` for server-side use:
 
-| Category           | Method                       | Description                     |
-| ------------------ | ---------------------------- | ------------------------------- |
-| **Products**       | `createProduct`              | Create a product                |
-|                    | `updateProduct`              | Update a product                |
-|                    | `getProduct`                 | Get product by ID               |
-|                    | `listProducts`               | List all products               |
-| **Prices**         | `createPrice`                | Create a price for a product    |
-|                    | `updatePrice`                | Update a price                  |
-|                    | `listPrices`                 | List prices (filter by product) |
-| **Customers**      | `createCustomer`             | Create a customer               |
-|                    | `getCustomer`                | Get customer by ID              |
-|                    | `getCustomerByExternalId`    | Lookup by your internal ID      |
-|                    | `updateCustomer`             | Update customer data            |
-| **Checkout**       | `createCheckout`             | Create a checkout session       |
-| **Subscriptions**  | `createSubscription`         | Start a subscription            |
-|                    | `getSubscription`            | Get subscription by ID          |
-|                    | `listSubscriptions`          | List (filter by customer)       |
-|                    | `updateSubscription`         | Change plan / proration         |
-|                    | `cancelSubscription`         | Cancel a subscription           |
-|                    | `pauseSubscription`          | Pause a subscription            |
-|                    | `resumeSubscription`         | Resume paused/canceled sub      |
-| **Payment Methods**| `createSetupSession`         | Setup session to add a card     |
-|                    | `listPaymentMethods`         | List customer payment methods   |
-|                    | `setDefaultPaymentMethod`    | Set the default method          |
-|                    | `detachPaymentMethod`        | Remove a payment method         |
-| **Invoices**       | `createInvoice`              | Create a one-off invoice        |
-|                    | `getInvoice`                 | Get invoice by ID               |
-|                    | `listInvoices`               | List (filter by customer)       |
-| **Usage**          | `reportUsage`                | Report usage for a metric       |
-|                    | `getUsage`                   | Query usage data                |
+| Category           | Method                       | Description                        |
+| ------------------ | ---------------------------- | ---------------------------------- |
+| **Customers**      | `createCustomer`             | Create a customer                  |
+|                    | `getCustomer`                | Get customer by ID                 |
+|                    | `getCustomerByExternalId`    | Lookup by your internal ID         |
+|                    | `updateCustomer`             | Update customer data               |
+| **Checkout**       | `createCheckout`             | One-time payment (+ optional save) |
+| **Subscriptions**  | `createSubscription`         | Start a subscription               |
+|                    | `getSubscription`            | Get subscription by ID             |
+|                    | `listSubscriptions`          | List (filter by customer)          |
+|                    | `cancelSubscription`         | Cancel a subscription              |
+|                    | `pauseSubscription`          | Pause a subscription               |
+|                    | `resumeSubscription`         | Resume paused/canceled sub         |
+| **Payment Methods**| `attachPaymentMethod`        | Save a payment method              |
+|                    | `listPaymentMethods`         | List customer payment methods      |
+|                    | `setDefaultPaymentMethod`    | Set the default method             |
+|                    | `detachPaymentMethod`        | Remove a payment method            |
+| **Invoices**       | `createInvoice`              | Create a one-off invoice           |
+|                    | `getInvoice`                 | Get invoice by ID                  |
+|                    | `listInvoices`               | List (filter by customer)          |
+| **Usage**          | `reportUsage`                | Report usage for a metric          |
+|                    | `getUsage`                   | Query usage data                   |
 
 ---
 
 ## Provider Adapter Contract
+
+Providers are payment rails — they charge, refund, and manage payment
+methods. Products, subscriptions, invoices, and usage all live in PayKit
+core and your database. Nothing is synced to the provider.
 
 Every provider adapter implements this interface:
 
@@ -497,36 +522,46 @@ Every provider adapter implements this interface:
 interface PayKitProvider {
   id: string; // "stripe" | "paypal" | ...
 
-  // Products & Prices
-  createProduct(data): Promise<ProviderProduct>;
-  createPrice(data): Promise<ProviderPrice>;
+  // Save a payment method for future charges (provider-hosted UI)
+  attach(data: {
+    customerId: string;
+    returnURL: string;
+  }): Promise<{ url: string }>;
 
-  // Checkout
-  createCheckoutSession(data): Promise<{ url: string; sessionId: string }>;
-  createSetupSession(data): Promise<{ url: string; sessionId: string }>;
+  // Remove a saved payment method
+  detach(data: {
+    paymentMethodId: string;
+  }): Promise<void>;
 
-  // Subscriptions
-  createSubscription(data): Promise<ProviderSubscription>;
-  updateSubscription(id, data): Promise<ProviderSubscription>;
-  cancelSubscription(id, mode): Promise<void>;
-  pauseSubscription(id): Promise<void>;
-  resumeSubscription(id): Promise<void>;
+  // Charge a saved payment method
+  charge(data: {
+    paymentMethodId: string;
+    amount: number;
+    description: string;
+    metadata?: Record<string, string>;
+  }): Promise<ProviderCharge>;
 
-  // Payment Methods
-  listPaymentMethods(customerId): Promise<ProviderPaymentMethod[]>;
-  detachPaymentMethod(id): Promise<void>;
-  setDefaultPaymentMethod(customerId, pmId): Promise<void>;
+  // Refund a charge
+  refund(data: {
+    chargeId: string;
+    amount?: number; // partial refund, or omit for full
+  }): Promise<ProviderRefund>;
 
-  // Invoices
-  createInvoice(data): Promise<ProviderInvoice>;
-  listInvoices(customerId, filters): Promise<ProviderInvoice[]>;
+  // One-time payment via provider-hosted checkout (no saved method needed)
+  checkout(data: {
+    amount: number;
+    description: string;
+    successURL: string;
+    cancelURL: string;
+    attach?: boolean; // also save the payment method for future use
+    metadata?: Record<string, string>;
+  }): Promise<{ url: string }>;
 
-  // Usage
-  reportUsage(subscriptionId, metric, value): Promise<void>;
-
-  // Webhooks
-  verifyWebhook(payload, signature): boolean;
-  normalizeEvent(rawEvent): PayKitEvent;
+  // Verify signature + normalize raw provider event into a PayKit event
+  handleWebhook(data: {
+    body: string;
+    headers: Record<string, string>;
+  }): PayKitEvent;
 }
 ```
 
@@ -594,17 +629,18 @@ export const walletPlugin = (): PayKitPlugin => ({
 
 ## Design Principles (reflected in the API)
 
-1. **Your DB is the source of truth.** Every `pk.api.*` call reads/writes
-   your database first, then syncs with the provider. Webhook handlers
+1. **Your DB is the source of truth.** Products, subscriptions, invoices,
+   and usage live entirely in your database. Providers are only used as
+   payment rails (charge, refund, attach/detach methods). Webhook handlers
    update your database, then call your event handlers.
 
 2. **No provider leakage.** You never see `stripeSubscriptionId` in
    business code. Provider IDs are stored internally and resolved by
    PayKit.
 
-3. **Progressive disclosure.** Simple things are simple:
-   `pk.api.createCheckout({ customerId, priceId })`. Advanced things
-   are possible: proration strategies, usage caps, multi-provider routing.
+3. **No product catalog.** PayKit is a payments layer, not an ecommerce
+   platform. Pass amounts and descriptions inline. Your app owns its
+   own product catalog — PayKit doesn't need to know about it.
 
 4. **Type safety everywhere.** All inputs, outputs, events, and plugin
    extensions are fully typed. Plugin endpoints merge into `pk.api.*`

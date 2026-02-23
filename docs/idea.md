@@ -33,6 +33,22 @@ Core model belongs to PayKit.
 Your App -> PayKit Core -> Provider Adapter -> External Provider
 ```
 
+**PayKit is a payments layer, not a product catalog.** Subscriptions,
+invoices, and usage records live in your database. Your app owns its
+own products and prices — PayKit just receives amounts and descriptions
+inline. Provider adapters are pure payment rails — they attach/detach
+payment methods, charge them, and process refunds. Nothing is synced
+to the provider.
+
+This means:
+- Subscriptions are managed by PayKit's own billing engine (cron-based
+  charging, state machine transitions, dunning/retry logic)
+- Switching a subscription's payment provider is trivial — just change
+  which payment method is charged
+- Usage-based billing is first-class, not bolted onto a provider's
+  metered billing API
+- Provider adapters are tiny (~5 methods), making new integrations easy
+
 Webhooks flow back through the same layers in reverse. Subscription
 lifecycle is state-machine driven with explicit, persisted, event-driven
 transitions.
