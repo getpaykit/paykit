@@ -5,6 +5,7 @@
 - [Better-auth](https://better-auth.com/)
 - [UsePayKit](https://www.usepaykit.dev/)
 - [UseAutumn](https://useautumn.com/)
+- [PayloadCMS](https://payloadcms.com/)
 
 ## Landing page
 
