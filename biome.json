@@ -147,7 +147,8 @@
       "!**/build",
       "!**/.next",
       "!**/.turbo",
-      "!**/.cache"
+      "!**/.cache",
+      "!REFERENCES"
     ]
   }
 }
