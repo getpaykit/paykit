@@ -145,4 +145,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  .section-title {
+    @apply text-3xl font-medium tracking-tight text-foreground md:text-4xl;
+  }
 }

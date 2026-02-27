@@ -31,7 +31,7 @@ export function HeroSection() {
             Open source · TypeScript-first
           </p>
 
-          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
+          <h1 className="section-title leading-tight">
             Payments orchestration
             <br />
             for modern SaaS.

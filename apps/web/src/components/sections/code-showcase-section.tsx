@@ -92,7 +92,7 @@ export function CodeShowcaseSection() {
   return (
     <section>
       <div className="section-container py-24 border-b border-border">
-        <h2 className="text-center text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
+        <h2 className="section-title text-center">
           Everything you need.
           <br />
           Nothing you don&apos;t.
