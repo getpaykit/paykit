@@ -90,8 +90,8 @@ app.all("/api/paykit/*", (c) => pk.handler(c.req.raw));`,
 
 export function CodeShowcaseSection() {
   return (
-    <section className="border-b border-border py-24">
-      <div className="section-container">
+    <section>
+      <div className="section-container py-24 border-b border-border">
         <h2 className="text-center text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Everything you need.
           <br />

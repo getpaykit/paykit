@@ -9,8 +9,8 @@ const links = [
 
 export function SiteFooterSection() {
   return (
-    <footer className="py-8">
-      <div className="section-container flex flex-col sm:flex-row items-center justify-between gap-4">
+    <footer>
+      <div className="section-container py-8 border-b border-border flex flex-col sm:flex-row items-center justify-between gap-4">
         <span className="text-sm text-muted-foreground font-mono">
           paykit · MIT License
         </span>
