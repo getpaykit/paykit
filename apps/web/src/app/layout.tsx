@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
+import { HeaderSection } from "@/components/sections/header-section";
 
 export const metadata: Metadata = {
   title: "PayKit",
@@ -25,7 +26,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body>
-        <RootProvider theme={{ defaultTheme: "dark" }}>{children}</RootProvider>
+        <RootProvider theme={{ defaultTheme: "dark" }}>
+          <HeaderSection />
+          {children}
+        </RootProvider>
       </body>
     </html>
   );
