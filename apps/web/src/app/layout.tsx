@@ -1,5 +1,6 @@
 import "@/styles/globals.css";
 
+import { Analytics } from "@vercel/analytics/next";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
 import { Geist } from "next/font/google";
@@ -29,6 +30,7 @@ export default function RootLayout({
         <RootProvider theme={{ defaultTheme: "dark" }}>
           <HeaderSection />
           {children}
+          <Analytics />
         </RootProvider>
       </body>
     </html>
