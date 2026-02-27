@@ -31,7 +31,7 @@ export function HeroSection() {
             Open source · TypeScript-first
           </p>
 
-          <h1 className="text-5xl md:text-6xl font-semibold tracking-tight text-foreground leading-tight">
+          <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground leading-tight">
             Payments orchestration
             <br />
             for modern SaaS.
@@ -64,7 +64,7 @@ export function HeroSection() {
         </div>
 
         {/* Right: code block */}
-        <CodeBlock code={initCode} />
+        <CodeBlock code={initCode} filename="paykit.config.ts" />
       </div>
     </section>
   );
