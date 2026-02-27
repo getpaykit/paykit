@@ -124,6 +124,16 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
+@utility section-container {
+  max-width: 72rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  border-left-width: 1px;
+  border-right-width: 1px;
+}
+
 @utility bg-grid {
   background-image:
     linear-gradient(currentColor 1px, transparent 1px),
@@ -138,5 +148,7 @@
   body {
     @apply bg-background text-foreground;
   }
+  .section-title {
+    @apply text-3xl font-medium tracking-tight text-foreground md:text-4xl;
+  }
 }
-

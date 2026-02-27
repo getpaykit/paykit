@@ -5,12 +5,9 @@ import { GITHUB_URL } from "@/lib/conts";
 
 export function FooterCtaSection() {
   return (
-    <section
-      id="waitlist"
-      className="py-24 px-6 border-t border-border text-center"
-    >
-      <div className="max-w-2xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground">
+    <section id="waitlist" className="text-center">
+      <div className="section-container py-24 border-b border-border">
+        <h2 className="section-title">
           Open source. TypeScript-first.
           <br />
           Coming soon.
