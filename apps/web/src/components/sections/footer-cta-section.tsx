@@ -1,4 +1,4 @@
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/conts";
@@ -23,7 +23,7 @@ export function FooterCtaSection() {
         <div className="flex gap-3 mt-8 justify-center flex-wrap">
           <Button size="lg" className="rounded-none" asChild>
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-              <Star className="size-4" />
+              <Github className="size-4" />
               Star on GitHub
             </a>
           </Button>

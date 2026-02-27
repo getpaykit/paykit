@@ -1,60 +1,125 @@
+"use client";
+
+import { Check, Copy } from "lucide-react";
+import { Highlight, themes } from "prism-react-renderer";
 import type * as React from "react";
+import { useState } from "react";
 
 import { cn } from "@/lib/utils";
 
-interface CodeBlockProps {
-  children: React.ReactNode;
-  className?: string;
-  lineCount?: number;
+function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<"svg">) {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 42 10" fill="none" {...props}>
+      <circle cx="5" cy="5" r="4.5" />
+      <circle cx="21" cy="5" r="4.5" />
+      <circle cx="37" cy="5" r="4.5" />
+    </svg>
+  );
 }
 
-function CodeBlock({ children, className, lineCount }: CodeBlockProps) {
+interface CodeBlockProps {
+  code: string;
+  language?: string;
+  className?: string;
+}
+
+function CodeBlock({
+  code,
+  language = "typescript",
+  className,
+}: CodeBlockProps) {
+  const [copied, setCopied] = useState(false);
+  const lineCount = code.split("\n").length;
+
+  const copyToClipboard = () => {
+    void navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   return (
     <div
       className={cn(
-        "border border-border overflow-hidden bg-gradient-to-tr from-zinc-950 via-black to-zinc-900 ring-1 ring-white/10",
+        "relative overflow-hidden rounded-sm bg-gradient-to-tr from-stone-950/90 via-black to-black/90 ring-1 ring-white/10",
         className,
       )}
     >
-      {/* Window chrome */}
-      <div className="flex items-center gap-1.5 px-4 py-3 border-b border-border bg-muted/30">
-        <div className="size-2.5 rounded-full bg-zinc-700" aria-hidden="true" />
-        <div className="size-2.5 rounded-full bg-zinc-700" aria-hidden="true" />
-        <div className="size-2.5 rounded-full bg-zinc-700" aria-hidden="true" />
-      </div>
+      <div className="pl-4 pt-4">
+        <TrafficLightsIcon className="h-2.5 w-auto stroke-slate-500/30" />
 
-      {/* Code area */}
-      <div className="flex overflow-x-auto">
-        {/* Line numbers */}
-        {lineCount !== undefined && lineCount > 0 && (
-          <div
-            className="select-none shrink-0 border-r border-border px-4 py-6 text-right text-xs leading-relaxed text-zinc-600 font-mono"
-            aria-hidden="true"
-          >
-            {Array.from({ length: lineCount }, (_, i) => (
-              <div key={i}>{String(i + 1).padStart(2, "0")}</div>
-            ))}
+        <div className="relative flex flex-col items-start text-sm">
+          <div className="absolute top-2 right-4 z-10">
+            <button
+              type="button"
+              onClick={copyToClipboard}
+              className="flex h-5 w-5 items-center justify-center border-none bg-transparent"
+              aria-label="Copy code"
+            >
+              {copied ? (
+                <Check className="h-3 w-3 text-stone-300" />
+              ) : (
+                <Copy className="h-3 w-3 text-slate-500" />
+              )}
+            </button>
           </div>
-        )}
 
-        <pre className="flex-1 p-6 text-sm leading-relaxed">
-          <code className="font-mono">{children}</code>
-        </pre>
+          <div className="w-full overflow-x-auto">
+            <div className="relative flex min-w-max items-start px-1 py-4">
+              <div
+                aria-hidden="true"
+                className="select-none border-r border-slate-300/5 pr-4 font-mono text-xs leading-relaxed text-slate-600"
+              >
+                {Array.from({ length: lineCount }).map((_, index) => (
+                  <div key={index}>
+                    {(index + 1).toString().padStart(2, "0")}
+                  </div>
+                ))}
+              </div>
+
+              <Highlight
+                code={code}
+                language={language}
+                theme={{
+                  ...themes.synthwave84,
+                  plain: { backgroundColor: "transparent" },
+                }}
+              >
+                {({
+                  className: hlClassName,
+                  style,
+                  tokens,
+                  getLineProps,
+                  getTokenProps,
+                }) => (
+                  <pre
+                    className={cn(
+                      "flex-1 px-4 font-mono text-sm leading-relaxed whitespace-pre",
+                      hlClassName,
+                    )}
+                    style={style}
+                  >
+                    <code>
+                      {tokens.map((line, lineIndex) => (
+                        <div key={lineIndex} {...getLineProps({ line })}>
+                          {line.map((token, tokenIndex) => (
+                            <span
+                              key={tokenIndex}
+                              {...getTokenProps({ token })}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </code>
+                  </pre>
+                )}
+              </Highlight>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
 
-// Token helpers for syntax highlighting without a runtime library.
-// These are intentionally not exported — consumers build code as JSX.
-const t = {
-  kw: (s: string) => <span className="text-sky-400">{s}</span>,
-  str: (s: string) => <span className="text-amber-300">{s}</span>,
-  fn: (s: string) => <span className="text-violet-400">{s}</span>,
-  prop: (s: string) => <span className="text-zinc-300">{s}</span>,
-  comment: (s: string) => <span className="text-zinc-500">{s}</span>,
-  plain: (s: string) => <span className="text-zinc-400">{s}</span>,
-  type: (s: string) => <span className="text-emerald-400">{s}</span>,
-};
-
-export { CodeBlock, t };
+export { CodeBlock };

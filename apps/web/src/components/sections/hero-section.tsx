@@ -1,70 +1,22 @@
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Github } from "lucide-react";
 
-import { CodeBlock, t } from "@/components/code-block";
+import { CodeBlock } from "@/components/code-block";
 import { Button } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/conts";
 
-const initCode = (
-  <>
-    {t.kw("import")} {t.plain("{")} {t.prop("paykit")} {t.plain("}")}{" "}
-    {t.kw("from")} {t.str('"paykit"')}
-    {"\n"}
-    {t.kw("import")} {t.plain("{")} {t.prop("stripe")} {t.plain("}")}{" "}
-    {t.kw("from")} {t.str('"@paykit/stripe"')}
-    {"\n"}
-    {t.kw("import")} {t.plain("{")} {t.prop("prisma")} {t.plain("}")}{" "}
-    {t.kw("from")} {t.str('"@paykit/prisma"')}
-    {"\n"}
-    {"\n"}
-    {t.kw("const")} {t.prop("pk")} {t.plain("=")} {t.fn("paykit")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("database")}
-    {t.plain(": ")}
-    {t.fn("prisma")}
-    {t.plain("(")}
-    {t.prop("client")}
-    {t.plain("),")}
-    {"\n"}
-    {"  "}
-    {t.prop("providers")}
-    {t.plain(": [")}
-    {"\n"}
-    {"    "}
-    {t.fn("stripe")}
-    {t.plain("({")}
-    {"\n"}
-    {"      "}
-    {t.prop("secretKey")}
-    {t.plain(": ")}
-    {t.prop("process")}
-    {t.plain(".")}
-    {t.prop("env")}
-    {t.plain(".")}
-    {t.prop("STRIPE_SECRET_KEY")}
-    {t.plain("!,")}
-    {"\n"}
-    {"      "}
-    {t.prop("webhookSecret")}
-    {t.plain(": ")}
-    {t.prop("process")}
-    {t.plain(".")}
-    {t.prop("env")}
-    {t.plain(".")}
-    {t.prop("STRIPE_WEBHOOK_SECRET")}
-    {t.plain("!,")}
-    {"\n"}
-    {"    "}
-    {t.plain("}),")}
-    {"\n"}
-    {"  "}
-    {t.plain("],")}
-    {"\n"}
-    {t.plain("});")}
-    {"\n"}
-  </>
-);
+const initCode = `import { paykit } from "paykit"
+import { stripe } from "@paykit/stripe"
+import { prisma } from "@paykit/prisma"
+
+const pk = paykit({
+  database: prisma(client),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+  ],
+});`;
 
 export function HeroSection() {
   return (
@@ -72,7 +24,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-grid text-white/[0.03]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
 
-      <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16 items-center">
         {/* Left: text */}
         <div>
           <p className="text-xs font-mono text-muted-foreground mb-6">
@@ -93,7 +45,7 @@ export function HeroSection() {
           <div className="flex gap-3 mt-8 flex-wrap">
             <Button size="lg" className="rounded-none" asChild>
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <Star className="size-4" />
+                <Github className="size-4" />
                 Star on GitHub
               </a>
             </Button>
@@ -112,7 +64,7 @@ export function HeroSection() {
         </div>
 
         {/* Right: code block */}
-        <CodeBlock lineCount={12}>{initCode}</CodeBlock>
+        <CodeBlock code={initCode} />
       </div>
     </section>
   );

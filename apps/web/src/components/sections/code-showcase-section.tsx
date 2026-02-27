@@ -1,351 +1,98 @@
 "use client";
 
-import { CodeBlock, t } from "@/components/code-block";
+import { CodeBlock } from "@/components/code-block";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const subscriptionsCode = (
-  <>
-    {t.kw("await")} {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.createSubscription")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("amount")}
-    {t.plain(": ")}
-    {t.plain("2900")}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("interval")}
-    {t.plain(": ")}
-    {t.str('"month"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("description")}
-    {t.plain(": ")}
-    {t.str('"Pro Plan"')}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
-const checkoutCode = (
-  <>
-    {t.kw("const")} {t.prop("checkout")} {t.plain("=")} {t.kw("await")}{" "}
-    {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.createCheckout")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("amount")}
-    {t.plain(": ")}
-    {t.plain("9900")}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("description")}
-    {t.plain(": ")}
-    {t.str('"Lifetime License"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("successURL")}
-    {t.plain(": ")}
-    {t.str('"/success"')}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
-const usageCode = (
-  <>
-    {t.kw("await")} {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.reportUsage")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("subscriptionId")}
-    {t.plain(": ")}
-    {t.str('"sub_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("metric")}
-    {t.plain(": ")}
-    {t.str('"api_calls"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("value")}
-    {t.plain(": ")}
-    {t.plain("1500")}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
-const paymentMethodsCode = (
-  <>
-    {t.kw("const")} {t.prop("result")} {t.plain("=")} {t.kw("await")}{" "}
-    {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.attachPaymentMethod")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("returnURL")}
-    {t.plain(": ")}
-    {t.str('"https://myapp.com/settings/billing"')}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-    {"\n"}
-    {t.comment("// result.url → redirect user to provider-hosted card form")}
-    {"\n"}
-    {"\n"}
-    {t.kw("const")} {t.prop("methods")} {t.plain("=")} {t.kw("await")}{" "}
-    {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.listPaymentMethods")}
-    {t.plain("({ ")}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(" });")}
-    {"\n"}
-    {"\n"}
-    {t.kw("await")} {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.setDefaultPaymentMethod")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("paymentMethodId")}
-    {t.plain(": ")}
-    {t.str('"pm_xyz"')}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
-const invoicesCode = (
-  <>
-    {t.kw("const")} {t.prop("invoice")} {t.plain("=")} {t.kw("await")}{" "}
-    {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("api.createInvoice")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.prop("customerId")}
-    {t.plain(": ")}
-    {t.str('"cust_abc"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("lines")}
-    {t.plain(": [")}
-    {"\n"}
-    {"    "}
-    {t.plain("{ ")}
-    {t.prop("description")}
-    {t.plain(": ")}
-    {t.str('"Consulting — Jan 2026"')}
-    {t.plain(", ")}
-    {t.prop("amount")}
-    {t.plain(": ")}
-    {t.plain("50000")}
-    {t.plain(", ")}
-    {t.prop("quantity")}
-    {t.plain(": ")}
-    {t.plain("1")}
-    {t.plain(" },")}
-    {"\n"}
-    {"    "}
-    {t.plain("{ ")}
-    {t.prop("description")}
-    {t.plain(": ")}
-    {t.str('"Setup fee"')}
-    {t.plain(", ")}
-    {t.prop("amount")}
-    {t.plain(": ")}
-    {t.plain("10000")}
-    {t.plain(", ")}
-    {t.prop("quantity")}
-    {t.plain(": ")}
-    {t.plain("1")}
-    {t.plain(" },")}
-    {"\n"}
-    {"  "}
-    {t.plain("],")}
-    {"\n"}
-    {"  "}
-    {t.prop("dueDate")}
-    {t.plain(": ")}
-    {t.str('"2026-02-28"')}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("autoCollect")}
-    {t.plain(": ")}
-    {t.plain("true")}
-    {t.plain(",")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
-const webhooksCode = (
-  <>
-    {t.comment("// Next.js — app/api/paykit/[...path]/route.ts")}
-    {"\n"}
-    {t.kw("export")} {t.kw("const")} {t.plain("{ ")} {t.prop("GET")}
-    {t.plain(", ")}
-    {t.prop("POST")} {t.plain("}")} {t.plain("=")} {t.prop("pk")}
-    {t.plain(".")}
-    {t.prop("handler")}
-    {t.plain(";")}
-    {"\n"}
-    {"\n"}
-    {t.comment("// Hono")}
-    {"\n"}
-    {t.prop("app")}
-    {t.plain(".")}
-    {t.fn("all")}
-    {t.plain("(")}
-    {t.str('"/api/paykit/*"')}
-    {t.plain(", (")}
-    {t.prop("c")}
-    {t.plain(") => ")}
-    {t.prop("pk")}
-    {t.plain(".")}
-    {t.fn("handler")}
-    {t.plain("(")}
-    {t.prop("c")}
-    {t.plain(".")}
-    {t.prop("req")}
-    {t.plain(".")}
-    {t.prop("raw")}
-    {t.plain("));")}
-    {"\n"}
-  </>
-);
-
-const eventsCode = (
-  <>
-    {t.kw("const")} {t.prop("pk")} {t.plain("=")} {t.fn("paykit")}
-    {t.plain("({")}
-    {"\n"}
-    {"  "}
-    {t.plain("...")}
-    {t.plain(",")}
-    {"\n"}
-    {"  "}
-    {t.prop("on")}
-    {t.plain(": {")}
-    {"\n"}
-    {"    "}
-    {t.str('"subscription.activated"')}
-    {t.plain(": ")}
-    {t.kw("async")}
-    {t.plain(" ({ ")}
-    {t.prop("subscription")}
-    {t.plain(", ")}
-    {t.prop("customer")}
-    {t.plain(" }) => {")}
-    {"\n"}
-    {"      "}
-    {t.kw("await")} {t.fn("sendEmail")}
-    {t.plain("(")}
-    {t.prop("customer")}
-    {t.plain(".")}
-    {t.prop("email")}
-    {t.plain(", ")}
-    {t.str('"Welcome to Pro!"')}
-    {t.plain(");")}
-    {"\n"}
-    {"    "}
-    {t.plain("},")}
-    {"\n"}
-    {"    "}
-    {t.str('"charge.failed"')}
-    {t.plain(": ")}
-    {t.kw("async")}
-    {t.plain(" ({ ")}
-    {t.prop("charge")}
-    {t.plain(", ")}
-    {t.prop("customer")}
-    {t.plain(" }) => {")}
-    {"\n"}
-    {"      "}
-    {t.kw("await")} {t.fn("notifyTeam")}
-    {t.plain("(`Payment failed for ${")}
-    {t.prop("customer")}
-    {t.plain(".")}
-    {t.prop("email")}
-    {t.plain("}`);")}
-    {"\n"}
-    {"    "}
-    {t.plain("},")}
-    {"\n"}
-    {"  "}
-    {t.plain("},")}
-    {"\n"}
-    {t.plain("});")}
-  </>
-);
-
 const tabs = [
-  { value: "subscriptions", label: "Subscriptions", code: subscriptionsCode },
-  { value: "checkout", label: "Checkout", code: checkoutCode },
-  { value: "usage", label: "Usage", code: usageCode },
+  {
+    value: "subscriptions",
+    label: "Subscriptions",
+    code: `await pk.api.createSubscription({
+  customerId: "cust_abc",
+  amount: 2900,
+  interval: "month",
+  description: "Pro Plan",
+});`,
+  },
+  {
+    value: "checkout",
+    label: "Checkout",
+    code: `const checkout = await pk.api.createCheckout({
+  customerId: "cust_abc",
+  amount: 9900,
+  description: "Lifetime License",
+  successURL: "/success",
+});`,
+  },
+  {
+    value: "usage",
+    label: "Usage",
+    code: `await pk.api.reportUsage({
+  subscriptionId: "sub_abc",
+  metric: "api_calls",
+  value: 1500,
+});`,
+  },
   {
     value: "payment-methods",
     label: "Payment Methods",
-    code: paymentMethodsCode,
+    code: `const result = await pk.api.attachPaymentMethod({
+  customerId: "cust_abc",
+  returnURL: "https://myapp.com/settings/billing",
+});
+// result.url → redirect user to provider-hosted card form
+
+const methods = await pk.api.listPaymentMethods({ customerId: "cust_abc" });
+
+await pk.api.setDefaultPaymentMethod({
+  customerId: "cust_abc",
+  paymentMethodId: "pm_xyz",
+});`,
   },
-  { value: "invoices", label: "Invoices", code: invoicesCode },
-  { value: "webhooks", label: "Webhooks", code: webhooksCode },
-  { value: "events", label: "Events", code: eventsCode },
+  {
+    value: "invoices",
+    label: "Invoices",
+    code: `const invoice = await pk.api.createInvoice({
+  customerId: "cust_abc",
+  lines: [
+    { description: "Consulting — Jan 2026", amount: 50000, quantity: 1 },
+    { description: "Setup fee", amount: 10000, quantity: 1 },
+  ],
+  dueDate: "2026-02-28",
+  autoCollect: true,
+});`,
+  },
+  {
+    value: "webhooks",
+    label: "Webhooks",
+    code: `// Next.js — app/api/paykit/[...path]/route.ts
+export const { GET, POST } = pk.handler;
+
+// Hono
+app.all("/api/paykit/*", (c) => pk.handler(c.req.raw));`,
+  },
+  {
+    value: "events",
+    label: "Events",
+    code: `const pk = paykit({
+  ...,
+  on: {
+    "subscription.activated": async ({ subscription, customer }) => {
+      await sendEmail(customer.email, "Welcome to Pro!");
+    },
+    "charge.failed": async ({ charge, customer }) => {
+      await notifyTeam(\`Payment failed for \${customer.email}\`);
+    },
+  },
+});`,
+  },
 ];
 
 export function CodeShowcaseSection() {
   return (
-    <section className="py-24 px-6 border-t border-border">
-      <div className="max-w-5xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground text-center">
+    <section className="border-t border-border px-6 py-24">
+      <div className="mx-auto max-w-5xl">
+        <h2 className="text-center text-3xl font-semibold tracking-tight text-foreground md:text-4xl">
           Everything you need.
           <br />
           Nothing you don&apos;t.
@@ -355,7 +102,7 @@ export function CodeShowcaseSection() {
           <div className="w-full overflow-x-auto">
             <TabsList
               variant="line"
-              className="min-w-max border-b border-border w-full rounded-none pb-0"
+              className="min-w-max w-full rounded-none border-b border-border pb-0"
             >
               {tabs.map((tab) => (
                 <TabsTrigger
@@ -371,7 +118,7 @@ export function CodeShowcaseSection() {
 
           {tabs.map((tab) => (
             <TabsContent key={tab.value} value={tab.value} className="mt-4">
-              <CodeBlock>{tab.code}</CodeBlock>
+              <CodeBlock code={tab.code} />
             </TabsContent>
           ))}
         </Tabs>
