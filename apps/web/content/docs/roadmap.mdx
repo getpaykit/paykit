@@ -1,0 +1,85 @@
+---
+title: Roadmap
+description: The PayKit development roadmap and current project status.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Step, Steps } from "fumadocs-ui/components/steps";
+
+<Callout>
+  PayKit is in early development. This roadmap reflects the planned direction and is subject to change.
+</Callout>
+
+<Steps>
+
+<Step>
+## Phase 0 — Foundation (current)
+
+Setting up the monorepo, tooling, and design documents.
+
+- [x] Monorepo setup (pnpm, Turbo, Biome, TypeScript)
+- [x] Project vision and architecture docs
+- [ ] API design document
+- [ ] Database schema design
+- [ ] Provider adapter interface design
+</Step>
+
+<Step>
+## Phase 1 — Core + Stripe
+
+The core orchestration library and Stripe as the first provider.
+
+- [ ] `@paykit/core` — core orchestration library
+  - Customer CRUD
+  - Subscription lifecycle (create, update, cancel, pause/resume)
+  - Payment method management
+  - Webhook handler and event system
+  - Database adapter interface
+- [ ] `@paykit/stripe` — Stripe provider adapter
+- [ ] `@paykit/prisma` — Prisma database adapter
+- [ ] Integration tests with Stripe test mode
+</Step>
+
+<Step>
+## Phase 2 — PayPal + Usage Billing
+
+Second provider and usage-based billing support.
+
+- [ ] `@paykit/paypal` — PayPal provider adapter
+- [ ] Usage metering (report, aggregate, charge)
+- [ ] Hybrid subscriptions (recurring + usage)
+- [ ] `@paykit/drizzle` — Drizzle database adapter
+- [ ] Multi-provider test suite
+</Step>
+
+<Step>
+## Phase 3 — DX and Ecosystem
+
+Developer experience, CLI tooling, and documentation.
+
+- [ ] `@paykit/cli` — CLI for migrations and scaffolding
+- [ ] Internal balance / wallet system
+- [ ] Example projects (Next.js + Stripe + Prisma)
+- [ ] npm publish pipeline
+</Step>
+
+<Step>
+## Phase 4 — Production Hardening
+
+Making PayKit reliable for production workloads.
+
+- [ ] Idempotency guarantees
+- [ ] Webhook retry and deduplication
+- [ ] State machine validation and error recovery
+- [ ] Audit logging
+- [ ] Provider failover and routing
+</Step>
+
+</Steps>
+
+## Future
+
+- Regional PSP adapters
+- Hosted checkout (self-hosted, white-label)
+- PayKit Cloud (dashboard, analytics, webhook reliability)
+- Merchant of Record (tax, compliance)

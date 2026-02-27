@@ -1,0 +1,187 @@
+---
+title: Basic Usage
+description: Learn how to use PayKit to manage customers, subscriptions, and payments.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+
+<Callout type="warn">
+  PayKit is in early development. The API examples below represent the planned interface. See the [roadmap](/docs/roadmap) for current status.
+</Callout>
+
+All payment operations go through the `paykit` instance you created during [installation](/docs/installation). The API is the same regardless of which provider is handling the actual payment.
+
+## Customers
+
+Before charging anyone, create a PayKit customer. This links your application's user to the payment provider.
+
+```ts
+const customer = await paykit.customers.create({
+  email: "user@example.com",
+  name: "Jane Doe",
+  metadata: { userId: "usr_123" },
+});
+```
+
+PayKit stores the customer in your database and creates a corresponding customer on the provider side. The provider-specific ID is stored internally — your code only works with PayKit's customer ID.
+
+```ts
+// Retrieve a customer
+const customer = await paykit.customers.get("cus_paykit_abc");
+
+// Update a customer
+await paykit.customers.update("cus_paykit_abc", {
+  name: "Jane Smith",
+});
+```
+
+## Payment Methods
+
+Attach a payment method to a customer after collecting it through a client-side flow (e.g., Stripe Elements, PayPal buttons).
+
+```ts
+// Attach a payment method from the provider
+await paykit.paymentMethods.attach({
+  customerId: "cus_paykit_abc",
+  providerToken: "pm_stripe_xyz", // token from client-side collection
+});
+
+// List a customer's payment methods
+const methods = await paykit.paymentMethods.list({
+  customerId: "cus_paykit_abc",
+});
+
+// Set a default payment method
+await paykit.paymentMethods.setDefault({
+  customerId: "cus_paykit_abc",
+  paymentMethodId: "pm_paykit_def",
+});
+```
+
+## Subscriptions
+
+Create a subscription by specifying the customer, amount, and billing interval. PayKit manages the lifecycle — creation, renewals, cancellations, and state transitions all happen through explicit API calls.
+
+### Create a subscription
+
+```ts
+const subscription = await paykit.subscriptions.create({
+  customerId: "cus_paykit_abc",
+  items: [
+    {
+      description: "Pro Plan",
+      amount: 2900, // $29.00 in cents
+      currency: "usd",
+      interval: "month",
+    },
+  ],
+});
+```
+
+<Callout>
+  PayKit does not sync products or prices to the provider. You pass amounts and descriptions inline. This keeps your product catalog in your own database.
+</Callout>
+
+### Subscription lifecycle
+
+PayKit uses a state machine to manage subscriptions. Every transition is explicit.
+
+```
+active → paused → active
+active → canceling → canceled
+active → past_due → active (after successful retry)
+active → past_due → canceled (after max retries)
+trialing → active (after trial ends)
+```
+
+```ts
+// Pause a subscription
+await paykit.subscriptions.pause("sub_paykit_ghi");
+
+// Resume a paused subscription
+await paykit.subscriptions.resume("sub_paykit_ghi");
+
+// Cancel at period end
+await paykit.subscriptions.cancel("sub_paykit_ghi", {
+  atPeriodEnd: true,
+});
+
+// Cancel immediately
+await paykit.subscriptions.cancel("sub_paykit_ghi", {
+  atPeriodEnd: false,
+});
+```
+
+### Usage-based billing
+
+Report usage events throughout the billing period. PayKit aggregates them and charges at the end of the cycle.
+
+```ts
+// Report a usage event
+await paykit.usage.report({
+  subscriptionId: "sub_paykit_ghi",
+  metric: "api_calls",
+  quantity: 150,
+});
+
+// Query current usage
+const usage = await paykit.usage.get({
+  subscriptionId: "sub_paykit_ghi",
+  metric: "api_calls",
+});
+```
+
+## Webhooks and Events
+
+PayKit normalizes webhook events from all providers into a consistent format. You can listen for events to trigger business logic.
+
+```ts
+const paykit = createPayKit({
+  // ... config
+  hooks: {
+    onSubscriptionCreated: async (event) => {
+      // event.subscription — the PayKit subscription object
+      // event.customer — the PayKit customer object
+      await sendWelcomeEmail(event.customer.email);
+    },
+    onPaymentSucceeded: async (event) => {
+      await grantAccess(event.customer.id);
+    },
+    onPaymentFailed: async (event) => {
+      await notifyUser(event.customer.email, event.error);
+    },
+  },
+});
+```
+
+Events are always based on your database state, not raw provider payloads. This means your event handlers work identically regardless of which provider triggered the webhook.
+
+## Multi-provider setup
+
+Add multiple providers to route payments based on region, currency, or business rules.
+
+```ts
+import { stripe } from "@paykit/stripe";
+import { paypal } from "@paykit/paypal";
+
+const paykit = createPayKit({
+  database: prismaAdapter(prisma),
+  providers: [
+    stripe({ secretKey: process.env.STRIPE_SECRET_KEY! }),
+    paypal({
+      clientId: process.env.PAYPAL_CLIENT_ID!,
+      clientSecret: process.env.PAYPAL_CLIENT_SECRET!,
+    }),
+  ],
+});
+```
+
+When creating a customer or subscription, you can specify which provider to use. If you don't, PayKit uses the first configured provider as the default.
+
+```ts
+await paykit.customers.create({
+  email: "user@example.com",
+  provider: "paypal", // route this customer through PayPal
+});
+```

@@ -3,7 +3,9 @@ title: Introduction
 description: Get started with PayKit — payments orchestration for modern SaaS.
 ---
 
-## What is PayKit?
+import { Callout } from "fumadocs-ui/components/callout";
+import { Card, Cards } from "fumadocs-ui/components/card";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 
 PayKit is a TypeScript-first payments orchestration framework for modern SaaS.
 It sits between your app and payment providers (Stripe, PayPal, regional PSPs),
@@ -11,10 +13,53 @@ providing a unified API without vendor lock-in.
 
 PayKit does **not** process payments. It orchestrates them.
 
-## Key Principles
+<Callout type="warn">
+  PayKit is in early development. APIs are subject to change. See the [roadmap](/docs/roadmap) for the current status.
+</Callout>
+
+## Who is PayKit for?
+
+PayKit is designed for SaaS companies that:
+
+- Operate in **multiple regions** with different payment preferences
+- Use **multiple payment providers** and need a unified interface
+- Need **subscriptions**, usage billing, or hybrid models
+- Want **full control** over their payments data
+- Want to **avoid vendor lock-in** with any single provider
+
+## How it works
+
+```
+Your App → PayKit Core → Provider Adapter → Stripe / PayPal / ...
+```
+
+PayKit acts as a coordination layer. Your application talks to PayKit through a single, typed API. PayKit routes operations to the correct provider adapter, normalizes webhooks, and keeps your database as the single source of truth.
+
+**PayKit is a payments layer, not a product catalog.** Subscriptions, invoices, and usage records live in your database. Your app owns its own products and prices — PayKit receives amounts and descriptions inline. Provider adapters are pure payment rails.
+
+This means:
+
+- Subscriptions are managed by PayKit's own billing engine with cron-based charging, state machine transitions, and retry logic
+- Switching a subscription's payment provider is trivial — just change which payment method is charged
+- Usage-based billing is first-class, not bolted onto a provider's metered billing API
+- Provider adapters are tiny (~5 methods), making new integrations easy
+
+## Features
+
+<Cards>
+  <Card title="Unified API" description="One TypeScript API across all providers. No provider-specific types leak into your code." />
+  <Card title="Subscriptions" description="Recurring, usage-based, hybrid plans with trials, proration, and pause/resume." />
+  <Card title="Payment Methods" description="Attach, detach, and manage payment methods across providers." />
+  <Card title="Webhooks" description="Automatic verification, normalization, and database updates from provider events." />
+  <Card title="Database Adapters" description="First-class support for Prisma and Drizzle. Your database is always the source of truth." />
+  <Card title="Provider Adapters" description="Stripe and PayPal out of the box. Simple interface to add custom providers." />
+</Cards>
+
+## Core Principles
 
 - **Orchestration, not processing** — PayKit coordinates providers, it does not move money
 - **Database is source of truth** — external providers are execution engines, internal state lives in your DB
 - **Provider-agnostic** — no provider-specific types leak into the core API
-- **Explicit state transitions** — subscription lifecycle is state-machine driven
+- **Explicit state transitions** — subscription lifecycle is state-machine driven, no implicit side effects
 - **No magic** — everything is explicit, typed, and inspectable
+- **Minimal API surface** — no speculative options, start with the minimum that works

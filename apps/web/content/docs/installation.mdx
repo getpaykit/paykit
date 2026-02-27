@@ -1,0 +1,172 @@
+---
+title: Installation
+description: Install PayKit and set up your first payments integration.
+---
+
+import { Callout } from "fumadocs-ui/components/callout";
+import { Tab, Tabs } from "fumadocs-ui/components/tabs";
+import { Step, Steps } from "fumadocs-ui/components/steps";
+
+<Callout type="warn">
+  PayKit is in early development. The packages below describe the planned installation flow. Check the [roadmap](/docs/roadmap) for current availability.
+</Callout>
+
+<Steps>
+
+<Step>
+## Install the packages
+
+Install the core library, a provider adapter, and a database adapter.
+
+<Tabs items={["pnpm", "npm", "yarn", "bun"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add @paykit/core @paykit/stripe @paykit/prisma
+    ```
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install @paykit/core @paykit/stripe @paykit/prisma
+    ```
+  </Tab>
+  <Tab value="yarn">
+    ```bash
+    yarn add @paykit/core @paykit/stripe @paykit/prisma
+    ```
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add @paykit/core @paykit/stripe @paykit/prisma
+    ```
+  </Tab>
+</Tabs>
+
+| Package | Purpose |
+|---------|---------|
+| `@paykit/core` | Core orchestration library |
+| `@paykit/stripe` | Stripe provider adapter |
+| `@paykit/prisma` | Prisma database adapter |
+
+You can swap providers and database adapters freely. For example, use `@paykit/paypal` instead of `@paykit/stripe`, or `@paykit/drizzle` instead of `@paykit/prisma`.
+</Step>
+
+<Step>
+## Set environment variables
+
+Add your provider credentials and a webhook secret to your environment.
+
+```bash title=".env"
+# Stripe
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+
+# PayKit
+PAYKIT_WEBHOOK_SECRET=your-random-secret
+```
+
+<Callout>
+  Never commit `.env` files to version control. Use `.env.example` to document required variables.
+</Callout>
+</Step>
+
+<Step>
+## Set up your database
+
+PayKit needs a few tables to track customers, subscriptions, payment methods, and events. Use the CLI to generate a migration for your database adapter.
+
+<Tabs items={["Prisma", "Drizzle"]}>
+  <Tab value="Prisma">
+    ```bash
+    npx paykit generate prisma
+    npx prisma migrate dev
+    ```
+
+    This adds the PayKit models to your Prisma schema and runs the migration.
+  </Tab>
+  <Tab value="Drizzle">
+    ```bash
+    npx paykit generate drizzle
+    npx drizzle-kit push
+    ```
+
+    This generates the Drizzle table definitions and pushes them to your database.
+  </Tab>
+</Tabs>
+</Step>
+
+<Step>
+## Create a PayKit instance
+
+Create a file to initialize PayKit with your provider and database adapters.
+
+```ts title="lib/paykit.ts"
+import { createPayKit } from "@paykit/core";
+import { stripe } from "@paykit/stripe";
+import { prismaAdapter } from "@paykit/prisma";
+import { prisma } from "./prisma"; // your Prisma client
+
+export const paykit = createPayKit({
+  database: prismaAdapter(prisma),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+    }),
+  ],
+});
+```
+
+This is the single entry point for all payment operations. The `paykit` instance is provider-agnostic — your application code never needs to import Stripe or PayPal directly.
+</Step>
+
+<Step>
+## Set up webhooks
+
+PayKit normalizes webhooks from all providers into a single event format. Mount the webhook handler in your API.
+
+<Tabs items={["Next.js", "Express", "Hono"]}>
+  <Tab value="Next.js">
+    ```ts title="app/api/webhooks/paykit/route.ts"
+    import { paykit } from "@/lib/paykit";
+
+    export const POST = paykit.handler();
+    ```
+  </Tab>
+  <Tab value="Express">
+    ```ts title="server.ts"
+    import express from "express";
+    import { paykit } from "./lib/paykit";
+
+    const app = express();
+
+    app.post(
+      "/api/webhooks/paykit",
+      express.raw({ type: "application/json" }),
+      paykit.handler(),
+    );
+    ```
+  </Tab>
+  <Tab value="Hono">
+    ```ts title="server.ts"
+    import { Hono } from "hono";
+    import { paykit } from "./lib/paykit";
+
+    const app = new Hono();
+
+    app.post("/api/webhooks/paykit", paykit.handler());
+    ```
+  </Tab>
+</Tabs>
+
+Then point your provider's webhook settings to your endpoint (e.g., `https://yourapp.com/api/webhooks/paykit`).
+</Step>
+
+</Steps>
+
+## Next steps
+
+Once PayKit is set up, you can:
+
+- [Create customers](/docs/concepts/customers) and attach payment methods
+- [Manage subscriptions](/docs/concepts/subscriptions) with the unified API
+- [Handle webhooks](/docs/concepts/webhooks) to keep your database in sync
+- [Add more providers](/docs/providers) without changing your application code
