@@ -31,8 +31,8 @@ const cards: WhyCard[] = [
 
 export function WhySection() {
   return (
-    <section className="py-24 px-6 border-t border-border">
-      <div className="max-w-5xl mx-auto">
+    <section className="py-24 border-b border-border">
+      <div className="section-container">
         <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-foreground text-center">
           Providers are payment rails.
           <br />

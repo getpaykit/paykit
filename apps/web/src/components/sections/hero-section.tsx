@@ -20,11 +20,11 @@ const pk = paykit({
 
 export function HeroSection() {
   return (
-    <section className="relative py-24 md:py-32 px-6 border-b border-border">
+    <section className="relative py-24 md:py-32 border-b border-border">
       <div className="absolute inset-0 bg-grid text-white/[0.03]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
 
-      <div className="max-w-6xl mx-auto relative z-10 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16 items-center">
+      <div className="section-container relative z-10 grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16 items-center">
         {/* Left: text */}
         <div>
           <p className="text-xs font-mono text-muted-foreground mb-6">
