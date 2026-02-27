@@ -1,0 +1,20 @@
+---
+title: Introduction
+description: Get started with PayKit — payments orchestration for modern SaaS.
+---
+
+## What is PayKit?
+
+PayKit is a TypeScript-first payments orchestration framework for modern SaaS.
+It sits between your app and payment providers (Stripe, PayPal, regional PSPs),
+providing a unified API without vendor lock-in.
+
+PayKit does **not** process payments. It orchestrates them.
+
+## Key Principles
+
+- **Orchestration, not processing** — PayKit coordinates providers, it does not move money
+- **Database is source of truth** — external providers are execution engines, internal state lives in your DB
+- **Provider-agnostic** — no provider-specific types leak into the core API
+- **Explicit state transitions** — subscription lifecycle is state-machine driven
+- **No magic** — everything is explicit, typed, and inspectable

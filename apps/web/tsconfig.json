@@ -28,6 +28,7 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
+      "fumadocs-mdx:collections/*": ["./.source/*"],
       "@/*": ["./src/*"]
     }
   },
