@@ -20,7 +20,7 @@ export function HeaderSection() {
             />
           </a>
 
-          <Button variant="outline" className="rounded-none" asChild>
+          <Button variant="outline" asChild>
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
               <Github className="size-4" />
               Star on GitHub

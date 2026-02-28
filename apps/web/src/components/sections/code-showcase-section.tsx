@@ -100,13 +100,13 @@ export function CodeShowcaseSection() {
           <div className="w-full overflow-x-auto">
             <TabsList
               variant="line"
-              className="min-w-max w-full rounded-none border-b border-border pb-0"
+              className="min-w-max w-full border-b border-border pb-0"
             >
               {tabs.map((tab) => (
                 <TabsTrigger
                   key={tab.value}
                   value={tab.value}
-                  className="rounded-none text-xs sm:text-sm"
+                  className="text-xs sm:text-sm"
                 >
                   {tab.label}
                 </TabsTrigger>

@@ -43,18 +43,13 @@ export function HeroSection() {
           </p>
 
           <div className="flex gap-3 mt-8 flex-wrap">
-            <Button size="lg" className="rounded-none" asChild>
+            <Button size="lg" asChild>
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
                 <Github className="size-4" />
                 Star on GitHub
               </a>
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="rounded-none"
-              asChild
-            >
+            <Button size="lg" variant="outline" asChild>
               <a href="#waitlist">
                 Join Waitlist
                 <ArrowRight className="size-4" />
