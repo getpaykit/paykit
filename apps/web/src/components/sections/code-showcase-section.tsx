@@ -7,7 +7,7 @@ const tabs = [
   {
     value: "subscriptions",
     label: "Subscriptions",
-    code: `await pk.api.createSubscription({
+    code: `await paykit.api.createSubscription({
   customerId: "cust_abc",
   amount: 2900,
   interval: "month",
@@ -17,7 +17,7 @@ const tabs = [
   {
     value: "checkout",
     label: "Checkout",
-    code: `const checkout = await pk.api.createCheckout({
+    code: `const checkout = await paykit.api.createCheckout({
   customerId: "cust_abc",
   amount: 9900,
   description: "Lifetime License",
@@ -27,7 +27,7 @@ const tabs = [
   {
     value: "usage",
     label: "Usage",
-    code: `await pk.api.reportUsage({
+    code: `await paykit.api.reportUsage({
   subscriptionId: "sub_abc",
   metric: "api_calls",
   value: 1500,
@@ -36,15 +36,15 @@ const tabs = [
   {
     value: "payment-methods",
     label: "Payment Methods",
-    code: `const result = await pk.api.attachPaymentMethod({
+    code: `const result = await paykit.api.attachPaymentMethod({
   customerId: "cust_abc",
   returnURL: "https://myapp.com/settings/billing",
 });
 // result.url → redirect user to provider-hosted card form
 
-const methods = await pk.api.listPaymentMethods({ customerId: "cust_abc" });
+const methods = await paykit.api.listPaymentMethods({ customerId: "cust_abc" });
 
-await pk.api.setDefaultPaymentMethod({
+await paykit.api.setDefaultPaymentMethod({
   customerId: "cust_abc",
   paymentMethodId: "pm_xyz",
 });`,
@@ -52,7 +52,7 @@ await pk.api.setDefaultPaymentMethod({
   {
     value: "invoices",
     label: "Invoices",
-    code: `const invoice = await pk.api.createInvoice({
+    code: `const invoice = await paykit.api.createInvoice({
   customerId: "cust_abc",
   lines: [
     { description: "Consulting — Jan 2026", amount: 50000, quantity: 1 },
@@ -66,15 +66,15 @@ await pk.api.setDefaultPaymentMethod({
     value: "webhooks",
     label: "Webhooks",
     code: `// Next.js — app/api/paykit/[...path]/route.ts
-export const { GET, POST } = pk.handler;
+export const { GET, POST } = paykit.handler;
 
 // Hono
-app.all("/api/paykit/*", (c) => pk.handler(c.req.raw));`,
+app.all("/api/paykit/*", (c) => paykit.handler(c.req.raw));`,
   },
   {
     value: "events",
     label: "Events",
-    code: `const pk = paykit({
+    code: `const paykit = createPayKit({
   ...,
   on: {
     "subscription.activated": async ({ subscription, customer }) => {

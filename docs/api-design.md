@@ -10,11 +10,11 @@
 ### Server
 
 ```typescript
-import { paykit } from "paykit";
+import { createPayKit } from "paykit";
 import { stripe } from "@paykit/stripe";
 import { prisma } from "@paykit/prisma";
 
-export const pk = paykit({
+export const paykit = createPayKit({
   // Database adapter — required
   database: prisma(prismaClient),
 
@@ -61,7 +61,7 @@ export const pk = paykit({
 ```typescript
 import { createPayKitClient } from "paykit/client";
 
-const pk = createPayKitClient({
+const paykit = createPayKitClient({
   baseURL: "http://localhost:3000/api/paykit",
 });
 ```
@@ -70,15 +70,15 @@ const pk = createPayKitClient({
 
 ```typescript
 // Next.js — app/api/paykit/[...path]/route.ts
-import { pk } from "@/lib/paykit";
+import { paykit } from "@/lib/paykit";
 
-export const { GET, POST } = pk.handler;
+export const { GET, POST } = paykit.handler;
 
 // Hono
-app.all("/api/paykit/*", (c) => pk.handler(c.req.raw));
+app.all("/api/paykit/*", (c) => paykit.handler(c.req.raw));
 
 // Express
-app.all("/api/paykit/*", pk.toNodeHandler());
+app.all("/api/paykit/*", paykit.toNodeHandler());
 ```
 
 ---
@@ -90,7 +90,7 @@ Customers are created automatically on first interaction when using
 
 ```typescript
 // Manual creation
-await pk.api.createCustomer({
+await paykit.api.createCustomer({
   externalId: "user_123", // your internal user ID
   name: "Jane Doe",
   email: "jane@example.com",
@@ -98,8 +98,8 @@ await pk.api.createCustomer({
 });
 
 // Lookup
-const customer = await pk.api.getCustomer({ id: "cust_abc" });
-const customer = await pk.api.getCustomerByExternalId({ externalId: "user_123" });
+const customer = await paykit.api.getCustomer({ id: "cust_abc" });
+const customer = await paykit.api.getCustomerByExternalId({ externalId: "user_123" });
 ```
 
 ---
@@ -112,7 +112,7 @@ description inline — no pre-created products or prices needed.
 ### Server-side
 
 ```typescript
-const checkout = await pk.api.createCheckout({
+const checkout = await paykit.api.createCheckout({
   customerId: "cust_abc",
   amount: 9900, // $99.00 in cents
   description: "Lifetime License",
@@ -128,7 +128,7 @@ const checkout = await pk.api.createCheckout({
 ### Client-side
 
 ```typescript
-const { data, error } = await pk.checkout.create({
+const { data, error } = await paykit.checkout.create({
   amount: 9900,
   description: "Lifetime License",
   successURL: "/success",
@@ -151,7 +151,7 @@ what to charge — PayKit doesn't need a product catalog.
 ### Create a Subscription
 
 ```typescript
-const subscription = await pk.api.createSubscription({
+const subscription = await paykit.api.createSubscription({
   customerId: "cust_abc",
   amount: 2900, // $29.00 in cents
   interval: "month", // "month" | "year" | "week"
@@ -165,9 +165,9 @@ const subscription = await pk.api.createSubscription({
 ### Read Subscriptions
 
 ```typescript
-const sub = await pk.api.getSubscription({ id: "sub_abc" });
+const sub = await paykit.api.getSubscription({ id: "sub_abc" });
 
-const subs = await pk.api.listSubscriptions({
+const subs = await paykit.api.listSubscriptions({
   customerId: "cust_abc",
   status: "active", // "active" | "trialing" | "past_due" | "canceled" | "paused"
 });
@@ -176,7 +176,7 @@ const subs = await pk.api.listSubscriptions({
 ### Cancel
 
 ```typescript
-await pk.api.cancelSubscription({
+await paykit.api.cancelSubscription({
   id: "sub_abc",
   mode: "at_period_end", // "at_period_end" | "immediately"
 });
@@ -185,14 +185,14 @@ await pk.api.cancelSubscription({
 ### Resume a Canceled Subscription
 
 ```typescript
-await pk.api.resumeSubscription({ id: "sub_abc" });
+await paykit.api.resumeSubscription({ id: "sub_abc" });
 ```
 
 ### Pause / Unpause
 
 ```typescript
-await pk.api.pauseSubscription({ id: "sub_abc" });
-await pk.api.resumeSubscription({ id: "sub_abc" });
+await paykit.api.pauseSubscription({ id: "sub_abc" });
+await paykit.api.resumeSubscription({ id: "sub_abc" });
 ```
 
 ---
@@ -203,7 +203,7 @@ await pk.api.resumeSubscription({ id: "sub_abc" });
 
 ```typescript
 // Returns a provider-hosted URL for the customer to enter their card
-const result = await pk.api.attachPaymentMethod({
+const result = await paykit.api.attachPaymentMethod({
   customerId: "cust_abc",
   returnURL: "https://myapp.com/settings/billing",
 });
@@ -213,14 +213,14 @@ const result = await pk.api.attachPaymentMethod({
 ### List / Manage
 
 ```typescript
-const methods = await pk.api.listPaymentMethods({ customerId: "cust_abc" });
+const methods = await paykit.api.listPaymentMethods({ customerId: "cust_abc" });
 
-await pk.api.setDefaultPaymentMethod({
+await paykit.api.setDefaultPaymentMethod({
   customerId: "cust_abc",
   paymentMethodId: "pm_xyz",
 });
 
-await pk.api.detachPaymentMethod({ id: "pm_xyz" });
+await paykit.api.detachPaymentMethod({ id: "pm_xyz" });
 ```
 
 ---
@@ -230,7 +230,7 @@ await pk.api.detachPaymentMethod({ id: "pm_xyz" });
 ### List Invoices
 
 ```typescript
-const invoices = await pk.api.listInvoices({
+const invoices = await paykit.api.listInvoices({
   customerId: "cust_abc",
   status: "paid", // "draft" | "open" | "paid" | "void" | "uncollectible"
   limit: 10,
@@ -240,7 +240,7 @@ const invoices = await pk.api.listInvoices({
 ### Get Invoice
 
 ```typescript
-const invoice = await pk.api.getInvoice({ id: "inv_abc" });
+const invoice = await paykit.api.getInvoice({ id: "inv_abc" });
 
 // invoice.pdfURL   -> download link
 // invoice.lines    -> line items
@@ -251,7 +251,7 @@ const invoice = await pk.api.getInvoice({ id: "inv_abc" });
 ### Create a One-Off Invoice
 
 ```typescript
-const invoice = await pk.api.createInvoice({
+const invoice = await paykit.api.createInvoice({
   customerId: "cust_abc",
   lines: [
     { description: "Consulting — Jan 2026", amount: 50000, quantity: 1 },
@@ -271,7 +271,7 @@ For usage-based billing (API calls, tokens, storage, etc.).
 ### Report Usage
 
 ```typescript
-await pk.api.reportUsage({
+await paykit.api.reportUsage({
   subscriptionId: "sub_abc",
   metric: "api_calls",
   value: 1500,
@@ -282,7 +282,7 @@ await pk.api.reportUsage({
 ### Query Usage
 
 ```typescript
-const usage = await pk.api.getUsage({
+const usage = await paykit.api.getUsage({
   subscriptionId: "sub_abc",
   metric: "api_calls",
   period: "current", // "current" | "previous" | { from, to }
@@ -359,7 +359,7 @@ On each billing cycle tick, the engine:
 ### Configuration
 
 ```typescript
-export const pk = paykit({
+export const paykit = createPayKit({
   // ...providers, database, etc.
 
   billing: {
@@ -390,12 +390,12 @@ export const pk = paykit({
 
 ```typescript
 // Development: run inline (blocks the process)
-await pk.billing.start();
+await paykit.billing.start();
 
 // Production: trigger from an external cron / task scheduler
 // e.g., a Next.js API route called by Vercel Cron
 export async function GET() {
-  await pk.billing.tick(); // process one cycle
+  await paykit.billing.tick(); // process one cycle
   return Response.json({ ok: true });
 }
 ```
@@ -449,10 +449,10 @@ function BillingPage() {
 }
 
 function BuyButton() {
-  const pk = usePayKit();
+  const paykit = usePayKit();
 
   const handleCheckout = async () => {
-    const { data, error } = await pk.checkout.create({
+    const { data, error } = await paykit.checkout.create({
       amount: 9900,
       description: "Lifetime License",
       successURL: "/billing?purchased=true",
@@ -483,7 +483,7 @@ function InvoiceHistory() {
 
 ## Server-Side API Reference (Summary)
 
-All methods are available on `pk.api.*` for server-side use:
+All methods are available on `paykit.api.*` for server-side use:
 
 | Category           | Method                       | Description                        |
 | ------------------ | ---------------------------- | ---------------------------------- |
@@ -643,7 +643,7 @@ export const walletPlugin = (): PayKitPlugin => ({
    own product catalog — PayKit doesn't need to know about it.
 
 4. **Type safety everywhere.** All inputs, outputs, events, and plugin
-   extensions are fully typed. Plugin endpoints merge into `pk.api.*`
+   extensions are fully typed. Plugin endpoints merge into `paykit.api.*`
    types automatically.
 
 5. **Framework-agnostic.** Core runs anywhere. Framework bindings
