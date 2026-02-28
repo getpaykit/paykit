@@ -1,11 +1,8 @@
-"use client";
-
-import { Check, Copy } from "lucide-react";
-import { Highlight, themes } from "prism-react-renderer";
 import type * as React from "react";
-import { useState } from "react";
+import { codeToTokens } from "shiki";
 
 import { cn } from "@/lib/utils";
+import { CopyButton } from "./copy-button";
 
 function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<"svg">) {
   return (
@@ -24,21 +21,16 @@ interface CodeBlockProps {
   className?: string;
 }
 
-function CodeBlock({
+async function CodeBlock({
   code,
   language = "typescript",
   filename,
   className,
 }: CodeBlockProps) {
-  const [copied, setCopied] = useState(false);
-  const lineCount = code.split("\n").length;
-
-  const copyToClipboard = () => {
-    void navigator.clipboard.writeText(code).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    });
-  };
+  const { tokens } = await codeToTokens(code, {
+    lang: language,
+    theme: "synthwave-84",
+  });
 
   return (
     <div
@@ -55,18 +47,7 @@ function CodeBlock({
             <span className="font-mono text-xs text-slate-500">{filename}</span>
           )}
         </div>
-        <button
-          type="button"
-          onClick={copyToClipboard}
-          className="flex h-6 w-6 items-center justify-center rounded-md border-none bg-transparent transition-colors hover:bg-white/[0.06]"
-          aria-label="Copy code"
-        >
-          {copied ? (
-            <Check className="h-3.5 w-3.5 text-emerald-400" />
-          ) : (
-            <Copy className="h-3.5 w-3.5 text-slate-500" />
-          )}
-        </button>
+        <CopyButton code={code} />
       </div>
 
       {/* Code area */}
@@ -76,45 +57,24 @@ function CodeBlock({
             aria-hidden="true"
             className="select-none pr-4 text-right font-mono text-xs leading-relaxed text-slate-600/60"
           >
-            {Array.from({ length: lineCount }).map((_, index) => (
+            {tokens.map((_, index) => (
               <div key={index}>{(index + 1).toString().padStart(2, "0")}</div>
             ))}
           </div>
 
-          <Highlight
-            code={code}
-            language={language}
-            theme={{
-              ...themes.synthwave84,
-              plain: { backgroundColor: "transparent" },
-            }}
-          >
-            {({
-              className: hlClassName,
-              style,
-              tokens,
-              getLineProps,
-              getTokenProps,
-            }) => (
-              <pre
-                className={cn(
-                  "flex-1 pl-4 border-l border-white/[0.04] font-mono text-[13px] leading-relaxed whitespace-pre",
-                  hlClassName,
-                )}
-                style={style}
-              >
-                <code>
-                  {tokens.map((line, lineIndex) => (
-                    <div key={lineIndex} {...getLineProps({ line })}>
-                      {line.map((token, tokenIndex) => (
-                        <span key={tokenIndex} {...getTokenProps({ token })} />
-                      ))}
-                    </div>
+          <pre className="flex-1 pl-4 border-l border-white/[0.04] font-mono text-[13px] leading-relaxed whitespace-pre">
+            <code>
+              {tokens.map((line, lineIndex) => (
+                <div key={lineIndex}>
+                  {line.map((token, tokenIndex) => (
+                    <span key={tokenIndex} style={{ color: token.color }}>
+                      {token.content}
+                    </span>
                   ))}
-                </code>
-              </pre>
-            )}
-          </Highlight>
+                </div>
+              ))}
+            </code>
+          </pre>
         </div>
       </div>
     </div>
