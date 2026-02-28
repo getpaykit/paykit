@@ -4,11 +4,7 @@ import { CodeBlock } from "@/components/code-block";
 import { Button } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/conts";
 
-const initCode = `import { createPayKit } from "paykit"
-import { stripe } from "@paykit/stripe"
-import { prisma } from "@paykit/prisma"
-
-const paykit = createPayKit({
+const initCode = `const paykit = createPayKit({
   database: prisma(client),
   providers: [
     stripe({
