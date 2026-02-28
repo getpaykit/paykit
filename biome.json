@@ -148,7 +148,8 @@
       "!**/.next",
       "!**/.turbo",
       "!**/.cache",
-      "!REFERENCES"
+      "!REFERENCES",
+      "!.claude"
     ]
   }
 }
