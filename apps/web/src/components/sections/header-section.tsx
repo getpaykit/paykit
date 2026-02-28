@@ -12,8 +12,12 @@ export function HeaderSection() {
             href="/"
             className="flex items-center gap-2 font-semibold text-foreground"
           >
-            <Image src="/logo.svg" alt="PayKit" width={22} height={24} />
-            <span className="text-lg tracking-tight">PayKit</span>
+            <Image
+              src="/brand/logo-lockup.svg"
+              alt="PayKit"
+              width={101}
+              height={24}
+            />
           </a>
 
           <Button variant="outline" className="rounded-none" asChild>
