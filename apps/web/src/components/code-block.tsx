@@ -1,6 +1,8 @@
 import type * as React from "react";
+import type { BundledLanguage } from "shiki";
 import { codeToTokens } from "shiki";
 
+import { vercelDark } from "@/lib/shiki-vercel-theme";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
 
@@ -16,7 +18,7 @@ function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<"svg">) {
 
 interface CodeBlockProps {
   code: string;
-  language?: string;
+  language?: BundledLanguage;
   filename?: string;
   className?: string;
 }
@@ -29,7 +31,7 @@ async function CodeBlock({
 }: CodeBlockProps) {
   const { tokens } = await codeToTokens(code, {
     lang: language,
-    theme: "synthwave-84",
+    theme: vercelDark,
   });
 
   return (
