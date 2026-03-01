@@ -36,7 +36,7 @@ importers:
         specifier: 'catalog:'
         version: 5.9.2
 
-  apps/web:
+  landing:
     dependencies:
       '@base-ui/react':
         specifier: ^1.2.0
