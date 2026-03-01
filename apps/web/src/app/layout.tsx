@@ -3,7 +3,7 @@ import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { RootProvider } from "fumadocs-ui/provider/next";
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import { HeaderSection } from "@/components/sections/header-section";
 
 export const metadata: Metadata = {
@@ -17,13 +17,18 @@ const fontSans = Geist({
   variable: "--font-sans",
 });
 
+const fontMono = Geist_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en"
-      className={`${fontSans.variable} dark`}
+      className={`${fontSans.variable} ${fontMono.variable} dark`}
       suppressHydrationWarning
     >
       <body>
