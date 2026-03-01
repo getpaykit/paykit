@@ -15,9 +15,9 @@ export function HeaderSection() {
           >
             <Image
               src="/brand/logo-lockup.svg"
-              alt="PayKit"
-              width={101}
-              height={24}
+              alt="paykit"
+              width={90}
+              height={22}
             />
           </a>
 
