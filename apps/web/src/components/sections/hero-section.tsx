@@ -24,10 +24,6 @@ export function HeroSection() {
       <div className="section-container relative z-10 py-24 md:py-32 border-y border-border grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-12 lg:gap-16 items-center">
         {/* Left: text */}
         <div>
-          <p className="text-xs font-mono text-muted-foreground mb-6">
-            Open source · TypeScript-first
-          </p>
-
           <h1 className="section-title leading-tight">
             Open-source payment
             <br />
