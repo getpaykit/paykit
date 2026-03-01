@@ -8,12 +8,12 @@ const vercelDark: ThemeRegistrationRaw = {
   name: "vercel-dark",
   type: "dark",
   colors: {
-    "editor.background": "#000000",
+    "editor.background": "#121212",
     "editor.foreground": "#eeeeee",
   },
   settings: [
     {
-      settings: { foreground: "#eeeeee", background: "#000000" },
+      settings: { foreground: "#eeeeee", background: "#121212" },
     },
     {
       scope: ["comment", "punctuation.definition.comment"],

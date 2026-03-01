@@ -784,8 +784,8 @@ export function ServerClientTabs() {
 
   return (
     <div className="relative">
-      <div className="relative overflow-hidden bg-neutral-50 dark:bg-black">
-        <div className="flex border border-b-0 border-foreground/[0.08] rounded-t-lg bg-neutral-100/50 dark:bg-[#0a0a0a]/50">
+      <div className="relative overflow-hidden bg-neutral-50 dark:bg-background">
+        <div className="flex border border-b-0 border-foreground/[0.08] rounded-t-lg bg-neutral-100/50 dark:bg-card/50">
           <button
             type="button"
             onClick={() => setActiveTab("server")}
@@ -822,7 +822,7 @@ export function ServerClientTabs() {
             code={activeTab === "server" ? serverCode : clientCode}
             codeblock={{
               className:
-                "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-black [&_div]:bg-neutral-50 [&_div]:dark:bg-black",
+                "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
               "data-line-numbers": true,
             }}
           />
@@ -902,9 +902,9 @@ export function DatabaseSection() {
         use your favorite ORM adapter. Your data stays in your database.
       </p>
 
-      <div className="border border-foreground/[0.12] overflow-hidden bg-neutral-50/50 dark:bg-black/40">
+      <div className="border border-foreground/[0.12] overflow-hidden bg-neutral-50/50 dark:bg-background/40">
         {/* Tabs */}
-        <div className="flex border-b border-foreground/[0.09] bg-neutral-100/50 dark:bg-[#0a0a0a]/50 overflow-x-auto no-scrollbar">
+        <div className="flex border-b border-foreground/[0.09] bg-neutral-100/50 dark:bg-card/50 overflow-x-auto no-scrollbar">
           {dbOptions.map((db) => (
             <button
               key={db}
@@ -944,7 +944,7 @@ export function DatabaseSection() {
                 code={dbCodeExamples[activeDb] ?? ""}
                 codeblock={{
                   className:
-                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-black [&_div]:bg-neutral-50 [&_div]:dark:bg-black min-h-full",
+                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background min-h-full",
                   "data-line-numbers": true,
                 }}
               />

@@ -27,7 +27,7 @@ async function CodeBlock({
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-lg bg-[#0a0a0a] ring-1 ring-white/[0.08] shadow-2xl shadow-black/50",
+        "relative overflow-hidden rounded-lg bg-background ring-1 ring-white/[0.08] shadow-2xl shadow-black/50",
         className,
       )}
     >

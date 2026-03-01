@@ -285,7 +285,7 @@ function InstallBlock() {
           <AnimatePresence mode="wait" initial={false}>
             <div>
               {mode === "cli" || mode === "skills" ? (
-                <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-[#050505] px-4 py-3">
+                <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-card px-4 py-3">
                   <code
                     className="text-[13px]"
                     style={{ fontFamily: "var(--font-geist-pixel-square)" }}
@@ -389,7 +389,7 @@ function InstallBlock() {
                                 if (e.key === "Escape") setPmOpen(false);
                               }}
                             />
-                            <div className="absolute right-0 top-full mt-2 w-[138px] bg-white dark:bg-[#050505] border border-neutral-200 dark:border-white/[0.07] shadow-2xl shadow-black/10 dark:shadow-black/80 z-50 rounded-sm">
+                            <div className="absolute right-0 top-full mt-2 w-[138px] bg-white dark:bg-card border border-neutral-200 dark:border-white/[0.07] shadow-2xl shadow-black/10 dark:shadow-black/80 z-50 rounded-sm">
                               {cliCommands.map((pm, i) => (
                                 <button
                                   key={pm.name}
@@ -513,7 +513,7 @@ function InstallBlock() {
                   </div>
                 </div>
               ) : mode === "mcp" ? (
-                <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-[#050505] px-4 py-3">
+                <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-card px-4 py-3">
                   <code
                     className="text-[13px] truncate"
                     style={{ fontFamily: "var(--font-geist-pixel-square)" }}
@@ -570,7 +570,7 @@ function InstallBlock() {
                             if (e.key === "Escape") setPmOpen(false);
                           }}
                         />
-                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white dark:bg-[#050505] border border-neutral-200 dark:border-white/[0.07] shadow-2xl shadow-black/10 dark:shadow-black/80 z-50 rounded-sm">
+                        <div className="absolute right-0 top-full mt-2 w-[160px] bg-white dark:bg-card border border-neutral-200 dark:border-white/[0.07] shadow-2xl shadow-black/10 dark:shadow-black/80 z-50 rounded-sm">
                           {mcpCommands.map((mc, i) => (
                             <button
                               key={mc.name}
@@ -663,7 +663,7 @@ function InstallBlock() {
                   </div>
                 </div>
               ) : (
-                <div className="bg-neutral-100/50 dark:bg-[#050505] px-5 py-4">
+                <div className="bg-neutral-100/50 dark:bg-card px-5 py-4">
                   <p className="text-[13px] font-medium text-neutral-700 dark:text-neutral-200 leading-relaxed">
                     Set up authentication in my project using Better Auth.
                   </p>
@@ -677,7 +677,7 @@ function InstallBlock() {
                       , create auth-client.ts, add the route handler, run
                       migrations...
                     </p>
-                    <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-neutral-100/50 dark:from-[#050505] to-transparent pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-neutral-100/50 dark:from-card to-transparent pointer-events-none" />
                   </div>
                   <div className="flex items-center justify-between mt-3 pt-2 border-t border-foreground/[0.04]">
                     <button
@@ -759,7 +759,7 @@ function InstallBlock() {
               exit={{ opacity: 0, y: 8, scale: 0.98 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               onClick={(e) => e.stopPropagation()}
-              className="relative w-[calc(100%-2rem)] max-w-lg mx-4 bg-neutral-50 dark:bg-[#0a0a0a] border border-neutral-200 dark:border-white/[0.06] rounded-sm shadow-2xl"
+              className="relative w-[calc(100%-2rem)] max-w-lg mx-4 bg-neutral-50 dark:bg-popover border border-neutral-200 dark:border-white/[0.06] rounded-sm shadow-2xl"
             >
               {/* Close */}
               <button
