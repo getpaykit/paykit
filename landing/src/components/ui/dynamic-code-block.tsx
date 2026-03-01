@@ -3,13 +3,16 @@ import type { HighlightOptions } from "fumadocs-core/highlight";
 import { useShiki } from "fumadocs-core/highlight/client";
 import type { ComponentProps, FC } from "react";
 import { createContext, Suspense, use } from "react";
+import type { BundledTheme } from "shiki";
 import type { CodeBlockProps } from "@/components/ui/code-block";
 import { CodeBlock, Pre } from "@/components/ui/code-block";
-import { vercelDark } from "@/lib/shiki-vercel-theme";
 import { cn } from "@/lib/utils";
 
 const defaultThemes = {
-  themes: { light: "github-light" as const, dark: vercelDark },
+  themes: {
+    light: "github-light" satisfies BundledTheme,
+    dark: "one-dark-pro" satisfies BundledTheme,
+  },
 };
 
 export interface DynamicCodeblockProps {
