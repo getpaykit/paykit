@@ -1,16 +1,10 @@
-import "@/styles/globals.css";
-
-import { Analytics } from "@vercel/analytics/next";
-import { RootProvider } from "fumadocs-ui/provider/next";
-import type { Metadata } from "next";
+import { GeistPixelSquare } from "geist/font/pixel";
 import { Geist, Geist_Mono } from "next/font/google";
-import { HeaderSection } from "@/components/sections/header-section";
-
-export const metadata: Metadata = {
-  title: "PayKit",
-  description: "Payments orchestration for modern SaaS.",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
-};
+import "@/styles/globals.css";
+import type { ReactNode } from "react";
+import { CommandMenuProvider } from "@/components/command-menu";
+import { StaggeredNavFiles } from "@/components/landing/staggered-nav-files";
+import { Providers } from "@/components/providers";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -22,21 +16,70 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-export default function RootLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export const metadata = {
+  title: {
+    template: "%s | PayKit",
+    default: "PayKit",
+  },
+  description: "Payments orchestration for modern SaaS.",
+  openGraph: {
+    images: ["/og.png"],
+  },
+  twitter: {
+    card: "summary_large_image" as const,
+    images: ["/og.png"],
+  },
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html
-      lang="en"
-      className={`${fontSans.variable} ${fontMono.variable} dark`}
-      suppressHydrationWarning
-    >
-      <body>
-        <RootProvider theme={{ defaultTheme: "dark" }}>
-          <HeaderSection />
-          {children}
-          <Analytics />
-        </RootProvider>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon/favicon-32x32.png"
+        />
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon/favicon-16x16.png"
+        />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/favicon/apple-touch-icon.png"
+        />
+        <link rel="manifest" href="/favicon/site.webmanifest" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+                    try {
+                      if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                        document.querySelector('meta[name="theme-color"]').setAttribute('content')
+                      }
+                    } catch (_) {}
+                  `,
+          }}
+        />
+      </head>
+      <body
+        className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} font-sans antialiased overflow-x-hidden`}
+        suppressHydrationWarning
+      >
+        <Providers>
+          <CommandMenuProvider>
+            <div className="relative h-dvh overflow-x-hidden">
+              <StaggeredNavFiles />
+              <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+                {children}
+              </div>
+            </div>
+          </CommandMenuProvider>
+        </Providers>
       </body>
     </html>
   );
