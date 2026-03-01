@@ -1,20 +1,10 @@
-import type * as React from "react";
+import { BiLogoTypescript } from "react-icons/bi";
 import type { BundledLanguage } from "shiki";
 import { codeToTokens } from "shiki";
 
 import { vercelDark } from "@/lib/shiki-vercel-theme";
 import { cn } from "@/lib/utils";
 import { CopyButton } from "./copy-button";
-
-function TrafficLightsIcon(props: React.ComponentPropsWithoutRef<"svg">) {
-  return (
-    <svg aria-hidden="true" viewBox="0 0 42 10" fill="none" {...props}>
-      <circle cx="5" cy="5" r="4.5" />
-      <circle cx="21" cy="5" r="4.5" />
-      <circle cx="37" cy="5" r="4.5" />
-    </svg>
-  );
-}
 
 interface CodeBlockProps {
   code: string;
@@ -43,8 +33,8 @@ async function CodeBlock({
     >
       {/* Top bar */}
       <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2">
-        <div className="flex items-center gap-3">
-          <TrafficLightsIcon className="h-2.5 w-auto stroke-muted-foreground/30" />
+        <div className="flex items-center gap-2">
+          <BiLogoTypescript className="size-[18px] text-muted-foreground/60" />
           {filename && (
             <span className="font-mono text-xs text-muted-foreground">
               {filename}
