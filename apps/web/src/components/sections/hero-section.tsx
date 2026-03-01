@@ -20,7 +20,7 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-grid text-white/[0.03]" />
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background" />
 
-      <div className="section-container relative z-10 py-24 md:py-32 border-y border-border grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-12 lg:gap-16 items-center">
+      <div className="section-container relative z-10 py-24 md:py-32 border-y border-border grid grid-cols-1 lg:grid-cols-[5fr_6fr] gap-12 lg:gap-16 items-center">
         {/* Left: text */}
         <div>
           <p className="text-xs font-mono text-muted-foreground mb-6">
@@ -28,9 +28,9 @@ export function HeroSection() {
           </p>
 
           <h1 className="section-title leading-tight">
-            Payments orchestration
+            Open-source payment
             <br />
-            for modern SaaS.
+            orchestration for TypeScript.
           </h1>
 
           <p className="mt-5 text-lg text-muted-foreground max-w-md">
