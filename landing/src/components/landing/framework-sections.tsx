@@ -784,8 +784,6 @@ export function ServerClientTabs() {
 
   return (
     <div className="relative">
-      <div className="absolute -inset-4 bg-gradient-to-br from-foreground/[0.02] via-transparent to-foreground/[0.02] rounded-2xl blur-xl pointer-events-none dark:from-foreground/[0.03] dark:to-foreground/[0.03]" />
-
       <div className="relative overflow-hidden bg-neutral-50 dark:bg-black">
         <div className="flex border border-b-0 border-foreground/[0.08] rounded-t-lg bg-neutral-100/50 dark:bg-[#0a0a0a]/50">
           <button
@@ -939,20 +937,18 @@ export function DatabaseSection() {
           <div className="flex-1 min-w-0 relative">
             <div
               ref={codeScrollRef}
-              className="h-full overflow-auto no-scrollbar"
+              className="h-full overflow-y-auto overflow-x-hidden no-scrollbar"
             >
               <DynamicCodeBlock
                 lang="ts"
                 code={dbCodeExamples[activeDb] ?? ""}
                 codeblock={{
                   className:
-                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-black [&_div]:bg-neutral-50 [&_div]:dark:bg-black",
+                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-black [&_div]:bg-neutral-50 [&_div]:dark:bg-black min-h-full",
                   "data-line-numbers": true,
                 }}
               />
             </div>
-            <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-neutral-50 dark:from-black to-transparent pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-neutral-50 dark:from-black to-transparent pointer-events-none" />
           </div>
 
           {/* Right sidebar — supported DBs & community */}
