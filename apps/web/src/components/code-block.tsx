@@ -42,11 +42,13 @@ async function CodeBlock({
       )}
     >
       {/* Top bar */}
-      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-3">
+      <div className="flex items-center justify-between border-b border-white/[0.06] px-4 py-2">
         <div className="flex items-center gap-3">
-          <TrafficLightsIcon className="h-2.5 w-auto stroke-slate-500/30" />
+          <TrafficLightsIcon className="h-2.5 w-auto stroke-muted-foreground/30" />
           {filename && (
-            <span className="font-mono text-xs text-slate-500">{filename}</span>
+            <span className="font-mono text-xs text-muted-foreground">
+              {filename}
+            </span>
           )}
         </div>
         <CopyButton code={code} />
@@ -57,7 +59,7 @@ async function CodeBlock({
         <div className="flex min-w-max items-start px-4 py-4">
           <div
             aria-hidden="true"
-            className="select-none pr-4 text-right font-mono text-xs leading-relaxed text-slate-600/60"
+            className="select-none pr-4 text-right font-mono text-xs leading-relaxed text-muted-foreground/40"
           >
             {tokens.map((_, index) => (
               <div key={index}>{(index + 1).toString().padStart(2, "0")}</div>
