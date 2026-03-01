@@ -111,7 +111,7 @@ export function CodeShowcaseSection() {
 
           {tabs.map((tab) => (
             <TabsContent key={tab.value} value={tab.value} className="mt-4">
-              <CodeBlock code={tab.code} />
+              <CodeBlock code={tab.code} filename="api.ts" />
             </TabsContent>
           ))}
         </Tabs>
