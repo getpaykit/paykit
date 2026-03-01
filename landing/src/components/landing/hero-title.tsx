@@ -21,10 +21,10 @@ export function HeroTitle() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative w-full py-8 sm:pt-6 md:pt-10 pb-6 lg:pb-0 flex flex-col justify-center h-full pointer-events-none"
+      className="relative w-full px-5 sm:px-6 lg:px-7 pt-16 sm:pt-20 md:pt-28 lg:pt-36 pb-6 flex flex-col items-center text-center"
     >
       <div className="space-y-2 sm:space-y-1">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center justify-center gap-1.5">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="0.9em"
@@ -42,7 +42,7 @@ export function HeroTitle() {
             Own Your Auth
           </span>
         </div>
-        <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight">
+        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight">
           The most comprehensive authentication framework for{" "}
           <span className="relative inline-flex overflow-hidden align-bottom">
             <AnimatePresence mode="wait">
@@ -61,7 +61,7 @@ export function HeroTitle() {
         </h1>
 
         {/* CTA Buttons */}
-        <div className="flex flex-wrap items-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:mt-5 pointer-events-auto">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:mt-5">
           <a
             href="/sign-in"
             className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 text-xs sm:text-sm font-medium hover:opacity-90 transition-colors"

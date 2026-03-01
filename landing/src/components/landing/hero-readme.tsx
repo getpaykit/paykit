@@ -1523,7 +1523,7 @@ export function HeroReadMe({
     >
       {/* Markdown content */}
       <div className="flex-1 overflow-y-auto no-scrollbar">
-        <div className="p-5 lg:p-5 pt-8 lg:pt-16 pb-0">
+        <div className="p-5 lg:p-5 pt-4 lg:pt-6 pb-0">
           <motion.article
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
