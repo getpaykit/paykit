@@ -96,23 +96,18 @@ export function CodeShowcaseSection() {
           Nothing you don&apos;t.
         </h2>
 
-        <Tabs defaultValue="subscriptions" className="mt-12">
-          <div className="w-full overflow-x-auto">
-            <TabsList
-              variant="line"
-              className="min-w-max w-full border-b border-border pb-0"
-            >
-              {tabs.map((tab) => (
-                <TabsTrigger
-                  key={tab.value}
-                  value={tab.value}
-                  className="text-xs sm:text-sm"
-                >
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-          </div>
+        <Tabs defaultValue="subscriptions" className="mt-12 max-w-3xl mx-auto">
+          <TabsList variant="line" className="w-full">
+            {tabs.map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                className="flex-initial"
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
 
           {tabs.map((tab) => (
             <TabsContent key={tab.value} value={tab.value} className="mt-4">
