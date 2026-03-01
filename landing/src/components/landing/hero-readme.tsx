@@ -132,7 +132,7 @@ function CredentialFields() {
             d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2m0 4-8 5-8-5V6l8 5 8-5z"
           />
         </svg>
-        <span className="text-[9px] font-mono text-foreground/50 dark:text-foreground/35 truncate">
+        <span className="text-xs font-mono text-foreground/50 dark:text-foreground/35 truncate">
           {emailDisplay}
           {isTyping && emailDisplay.length < emailText.length && (
             <span className="inline-block w-px h-2.5 bg-foreground/50 ml-px animate-[blink_0.8s_step-end_infinite] align-middle" />
@@ -152,7 +152,7 @@ function CredentialFields() {
             d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2m-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2M9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2z"
           />
         </svg>
-        <span className="text-[9px] font-mono text-foreground/50 dark:text-foreground/35 tracking-[0.1em]">
+        <span className="text-xs font-mono text-foreground/50 dark:text-foreground/35 tracking-[0.1em]">
           {passwordDisplay}
           {isTyping &&
             emailDisplay.length >= emailText.length &&
@@ -206,7 +206,7 @@ function InstallBlock() {
             setPmOpen(false);
           }}
           className={cn(
-            "px-4 py-2 text-[12px] transition-colors duration-150 relative",
+            "px-4 py-2 text-[13px] transition-colors duration-150 relative",
             mode === "cli"
               ? "text-neutral-800 dark:text-neutral-200"
               : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400",
@@ -224,7 +224,7 @@ function InstallBlock() {
             setPmOpen(false);
           }}
           className={cn(
-            "px-4 py-2 text-[12px] transition-colors duration-150 relative",
+            "px-4 py-2 text-[13px] transition-colors duration-150 relative",
             mode === "prompt"
               ? "text-neutral-800 dark:text-neutral-200"
               : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400",
@@ -242,7 +242,7 @@ function InstallBlock() {
             setPmOpen(false);
           }}
           className={cn(
-            "px-4 py-2 text-[12px] transition-colors duration-150 relative",
+            "px-4 py-2 text-[13px] transition-colors duration-150 relative",
             mode === "mcp"
               ? "text-neutral-800 dark:text-neutral-200"
               : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400",
@@ -260,7 +260,7 @@ function InstallBlock() {
             setPmOpen(false);
           }}
           className={cn(
-            "px-4 py-2 text-[12px] transition-colors duration-150 relative",
+            "px-4 py-2 text-[13px] transition-colors duration-150 relative",
             mode === "skills"
               ? "text-neutral-800 dark:text-neutral-200"
               : "text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400",
@@ -287,7 +287,7 @@ function InstallBlock() {
               {mode === "cli" || mode === "skills" ? (
                 <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-card px-4 py-3">
                   <code
-                    className="text-[13px]"
+                    className="text-sm"
                     style={{ fontFamily: "var(--font-geist-pixel-square)" }}
                   >
                     {mode === "skills" ? (
@@ -395,7 +395,7 @@ function InstallBlock() {
                                   key={pm.name}
                                   onClick={() => copy(pm.command)}
                                   className={cn(
-                                    "flex items-center gap-2.5 w-full px-3 py-2 text-[12px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/[0.05] transition-all text-left",
+                                    "flex items-center gap-2.5 w-full px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/[0.05] transition-all text-left",
                                     i < cliCommands.length - 1 &&
                                       "border-b border-neutral-100 dark:border-white/[0.06]",
                                   )}
@@ -500,7 +500,7 @@ function InstallBlock() {
                                       />
                                     </svg>
                                   )}
-                                  <span className="font-mono text-[11px]">
+                                  <span className="font-mono text-xs">
                                     {pm.command.split(" ")[0]}
                                   </span>
                                 </button>
@@ -515,7 +515,7 @@ function InstallBlock() {
               ) : mode === "mcp" ? (
                 <div className="flex items-center justify-between bg-neutral-100/50 dark:bg-card px-4 py-3">
                   <code
-                    className="text-[13px] truncate"
+                    className="text-sm truncate"
                     style={{ fontFamily: "var(--font-geist-pixel-square)" }}
                   >
                     <span className="text-purple-600/90 dark:text-purple-400/90">
@@ -576,7 +576,7 @@ function InstallBlock() {
                               key={mc.name}
                               onClick={() => copy(mc.command)}
                               className={cn(
-                                "flex items-center gap-2.5 w-full px-3 py-2 text-[12px] text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/[0.05] transition-all text-left",
+                                "flex items-center gap-2.5 w-full px-3 py-2 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/[0.05] transition-all text-left",
                                 i < mcpCommands.length - 1 &&
                                   "border-b border-neutral-100 dark:border-white/[0.06]",
                               )}
@@ -652,7 +652,7 @@ function InstallBlock() {
                                   </svg>
                                 )}
                               </span>
-                              <span className="font-mono text-[11px]">
+                              <span className="font-mono text-xs">
                                 {mc.name}
                               </span>
                             </button>
@@ -664,11 +664,11 @@ function InstallBlock() {
                 </div>
               ) : (
                 <div className="bg-neutral-100/50 dark:bg-card px-5 py-4">
-                  <p className="text-[13px] font-medium text-neutral-700 dark:text-neutral-200 leading-relaxed">
+                  <p className="text-sm font-medium text-neutral-700 dark:text-neutral-200 leading-relaxed">
                     Set up authentication in my project using Better Auth.
                   </p>
                   <div className="relative mt-1.5">
-                    <p className="text-[11px] text-neutral-400 dark:text-neutral-500 leading-relaxed line-clamp-2">
+                    <p className="text-xs text-neutral-400 dark:text-neutral-500 leading-relaxed line-clamp-2">
                       Install better-auth. If I already have a database
                       configured, use that. Create lib/auth.ts with{" "}
                       <code className="text-neutral-500 dark:text-neutral-400">
@@ -682,7 +682,7 @@ function InstallBlock() {
                   <div className="flex items-center justify-between mt-3 pt-2 border-t border-foreground/[0.04]">
                     <button
                       onClick={() => setPromptOpen(true)}
-                      className="flex items-center gap-1 text-[11px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                      className="flex items-center gap-1 text-xs text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -698,7 +698,7 @@ function InstallBlock() {
                     </button>
                     <button
                       onClick={() => copy(aiPromptText)}
-                      className="flex items-center gap-1.5 text-[11px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
                     >
                       {copied ? (
                         <>
@@ -780,7 +780,7 @@ function InstallBlock() {
 
               {/* Content */}
               <div className="px-5 py-5 max-h-[60vh] overflow-y-auto">
-                <p className="text-[12px] font-mono text-neutral-600 dark:text-neutral-400 leading-[1.9] whitespace-pre-line">
+                <p className="text-xs font-mono text-neutral-600 dark:text-neutral-400 leading-[1.9] whitespace-pre-line">
                   {aiPromptText}
                 </p>
               </div>
@@ -789,7 +789,7 @@ function InstallBlock() {
               <div className="flex justify-end px-5 py-3 border-t border-neutral-200 dark:border-white/[0.06]">
                 <button
                   onClick={() => copy(aiPromptText)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] rounded-sm border border-neutral-200 dark:border-white/[0.08] text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.04] transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-sm border border-neutral-200 dark:border-white/[0.08] text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/[0.04] transition-colors"
                 >
                   {copied ? (
                     <>
@@ -887,7 +887,7 @@ function SentinelSection() {
   return (
     <div className="mt-10 mb-4">
       <div className="flex items-center gap-3 mb-6">
-        <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+        <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
           Sentinel
         </span>
         <div className="flex-1 border-t border-foreground/[0.06]" />
@@ -897,7 +897,7 @@ function SentinelSection() {
         <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200 leading-snug mb-2">
           Security infrastructure for your app.
         </h3>
-        <p className="text-[14px] text-foreground/70 dark:text-foreground/55 leading-relaxed max-w-2xl">
+        <p className="text-sm text-foreground/70 dark:text-foreground/55 leading-relaxed max-w-2xl">
           Bot detection, brute force protection, disposable email blocking, geo
           restrictions, and more &mdash; all working in real time before threats
           reach your users.
@@ -926,10 +926,10 @@ function SentinelSection() {
           }}
         />
         {/* Top corner accents */}
-        <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 text-[8px] font-mono text-foreground/20 select-none pointer-events-none -translate-x-0.5 -translate-y-0.5">
+        <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 text-[10px] font-mono text-foreground/20 select-none pointer-events-none -translate-x-0.5 -translate-y-0.5">
           &#x250C;
         </span>
-        <span className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 text-[8px] font-mono text-foreground/20 select-none pointer-events-none translate-x-0.5 -translate-y-0.5">
+        <span className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 text-[10px] font-mono text-foreground/20 select-none pointer-events-none translate-x-0.5 -translate-y-0.5">
           &#x2510;
         </span>
 
@@ -960,15 +960,15 @@ function SentinelSection() {
               >
                 <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
               </svg>
-              <span className="text-[11px] font-medium text-foreground/60 dark:text-foreground/45">
+              <span className="text-xs font-medium text-foreground/60 dark:text-foreground/45">
                 Sentinel
               </span>
-              <span className="text-[10px] font-mono text-foreground/50  ml-1">
+              <span className="text-xs font-mono text-foreground/50  ml-1">
                 Monitor and analyze security events
               </span>
             </div>
             <div className="hidden sm:flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-[9px] font-mono">
+              <span className="flex items-center gap-1.5 text-xs font-mono">
                 <span className="size-1.5 rounded-full bg-red-500" />
                 <span className="text-foreground/50 dark:text-foreground/35">
                   Blocked
@@ -977,7 +977,7 @@ function SentinelSection() {
                   847
                 </span>
               </span>
-              <span className="flex items-center gap-1.5 text-[9px] font-mono">
+              <span className="flex items-center gap-1.5 text-xs font-mono">
                 <span className="size-1.5 rounded-full bg-yellow-500" />
                 <span className="text-foreground/50 dark:text-foreground/35">
                   Challenged
@@ -986,7 +986,7 @@ function SentinelSection() {
                   124
                 </span>
               </span>
-              <span className="flex items-center gap-1.5 text-[9px] font-mono">
+              <span className="flex items-center gap-1.5 text-xs font-mono">
                 <span className="size-1.5 rounded-full bg-green-500" />
                 <span className="text-foreground/50 dark:text-foreground/35">
                   Allowed
@@ -1000,22 +1000,22 @@ function SentinelSection() {
 
           {/* Table header */}
           <div className="grid grid-cols-[70px_1fr_100px_70px_80px] sm:grid-cols-[70px_1fr_110px_80px_70px_80px] gap-0 px-4 py-2 border-b border-foreground/[0.06] bg-foreground/[0.01]">
-            <span className="text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
+            <span className="text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
               Action
             </span>
-            <span className="text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
+            <span className="text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
               Identifier
             </span>
-            <span className="text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
+            <span className="text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
               Reason
             </span>
-            <span className="hidden sm:block text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
+            <span className="hidden sm:block text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
               Location
             </span>
-            <span className="text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
+            <span className="text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50">
               Path
             </span>
-            <span className="text-[9px] font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50 text-right">
+            <span className="text-xs font-mono uppercase tracking-wider text-foreground/35 dark:text-foreground/50 text-right">
               Time
             </span>
           </div>
@@ -1032,7 +1032,7 @@ function SentinelSection() {
                 />
                 <span
                   className={cn(
-                    "text-[10px] font-mono",
+                    "text-xs font-mono",
                     event.action === "Blocked"
                       ? "text-red-500/80 dark:text-red-400/70"
                       : "text-yellow-500/80 dark:text-yellow-400/70",
@@ -1042,25 +1042,25 @@ function SentinelSection() {
                 </span>
               </span>
               <div className="min-w-0 pr-2">
-                <span className="text-[10px] font-mono text-foreground/60 dark:text-foreground/45 block truncate">
+                <span className="text-xs font-mono text-foreground/60 dark:text-foreground/45 block truncate">
                   {event.identifier}
                 </span>
                 {event.ip && (
-                  <span className="text-[9px] font-mono text-foreground/50  block truncate">
+                  <span className="text-xs font-mono text-foreground/50  block truncate">
                     {event.ip}
                   </span>
                 )}
               </div>
-              <span className="text-[10px] font-mono text-foreground/40 dark:text-foreground/30 truncate">
+              <span className="text-xs font-mono text-foreground/40 dark:text-foreground/30 truncate">
                 {event.reason}
               </span>
-              <span className="hidden sm:block text-[10px] font-mono text-foreground/35 dark:text-foreground/50 truncate">
+              <span className="hidden sm:block text-xs font-mono text-foreground/35 dark:text-foreground/50 truncate">
                 {event.location}
               </span>
-              <span className="text-[10px] font-mono text-foreground/35 dark:text-foreground/50 truncate">
+              <span className="text-xs font-mono text-foreground/35 dark:text-foreground/50 truncate">
                 {event.path}
               </span>
-              <span className="text-[10px] font-mono text-foreground/30 dark:text-foreground/20 text-right">
+              <span className="text-xs font-mono text-foreground/30 dark:text-foreground/20 text-right">
                 {event.time}
               </span>
             </div>
@@ -1184,7 +1184,7 @@ function SentinelSection() {
         ).map(({ tag, icon }) => (
           <span
             key={tag}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] font-mono uppercase tracking-wider text-foreground/55 dark:text-foreground/40 border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:text-foreground/75 dark:hover:text-foreground/60 transition-colors"
+            className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-mono uppercase tracking-wider text-foreground/55 dark:text-foreground/40 border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] hover:text-foreground/75 dark:hover:text-foreground/60 transition-colors"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1236,7 +1236,7 @@ function ContributorsSection({
         </span>
         <div className="h-px flex-1 bg-foreground/[0.08]" />
       </div>
-      <p className="text-[13px] text-foreground/50 dark:text-foreground/40 mb-5 leading-relaxed">
+      <p className="text-sm text-foreground/50 dark:text-foreground/40 mb-5 leading-relaxed">
         Built by a community of{" "}
         <span className="text-foreground/70 dark:text-foreground/60 font-medium tabular-nums">
           746+
@@ -1297,7 +1297,7 @@ function ContributorsSection({
                         loading="lazy"
                         className="rounded-sm grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-200 hover:scale-125 hover:z-10 relative"
                       />
-                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-foreground text-background text-[8px] font-mono rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
+                      <div className="absolute -top-7 left-1/2 -translate-x-1/2 px-1.5 py-0.5 bg-foreground text-background text-[10px] font-mono rounded-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20">
                         {c.login}
                       </div>
                     </a>
@@ -1371,20 +1371,20 @@ function ReadmeFooter({
 
       {/* CTA */}
       <div className="relative">
-        <p className="text-center text-[15px] text-foreground/60 dark:text-foreground/50 tracking-tight">
+        <p className="text-center text-base text-foreground/60 dark:text-foreground/50 tracking-tight">
           Roll your own auth with confidence in minutes.
         </p>
 
         <div className="flex items-center justify-center gap-4 mt-4">
           <a
             href="/sign-in"
-            className="inline-flex items-center gap-1.5 px-5 py-2 bg-foreground text-background text-[11px] font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-1.5 px-5 py-2 bg-foreground text-background text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
           >
             Get Started
           </a>
           <Link
             href="/docs"
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 text-[11px] font-mono uppercase tracking-wider transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 border border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 text-xs font-mono uppercase tracking-wider transition-all"
           >
             Read Docs
           </Link>
@@ -1410,7 +1410,7 @@ function ReadmeFooter({
                     transform="scale(0.9) translate(1.3, 1.3)"
                   />
                 </svg>
-                <span className="text-[9px] font-mono">
+                <span className="text-xs font-mono">
                   {formatCount(stats.npmDownloads)} / week
                 </span>
               </div>
@@ -1439,7 +1439,7 @@ function ReadmeFooter({
                 >
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
-                <span className="text-[9px] font-mono">
+                <span className="text-xs font-mono">
                   {formatCount(stats.githubStars)}
                 </span>
               </div>
@@ -1456,12 +1456,12 @@ function ReadmeFooter({
               <span key={link.label} className="flex items-center">
                 <Link
                   href={link.href}
-                  className="group inline-flex items-center gap-1 text-[11px] font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
+                  className="group inline-flex items-center gap-1 text-xs font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
                 >
                   {link.label}
                 </Link>
                 {i < footerLinks.length - 1 && (
-                  <span className="text-foreground/10 mx-1 text-[10px] select-none">
+                  <span className="text-foreground/10 mx-1 text-xs select-none">
                     /
                   </span>
                 )}
@@ -1470,7 +1470,7 @@ function ReadmeFooter({
           </div>
 
           <div className="flex items-center justify-between w-full sm:w-auto sm:gap-4 shrink-0">
-            <span className="text-[10px] text-foreground/20 font-mono">
+            <span className="text-xs text-foreground/20 font-mono">
               © {new Date().getFullYear()} Better Auth Inc.
             </span>
             <div className="flex items-center gap-3 sm:gap-4">
@@ -1530,11 +1530,11 @@ export function HeroReadMe({
             transition={{ duration: 0.4, delay: 0.3 }}
             className="overflow-y-auto overflow-x-hidden no-scrollbar pt-[30px] pb-0"
           >
-            <h1 className="flex items-center gap-2 text-sm sm:text-[15px] font-mono text-neutral-800 dark:text-neutral-200 pb-2 sm:pb-3 mb-4 sm:mb-5 border-b border-foreground/10">
+            <h1 className="flex items-center gap-2 text-sm sm:text-base font-mono text-neutral-800 dark:text-neutral-200 pb-2 sm:pb-3 mb-4 sm:mb-5 border-b border-foreground/10">
               README
             </h1>
 
-            <p className="text-sm sm:text-[14px] text-neutral-700 dark:text-neutral-300 leading-[1.8] sm:leading-[1.9] mb-5 sm:mb-6">
+            <p className="text-sm sm:text-sm text-neutral-700 dark:text-neutral-300 leading-[1.8] sm:leading-[1.9] mb-5 sm:mb-6">
               Better Auth is an authentication and authorization framework. It
               provides a comprehensive set of features out of the box and
               includes a Plugin ecosystem that simplifies adding advanced
@@ -1545,7 +1545,7 @@ export function HeroReadMe({
 
             <div className="flex items-center gap-3 my-4">
               <div className="flex-1 border-t border-foreground/6"></div>
-              <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+              <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
                 Trusted By
               </span>
             </div>
@@ -1553,7 +1553,7 @@ export function HeroReadMe({
             <TrustedBy />
 
             <div className="flex items-center gap-3 my-4">
-              <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+              <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
                 Features
               </span>
               <div className="flex-1 border-t border-foreground/6"></div>
@@ -1676,16 +1676,16 @@ export function HeroReadMe({
                         <polyline points="7 7 17 7 17 17" />
                       </svg>
                     </span>
-                    <div className="text-[11px] font-mono text-neutral-500 mb-2 uppercase tracking-wider transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                    <div className="text-xs font-mono text-neutral-500 mb-2 uppercase tracking-wider transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
                       <span className="text-foreground/35 dark:text-foreground/20 mr-1.5 transition-colors duration-200 group-hover/card:text-foreground/50 dark:group-hover/card:text-foreground/30">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {feature.label}
                     </div>
-                    <div className="text-[13px] font-semibold text-neutral-800 dark:text-neutral-200 leading-snug mb-1.5 transition-colors duration-200 group-hover/card:text-neutral-900 dark:group-hover/card:text-neutral-100">
+                    <div className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 leading-snug mb-1.5 transition-colors duration-200 group-hover/card:text-neutral-900 dark:group-hover/card:text-neutral-100">
                       {feature.headline}
                     </div>
-                    <div className="text-[11px] text-neutral-500 leading-relaxed transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                    <div className="text-xs text-neutral-500 leading-relaxed transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
                       {feature.desc}
                     </div>
                     {"logos" in feature && feature.logos && (
@@ -1771,7 +1771,7 @@ export function HeroReadMe({
                         </svg>
                         {/* +14 more */}
                         <div className="flex items-center justify-center size-[20px] border border-dashed border-foreground/[0.1] text-foreground/35 dark:text-foreground/20 transition-all duration-300 group-hover/card:text-foreground/60 dark:group-hover/card:text-foreground/40 group-hover/card:border-foreground/20 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.3s]">
-                          <span className="text-[7px] font-mono leading-none">
+                          <span className="text-xs font-mono leading-none">
                             +14
                           </span>
                         </div>
@@ -1822,7 +1822,7 @@ export function HeroReadMe({
                                     duration: 0.2,
                                     delay: socialHovered ? 0.1 : 0,
                                   }}
-                                  className="text-[8px] font-mono text-foreground/60 dark:text-foreground/40 whitespace-nowrap"
+                                  className="text-[10px] font-mono text-foreground/60 dark:text-foreground/40 whitespace-nowrap"
                                 >
                                   Sign in with Google
                                 </motion.span>
@@ -1913,7 +1913,7 @@ export function HeroReadMe({
                           </div>
                           {/* +34 */}
                           <div className="flex items-center justify-center size-6 border border-dashed border-foreground/[0.1] text-foreground/35 dark:text-foreground/20 shrink-0">
-                            <span className="text-[8px] font-mono leading-none">
+                            <span className="text-[10px] font-mono leading-none">
                               +34
                             </span>
                           </div>
@@ -1929,35 +1929,35 @@ export function HeroReadMe({
                         {/* Overlapping member avatars */}
                         <div className="flex -space-x-1.5">
                           <div className="relative size-5 rounded-full border border-foreground/[0.08] bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center z-[3]">
-                            <span className="text-[8px] font-mono text-foreground/55 dark:text-foreground/35 leading-none">
+                            <span className="text-[10px] font-mono text-foreground/55 dark:text-foreground/35 leading-none">
                               A
                             </span>
                           </div>
                           <div className="relative size-5 rounded-full border border-foreground/[0.08] bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center z-[2]">
-                            <span className="text-[8px] font-mono text-foreground/50 dark:text-foreground/30 leading-none">
+                            <span className="text-[10px] font-mono text-foreground/50 dark:text-foreground/30 leading-none">
                               B
                             </span>
                           </div>
                           <div className="relative size-5 rounded-full border border-foreground/[0.08] bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center z-[1]">
-                            <span className="text-[8px] font-mono text-foreground/40 dark:text-foreground/50 leading-none">
+                            <span className="text-[10px] font-mono text-foreground/40 dark:text-foreground/50 leading-none">
                               C
                             </span>
                           </div>
                           <div className="relative size-5 rounded-full border border-dashed border-foreground/[0.1] bg-background flex items-center justify-center z-[0]">
-                            <span className="text-[8px] font-mono text-foreground/35 dark:text-foreground/20 leading-none">
+                            <span className="text-[10px] font-mono text-foreground/35 dark:text-foreground/20 leading-none">
                               +
                             </span>
                           </div>
                         </div>
                         {/* Role badges */}
                         <div className="flex items-center gap-1">
-                          <span className="text-[8px] font-mono text-foreground/50 dark:text-foreground/30 px-1.5 py-0.5 border border-foreground/[0.08] bg-foreground/[0.015]">
+                          <span className="text-[10px] font-mono text-foreground/50 dark:text-foreground/30 px-1.5 py-0.5 border border-foreground/[0.08] bg-foreground/[0.015]">
                             owner
                           </span>
-                          <span className="text-[8px] font-mono text-foreground/35 dark:text-foreground/20 px-1.5 py-0.5 border border-foreground/[0.06] bg-foreground/[0.015]">
+                          <span className="text-[10px] font-mono text-foreground/35 dark:text-foreground/20 px-1.5 py-0.5 border border-foreground/[0.06] bg-foreground/[0.015]">
                             admin
                           </span>
-                          <span className="text-[8px] font-mono text-foreground/30  px-1.5 py-0.5 border border-dashed border-foreground/[0.08]">
+                          <span className="text-[10px] font-mono text-foreground/30  px-1.5 py-0.5 border border-dashed border-foreground/[0.08]">
                             member
                           </span>
                         </div>
@@ -1980,7 +1980,7 @@ export function HeroReadMe({
                           ].map((plugin, i) => (
                             <span
                               key={plugin}
-                              className={`text-[8px] font-mono whitespace-nowrap px-1.5 py-0.5 border shrink-0 ${i < 2 ? "text-foreground/50 dark:text-foreground/30 border-foreground/[0.08] bg-foreground/[0.02]" : i < 4 ? "text-foreground/40 dark:text-foreground/22 border-foreground/[0.06] bg-foreground/[0.015]" : "text-foreground/30  border-foreground/[0.05]"}`}
+                              className={`text-[10px] font-mono whitespace-nowrap px-1.5 py-0.5 border shrink-0 ${i < 2 ? "text-foreground/50 dark:text-foreground/30 border-foreground/[0.08] bg-foreground/[0.02]" : i < 4 ? "text-foreground/40 dark:text-foreground/22 border-foreground/[0.06] bg-foreground/[0.015]" : "text-foreground/30  border-foreground/[0.05]"}`}
                             >
                               {plugin}
                             </span>
@@ -2057,14 +2057,14 @@ export function HeroReadMe({
                         </div>
                         {/* +more */}
                         <div className="flex items-center justify-center size-6 border border-dashed border-foreground/[0.1] text-foreground/35 dark:text-foreground/20">
-                          <span className="text-[8px] font-mono leading-none">
+                          <span className="text-[10px] font-mono leading-none">
                             +
                           </span>
                         </div>
                       </div>
                     )}
                     {"agent" in feature && feature.agent && (
-                      <div className="mt-3 flex items-center h-5 px-2.5 border border-foreground/[0.06] bg-foreground/[0.015] font-mono text-[8px] gap-1">
+                      <div className="mt-3 flex items-center h-5 px-2.5 border border-foreground/[0.06] bg-foreground/[0.015] font-mono text-[10px] gap-1">
                         <span className="text-foreground/30 ">$</span>
                         <span className="text-foreground/50 dark:text-foreground/30">
                           agent
@@ -2086,7 +2086,7 @@ export function HeroReadMe({
                     )}
                     {"security" in feature && feature.security && (
                       <div className="mt-3 relative overflow-hidden">
-                        <div className="flex items-center gap-1.5 font-mono text-[8px]">
+                        <div className="flex items-center gap-1.5 font-mono text-[10px]">
                           {/* Shield icon */}
                           <div className="flex items-center justify-center size-5 border border-foreground/[0.08] bg-foreground/[0.02] shrink-0">
                             <svg
@@ -2159,13 +2159,13 @@ export function HeroReadMe({
                                   key={`${setIdx}-${event.time}-${event.user}`}
                                   className="flex items-center gap-1.5 shrink-0 h-5 whitespace-nowrap"
                                 >
-                                  <span className="text-[8px] font-mono text-foreground/30 ">
+                                  <span className="text-[10px] font-mono text-foreground/30 ">
                                     {event.time}
                                   </span>
-                                  <span className="text-[8px] font-mono text-foreground/50 dark:text-foreground/30 border-b border-dashed border-foreground/20">
+                                  <span className="text-[10px] font-mono text-foreground/50 dark:text-foreground/30 border-b border-dashed border-foreground/20">
                                     {event.user}
                                   </span>
-                                  <span className="text-[8px] font-mono text-foreground/35 dark:text-foreground/20">
+                                  <span className="text-[10px] font-mono text-foreground/35 dark:text-foreground/20">
                                     {event.action}
                                   </span>
                                 </div>
@@ -2180,23 +2180,23 @@ export function HeroReadMe({
                 </Link>
               ))}
               {/* + marks at grid intersections */}
-              <span className="hidden md:block absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-[10px] text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="hidden md:block absolute top-1/3 left-1/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
                 +
               </span>
-              <span className="hidden md:block absolute top-1/3 left-2/3 -translate-x-1/2 -translate-y-1/2 font-mono -mt-[1px] -ml-[.5px] text-[10px] text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="hidden md:block absolute top-1/3 left-2/3 -translate-x-1/2 -translate-y-1/2 font-mono -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
                 +
               </span>
-              <span className="hidden md:block absolute top-2/3 left-1/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-[10px] text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="hidden md:block absolute top-2/3 left-1/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
                 +
               </span>
-              <span className="hidden md:block absolute top-2/3 left-2/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-[10px] text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="hidden md:block absolute top-2/3 left-2/3 -translate-x-1/2 -translate-y-1/2 font-mono  -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
                 +
               </span>
             </div>
 
             <div className="my-6">
               <div className="flex items-center gap-3 mb-5">
-                <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+                <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
                   Declarative Config
                 </span>
                 <div className="flex-1 border-t border-foreground/[0.06]" />
@@ -2227,7 +2227,7 @@ export function HeroReadMe({
             {/* Dashboard */}
             <div className="mt-10 mb-4">
               <div className="flex items-center gap-3 mb-6">
-                <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+                <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
                   Monitoring & Agentic Dashboard
                 </span>
                 <div className="flex-1 border-t border-foreground/[0.06]" />
@@ -2237,7 +2237,7 @@ export function HeroReadMe({
                 <h3 className="text-base sm:text-lg font-semibold text-neutral-800 dark:text-neutral-200 leading-snug mb-2">
                   The best user management and monitoring platform.
                 </h3>
-                <p className="text-[12px] sm:text-[13px] text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 leading-relaxed max-w-2xl">
                   Monitor sign-ups, manage users, track sessions, and surface
                   security insights — with an agentic Cmd+K to do it all in
                   natural language.
@@ -2292,10 +2292,10 @@ export function HeroReadMe({
                   />
                 </div>
                 {/* Top corner accents only */}
-                <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 text-[8px] font-mono text-foreground/20 select-none pointer-events-none -translate-x-0.5 -translate-y-0.5">
+                <span className="absolute -top-2 -left-2 sm:-top-3 sm:-left-3 text-[10px] font-mono text-foreground/20 select-none pointer-events-none -translate-x-0.5 -translate-y-0.5">
                   &#x250C;
                 </span>
-                <span className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 text-[8px] font-mono text-foreground/20 select-none pointer-events-none translate-x-0.5 -translate-y-0.5">
+                <span className="absolute -top-2 -right-2 sm:-top-3 sm:-right-3 text-[10px] font-mono text-foreground/20 select-none pointer-events-none translate-x-0.5 -translate-y-0.5">
                   &#x2510;
                 </span>
 
@@ -2316,7 +2316,7 @@ export function HeroReadMe({
                         <span className="size-2 rounded-full bg-foreground/10" />
                         <span className="size-2 rounded-full bg-foreground/10" />
                       </div>
-                      <span className="text-[10px] font-mono text-foreground/30 ml-2">
+                      <span className="text-xs font-mono text-foreground/30 ml-2">
                         better-auth.com/dashboard/the-next-big-thing
                       </span>
                     </div>
@@ -2325,7 +2325,7 @@ export function HeroReadMe({
                         <span
                           key={tab}
                           className={cn(
-                            "text-[9px] font-mono uppercase tracking-wider",
+                            "text-xs font-mono uppercase tracking-wider",
                             i === 0
                               ? "text-foreground/60 dark:text-foreground/45"
                               : "text-foreground/20 dark:text-foreground/12",
@@ -2374,10 +2374,10 @@ export function HeroReadMe({
                       i > 0 && "-ml-px",
                     )}
                   >
-                    <div className="text-[11px] font-mono text-foreground/65 dark:text-foreground/50 uppercase tracking-wider mb-0.5">
+                    <div className="text-xs font-mono text-foreground/65 dark:text-foreground/50 uppercase tracking-wider mb-0.5">
                       {item.label}
                     </div>
-                    <div className="text-[11px] font-mono text-foreground/40 dark:text-foreground/28">
+                    <div className="text-xs font-mono text-foreground/40 dark:text-foreground/28">
                       {item.desc}
                     </div>
                   </div>

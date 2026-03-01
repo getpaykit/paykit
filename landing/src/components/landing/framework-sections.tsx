@@ -789,7 +789,7 @@ export function ServerClientTabs() {
           <button
             type="button"
             onClick={() => setActiveTab("server")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-mono transition-colors relative ${
+            className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-mono transition-colors relative ${
               activeTab === "server"
                 ? "text-foreground/80"
                 : "text-foreground/40 hover:text-foreground/60"
@@ -803,7 +803,7 @@ export function ServerClientTabs() {
           <button
             type="button"
             onClick={() => setActiveTab("client")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-[11px] font-mono transition-colors relative ${
+            className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-mono transition-colors relative ${
               activeTab === "client"
                 ? "text-foreground/80"
                 : "text-foreground/40 hover:text-foreground/60"
@@ -823,6 +823,7 @@ export function ServerClientTabs() {
             codeblock={{
               className:
                 "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
+              keepBackground: true,
               "data-line-numbers": true,
             }}
           />
@@ -897,7 +898,7 @@ export function DatabaseSection() {
         <div className="h-px flex-1 bg-foreground/[0.08]" />
       </div>
 
-      <p className="text-[13px] text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl leading-relaxed">
+      <p className="text-sm text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl leading-relaxed">
         Use any database you want. Connect directly with a connection string, or
         use your favorite ORM adapter. Your data stays in your database.
       </p>
@@ -910,7 +911,7 @@ export function DatabaseSection() {
               key={db}
               type="button"
               onClick={() => setActiveDb(db)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-[11px] font-mono transition-colors relative border-r border-foreground/[0.08] last:border-r-0 shrink-0 ${
+              className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-mono transition-colors relative border-r border-foreground/[0.08] last:border-r-0 shrink-0 ${
                 activeDb === db
                   ? "text-foreground/90 bg-foreground/[0.03]"
                   : "text-foreground/45 hover:text-foreground/70"
@@ -937,14 +938,16 @@ export function DatabaseSection() {
           <div className="flex-1 min-w-0 relative">
             <div
               ref={codeScrollRef}
-              className="h-full overflow-y-auto overflow-x-hidden no-scrollbar"
+              className="h-full overflow-y-auto overflow-x-hidden no-scrollbar overscroll-none"
             >
               <DynamicCodeBlock
+                key={activeDb}
                 lang="ts"
                 code={dbCodeExamples[activeDb] ?? ""}
                 codeblock={{
                   className:
                     "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background min-h-full",
+                  keepBackground: true,
                   "data-line-numbers": true,
                 }}
               />
@@ -957,7 +960,7 @@ export function DatabaseSection() {
             className="hidden sm:block w-[180px] shrink-0 border-l border-foreground/[0.09] bg-foreground/[0.015] overflow-y-auto no-scrollbar"
           >
             <div className="px-3 pt-3 pb-2">
-              <p className="text-[9px] font-mono uppercase tracking-widest text-amber-600/70 dark:text-amber-400/50 mb-2.5">
+              <p className="text-xs font-mono uppercase tracking-widest text-amber-600/70 dark:text-amber-400/50 mb-2.5">
                 Direct Drivers
               </p>
               <div className="space-y-1">
@@ -978,13 +981,13 @@ export function DatabaseSection() {
                     }`}
                   >
                     <span className="shrink-0">{db.icon()}</span>
-                    <span className="text-[11px] font-mono">{db.name}</span>
+                    <span className="text-xs font-mono">{db.name}</span>
                   </button>
                 ))}
               </div>
             </div>
             <div className="border-t border-foreground/[0.06] px-3 pt-2.5 pb-2">
-              <p className="text-[9px] font-mono uppercase tracking-widest text-violet-600/70 dark:text-violet-400/50 mb-2.5">
+              <p className="text-xs font-mono uppercase tracking-widest text-violet-600/70 dark:text-violet-400/50 mb-2.5">
                 ORM Adapters
               </p>
               <div className="space-y-1">
@@ -1005,15 +1008,13 @@ export function DatabaseSection() {
                     }`}
                   >
                     <span className="shrink-0">{adapter.icon()}</span>
-                    <span className="text-[11px] font-mono">
-                      {adapter.name}
-                    </span>
+                    <span className="text-xs font-mono">{adapter.name}</span>
                   </button>
                 ))}
               </div>
             </div>
             <div className="border-t border-foreground/[0.06] px-3 pt-2.5 pb-3">
-              <p className="text-[9px] font-mono uppercase tracking-widest text-sky-600/70 dark:text-sky-400/50 mb-2">
+              <p className="text-xs font-mono uppercase tracking-widest text-sky-600/70 dark:text-sky-400/50 mb-2">
                 Community
               </p>
               <div className="space-y-1">
@@ -1024,7 +1025,7 @@ export function DatabaseSection() {
                       className="flex items-center gap-2 py-0.5 px-1.5"
                     >
                       <span className="size-1.5 border border-foreground/20 bg-foreground/[0.05]" />
-                      <span className="text-[10px] font-mono text-foreground/35 dark:text-foreground/22">
+                      <span className="text-xs font-mono text-foreground/35 dark:text-foreground/22">
                         {name}
                       </span>
                     </div>
@@ -1062,10 +1063,10 @@ export function SocialProvidersSection() {
   return (
     <div ref={containerRef} className="flex gap-6 items-start">
       <div className="shrink-0">
-        <span className="text-[24px] font-light text-foreground/80 dark:text-foreground/70 tabular-nums leading-none">
+        <span className="text-2xl font-light text-foreground/80 dark:text-foreground/70 tabular-nums leading-none">
           35+
         </span>
-        <p className="text-[14px] text-foreground/55 dark:text-foreground/45 mt-1">
+        <p className="text-sm text-foreground/55 dark:text-foreground/45 mt-1">
           social providers
         </p>
       </div>
@@ -1089,7 +1090,7 @@ export function SocialProvidersSection() {
                 return (
                   <span
                     key={provider}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] font-mono text-foreground/65 dark:text-foreground/50 border-r border-b border-dashed border-foreground/[0.06] cursor-default"
+                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-mono text-foreground/65 dark:text-foreground/50 border-r border-b border-dashed border-foreground/[0.06] cursor-default"
                   >
                     {Icon && (
                       <span className="text-foreground/50 dark:text-foreground/35 shrink-0">
@@ -1121,13 +1122,13 @@ export function PluginEcosystem() {
           <span className="text-base text-foreground/85 dark:text-foreground/75">
             Plugin Ecosystem
           </span>
-          <span className="text-[11px] font-mono text-foreground/35 dark:text-foreground/50">
+          <span className="text-xs font-mono text-foreground/35 dark:text-foreground/50">
             {plugins.length} official
           </span>
         </div>
         <Link
           href="/docs/plugins"
-          className="text-[10px] font-mono text-foreground/35 dark:text-foreground/50 hover:text-foreground/55 transition-colors uppercase tracking-wider"
+          className="text-xs font-mono text-foreground/35 dark:text-foreground/50 hover:text-foreground/55 transition-colors uppercase tracking-wider"
         >
           browse all &rarr;
         </Link>
@@ -1139,10 +1140,10 @@ export function PluginEcosystem() {
           {[...row1, ...row1].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
-              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-[11px] text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-xs text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
             >
               {plugin.name}
-              <span className="text-[7px] font-mono uppercase tracking-wider text-foreground/50 ">
+              <span className="text-xs font-mono uppercase tracking-wider text-foreground/50 ">
                 {categoryLabels[plugin.category]}
               </span>
             </span>
@@ -1154,10 +1155,10 @@ export function PluginEcosystem() {
           {[...row2, ...row2].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
-              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-[11px] text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
+              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-xs text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
             >
               {plugin.name}
-              <span className="text-[7px] font-mono uppercase tracking-wider text-foreground/50 ">
+              <span className="text-xs font-mono uppercase tracking-wider text-foreground/50 ">
                 {categoryLabels[plugin.category]}
               </span>
             </span>
@@ -1223,11 +1224,11 @@ export function AiNativeSection() {
     <div ref={ref} className="mt-8">
       <div className="flex items-center gap-3 mb-3">
         <div className="flex-1 border-t border-foreground/[0.06]" />
-        <span className="text-[10px] text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+        <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
           AI Native
         </span>
       </div>
-      <p className="text-[14px] text-foreground/70 dark:text-foreground/55 leading-[1.9] mb-5">
+      <p className="text-sm text-foreground/70 dark:text-foreground/55 leading-[1.9] mb-5">
         Your auth lives in{" "}
         <span className="text-foreground/75 dark:text-foreground/60">
           your codebase
@@ -1305,7 +1306,7 @@ export function AiNativeSection() {
           <span className="text-foreground/35 font-mono text-xs select-none">
             &rsaquo;
           </span>
-          <span className="text-[11px] font-mono text-foreground/70 dark:text-foreground/55">
+          <span className="text-xs font-mono text-foreground/70 dark:text-foreground/55">
             {promptText}
           </span>
           {!showSteps && inView && (
@@ -1324,14 +1325,14 @@ export function AiNativeSection() {
                 transition={{ duration: 0.2 }}
                 className="flex items-center gap-2.5 px-3 py-1.5"
               >
-                <span className="text-[8px] font-mono uppercase tracking-wider text-foreground/45 dark:text-foreground/35 w-8 shrink-0">
+                <span className="text-[10px] font-mono uppercase tracking-wider text-foreground/45 dark:text-foreground/35 w-8 shrink-0">
                   {step.label}
                 </span>
-                <span className="text-[10px] font-mono text-foreground/60 dark:text-foreground/45 truncate">
+                <span className="text-xs font-mono text-foreground/60 dark:text-foreground/45 truncate">
                   {step.text}
                 </span>
                 {"lines" in step && typeof step.lines === "number" && (
-                  <span className="text-[9px] font-mono text-emerald-600/70 dark:text-emerald-400/55 ml-auto shrink-0">
+                  <span className="text-xs font-mono text-emerald-600/70 dark:text-emerald-400/55 ml-auto shrink-0">
                     +{step.lines}
                   </span>
                 )}
@@ -1360,10 +1361,10 @@ export function AiNativeSection() {
           <div className="flex divide-x divide-foreground/[0.06]">
             {mcpClients.map((mc) => (
               <div key={mc.name} className="flex-1 px-3 py-2">
-                <p className="text-[8px] font-mono uppercase tracking-wider text-foreground/40 dark:text-foreground/30 mb-0.5">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40 dark:text-foreground/30 mb-0.5">
                   {mc.name}
                 </p>
-                <code className="text-[9px] font-mono text-foreground/55 dark:text-foreground/40 truncate block">
+                <code className="text-xs font-mono text-foreground/55 dark:text-foreground/40 truncate block">
                   {mc.cmd}
                 </code>
               </div>

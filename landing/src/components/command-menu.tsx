@@ -258,7 +258,7 @@ function SearchMode({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-foreground/[0.06] px-3 py-1.5 text-[10px] text-muted-foreground">
+      <div className="flex items-center justify-between border-t border-foreground/[0.06] px-3 py-1.5 text-xs text-muted-foreground">
         <div className="flex gap-2">
           <span>
             <kbd className="px-1 py-0.5 border border-foreground/[0.08]">

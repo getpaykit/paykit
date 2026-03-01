@@ -123,7 +123,7 @@ export function StaggeredNavFiles() {
           {/* Logo */}
           <Link
             href="/"
-            className="relative z-10 flex items-center gap-1 px-4 lg:px-7 py-3 shrink-0 transition-colors duration-150"
+            className="relative z-10 flex items-center gap-1 px-4 lg:px-7 py-3.5 shrink-0 transition-colors duration-150"
           >
             <LogoLockup className="h-5" />
           </Link>
@@ -149,14 +149,14 @@ export function StaggeredNavFiles() {
                       href={item.href}
                       target={item.external ? "_blank" : undefined}
                       rel={item.external ? "noreferrer" : undefined}
-                      className={`group/tab relative flex items-center justify-center gap-1.5 px-2 xl:px-4 py-3 h-full border-r ${tabDividerClass} transition-colors duration-150 ${
+                      className={`group/tab relative flex items-center justify-center gap-1.5 px-3.5 xl:px-5.5 py-3.5 h-full border-r ${tabDividerClass} transition-colors duration-150 ${
                         active
                           ? `bg-background border-b-2 ${activeTabBorderClass}`
                           : "bg-transparent hover:bg-foreground/[0.03]"
                       }`}
                     >
                       <span
-                        className={`font-mono text-xs uppercase tracking-wider transition-colors duration-150 whitespace-nowrap ${
+                        className={`font-mono text-sm uppercase tracking-wider transition-colors duration-150 whitespace-nowrap ${
                           active
                             ? "text-foreground"
                             : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
@@ -203,7 +203,7 @@ export function StaggeredNavFiles() {
                         d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z"
                       />
                     </svg>
-                    <span className="font-mono text-[10px] uppercase tracking-wider">
+                    <span className="font-mono text-xs uppercase tracking-wider">
                       Menu
                     </span>
                   </button>
@@ -219,7 +219,7 @@ export function StaggeredNavFiles() {
                             type="button"
                             className={cn(
                               "border-b border-foreground/6 w-full text-left flex gap-2 items-center px-5 py-3 transition-colors",
-                              "font-medium text-sm tracking-wider",
+                              "font-medium text-base tracking-wider",
                               mobileDocSection === index
                                 ? "text-foreground bg-foreground/3"
                                 : "text-foreground/65 hover:text-foreground hover:bg-foreground/3",
@@ -256,7 +256,7 @@ export function StaggeredNavFiles() {
                                         pathname === section.href || undefined
                                       }
                                       className={cn(
-                                        "relative flex items-center gap-2.5 px-5 py-1.5 text-[14px] transition-all duration-150",
+                                        "relative flex items-center gap-2.5 px-5 py-1.5 text-sm transition-all duration-150",
                                         pathname === section.href
                                           ? "text-foreground bg-foreground/6"
                                           : "text-foreground/70 dark:text-foreground/55 hover:text-foreground/85 hover:bg-foreground/3",
@@ -272,7 +272,7 @@ export function StaggeredNavFiles() {
                                           key={`sep-${item.title}-${i}`}
                                           className="flex flex-row items-center gap-2 mx-5 my-2"
                                         >
-                                          <p className="text-[10px] text-foreground/55 dark:text-foreground/35 uppercase tracking-wider">
+                                          <p className="text-xs text-foreground/55 dark:text-foreground/35 uppercase tracking-wider">
                                             {item.title}
                                           </p>
                                           <div className="grow h-px bg-border" />
@@ -291,7 +291,7 @@ export function StaggeredNavFiles() {
                                         onClick={() => setMobileMenuOpen(false)}
                                         data-active={active || undefined}
                                         className={cn(
-                                          "relative flex items-center gap-2.5 px-5 py-1.5 text-[14px] transition-all duration-150",
+                                          "relative flex items-center gap-2.5 px-5 py-1.5 text-sm transition-all duration-150",
                                           active
                                             ? "text-foreground bg-foreground/6"
                                             : "text-foreground/70 dark:text-foreground/55 hover:text-foreground/85 hover:bg-foreground/3",
@@ -313,7 +313,7 @@ export function StaggeredNavFiles() {
                                         {item.isNew && (
                                           <Badge
                                             className={cn(
-                                              "pointer-events-none border-dashed rounded-none px-1.5 py-0 text-[9px] uppercase tracking-wider",
+                                              "pointer-events-none border-dashed rounded-none px-1.5 py-0 text-xs uppercase tracking-wider",
                                               active
                                                 ? "border-solid bg-foreground/10 text-foreground"
                                                 : "text-foreground/65 dark:text-foreground/50 border-foreground/20",
@@ -355,7 +355,7 @@ export function StaggeredNavFiles() {
                           d="M20 11H7.83l5.59-5.59L12 4l-8 8l8 8l1.41-1.41L7.83 13H20z"
                         />
                       </svg>
-                      <span className="font-mono text-[10px] uppercase tracking-wider">
+                      <span className="font-mono text-xs uppercase tracking-wider">
                         Docs
                       </span>
                     </button>
@@ -382,7 +382,7 @@ export function StaggeredNavFiles() {
                         }`}
                       >
                         <span
-                          className={`font-mono text-sm uppercase tracking-wider ${
+                          className={`font-mono text-base uppercase tracking-wider ${
                             isActive(item.path || item.href) ||
                             (item.href === "/docs" && isDocs)
                               ? "text-foreground"

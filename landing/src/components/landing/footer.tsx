@@ -53,12 +53,12 @@ export default function Footer() {
             <span key={link.label} className="flex items-center">
               <Link
                 href={link.href}
-                className="group inline-flex items-center gap-1 text-[11px] font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
+                className="group inline-flex items-center gap-1 text-xs font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
               >
                 {link.label}
               </Link>
               {i < footerLinks.length - 1 && (
-                <span className="text-foreground/10 mx-1 text-[10px] select-none">
+                <span className="text-foreground/10 mx-1 text-xs select-none">
                   /
                 </span>
               )}
@@ -67,7 +67,7 @@ export default function Footer() {
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-[10px] text-foreground/20 font-mono">
+          <span className="text-xs text-foreground/20 font-mono">
             © {new Date().getFullYear()} Better Auth Inc.
           </span>
           <div className="flex items-center gap-3 sm:gap-4">

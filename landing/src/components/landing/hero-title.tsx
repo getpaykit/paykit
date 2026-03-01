@@ -21,7 +21,7 @@ export function HeroTitle() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="relative w-full px-5 sm:px-6 lg:px-7 pt-16 sm:pt-20 md:pt-28 lg:pt-36 pb-6 flex flex-col items-center text-center"
+      className="relative w-full px-5 sm:px-6 lg:px-7 pt-14 sm:pt-18 md:pt-24 lg:pt-32 pb-0 flex flex-col items-center text-center"
     >
       <div className="space-y-2 sm:space-y-1">
         <div className="flex items-center justify-center gap-1.5">
@@ -42,7 +42,7 @@ export function HeroTitle() {
             Own Your Auth
           </span>
         </div>
-        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight">
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight">
           The most comprehensive authentication framework for{" "}
           <span className="relative inline-flex overflow-hidden align-bottom">
             <AnimatePresence mode="wait">
@@ -93,7 +93,7 @@ export function HeroTitle() {
             <span className="absolute left-0 -top-[6px] -bottom-[6px] w-px bg-foreground/20 group-hover:bg-foreground/30 transition-colors" />
             {/* Right border */}
             <span className="absolute right-0 -top-[6px] -bottom-[6px] w-px bg-foreground/20 group-hover:bg-foreground/30 transition-colors" />
-            <span className="absolute -bottom-[6px] -right-[6px] font-mono text-[8px] text-foreground/40 dark:text-foreground/50 leading-none select-none translate-x-1/2 translate-y-1/2">
+            <span className="absolute -bottom-[6px] -right-[6px] font-mono text-[10px] text-foreground/40 dark:text-foreground/50 leading-none select-none translate-x-1/2 translate-y-1/2">
               +
             </span>
             <span className="relative">Read Docs</span>
