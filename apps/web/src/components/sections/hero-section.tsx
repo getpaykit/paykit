@@ -1,4 +1,5 @@
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight02Icon, GithubIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 
 import { CodeBlock } from "@/components/code-block";
 import { Button } from "@/components/ui/button";
@@ -41,14 +42,14 @@ export function HeroSection() {
           <div className="flex gap-3 mt-8 flex-wrap">
             <Button size="lg" asChild>
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-                <Github className="size-4" />
+                <HugeiconsIcon icon={GithubIcon} size={16} />
                 Star on GitHub
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <a href="#waitlist">
                 Join Waitlist
-                <ArrowRight className="size-4" />
+                <HugeiconsIcon icon={ArrowRight02Icon} size={16} />
               </a>
             </Button>
           </div>

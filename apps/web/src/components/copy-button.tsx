@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, Copy } from "lucide-react";
+import { Copy01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import { useState } from "react";
 
 interface CopyButtonProps {
@@ -25,9 +26,17 @@ function CopyButton({ code }: CopyButtonProps) {
       aria-label="Copy code"
     >
       {copied ? (
-        <Check className="h-3.5 w-3.5 text-emerald-400" />
+        <HugeiconsIcon
+          icon={Tick02Icon}
+          size={14}
+          className="text-emerald-400"
+        />
       ) : (
-        <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+        <HugeiconsIcon
+          icon={Copy01Icon}
+          size={14}
+          className="text-muted-foreground"
+        />
       )}
     </button>
   );

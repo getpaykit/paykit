@@ -1,4 +1,5 @@
-import { Github } from "lucide-react";
+import { GithubIcon } from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { GITHUB_URL } from "@/lib/conts";
@@ -22,7 +23,7 @@ export function HeaderSection() {
 
           <Button variant="outline" asChild>
             <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">
-              <Github className="size-4" />
+              <HugeiconsIcon icon={GithubIcon} size={16} />
               Star on GitHub
             </a>
           </Button>

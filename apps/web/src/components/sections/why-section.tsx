@@ -1,4 +1,9 @@
-import { Database, Plug, Unlock } from "lucide-react";
+import {
+  DatabaseIcon,
+  Plug01Icon,
+  SquareUnlock02Icon,
+} from "@hugeicons/core-free-icons";
+import { HugeiconsIcon } from "@hugeicons/react";
 import type * as React from "react";
 
 import { cn } from "@/lib/utils";
@@ -11,19 +16,19 @@ interface WhyCard {
 
 const cards: WhyCard[] = [
   {
-    icon: <Unlock className="size-5" />,
+    icon: <HugeiconsIcon icon={SquareUnlock02Icon} size={20} />,
     title: "No vendor lock-in.",
     description:
       "Subscriptions, invoices, and usage live in your DB. Swap providers without rewriting billing logic.",
   },
   {
-    icon: <Database className="size-5" />,
+    icon: <HugeiconsIcon icon={DatabaseIcon} size={20} />,
     title: "No product catalog syncing.",
     description:
       "Pass amounts inline. Your app owns its products — PayKit doesn't need to know about them.",
   },
   {
-    icon: <Plug className="size-5" />,
+    icon: <HugeiconsIcon icon={Plug01Icon} size={20} />,
     title: "Tiny provider contract.",
     description: "5 methods. Adding a new provider takes an afternoon.",
   },
