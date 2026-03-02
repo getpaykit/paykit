@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { Github, Sparkle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-const rotatingWords = ["the web", "Next.js", "TypeScript"];
+const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
 
 export function HeroTitle() {
   const [wordIndex, setWordIndex] = useState(0);
@@ -25,25 +26,16 @@ export function HeroTitle() {
     >
       <div className="space-y-2 sm:space-y-1">
         <div className="flex items-center justify-center gap-1.5">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="0.9em"
-            height="0.9em"
-            viewBox="0 0 24 24"
-            className="text-neutral-600 dark:text-neutral-100"
+          <Sparkle
+            className="size-[0.9em] text-neutral-600 dark:text-neutral-100"
             aria-hidden="true"
-          >
-            <path
-              fill="currentColor"
-              d="M13 4V2c4.66.5 8.33 4.19 8.85 8.85c.6 5.49-3.35 10.43-8.85 11.03v-2c3.64-.45 6.5-3.32 6.96-6.96A7.994 7.994 0 0 0 13 4m-7.33.2A9.8 9.8 0 0 1 11 2v2.06c-1.43.2-2.78.78-3.9 1.68zM2.05 11a9.8 9.8 0 0 1 2.21-5.33L5.69 7.1A8 8 0 0 0 4.05 11zm2.22 7.33A10.04 10.04 0 0 1 2.06 13h2c.18 1.42.75 2.77 1.63 3.9zm1.4 1.41l1.39-1.37h.04c1.13.88 2.48 1.45 3.9 1.63v2c-1.96-.21-3.82-1-5.33-2.26M12 17l1.56-3.42L17 12l-3.44-1.56L12 7l-1.57 3.44L7 12l3.43 1.58z"
-            />
-          </svg>
-          <span className="text-xs sm:text-sm text-neutral-600 dark:text-neutral-100">
-            Own Your Auth
+          />
+          <span className="text-sm sm:text-base text-neutral-600 dark:text-neutral-100">
+            Own your payments
           </span>
         </div>
-        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight">
-          The most comprehensive authentication framework for{" "}
+        <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl text-neutral-800 dark:text-neutral-200 tracking-tight leading-tight max-w-4xl">
+          Open-source payment orchestration for{" "}
           <span className="relative inline-flex overflow-hidden align-bottom">
             <AnimatePresence mode="wait">
               <motion.span
@@ -62,14 +54,16 @@ export function HeroTitle() {
 
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:mt-5">
-          <a
-            href="/sign-in"
-            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 text-xs sm:text-sm font-medium hover:opacity-90 transition-colors"
-          >
-            Get Started
-          </a>
           <Link
             href="/docs"
+            className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 text-xs sm:text-sm font-medium hover:opacity-90 transition-colors"
+          >
+            Read Docs
+          </Link>
+          <a
+            href="https://github.com/getpaykit/paykit"
+            target="_blank"
+            rel="noopener noreferrer"
             className="relative inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 text-neutral-600 dark:text-neutral-300 text-xs sm:text-sm font-medium transition-colors group"
           >
             {/* Diagonal lines background */}
@@ -93,11 +87,9 @@ export function HeroTitle() {
             <span className="absolute left-0 -top-[6px] -bottom-[6px] w-px bg-foreground/20 group-hover:bg-foreground/30 transition-colors" />
             {/* Right border */}
             <span className="absolute right-0 -top-[6px] -bottom-[6px] w-px bg-foreground/20 group-hover:bg-foreground/30 transition-colors" />
-            <span className="absolute -bottom-[6px] -right-[6px] font-mono text-[10px] text-foreground/40 dark:text-foreground/50 leading-none select-none translate-x-1/2 translate-y-1/2">
-              +
-            </span>
-            <span className="relative">Read Docs</span>
-          </Link>
+            <Github className="relative size-4" />
+            <span className="relative">View on GitHub</span>
+          </a>
         </div>
       </div>
     </motion.div>

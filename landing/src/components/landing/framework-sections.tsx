@@ -513,279 +513,93 @@ const _categoryColors: Record<string, string> = {
   ai: "text-pink-500/50 dark:text-pink-400/40",
 };
 
-const dbDrivers = [
-  {
-    name: "PostgreSQL",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M23.56 14.723a.5.5 0 0 0-.057-.12q-.21-.395-1.007-.231c-1.654.34-2.294.13-2.526-.02c1.342-2.048 2.445-4.522 3.041-6.83c.272-1.05.798-3.523.122-4.73a1.6 1.6 0 0 0-.15-.236C21.693.91 19.8.025 17.51.001c-1.495-.016-2.77.346-3.116.479a10 10 0 0 0-.516-.082a8 8 0 0 0-1.312-.127c-1.182-.019-2.203.264-3.05.84C8.66.79 4.729-.534 2.296 1.19C.935 2.153.309 3.873.43 6.304c.041.818.507 3.334 1.243 5.744q.69 2.26 1.433 3.582q.83 1.493 1.714 1.79c.448.148 1.133.143 1.858-.729a56 56 0 0 1 1.945-2.206c.435.235.906.362 1.39.377v.004a11 11 0 0 0-.247.305c-.339.43-.41.52-1.5.745c-.31.064-1.134.233-1.146.811a.6.6 0 0 0 .091.327c.227.423.922.61 1.015.633c1.335.333 2.505.092 3.372-.679c-.017 2.231.077 4.418.345 5.088c.221.553.762 1.904 2.47 1.904q.375.001.829-.094c1.782-.382 2.556-1.17 2.855-2.906c.15-.87.402-2.875.539-4.101c.017-.07.036-.12.057-.136c0 0 .07-.048.427.03l.044.007l.254.022l.015.001c.847.039 1.911-.142 2.531-.43c.644-.3 1.806-1.033 1.595-1.67"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "MySQL",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M16.405 5.501c-.115 0-.193.014-.274.033v.013h.014c.054.104.146.18.214.273c.054.107.1.214.154.32l.014-.015c.094-.066.14-.172.14-.333c-.04-.047-.046-.094-.08-.14c-.04-.067-.126-.1-.18-.153zM5.77 18.695h-.927a51 51 0 0 0-.27-4.41h-.008l-1.41 4.41H2.45l-1.4-4.41h-.01a73 73 0 0 0-.195 4.41H0q.083-2.95.41-5.53h1.15l1.335 4.064h.008l1.347-4.064h1.095q.363 3.024.428 5.53zm4.017-4.08q-.567 3.069-1.492 4.46q-.723 1.074-1.583 1.073q-.228 0-.566-.138v-.494q.166.026.386.026q.402 0 .647-.222q.295-.27.295-.605q0-.233-.23-.944L6.23 14.615h.91l.727 2.36q.247.804.205 1.123q.6-1.598.835-3.483zm12.325 4.08h-2.63v-5.53h.885v4.85h1.745zm-3.32.135l-1.016-.5q.136-.113.255-.25q.649-.76.648-2.253q0-2.745-2.155-2.746q-1.056 0-1.65.697q-.646.762-.646 2.245q-.001 1.459.574 2.14q.524.615 1.583.615q.396 0 .725-.098l1.325.772l.36-.622zM15.5 17.588q-.337-.541-.337-1.736q0-2.09 1.27-2.09q.666 0 .977.5q.336.543.336 1.723q0 2.107-1.27 2.108q-.667 0-.978-.5zm-1.658-.425q0 .706-.516 1.156q-.514.45-1.384.45c-.543 0-1.064-.172-1.573-.515l.237-.476q.656.329 1.19.328q.498 0 .783-.22a.75.75 0 0 0 .3-.615c0-.33-.23-.61-.648-.845c-.388-.213-1.163-.657-1.163-.657c-.422-.307-.632-.636-.632-1.177q0-.674.47-1.085q.471-.416 1.22-.415q.769 0 1.4.41l-.213.476a2.7 2.7 0 0 0-1.064-.23q-.425 0-.654.206a.69.69 0 0 0-.248.524c0 .328.234.61.666.85c.393.215 1.187.67 1.187.67c.433.305.648.63.648 1.168zm9.382-5.852c-.535-.014-.95.04-1.297.188c-.1.04-.26.04-.274.167c.055.053.063.14.11.214c.08.134.218.313.346.407q.208.167.427.31c.26.16.555.255.81.416c.145.094.293.213.44.313c.073.05.12.14.214.172v-.02c-.046-.06-.06-.147-.105-.214c-.067-.067-.134-.127-.2-.193a3.2 3.2 0 0 0-.695-.675c-.214-.146-.682-.35-.77-.595l-.013-.014c.146-.013.32-.066.46-.106c.227-.06.435-.047.67-.106q.16-.042.32-.094v-.06c-.12-.12-.21-.283-.334-.395a9 9 0 0 0-1.104-.823c-.21-.134-.476-.22-.697-.334c-.08-.04-.214-.06-.26-.127c-.12-.146-.19-.34-.275-.514a18 18 0 0 1-.547-1.163c-.12-.262-.193-.523-.34-.763c-.69-1.137-1.437-1.826-2.586-2.5c-.247-.14-.543-.2-.856-.274c-.167-.008-.334-.02-.5-.027c-.11-.047-.216-.174-.31-.235c-.38-.24-1.364-.76-1.644-.072c-.18.434.267.862.422 1.082c.115.153.26.328.34.5c.047.116.06.235.107.356c.106.294.207.622.347.897c.073.14.153.287.247.413c.054.073.146.107.167.227c-.094.136-.1.334-.154.5c-.24.757-.146 1.693.194 2.25c.107.166.362.534.703.393c.3-.12.234-.5.32-.835c.02-.08.007-.133.048-.187v.015c.094.188.188.367.274.555c.206.328.566.668.867.895c.16.12.287.328.487.402v-.02h-.015c-.043-.058-.1-.086-.154-.133a3.5 3.5 0 0 1-.35-.4a9 9 0 0 1-.747-1.218c-.11-.21-.202-.436-.29-.643c-.04-.08-.04-.2-.107-.24c-.1.146-.247.273-.32.453c-.127.288-.14.642-.188 1.01c-.027.007-.014 0-.027.014c-.214-.052-.287-.274-.367-.46c-.2-.475-.233-1.238-.06-1.785c.047-.14.247-.582.167-.716c-.042-.127-.174-.2-.247-.303a2.5 2.5 0 0 1-.24-.427c-.16-.374-.24-.788-.414-1.162c-.08-.173-.22-.354-.334-.513c-.127-.18-.267-.307-.368-.52c-.033-.073-.08-.194-.027-.274c.014-.054.042-.075.094-.09c.088-.072.335.022.422.062c.247.1.455.194.662.334c.094.066.195.193.315.226h.14c.214.047.455.014.655.073c.355.114.675.28.962.46a5.95 5.95 0 0 1 2.085 2.286c.08.154.115.295.188.455c.14.33.313.663.455.982c.14.315.275.636.476.897c.1.14.502.213.682.286c.133.06.34.115.46.188c.23.14.454.3.67.454c.11.076.443.243.463.378"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "SQLite",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M21.678.521c-1.032-.92-2.28-.55-3.513.544a9 9 0 0 0-.547.535c-2.109 2.237-4.066 6.38-4.674 9.544c.237.48.422 1.093.544 1.561a13 13 0 0 1 .164.703s-.019-.071-.096-.296l-.05-.146l-.033-.08c-.138-.32-.518-.995-.686-1.289c-.143.423-.27.818-.376 1.176c.484.884.778 2.4.778 2.4s-.025-.099-.147-.442c-.107-.303-.644-1.244-.772-1.464c-.217.804-.304 1.346-.226 1.478c.152.256.296.698.422 1.186c.286 1.1.485 2.44.485 2.44l.017.224a22 22 0 0 0 .056 2.748c.095 1.146.273 2.13.5 2.657l.155-.084c-.334-1.038-.47-2.399-.41-3.967c.09-2.398.642-5.29 1.661-8.304c1.723-4.55 4.113-8.201 6.3-9.945c-1.993 1.8-4.692 7.63-5.5 9.788c-.904 2.416-1.545 4.684-1.931 6.857c.666-2.037 2.821-2.912 2.821-2.912s1.057-1.304 2.292-3.166c-.74.169-1.955.458-2.362.629c-.6.251-.762.337-.762.337s1.945-1.184 3.613-1.72C21.695 7.9 24.195 2.767 21.678.521m-18.573.543A1.84 1.84 0 0 0 1.27 2.9v16.608a1.84 1.84 0 0 0 1.835 1.834h9.418a23 23 0 0 1-.052-2.707c-.006-.062-.011-.141-.016-.2a27 27 0 0 0-.473-2.378c-.121-.47-.275-.898-.369-1.057c-.116-.197-.098-.31-.097-.432c0-.12.015-.245.037-.386a10 10 0 0 1 .234-1.045l.217-.028c-.017-.035-.014-.065-.031-.097l-.041-.381a33 33 0 0 1 .382-1.194l.2-.019c-.008-.016-.01-.038-.018-.053l-.043-.316c.63-3.28 2.587-7.443 4.8-9.791c.066-.069.133-.128.198-.194Z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "MongoDB",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M17.193 9.555c-1.264-5.58-4.252-7.414-4.573-8.115c-.28-.394-.53-.954-.735-1.44c-.036.495-.055.685-.523 1.184c-.723.566-4.438 3.682-4.74 10.02c-.282 5.912 4.27 9.435 4.888 9.884l.07.05A74 74 0 0 1 11.91 24h.481a29 29 0 0 1 .51-3.07c.417-.296.604-.463.85-.693a11.34 11.34 0 0 0 3.639-8.464c.01-.814-.103-1.662-.197-2.218m-5.336 8.195s0-8.291.275-8.29c.213 0 .49 10.695.49 10.695c-.381-.045-.765-1.76-.765-2.405"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "LibSQL",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="m23.31.803l-.563-.42l-1.11 1.189l-.891-1.286l-.512.235l.704 1.798l-.326.35L18.082 0l-.574.284l2.25 4.836l-2.108.741h-.05l-1.143-1.359l-1.144 1.36H8.687l-1.144-1.36l-1.146 1.363H6.36L4.24 5.12L6.491.284L5.919 0l-2.53 2.668l-.327-.349l.705-1.798l-.512-.236l-.89 1.287L1.253.382L.69.804L2.42 3.69l-.89.939l.311 2.375l2.061.787L3.9 8.817H1.947v.444l.755 1.078l1.197.433v6.971l3.057 4.55L7.657 24l1.101-1.606L9.9 24l.999-1.606L12 24l1.102-1.606L14.1 24l1.141-1.606L16.343 24l.701-1.706l3.058-4.55v-6.972l1.196-.433l.756-1.078v-.444h-1.952l.003-1.03l2.054-.784l.311-2.375l-.89-.939zm-8.93 18.718H8.033l.793-1.615l.794 1.615l.793-1.083l.793 1.083l.794-1.083l.793 1.083l.794-1.083zl.793-1.615l.794 1.615zm3.886-7.39l-3.3 1.084l-.143 3.061l-2.827.627l-2.826-.627l-.142-3.06l-3.3-1.085v-1.635l4.266 1.21l-.052 4.126h4.109l-.052-4.127l4.266-1.209z"
-        />
-      </svg>
-    ),
-  },
-];
+const codeExamples: Record<string, string> = {
+  Checkout: `const checkout = await paykit.api.createCheckout({
+  customerId: "cust_abc",
+  amount: 9900, // $99.00
+  description: "Lifetime License",
+  successURL: "https://myapp.com/success",
+  cancelURL: "https://myapp.com/cancel",
+  attachMethod: true,
+});
 
-const ormAdapters = [
-  {
-    name: "Prisma",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M21.807 18.285L13.553.757a1.32 1.32 0 0 0-1.129-.755a1.31 1.31 0 0 0-1.206.626l-8.952 14.5a1.36 1.36 0 0 0 .016 1.455l4.376 6.778a1.41 1.41 0 0 0 1.58.581l12.703-3.757c.389-.115.707-.39.873-.755s.164-.783-.007-1.145m-1.848.752L9.18 22.224a.452.452 0 0 1-.575-.52l3.85-18.438c.072-.345.549-.4.699-.08l7.129 15.138a.515.515 0 0 1-.325.713"
-        />
-      </svg>
-    ),
+// redirect user to checkout.url`,
+  Subscriptions: `const subscription = await paykit.api.createSubscription({
+  customerId: "cust_abc",
+  amount: 2900, // $29/mo
+  interval: "month",
+  description: "Pro Plan",
+  trialDays: 14,
+});
+
+// cancel at period end
+await paykit.api.cancelSubscription({
+  id: subscription.id,
+  mode: "at_period_end",
+});`,
+  Events: `const paykit = createPayKit({
+  // ...
+  on: {
+    "subscription.activated": async ({ subscription, customer }) => {
+      await sendEmail(customer.email, "Welcome to Pro!");
+    },
+    "payment.succeeded": async ({ payment }) => {
+      console.log("Payment received:", payment.id);
+    },
+    "invoice.payment_failed": async ({ invoice, error }) => {
+      await alertTeam(invoice.customerId, error);
+    },
   },
-  {
-    name: "Drizzle",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M5.353 11.823a1.036 1.036 0 0 0-.395-1.422a1.063 1.063 0 0 0-1.437.399L.138 16.702a1.035 1.035 0 0 0 .395 1.422a1.063 1.063 0 0 0 1.437-.398zm11.216 0a1.036 1.036 0 0 0-.394-1.422a1.064 1.064 0 0 0-1.438.399l-3.382 5.902a1.036 1.036 0 0 0 .394 1.422c.506.283 1.15.104 1.438-.398zm7.293-4.525a1.036 1.036 0 0 0-.395-1.422a1.06 1.06 0 0 0-1.437.399l-3.383 5.902a1.036 1.036 0 0 0 .395 1.422a1.063 1.063 0 0 0 1.437-.399zm-11.219 0a1.035 1.035 0 0 0-.394-1.422a1.064 1.064 0 0 0-1.438.398l-3.382 5.903a1.036 1.036 0 0 0 .394 1.422c.506.282 1.15.104 1.438-.399z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Mongoose",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M14.014 7.37a9 9 0 0 0-.808.025c-.218.017-.434.072-.65.11c.229.118.456.213.68.315q.339.155.629.387c-.253-.097-.499-.208-.752-.298a8 8 0 0 0-1.624-.421c-.273-.037-.546-.073-.819.005c-.276.078-.354.18-.38.458c-.04.46.098.887.281 1.298a4.4 4.4 0 0 0 1.185 1.573a4.6 4.6 0 0 0 1.305.787l.411.155l-.009.032c-.263-.072-.532-.126-.787-.22a4.1 4.1 0 0 1-1.222-.73a4.2 4.2 0 0 1-1.007-1.22a3.4 3.4 0 0 1-.43-1.609l-.012.005C4.891 7.488.402 11.595.035 11.94l-.034.014q-.002.007.003.016L0 11.974l.005-.002l.013.024c.087-.019.173-.042.26-.054l.069-.01c.324-.115.655-.205.997-.253c.484-.069.985-.159 1.48-.156c.468.002.943.074 1.402.153q.193.034.38.087c.335.075.65.21.933.391l.06.03c.403.19.758.47 1.038.811c.052.057.141.116.187.178c.096.114.142.236.303.363v-1.737h2.01l.939 1.733l.942-1.733h2.07v3.357l.343-.226s.375-1 2.116-1.14l1.996-.064c-.308-.637-.307-.637-.159-.83c.147-.19 1.28-.314 1.48-.433l2.912-.588c.007-.022.015.012.03.007c.072-.022.147-.037.25-.061l.66-.16c.042-.025.093-.034.14-.05c.308-.107.577-.245.726-.573c.145-.319.339-.616.41-.967c.022-.111.003-.208-.078-.288a.73.73 0 0 0-.35-.171c-.421-.173-.84-.35-1.264-.513c-.261-.101-.529-.185-.795-.27a31 31 0 0 0-.794-.243q-.366-.106-.736-.205c-.24-.066-.48-.133-.72-.192c-.282-.07-.565-.13-.847-.195c-.215-.05-.428-.102-.644-.146q-.351-.07-.706-.13c-.302-.053-.602-.112-.905-.153c-.366-.05-.734-.082-1.101-.125q-.518-.061-1.038-.07m-3.303.767a.2.2 0 0 1 .056.007c.42.13.83.277 1.216.491c.365.203.695.45.979.756c.012.013.02.028.036.05l-.645-.293l-.021.026l.37.551l-.022.022a2 2 0 0 0-.665-.322l-.02.02l.633.74l-.416-.136l-.017.02c.163.27.376.505.58.775c-.354-.2-.665-.42-.956-.669a4.5 4.5 0 0 1-1.01-1.185c-.107-.19-.201-.385-.222-.606a.5.5 0 0 1 .011-.15a.12.12 0 0 1 .113-.097m5.424.668c.154.002.311-.006.464.015c.278.037.555.092.832.14c.158.027.317.052.474.086q.446.098.89.2q.294.068.587.14l-.329.161c-.365.027-.731.055-1.097.057a3.3 3.3 0 0 1-.675-.074c-.28-.058-.514-.196-.652-.466c-.02-.04-.09-.063-.14-.078c-.18-.054-.362-.1-.544-.168c.063-.005.126-.014.19-.013m3.223 2.635l.005.02q-.12.031-.239.067c-.455.14-.916.266-1.363.428c-.28.101-.544.25-.81.388c-.233.119-.315.322-.287.575q.03.243.055.488a1.8 1.8 0 0 1-.288-.701c-.035-.169.058-.273.18-.365c.238-.178.496-.318.777-.41c.35-.117.702-.233 1.059-.325c.251-.065.513-.09.77-.133q.071-.014.141-.032M9.141 13.955v2.676h1.869l.064-.066v-2.61l-.97 1.495z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "TypeORM",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-      >
-        <path
-          fill="currentColor"
-          d="M22.593 6.863c0 .9-.008 1.742.004 2.583c.006.355.07.708.21 1.038c.133.306.35.544.652.692c.153.075.314.131.47.204a.134.13 0 0 1 .066.099q.008.58 0 1.16c0 .039-.052.097-.093.11a1.818 1.82 0 0 0-1.178 1.22c-.125.387-.137.785-.137 1.187q.002 2.24-.006 4.48c0 .466-.07.926-.225 1.363c-.087.241-.226.463-.347.69c-.016.031-.05.052-.08.073c-.185.137-.365.287-.56.407c-.169.103-.354.177-.535.255c-.114.048-.236.082-.352.121q-.025.01-.05.014c-.23.028-.46.062-.689.083q-.418.033-.834.052c-.061.003-.123-.02-.183-.026c-.104-.01-.13-.07-.128-.168a32 32 0 0 0 0-1.017c0-.104.027-.15.139-.141c.117.007.24.012.354-.004q.332-.047.655-.125a3 3 0 0 0 .44-.153a.94.94 0 0 0 .456-.409c.125-.208.185-.437.236-.676c.057-.263.036-.52.04-.78c.007-1.485 0-2.97.008-4.456q.003-.47.078-.935a2.148 2.15 0 0 1 1.09-1.585l.25-.143c.061-.037.054-.107-.016-.144a2.8 2.8 0 0 1-.815-.646a2.1 2.1 0 0 1-.39-.711c-.18-.551-.205-1.12-.202-1.694c.002-1.446-.01-2.892 0-4.337a3 3 0 0 0-.072-.666c-.08-.37-.24-.712-.59-.909a2.3 2.3 0 0 0-.467-.177a3 3 0 0 0-.503-.11a4 4 0 0 0-.54-.025c-.113.001-.153-.03-.15-.147c.006-.364.003-.728.001-1.092c0-.089.03-.122.117-.119c.196.005.39-.007.584.004c.272.016.545.035.815.073a3.1 3.1 0 0 1 1.598.714c.252.215.408.479.534.772c.15.346.226.71.275 1.082c.13.99.03 1.986.072 2.918ZM1.421 6.715c0-.581-.006-1.163.002-1.745c.006-.382.009-.77.049-1.149c.027-.263.11-.52.18-.778a1.8 1.8 0 0 1 .366-.723a2.5 2.5 0 0 1 .508-.449c.194-.127.416-.208.629-.305c.17-.076.348-.108.53-.141A8.3 8.3 0 0 1 5.258 1.3c.09 0 .122.027.12.117q-.004.558 0 1.118c0 .091-.028.126-.123.122a1.6 1.6 0 0 0-.321.003a8 8 0 0 0-.704.127c-.15.035-.291.094-.434.148a.94.94 0 0 0-.46.406c-.123.208-.183.44-.238.68c-.067.3.008.588.002.882c-.02 1.329-.006 2.658-.01 3.99a10 10 0 0 1-.051 1.098c-.08.724-.385 1.328-1.024 1.727q-.173.103-.345.209c-.023.014-.051.049-.047.068a.14.14 0 0 0 .058.084a2.9 2.9 0 0 1 .843.678c.19.23.311.494.4.78c.15.496.159 1.006.164 1.516c.008 1.298.002 2.597.003 3.896c0 .144.015.288.013.431c0 .072-.025.143-.027.215q-.004.126.005.253c.003.052.02.104.029.156c.043.301.137.583.336.817c.131.153.303.252.494.321c.201.072.41.1.616.149c.246.058.485.044.73.054c.065.003.09.03.09.093c0 .392.002.784-.005 1.176c0 .029-.053.081-.082.081c-.252.005-.503.01-.754-.002a5 5 0 0 1-.678-.069c-.234-.044-.46-.122-.69-.186a2.15 2.15 0 0 1-.955-.572a1.9 1.9 0 0 1-.376-.54a4.2 4.2 0 0 1-.292-.87a5 5 0 0 1-.103-.964c-.015-1.423-.013-2.846-.023-4.268c-.002-.322-.004-.645-.039-.964c-.04-.36-.12-.712-.342-1.013a1.5 1.5 0 0 0-.624-.487c-.11-.048-.226-.083-.334-.137c-.037-.02-.077-.075-.077-.115q-.006-.56-.003-1.118c0-.1.088-.118.155-.141c.372-.13.676-.348.891-.684a2.05 2.05 0 0 0 .344-1.087c.022-.92.03-1.841.044-2.76h-.016Z"
-        />
-      </svg>
-    ),
-  },
-  {
-    name: "Kysely",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3" />
-        <polyline points="14 2 14 8 20 8" />
-        <path d="M2 15h10" />
-        <path d="M9 18l3-3-3-3" />
-      </svg>
-    ),
-  },
-  {
-    name: "MikroORM",
-    icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="14"
-        height="14"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      >
-        <path d="M4 7V4a2 2 0 0 1 2-2h8.5L20 7.5V20a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3" />
-        <polyline points="14 2 14 8 20 8" />
-        <path d="M2 15h10" />
-        <path d="M9 18l3-3-3-3" />
-      </svg>
-    ),
-  },
-];
+});`,
+  Invoices: `const invoices = await paykit.api.listInvoices({
+  customerId: "cust_abc",
+  status: "paid",
+  limit: 10,
+});
 
-const dbCodeExamples: Record<string, string> = {
-  PostgreSQL: `import { betterAuth } from "better-auth"
-import { Pool } from "pg"
-
-export const auth = betterAuth({
-  database: new Pool({
-    connectionString: process.env.DATABASE_URL,
-  }),
-})`,
-  Prisma: `import { betterAuth } from "better-auth"
-import { prismaAdapter } from "better-auth/adapters/prisma"
-import { PrismaClient } from "@prisma/client"
-
-const prisma = new PrismaClient()
-
-export const auth = betterAuth({
-  database: prismaAdapter(prisma, {
-    provider: "postgresql",
-  }),
-})`,
-  Drizzle: `import { betterAuth } from "better-auth"
-import { drizzleAdapter } from "better-auth/adapters/drizzle"
-import { db } from "./db"
-
-export const auth = betterAuth({
-  database: drizzleAdapter(db, {
-    provider: "pg",
-  }),
-})`,
-  MongoDB: `import { betterAuth } from "better-auth"
-import { mongodbAdapter } from "better-auth/adapters/mongodb"
-import { MongoClient } from "mongodb"
-
-const client = new MongoClient(process.env.MONGO_URI!)
-const db = client.db()
-
-export const auth = betterAuth({
-  database: mongodbAdapter(db),
-})`,
+const invoice = await paykit.api.getInvoice({ id: "inv_abc" });
+// invoice.pdfURL  → download link
+// invoice.total   → amount in cents
+// invoice.status  → "paid"`,
 };
 
-export const serverCode = `import { betterAuth } from "better-auth"
+export const serverCode = `import { createPayKit } from "paykit"
+import { stripe } from "paykit/providers/stripe"
+import { drizzleAdapter } from "paykit/adapters/drizzle"
 
-export const auth = betterAuth({
-  emailAndPassword: {
-    enabled: true,
-  },
-  socialProviders: {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    },
-    github: {
-      clientId: process.env.GITHUB_CLIENT_ID!,
-      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-    },
-  },
-  plugins: [
-    twoFactor(),
-    passkey(),
-    organization(),
+export const paykit = createPayKit({
+  database: drizzleAdapter(db),
+
+  providers: [
+    stripe({
+      secretKey: env.STRIPE_SECRET_KEY,
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+    }),
   ],
+
+  on: {
+    "subscription.activated": async ({ subscription, customer }) => {
+      await sendEmail(customer.email, "Welcome to Pro!")
+    },
+    "payment.succeeded": async ({ payment }) => {
+      console.log("Payment received", payment)
+    },
+  },
 })`;
 
-export const clientCode = `import { createAuthClient } from "better-auth/react"
+export const handlerCode = `// app/api/paykit/[...path]/route.ts
+import { paykit } from "@/lib/paykit"
 
-export const authClient = createAuthClient({
-  plugins: [
-    twoFactorClient(),
-    passkeyClient(),
-    organizationClient(),
-  ],
-})`;
+// Handles webhooks and client API requests
+export const { GET, POST } = paykit.handler`;
 
 export function ServerClientTabs() {
-  const [activeTab, setActiveTab] = useState<"server" | "client">("server");
+  const [activeTab, setActiveTab] = useState<"server" | "handler">("server");
 
   return (
     <div className="relative">
-      <div className="relative overflow-hidden bg-neutral-50 dark:bg-background">
-        <div className="flex border border-b-0 border-foreground/[0.08] rounded-t-lg bg-neutral-100/50 dark:bg-card/50">
+      <div className="relative overflow-hidden bg-neutral-50 dark:bg-background border border-foreground/[0.1] rounded-lg">
+        <div className="flex border-b border-foreground/[0.08] bg-neutral-100/50 dark:bg-card/50">
           <button
             type="button"
             onClick={() => setActiveTab("server")}
@@ -795,31 +609,31 @@ export function ServerClientTabs() {
                 : "text-foreground/40 hover:text-foreground/60"
             }`}
           >
-            auth.ts
+            paykit.ts
             {activeTab === "server" && (
               <span className="absolute bottom-0 left-2 right-2 h-px bg-foreground/50" />
             )}
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("client")}
+            onClick={() => setActiveTab("handler")}
             className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-mono transition-colors relative ${
-              activeTab === "client"
+              activeTab === "handler"
                 ? "text-foreground/80"
                 : "text-foreground/40 hover:text-foreground/60"
             }`}
           >
-            auth-client.ts
-            {activeTab === "client" && (
+            route.ts
+            {activeTab === "handler" && (
               <span className="absolute bottom-0 left-2 right-2 h-px bg-foreground/50" />
             )}
           </button>
         </div>
 
-        <div className="relative max-h-[320px] overflow-hidden">
+        <div className="relative">
           <DynamicCodeBlock
             lang="ts"
-            code={activeTab === "server" ? serverCode : clientCode}
+            code={activeTab === "server" ? serverCode : handlerCode}
             codeblock={{
               className:
                 "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
@@ -827,213 +641,70 @@ export function ServerClientTabs() {
               "data-line-numbers": true,
             }}
           />
-          <div
-            className="absolute inset-y-0 left-0 w-px pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-foreground) 0%, transparent 100%)",
-              opacity: 0.08,
-            }}
-          />
-          <div
-            className="absolute inset-y-0 right-0 w-px pointer-events-none"
-            style={{
-              background:
-                "linear-gradient(to bottom, var(--color-foreground) 0%, transparent 100%)",
-              opacity: 0.08,
-            }}
-          />
-          <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent pointer-events-none" />
         </div>
       </div>
     </div>
   );
 }
 
-const allDbs = [...dbDrivers, ...ormAdapters];
-
-function getDbIcon(name: string) {
-  const found = allDbs.find((d) => d.name === name);
-  return found ? found.icon() : null;
-}
-
-export function DatabaseSection() {
-  const [activeDb, setActiveDb] = useState<string>("PostgreSQL");
-  const dbOptions = Object.keys(dbCodeExamples);
+export function CodeExamplesSection() {
+  const tabs = Object.keys(codeExamples);
+  const [activeTab, setActiveTab] = useState<string>("Checkout");
   const codeScrollRef = React.useRef<HTMLDivElement>(null);
-  const sidebarRef = React.useRef<HTMLDivElement>(null);
-
-  const isFirstRender = React.useRef(true);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    const el = codeScrollRef.current;
-    if (el) {
-      const scrollMax = el.scrollHeight - el.clientHeight;
-      el.scrollTop = Math.min(scrollMax, scrollMax * 0.35);
-    }
-
-    const sidebar = sidebarRef.current;
-    if (sidebar) {
-      const active = sidebar.querySelector(
-        `[data-db="${activeDb}"]`,
-      ) as HTMLElement | null;
-      if (active) {
-        active.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      }
-    }
-  }, [activeDb]);
 
   return (
     <div>
       <div className="flex items-center gap-3 mb-5">
         <span className="text-base text-foreground/85 dark:text-foreground/75">
-          Bring Your Own{" "}
-          <span className="text-amber-500 dark:text-amber-400">Database</span>
+          Unified{" "}
+          <span className="text-emerald-500 dark:text-emerald-400">API</span>
         </span>
         <div className="h-px flex-1 bg-foreground/[0.08]" />
       </div>
 
       <p className="text-sm text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl leading-relaxed">
-        Use any database you want. Connect directly with a connection string, or
-        use your favorite ORM adapter. Your data stays in your database.
+        One API for checkout, subscriptions, invoices, and events — regardless
+        of which payment provider you use.
       </p>
 
-      <div className="border border-foreground/[0.12] overflow-hidden bg-neutral-50/50 dark:bg-background/40">
+      <div className="border border-foreground/[0.1] overflow-hidden bg-neutral-50/50 dark:bg-background/40">
         {/* Tabs */}
         <div className="flex border-b border-foreground/[0.09] bg-neutral-100/50 dark:bg-card/50 overflow-x-auto no-scrollbar">
-          {dbOptions.map((db) => (
+          {tabs.map((tab) => (
             <button
-              key={db}
+              key={tab}
               type="button"
-              onClick={() => setActiveDb(db)}
+              onClick={() => setActiveTab(tab)}
               className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-mono transition-colors relative border-r border-foreground/[0.08] last:border-r-0 shrink-0 ${
-                activeDb === db
+                activeTab === tab
                   ? "text-foreground/90 bg-foreground/[0.03]"
                   : "text-foreground/45 hover:text-foreground/70"
               }`}
             >
-              <span
-                className={
-                  activeDb === db ? "text-foreground/70" : "text-foreground/35"
-                }
-              >
-                {getDbIcon(db)}
-              </span>
-              {db}
-              {activeDb === db && (
-                <span className="absolute bottom-0 left-0 right-0 h-px bg-amber-500/70 dark:bg-amber-400/60" />
+              {tab}
+              {activeTab === tab && (
+                <span className="absolute bottom-0 left-0 right-0 h-px bg-emerald-500/70 dark:bg-emerald-400/60" />
               )}
             </button>
           ))}
         </div>
 
-        {/* Code + Sidebar side by side, same fixed height */}
-        <div className="flex h-[180px]">
-          {/* Code snippet */}
-          <div className="flex-1 min-w-0 relative">
-            <div
-              ref={codeScrollRef}
-              className="h-full overflow-y-auto overflow-x-hidden no-scrollbar overscroll-none"
-            >
-              <DynamicCodeBlock
-                key={activeDb}
-                lang="ts"
-                code={dbCodeExamples[activeDb] ?? ""}
-                codeblock={{
-                  className:
-                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background min-h-full",
-                  keepBackground: true,
-                  "data-line-numbers": true,
-                }}
-              />
-            </div>
-          </div>
-
-          {/* Right sidebar — supported DBs & community */}
-          <div
-            ref={sidebarRef}
-            className="hidden sm:block w-[180px] shrink-0 border-l border-foreground/[0.09] bg-foreground/[0.015] overflow-y-auto no-scrollbar"
-          >
-            <div className="px-3 pt-3 pb-2">
-              <p className="text-xs font-mono uppercase tracking-widest text-amber-600/70 dark:text-amber-400/50 mb-2.5">
-                Direct Drivers
-              </p>
-              <div className="space-y-1">
-                {dbDrivers.map((db) => (
-                  <button
-                    key={db.name}
-                    type="button"
-                    data-db={db.name}
-                    onClick={() =>
-                      dbCodeExamples[db.name] && setActiveDb(db.name)
-                    }
-                    className={`group flex items-center gap-2 w-full text-left transition-colors py-1 px-1.5 ${
-                      activeDb === db.name
-                        ? "text-foreground/90 dark:text-foreground/80"
-                        : dbCodeExamples[db.name]
-                          ? "text-foreground/50 dark:text-foreground/35 hover:text-foreground/75 cursor-pointer"
-                          : "text-foreground/30 dark:text-foreground/20"
-                    }`}
-                  >
-                    <span className="shrink-0">{db.icon()}</span>
-                    <span className="text-xs font-mono">{db.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-foreground/[0.06] px-3 pt-2.5 pb-2">
-              <p className="text-xs font-mono uppercase tracking-widest text-violet-600/70 dark:text-violet-400/50 mb-2.5">
-                ORM Adapters
-              </p>
-              <div className="space-y-1">
-                {ormAdapters.map((adapter) => (
-                  <button
-                    key={adapter.name}
-                    type="button"
-                    data-db={adapter.name}
-                    onClick={() =>
-                      dbCodeExamples[adapter.name] && setActiveDb(adapter.name)
-                    }
-                    className={`group flex items-center gap-2 w-full text-left transition-colors py-1 px-1.5 ${
-                      activeDb === adapter.name
-                        ? "text-foreground/90 dark:text-foreground/80"
-                        : dbCodeExamples[adapter.name]
-                          ? "text-foreground/50 dark:text-foreground/35 hover:text-foreground/75 cursor-pointer"
-                          : "text-foreground/30 dark:text-foreground/20"
-                    }`}
-                  >
-                    <span className="shrink-0">{adapter.icon()}</span>
-                    <span className="text-xs font-mono">{adapter.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="border-t border-foreground/[0.06] px-3 pt-2.5 pb-3">
-              <p className="text-xs font-mono uppercase tracking-widest text-sky-600/70 dark:text-sky-400/50 mb-2">
-                Community
-              </p>
-              <div className="space-y-1">
-                {["Supabase", "Neon", "Turso", "PlanetScale", "D1"].map(
-                  (name) => (
-                    <div
-                      key={name}
-                      className="flex items-center gap-2 py-0.5 px-1.5"
-                    >
-                      <span className="size-1.5 border border-foreground/20 bg-foreground/[0.05]" />
-                      <span className="text-xs font-mono text-foreground/35 dark:text-foreground/22">
-                        {name}
-                      </span>
-                    </div>
-                  ),
-                )}
-              </div>
-            </div>
-          </div>
+        {/* Code block */}
+        <div
+          ref={codeScrollRef}
+          className="overflow-y-auto overflow-x-hidden no-scrollbar overscroll-none"
+        >
+          <DynamicCodeBlock
+            key={activeTab}
+            lang="ts"
+            code={codeExamples[activeTab] ?? ""}
+            codeblock={{
+              className:
+                "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
+              keepBackground: true,
+              "data-line-numbers": true,
+            }}
+          />
         </div>
       </div>
     </div>
