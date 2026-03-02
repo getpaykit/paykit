@@ -1,6 +1,7 @@
 import { GeistPixelSquare } from "geist/font/pixel";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CommandMenuProvider } from "@/components/command-menu";
 import { EarlyDevProvider } from "@/components/landing/early-dev-dialog";
@@ -17,17 +18,21 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-export const metadata = {
-  title: {
-    template: "%s | PayKit",
-    default: "PayKit",
-  },
-  description: "Payments orchestration for modern SaaS.",
+const title = "PayKit — Open-source payment orchestration for TypeScript";
+const description =
+  "PayKit is a TypeScript-first payments orchestration framework that unifies multiple payment providers behind a single, extensible API.";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://paykit.sh"),
+  title: { template: "%s | PayKit", default: title },
+  description,
   openGraph: {
-    images: ["/og.png"],
+    type: "website",
+    siteName: "PayKit",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
   },
   twitter: {
-    card: "summary_large_image" as const,
+    card: "summary_large_image",
     images: ["/og.png"],
   },
 };
