@@ -85,8 +85,8 @@ export default function LogoContextMenu({
     e.preventDefault();
     e.stopPropagation();
     const link = document.createElement("a");
-    link.href = "/branding/better-auth-brand-assets.zip";
-    link.download = "better-auth-branding-assets.zip";
+    link.href = "/branding/paykit-brand-assets.zip";
+    link.download = "paykit-branding-assets.zip";
 
     document.body.appendChild(link);
     link.click();
@@ -174,7 +174,7 @@ export default function LogoContextMenu({
                   downloadPng(
                     e,
                     getAsset(logoAssets.darkPng, logoAssets.whitePng),
-                    `better-auth-logo-${theme}.png`,
+                    `paykit-logo-${theme}.png`,
                   )
                 }
                 className="flex items-center gap-3 w-full p-2 text-white hover:bg-zinc-900 rounded-md transition-colors cursor-pointer"

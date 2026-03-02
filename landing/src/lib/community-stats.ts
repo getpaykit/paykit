@@ -22,7 +22,7 @@ export function getContributors(): ContributorInfo[] {
 async function fetchNpmDownloads(): Promise<number> {
   try {
     const response = await fetch(
-      "https://api.npmjs.org/downloads/point/last-year/better-auth",
+      "https://api.npmjs.org/downloads/point/last-year/paykit",
       { next: { revalidate: 3600 } }, // Cache for 1 hour
     );
 
@@ -54,12 +54,12 @@ async function fetchGitHubStats(): Promise<{
 }> {
   try {
     const [repoResponse, contributorsResponse] = await Promise.all([
-      fetch("https://api.github.com/repos/better-auth/better-auth", {
+      fetch("https://api.github.com/repos/getpaykit/paykit", {
         next: { revalidate: 3600 },
         headers: githubHeaders,
       }),
       fetch(
-        "https://api.github.com/repos/better-auth/better-auth/contributors?per_page=1&anon=true",
+        "https://api.github.com/repos/getpaykit/paykit/contributors?per_page=1&anon=true",
         {
           next: { revalidate: 3600 },
           headers: githubHeaders,

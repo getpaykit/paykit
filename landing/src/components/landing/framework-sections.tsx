@@ -854,9 +854,9 @@ export function PluginEcosystem() {
 }
 
 const mcpClients = [
-  { name: "Cursor", cmd: "npx @better-auth/cli mcp --cursor" },
-  { name: "Claude Code", cmd: "claude mcp add better-auth" },
-  { name: "Open Code", cmd: "npx @better-auth/cli mcp --open-code" },
+  { name: "Cursor", cmd: "npx @getpaykit/cli mcp --cursor" },
+  { name: "Claude Code", cmd: "claude mcp add paykit" },
+  { name: "Open Code", cmd: "npx @getpaykit/cli mcp --open-code" },
 ];
 
 export function AiNativeSection() {
@@ -869,9 +869,9 @@ export function AiNativeSection() {
   const fullPrompt = "Add Google login and 2FA to my app";
 
   const steps = [
-    { label: "mcp", text: "Connected to better-auth docs" },
-    { label: "skill", text: "better-auth/add-provider → google" },
-    { label: "skill", text: "better-auth/add-plugin → two-factor" },
+    { label: "mcp", text: "Connected to paykit docs" },
+    { label: "skill", text: "paykit/add-provider → stripe" },
+    { label: "skill", text: "paykit/add-plugin → subscriptions" },
     { label: "write", text: "lib/auth.ts", lines: 14 },
     { label: "done", text: "Google OAuth + 2FA configured" },
   ];

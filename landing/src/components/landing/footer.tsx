@@ -68,18 +68,18 @@ export default function Footer() {
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-foreground/20 font-mono">
-            © {new Date().getFullYear()} Better Auth Inc.
+            © {new Date().getFullYear()} PayKit
           </span>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
-              href="https://x.com/better_auth"
+              href="https://x.com/getpaykit"
               aria-label="Twitter/X"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >
               <Icons.XIcon className="h-3 w-3" />
             </Link>
             <Link
-              href="https://github.com/better-auth"
+              href="https://github.com/getpaykit"
               aria-label="GitHub"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >
