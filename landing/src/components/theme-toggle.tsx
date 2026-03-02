@@ -51,15 +51,16 @@ export function ThemeToggle() {
       </svg>
       {/* Moon icon - visible in dark mode */}
       <svg
-        className="hidden [html.dark_&]:block h-6 w-5"
-        viewBox="0 0 32 32"
-        fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        width="1em"
+        height="1em"
+        viewBox="0 0 24 24"
+        className="hidden [html.dark_&]:block"
         suppressHydrationWarning
       >
         <path
-          d="M16 2.66667V29.3333C19.5362 29.3333 22.9276 27.9286 25.4281 25.4281C27.9286 22.9276 29.3333 19.5362 29.3333 16C29.3333 12.4638 27.9286 9.07239 25.4281 6.57191C22.9276 4.07142 19.5362 2.66667 16 2.66667Z"
-          fill="#fff"
+          fill="#888888"
+          d="M12 21q-3.75 0-6.375-2.625T3 12t2.625-6.375T12 3q.35 0 .688.025t.662.075q-1.025.725-1.638 1.888T11.1 7.5q0 2.25 1.575 3.825T16.5 12.9q1.375 0 2.525-.613T20.9 10.65q.05.325.075.662T21 12q0 3.75-2.625 6.375T12 21"
         />
       </svg>
       <span className="sr-only">Toggle theme</span>
