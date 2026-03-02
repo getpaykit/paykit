@@ -118,56 +118,58 @@ export function StaggeredNavFiles() {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
-          className={`relative w-full hidden lg:flex items-stretch border-b bg-background pointer-events-auto min-w-0 ${navBottomBorderClass}`}
+          className={`relative w-full hidden lg:flex items-stretch justify-center border-b bg-background pointer-events-auto min-w-0 ${navBottomBorderClass}`}
         >
-          {/* Logo */}
-          <Link
-            href="/"
-            className="relative z-10 flex items-center gap-1 px-4 lg:px-7 py-3.5 shrink-0 transition-colors duration-150"
-          >
-            <LogoLockup className="h-5" />
-          </Link>
-          {/* File tabs — centered on screen */}
-          <div className="absolute inset-0 flex items-stretch justify-center pointer-events-none">
-            <div className="flex items-stretch pointer-events-auto">
-              {navFiles.map((item, index) => {
-                const active =
-                  isActive(item.path || item.href) ||
-                  (item.href === "/docs" && isDocs);
-                return (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      duration: 0.2,
-                      delay: 0.05 + index * 0.03,
-                      ease: "easeOut",
-                    }}
-                  >
-                    <Link
-                      href={item.href}
-                      target={item.external ? "_blank" : undefined}
-                      rel={item.external ? "noreferrer" : undefined}
-                      className={`group/tab relative flex items-center justify-center gap-1.5 px-3.5 xl:px-5.5 py-3.5 h-full ${index < navFiles.length - 1 ? `border-r ${tabDividerClass}` : ""} transition-colors duration-150 ${
-                        active
-                          ? `bg-background border-b-2 ${activeTabBorderClass}`
-                          : "bg-transparent hover:bg-foreground/[0.03]"
-                      }`}
+          <div className="relative flex items-stretch w-full max-w-[60rem]">
+            {/* Logo */}
+            <Link
+              href="/"
+              className="relative z-10 flex items-center gap-1 px-4 lg:px-5 py-3.5 shrink-0 transition-colors duration-150"
+            >
+              <LogoLockup className="h-5" />
+            </Link>
+            {/* File tabs — centered within container */}
+            <div className="absolute inset-0 flex items-stretch justify-center pointer-events-none">
+              <div className="flex items-stretch pointer-events-auto">
+                {navFiles.map((item, index) => {
+                  const active =
+                    isActive(item.path || item.href) ||
+                    (item.href === "/docs" && isDocs);
+                  return (
+                    <motion.div
+                      key={item.name}
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        duration: 0.2,
+                        delay: 0.05 + index * 0.03,
+                        ease: "easeOut",
+                      }}
                     >
-                      <span
-                        className={`font-mono text-sm uppercase tracking-wider transition-colors duration-150 whitespace-nowrap ${
+                      <Link
+                        href={item.href}
+                        target={item.external ? "_blank" : undefined}
+                        rel={item.external ? "noreferrer" : undefined}
+                        className={`group/tab relative flex items-center justify-center gap-1.5 px-3.5 xl:px-5.5 py-3.5 h-full ${index < navFiles.length - 1 ? `border-r ${tabDividerClass}` : ""} transition-colors duration-150 ${
                           active
-                            ? "text-foreground"
-                            : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
+                            ? `bg-background border-b-2 ${activeTabBorderClass}`
+                            : "bg-transparent hover:bg-foreground/[0.03]"
                         }`}
                       >
-                        {item.name}
-                      </span>
-                    </Link>
-                  </motion.div>
-                );
-              })}
+                        <span
+                          className={`font-mono text-sm uppercase tracking-wider transition-colors duration-150 whitespace-nowrap ${
+                            active
+                              ? "text-foreground"
+                              : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
+                          }`}
+                        >
+                          {item.name}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </motion.div>
