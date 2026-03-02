@@ -10,19 +10,19 @@
 ### Server
 
 ```typescript
-import { createPayKit } from "paykit";
-import { stripe } from "@paykit/stripe";
-import { prisma } from "@paykit/prisma";
+import { createPayKit } from "paykit"
+import { stripe } from "paykit/providers/stripe"
+import { drizzleAdapter } from "paykit/adapters/drizzle"
 
 export const paykit = createPayKit({
   // Database adapter — required
-  database: prisma(prismaClient),
+  database: drizzleAdapter(db),
 
   // Provider adapters — at least one required
   providers: [
     stripe({
-      secretKey: process.env.STRIPE_SECRET_KEY!,
-      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+      secretKey: env.STRIPE_SECRET_KEY,
+      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
     }),
   ],
 
@@ -51,7 +51,6 @@ export const paykit = createPayKit({
   // Plugins (optional)
   plugins: [
     walletPlugin(),
-    usageBillingPlugin(),
   ],
 });
 ```
@@ -145,8 +144,10 @@ if (data) {
 
 ## Subscriptions
 
-Subscriptions store their amount and interval inline. Your app decides
-what to charge — PayKit doesn't need a product catalog.
+Subscriptions are created through each provider's native billing engine
+(Stripe Billing, PayPal subscriptions, etc.) via a unified API. PayKit
+delegates lifecycle management to the provider and syncs state back to
+your database through webhooks.
 
 ### Create a Subscription
 
@@ -195,6 +196,18 @@ await paykit.api.pauseSubscription({ id: "sub_abc" });
 await paykit.api.resumeSubscription({ id: "sub_abc" });
 ```
 
+### Subscription States
+
+These states are normalized across providers — regardless of whether the
+subscription lives on Stripe, PayPal, or another provider, PayKit maps
+the provider's status to one of these:
+
+- **trialing** — trial period active, no charges yet
+- **active** — subscription is current, renewing automatically
+- **past_due** — charge failed, provider is retrying per its own policy
+- **paused** — manually paused, no charges
+- **canceled** — subscription ended, no further charges
+
 ---
 
 ## Payment Methods
@@ -226,6 +239,9 @@ await paykit.api.detachPaymentMethod({ id: "pm_xyz" });
 ---
 
 ## Invoices
+
+Invoices are synced from the provider's billing system via webhooks. You
+can also create one-off invoices for custom charges.
 
 ### List Invoices
 
@@ -264,61 +280,30 @@ const invoice = await paykit.api.createInvoice({
 
 ---
 
-## Usage Tracking
-
-For usage-based billing (API calls, tokens, storage, etc.).
-
-### Report Usage
-
-```typescript
-await paykit.api.reportUsage({
-  subscriptionId: "sub_abc",
-  metric: "api_calls",
-  value: 1500,
-  timestamp: new Date(),
-});
-```
-
-### Query Usage
-
-```typescript
-const usage = await paykit.api.getUsage({
-  subscriptionId: "sub_abc",
-  metric: "api_calls",
-  period: "current", // "current" | "previous" | { from, to }
-});
-
-// usage.total    -> 15000
-// usage.limit    -> 50000 (if capped)
-// usage.records  -> [{ timestamp, value }]
-```
-
----
-
 ## Events
 
-PayKit emits two kinds of events: **provider events** (from webhooks)
-and **lifecycle events** (from PayKit's own billing engine). Both are
-handled in the same `on` config.
+All events originate from provider webhooks. PayKit verifies the signature,
+normalizes the event into a consistent shape, syncs state to your database,
+and then calls your event handlers.
+
+For example, Stripe's `invoice.payment_failed` and PayPal's
+`BILLING.SUBSCRIPTION.PAYMENT.FAILED` both become `invoice.payment_failed`
+with the same payload shape.
 
 ```typescript
 on: {
-  // --- Provider events (from webhooks) ---
-
   // Payment method updates
   "payment_method.attached": ({ paymentMethod, customer }) => {},
   "payment_method.detached": ({ paymentMethod, customer }) => {},
   "payment_method.expiring": ({ paymentMethod, customer }) => {},
 
-  // Charge results (from checkout or billing engine charges)
+  // Charge results
   "charge.succeeded":        ({ charge, customer }) => {},
   "charge.failed":           ({ charge, customer, error }) => {},
   "charge.disputed":         ({ charge, customer, dispute }) => {},
   "charge.refunded":         ({ charge, customer, refund }) => {},
 
-  // --- Lifecycle events (from PayKit's billing engine) ---
-
-  // Subscription state machine transitions
+  // Subscription lifecycle (from provider webhooks, normalized)
   "subscription.created":    ({ subscription, customer }) => {},
   "subscription.activated":  ({ subscription, customer }) => {},
   "subscription.renewed":    ({ subscription, customer, invoice }) => {},
@@ -336,83 +321,6 @@ on: {
   "*":                       ({ event }) => {},
 }
 ```
-
----
-
-## Billing Engine
-
-PayKit runs its own billing engine to manage subscription renewals,
-usage calculation, and failed payment retries. Since providers don't
-manage subscriptions, this is what drives the billing cycle.
-
-### How It Works
-
-On each billing cycle tick, the engine:
-
-1. Finds subscriptions due for renewal
-2. Calculates the amount (fixed price + usage-based charges)
-3. Creates an invoice in your database
-4. Charges the customer's default payment method via the provider
-5. On success: marks invoice paid, renews the subscription period
-6. On failure: marks invoice failed, applies retry/dunning policy
-
-### Configuration
-
-```typescript
-export const paykit = createPayKit({
-  // ...providers, database, etc.
-
-  billing: {
-    // How often the engine checks for due subscriptions
-    // In production, this runs as a cron job or background worker
-    interval: "1h", // default: "1h"
-
-    // What happens when a charge fails
-    dunning: {
-      retries: 3,              // number of retry attempts
-      retryInterval: "3d",     // wait between retries
-      gracePeriod: "7d",       // how long before canceling
-      onRetry: async ({ subscription, attempt }) => {
-        await sendEmail(subscription.customer.email,
-          `Payment failed (attempt ${attempt}/3)`);
-      },
-      onGracePeriodExpired: async ({ subscription }) => {
-        // subscription is automatically canceled after this
-        await sendEmail(subscription.customer.email,
-          "Your subscription has been canceled");
-      },
-    },
-  },
-});
-```
-
-### Running the Engine
-
-```typescript
-// Development: run inline (blocks the process)
-await paykit.billing.start();
-
-// Production: trigger from an external cron / task scheduler
-// e.g., a Next.js API route called by Vercel Cron
-export async function GET() {
-  await paykit.billing.tick(); // process one cycle
-  return Response.json({ ok: true });
-}
-```
-
-### Subscription States
-
-- **trialing** — trial period active, no charges yet. Transitions to
-  `active` when trial ends (and first charge succeeds).
-- **active** — subscription is current. Renewed automatically each
-  billing cycle. Transitions to `past_due` if a charge fails.
-- **past_due** — charge failed, retrying per dunning policy. Transitions
-  back to `active` if a retry succeeds, or to `canceled` if retries
-  are exhausted and the grace period expires.
-- **paused** — manually paused by the user or your app. No charges.
-  Transitions back to `active` on resume.
-- **canceled** — subscription ended. No further charges. Can be
-  terminal or allow reactivation depending on your config.
 
 ---
 
@@ -505,16 +413,13 @@ All methods are available on `paykit.api.*` for server-side use:
 | **Invoices**       | `createInvoice`              | Create a one-off invoice           |
 |                    | `getInvoice`                 | Get invoice by ID                  |
 |                    | `listInvoices`               | List (filter by customer)          |
-| **Usage**          | `reportUsage`                | Report usage for a metric          |
-|                    | `getUsage`                   | Query usage data                   |
 
 ---
 
 ## Provider Adapter Contract
 
-Providers are payment rails — they charge, refund, and manage payment
-methods. Products, subscriptions, invoices, and usage all live in PayKit
-core and your database. Nothing is synced to the provider.
+Providers handle payments, subscriptions, and payment methods through
+their native APIs. PayKit delegates to them and normalizes the results.
 
 Every provider adapter implements this interface:
 
@@ -522,18 +427,22 @@ Every provider adapter implements this interface:
 interface PayKitProvider {
   id: string; // "stripe" | "paypal" | ...
 
+  // --- Payment methods ---
+
   // Save a payment method for future charges (provider-hosted UI)
-  attach(data: {
+  attachPaymentMethod(data: {
     customerId: string;
     returnURL: string;
   }): Promise<{ url: string }>;
 
   // Remove a saved payment method
-  detach(data: {
+  detachPaymentMethod(data: {
     paymentMethodId: string;
   }): Promise<void>;
 
-  // Charge a saved payment method
+  // --- Charges ---
+
+  // Charge a saved payment method (one-off)
   charge(data: {
     paymentMethodId: string;
     amount: number;
@@ -547,15 +456,46 @@ interface PayKitProvider {
     amount?: number; // partial refund, or omit for full
   }): Promise<ProviderRefund>;
 
-  // One-time payment via provider-hosted checkout (no saved method needed)
+  // One-time payment via provider-hosted checkout
   checkout(data: {
     amount: number;
     description: string;
     successURL: string;
     cancelURL: string;
-    attach?: boolean; // also save the payment method for future use
+    attach?: boolean; // also save the payment method
     metadata?: Record<string, string>;
   }): Promise<{ url: string }>;
+
+  // --- Subscriptions (provider-native) ---
+
+  // Create a subscription on the provider
+  createSubscription(data: {
+    customerId: string;
+    paymentMethodId: string;
+    amount: number;
+    interval: "week" | "month" | "year";
+    description: string;
+    trialDays?: number;
+    metadata?: Record<string, string>;
+  }): Promise<ProviderSubscription>;
+
+  // Cancel a subscription on the provider
+  cancelSubscription(data: {
+    subscriptionId: string;
+    mode: "at_period_end" | "immediately";
+  }): Promise<void>;
+
+  // Pause a subscription on the provider
+  pauseSubscription(data: {
+    subscriptionId: string;
+  }): Promise<void>;
+
+  // Resume a subscription on the provider
+  resumeSubscription(data: {
+    subscriptionId: string;
+  }): Promise<void>;
+
+  // --- Webhooks ---
 
   // Verify signature + normalize raw provider event into a PayKit event
   handleWebhook(data: {
@@ -629,22 +569,25 @@ export const walletPlugin = (): PayKitPlugin => ({
 
 ## Design Principles (reflected in the API)
 
-1. **Your DB is the source of truth.** Products, subscriptions, invoices,
-   and usage live entirely in your database. Providers are only used as
-   payment rails (charge, refund, attach/detach methods). Webhook handlers
-   update your database, then call your event handlers.
+1. **Your DB is the source of truth.** Subscriptions, invoices, and
+   customer data are synced to your database via webhooks. Your business
+   logic reads from your DB, not the provider API.
 
 2. **No provider leakage.** You never see `stripeSubscriptionId` in
    business code. Provider IDs are stored internally and resolved by
    PayKit.
 
-3. **No product catalog.** PayKit is a payments layer, not an ecommerce
+3. **Orchestrate, don't reimplement.** Providers have battle-tested
+   subscription engines, checkout flows, and retry logic. PayKit uses
+   them — it doesn't rebuild them. The value is the unified layer on top.
+
+4. **No product catalog.** PayKit is a payments layer, not an ecommerce
    platform. Pass amounts and descriptions inline. Your app owns its
    own product catalog — PayKit doesn't need to know about it.
 
-4. **Type safety everywhere.** All inputs, outputs, events, and plugin
+5. **Type safety everywhere.** All inputs, outputs, events, and plugin
    extensions are fully typed. Plugin endpoints merge into `paykit.api.*`
    types automatically.
 
-5. **Framework-agnostic.** Core runs anywhere. Framework bindings
+6. **Framework-agnostic.** Core runs anywhere. Framework bindings
    (Next.js, Hono, Express) are thin adapters over the same handler.
