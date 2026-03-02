@@ -100,7 +100,7 @@ function ReadmeFooter() {
       {/* CTA */}
       <div className="relative">
         <p className="text-center text-base text-foreground/60 dark:text-foreground/50 tracking-tight">
-          Roll your own auth with confidence in minutes.
+          Own your payments with confidence in minutes.
         </p>
 
         <div className="flex items-center justify-center gap-4 mt-4">
