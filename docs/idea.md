@@ -11,9 +11,9 @@ SaaS companies that:
 
 - Operate in multiple regions
 - Use multiple payment providers
-- Need subscriptions + usage billing
-- Want control over their data
-- Want to avoid vendor lock-in
+- Need subscriptions without provider lock-in
+- Want their database to be the source of truth
+- Want to add/swap providers without rewriting billing code
 
 ## Core Philosophy
 
@@ -27,31 +27,30 @@ engines. Webhooks update internal state. Business logic reads from your DB.
 `stripeSubscriptionId` or `paypalPlanId`. Provider details are namespaced.
 Core model belongs to PayKit.
 
+**Leverage, don't reimplement.** Each provider already has a battle-tested
+subscriptions engine, checkout flow, and webhook system. PayKit uses them —
+it doesn't rebuild them. The value is in the unified layer on top.
+
 ## Architecture
 
 ```
 Your App -> PayKit Core -> Provider Adapter -> External Provider
 ```
 
-**PayKit is a payments layer, not a product catalog.** Subscriptions,
-invoices, and usage records live in your database. Your app owns its
-own products and prices — PayKit just receives amounts and descriptions
-inline. Provider adapters are pure payment rails — they attach/detach
-payment methods, charge them, and process refunds. Nothing is synced
-to the provider.
+**PayKit is an orchestration layer, not a billing engine.** Provider adapters
+delegate to each provider's native subscription/checkout/webhook systems.
+PayKit normalizes the interface and syncs state back to your database.
 
 This means:
-- Subscriptions are managed by PayKit's own billing engine (cron-based
-  charging, state machine transitions, dunning/retry logic)
-- Switching a subscription's payment provider is trivial — just change
-  which payment method is charged
-- Usage-based billing is first-class, not bolted onto a provider's
-  metered billing API
-- Provider adapters are tiny (~5 methods), making new integrations easy
-
-Webhooks flow back through the same layers in reverse. Subscription
-lifecycle is state-machine driven with explicit, persisted, event-driven
-transitions.
+- Subscriptions use each provider's native engine (Stripe Billing, PayPal
+  subscriptions, etc.) behind a unified API
+- Webhook events are normalized — `invoice.payment_failed` (Stripe) and
+  `BILLING.SUBSCRIPTION.PAYMENT.FAILED` (PayPal) both become
+  `paykit.payment.failed` with a consistent shape
+- Switching providers for new customers is config, not a rewrite
+- Provider adapters are thin (~5-10 methods), making new integrations easy
+- Your DB always reflects the current state — providers are the execution
+  layer, not the source of truth
 
 ### Packages
 
@@ -68,12 +67,13 @@ packages/
 ## Features
 
 - Unified TypeScript API across providers
-- Subscriptions (recurring, usage-based, hybrid, trials, proration)
+- Subscriptions — manage lifecycle through provider-native engines, one API
+- Checkout — one-time payments, hosted checkout, payment links
+- Webhook normalization — verify, normalize, sync to DB, emit typed events
 - Payment method management (attach, detach, set default)
-- Webhook normalization (verify, normalize, update DB, emit events)
-- Optional internal balance / wallet system
-- DB adapters (Prisma, Drizzle)
-- Plugin & adapter system for custom providers
+- DB adapters (Prisma, Drizzle) — your database owns the state
+- Plugin system for custom providers and extensions
+- End-to-end type safety with Zod validation
 
 ## Business
 
@@ -87,6 +87,6 @@ compliance).
 
 - Clarity over cleverness
 - Correctness over speed
-- Explicit state transitions
+- Orchestrate, don't reimplement
 - No provider leakage
 - Type safety first
