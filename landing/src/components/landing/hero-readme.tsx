@@ -7,6 +7,7 @@ import type { ReactNode } from "react";
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+import { useEarlyDevDialog } from "./early-dev-dialog";
 import { CodeExamplesSection, ServerClientTabs } from "./framework-sections";
 import { TrustedBy } from "./trusted-by";
 
@@ -81,6 +82,7 @@ function FeaturePill({
 const footerLinks = [{ label: "Author", href: "https://x.com/maxk4tz" }];
 
 function ReadmeFooter() {
+  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   return (
     <div className="relative mt-10 pt-8 pb-0 overflow-hidden">
       {/* Dot grid */}
@@ -103,7 +105,11 @@ function ReadmeFooter() {
 
         <div className="flex items-center justify-center gap-4 mt-4">
           <Link
-            href="/docs"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openEarlyDevDialog();
+            }}
             className="inline-flex items-center gap-1.5 px-5 py-2 bg-foreground text-background text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
           >
             Read Docs
@@ -184,6 +190,7 @@ function ReadmeFooter() {
 }
 
 export function HeroReadMe() {
+  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -245,47 +252,51 @@ export function HeroReadMe() {
                   headline: "One API, every provider.",
                   desc: "Stripe, PayPal, and regional PSPs behind a single TypeScript interface. Swap providers with config, not rewrites.",
                   providers: true,
-                  href: "/docs",
+                  href: "#",
                 },
                 {
                   label: "Subscriptions",
                   headline: "Provider-native, unified.",
                   desc: "Create, cancel, pause, resume — using each provider's own billing engine behind one consistent API.",
                   subscriptions: true,
-                  href: "/docs",
+                  href: "#",
                 },
                 {
                   label: "Checkout",
                   headline: "Payments in minutes.",
                   desc: "One-time payments, hosted checkout. Pass an amount and description — no product catalog needed.",
                   checkout: true,
-                  href: "/docs",
+                  href: "#",
                 },
                 {
                   label: "Webhook Engine",
                   headline: "Normalized events.",
                   desc: "Stripe's invoice.payment_failed and PayPal's BILLING.SUBSCRIPTION.PAYMENT.FAILED both become one typed event.",
                   webhooks: true,
-                  href: "/docs",
+                  href: "#",
                 },
                 {
                   label: "Your Database",
                   headline: "You own the state.",
                   desc: "Prisma and Drizzle adapters sync everything to your DB. Business logic reads from your tables, not provider APIs.",
                   database: true,
-                  href: "/docs",
+                  href: "#",
                 },
                 {
                   label: "Type-Safe",
                   headline: "End-to-end types.",
                   desc: "Zod-validated inputs, typed events, plugin endpoints that merge into paykit.api.* automatically.",
                   typesafe: true,
-                  href: "/docs",
+                  href: "#",
                 },
               ].map((feature, i) => (
                 <Link
                   key={feature.label}
                   href={"href" in feature ? feature.href : "#"}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    openEarlyDevDialog();
+                  }}
                   className="contents"
                 >
                   <motion.div

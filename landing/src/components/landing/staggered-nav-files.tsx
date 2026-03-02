@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { LogoLockup } from "../icons/logo";
 import { contents } from "../sidebar-content";
 import { Badge } from "../ui/badge";
+import { useEarlyDevDialog } from "./early-dev-dialog";
 
 interface NavFileItem {
   name: string;
@@ -19,7 +20,7 @@ interface NavFileItem {
 
 const navFiles: NavFileItem[] = [
   { name: "readme", href: "/" },
-  { name: "docs", href: "/docs" },
+  { name: "docs", href: "#" },
   {
     name: "github",
     href: "https://github.com/getpaykit/paykit",
@@ -29,6 +30,7 @@ const navFiles: NavFileItem[] = [
 
 export function StaggeredNavFiles() {
   const pathname = usePathname() || "/";
+  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileView, setMobileView] = useState<"docs" | "nav">("docs");
   const [mobileDocSection, setMobileDocSection] = useState(-1);
@@ -150,6 +152,14 @@ export function StaggeredNavFiles() {
                         href={item.href}
                         target={item.external ? "_blank" : undefined}
                         rel={item.external ? "noreferrer" : undefined}
+                        onClick={
+                          item.href === "#"
+                            ? (e) => {
+                                e.preventDefault();
+                                openEarlyDevDialog();
+                              }
+                            : undefined
+                        }
                         className={`group/tab relative flex items-center justify-center gap-1.5 px-3.5 xl:px-5.5 py-3.5 h-full ${index < navFiles.length - 1 ? `border-r ${tabDividerClass}` : ""} transition-colors duration-150 ${
                           active
                             ? `bg-background border-b-2 ${activeTabBorderClass}`
@@ -375,7 +385,15 @@ export function StaggeredNavFiles() {
                         href={item.href}
                         target={item.external ? "_blank" : undefined}
                         rel={item.external ? "noreferrer" : undefined}
-                        onClick={() => setMobileMenuOpen(false)}
+                        onClick={(e) => {
+                          if (item.href === "#") {
+                            e.preventDefault();
+                            setMobileMenuOpen(false);
+                            openEarlyDevDialog();
+                          } else {
+                            setMobileMenuOpen(false);
+                          }
+                        }}
                         className={`flex items-center gap-2.5 px-5 py-3.5 border-b border-foreground/[0.06] transition-colors ${
                           isActive(item.path || item.href) ||
                           (item.href === "/docs" && isDocs)

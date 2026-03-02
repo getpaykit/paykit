@@ -4,6 +4,7 @@ import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 import { DynamicCodeBlock } from "@/components/ui/dynamic-code-block";
+import { useEarlyDevDialog } from "./early-dev-dialog";
 
 export const providerIcons: Record<string, () => React.ReactNode> = {
   Google: () => (
@@ -785,6 +786,7 @@ export function SocialProvidersSection() {
 }
 
 export function PluginEcosystem() {
+  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const half = Math.ceil(plugins.length / 2);
   const row1 = plugins.slice(0, half);
   const row2 = plugins.slice(half);
@@ -801,7 +803,11 @@ export function PluginEcosystem() {
           </span>
         </div>
         <Link
-          href="/docs/plugins"
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            openEarlyDevDialog();
+          }}
           className="text-xs font-mono text-foreground/35 dark:text-foreground/50 hover:text-foreground/55 transition-colors uppercase tracking-wider"
         >
           browse all &rarr;

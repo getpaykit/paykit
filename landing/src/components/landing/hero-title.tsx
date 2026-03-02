@@ -4,10 +4,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Github, Sparkle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useEarlyDevDialog } from "./early-dev-dialog";
 
 const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
 
 export function HeroTitle() {
+  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
@@ -55,7 +57,11 @@ export function HeroTitle() {
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 pt-3 sm:pt-4 lg:mt-5">
           <Link
-            href="/docs"
+            href="#"
+            onClick={(e) => {
+              e.preventDefault();
+              openEarlyDevDialog();
+            }}
             className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-2 bg-neutral-900 text-neutral-100 dark:bg-neutral-100 dark:text-neutral-900 text-xs sm:text-sm font-medium hover:opacity-90 transition-colors"
           >
             Read Docs

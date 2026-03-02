@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
 import type { ReactNode } from "react";
 import { CommandMenuProvider } from "@/components/command-menu";
+import { EarlyDevProvider } from "@/components/landing/early-dev-dialog";
 import { StaggeredNavFiles } from "@/components/landing/staggered-nav-files";
 import { Providers } from "@/components/providers";
 
@@ -71,14 +72,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         suppressHydrationWarning
       >
         <Providers>
-          <CommandMenuProvider>
-            <div className="relative h-dvh overflow-x-hidden">
-              <StaggeredNavFiles />
-              <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
-                {children}
+          <EarlyDevProvider>
+            <CommandMenuProvider>
+              <div className="relative h-dvh overflow-x-hidden">
+                <StaggeredNavFiles />
+                <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+                  {children}
+                </div>
               </div>
-            </div>
-          </CommandMenuProvider>
+            </CommandMenuProvider>
+          </EarlyDevProvider>
         </Providers>
       </body>
     </html>
