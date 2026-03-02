@@ -407,34 +407,6 @@ export function StaggeredNavFiles() {
                       </Link>
                     </motion.div>
                   ))}
-                  <motion.div
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{
-                      duration: 0.15,
-                      delay: navFiles.length * 0.03,
-                    }}
-                    className="px-5 pt-4"
-                  >
-                    <a
-                      href="/sign-in"
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center justify-center gap-1.5 w-full py-3 bg-foreground text-background font-mono text-sm uppercase tracking-wider transition-opacity hover:opacity-90"
-                    >
-                      get-started
-                      <svg
-                        className="h-2.5 w-2.5 opacity-50"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                      >
-                        <path
-                          d="M1 9L9 1M9 1H3M9 1V7"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                        />
-                      </svg>
-                    </a>
-                  </motion.div>
                 </>
               )}
             </div>
