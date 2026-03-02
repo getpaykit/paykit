@@ -639,6 +639,9 @@ export function ServerClientTabs() {
                 "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
               keepBackground: true,
               "data-line-numbers": true,
+              viewportProps: {
+                className: "overflow-x-auto overflow-y-visible max-h-none",
+              },
             }}
           />
         </div>
@@ -690,10 +693,7 @@ export function CodeExamplesSection() {
         </div>
 
         {/* Code block */}
-        <div
-          ref={codeScrollRef}
-          className="overflow-y-auto overflow-x-hidden no-scrollbar overscroll-none"
-        >
+        <div ref={codeScrollRef}>
           <DynamicCodeBlock
             key={activeTab}
             lang="ts"
@@ -703,6 +703,9 @@ export function CodeExamplesSection() {
                 "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
               keepBackground: true,
               "data-line-numbers": true,
+              viewportProps: {
+                className: "overflow-x-auto overflow-y-visible max-h-none",
+              },
             }}
           />
         </div>
