@@ -65,4 +65,4 @@ Enforced by Biome and TypeScript config. Follow strictly.
 
 - When asked opinion questions ("Maybe do this?", "what do you think?", "should we do X?"), **only answer** — don't make code changes unless explicitly asked!!
 - Never `git commit`, `git push`, or run database migrations without explicit approval or being asked
-- Before finishing, run `pnpm lint` and `pnpm typecheck`
+- Before finishing something big, or before committing, run `pnpm lint` and `pnpm typecheck`. No need to run if change is tiny.
