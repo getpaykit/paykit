@@ -1,18 +1,20 @@
 "use client";
 
-import { ThemeProvider } from "next-themes";
+import { RootProvider } from "fumadocs-ui/provider/next";
 import type { ReactNode } from "react";
 import { Toaster } from "sonner";
 
 export function Providers({ children }: { children: ReactNode }) {
   return (
-    <ThemeProvider
-      attribute="class"
-      enableSystem={true}
-      disableTransitionOnChange
+    <RootProvider
+      theme={{
+        attribute: "class",
+        enableSystem: true,
+        disableTransitionOnChange: true,
+      }}
     >
       {children}
       <Toaster />
-    </ThemeProvider>
+    </RootProvider>
   );
 }

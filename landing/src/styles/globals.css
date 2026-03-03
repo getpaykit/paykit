@@ -433,7 +433,7 @@
 	--chart-3: oklch(0.769 0.188 70.08);
 	--chart-4: oklch(0.627 0.265 303.9);
 	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.175 0 0);
+	--sidebar: oklch(21.3% 0 0deg);
 	--sidebar-foreground: oklch(0.985 0.001 106.423);
 	--sidebar-primary: oklch(0.488 0.243 264.376);
 	--sidebar-primary-foreground: oklch(0.985 0.001 106.423);
@@ -688,6 +688,10 @@ html:not([data-anchor-scrolling]) {
 	display: none;
 }
 
+.dark #nd-sidebar {
+	background-color: oklch(21.3% 0 0deg);
+}
+
 /* Docs footer nav (prev/next) — sharp, minimal, monospaced */
 .docs-layout #nd-page article > div.\@container {
 	gap: 0;
@@ -843,7 +847,5 @@ figure.shiki > div:first-child,
 	*::after {
 		animation-duration: 0.01ms !important;
 		animation-iteration-count: 1 !important;
-		transition-duration: 0.01ms !important;
-		scroll-behavior: auto !important;
 	}
 }
