@@ -1,10 +1,18 @@
 # TODO
 
-- setup oxlint tw plugin
+Core lib:
+
+- rename to `paykitjs`
+- File structure
+- Drizzle adapter
+- Stripe adapter
+
+Other:
+
+- set shadcn radius to small
 - fix multiple H1 tags on landing
 - separate /docs styles to docs.css
-- improvde structure for landing page sections (use /sections)
-- set shadcn radius to small
+- improve structure for landing page sections (use /sections)
 - update hero description
 - get rid of em dashes
 - add icons to code examples tabs
@@ -12,3 +20,7 @@
 - add self-hosted analytics
 - resolve all warnings in the codebase
 - add coderabbit
+
+## Backlog:
+
+- setup oxlint tw plugin https://github.com/schoero/eslint-plugin-better-tailwindcss/blob/main/docs/parsers/tsx.md#oxlint
