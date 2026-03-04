@@ -316,6 +316,23 @@ html:not([data-anchor-scrolling]) {
   border-left: 1px solid var(--border);
 }
 
+#nd-sidebar > div.flex.flex-col.border-t.p-4.pt-2:has(.docs-sidebar-github-button),
+#nd-sidebar-mobile
+  > div.flex.flex-col.border-t.p-4.pt-2:has(.docs-sidebar-github-button) {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 0.5rem;
+}
+
+#nd-sidebar .docs-sidebar-github-button,
+#nd-sidebar-mobile .docs-sidebar-github-button {
+  margin-right: auto;
+  border: 0;
+  border-radius: var(--radius);
+}
+
 #nd-sidebar,
 #nd-sidebar-mobile {
   --animate-fd-collapsible-down: fd-collapsible-down 220ms
