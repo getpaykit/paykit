@@ -2,7 +2,8 @@
 
 import { motion, useInView } from "framer-motion";
 import Link from "next/link";
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import { DynamicCodeBlock } from "@/components/ui/dynamic-code-block";
 import { useEarlyDevDialog } from "./early-dev-dialog";
 
@@ -596,6 +597,9 @@ export const { GET, POST } = paykit.handler`;
 
 export function ServerClientTabs() {
   const [activeTab, setActiveTab] = useState<"server" | "handler">("server");
+  const serverCodeBlockClassName = activeTab === "server" ? "block" : "hidden";
+  const handlerCodeBlockClassName =
+    activeTab === "handler" ? "block" : "hidden";
 
   return (
     <div className="relative">
@@ -632,19 +636,36 @@ export function ServerClientTabs() {
         </div>
 
         <div className="relative">
-          <DynamicCodeBlock
-            lang="ts"
-            code={activeTab === "server" ? serverCode : handlerCode}
-            codeblock={{
-              className:
-                "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
-              keepBackground: true,
-              "data-line-numbers": true,
-              viewportProps: {
-                className: "overflow-x-auto overflow-y-visible max-h-none",
-              },
-            }}
-          />
+          <div className={serverCodeBlockClassName}>
+            <DynamicCodeBlock
+              lang="ts"
+              code={serverCode}
+              codeblock={{
+                className:
+                  "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
+                keepBackground: true,
+                "data-line-numbers": true,
+                viewportProps: {
+                  className: "overflow-x-auto overflow-y-visible max-h-none",
+                },
+              }}
+            />
+          </div>
+          <div className={handlerCodeBlockClassName}>
+            <DynamicCodeBlock
+              lang="ts"
+              code={handlerCode}
+              codeblock={{
+                className:
+                  "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
+                keepBackground: true,
+                "data-line-numbers": true,
+                viewportProps: {
+                  className: "overflow-x-auto overflow-y-visible max-h-none",
+                },
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>
@@ -654,7 +675,6 @@ export function ServerClientTabs() {
 export function CodeExamplesSection() {
   const tabs = Object.keys(codeExamples);
   const [activeTab, setActiveTab] = useState<string>("Checkout");
-  const codeScrollRef = React.useRef<HTMLDivElement>(null);
 
   return (
     <div>
@@ -694,21 +714,24 @@ export function CodeExamplesSection() {
         </div>
 
         {/* Code block */}
-        <div ref={codeScrollRef}>
-          <DynamicCodeBlock
-            key={activeTab}
-            lang="ts"
-            code={codeExamples[activeTab] ?? ""}
-            codeblock={{
-              className:
-                "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
-              keepBackground: true,
-              "data-line-numbers": true,
-              viewportProps: {
-                className: "overflow-x-auto overflow-y-visible max-h-none",
-              },
-            }}
-          />
+        <div>
+          {tabs.map((tab) => (
+            <div key={tab} className={activeTab === tab ? "block" : "hidden"}>
+              <DynamicCodeBlock
+                lang="ts"
+                code={codeExamples[tab] ?? ""}
+                codeblock={{
+                  className:
+                    "border-0 rounded-none my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
+                  keepBackground: true,
+                  "data-line-numbers": true,
+                  viewportProps: {
+                    className: "overflow-x-auto overflow-y-visible max-h-none",
+                  },
+                }}
+              />
+            </div>
+          ))}
         </div>
       </div>
     </div>

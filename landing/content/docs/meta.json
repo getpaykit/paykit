@@ -1,10 +1,12 @@
 {
   "root": true,
   "pages": [
-    "---Getting Started---",
+    "---Get Started---",
     "index",
     "installation",
     "basic-usage",
+    "---Integrations---",
+    "providers",
     "---Project---",
     "roadmap"
   ]

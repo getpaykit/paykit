@@ -6,8 +6,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { CommandMenuProvider } from "@/components/command-menu";
 import { EarlyDevProvider } from "@/components/landing/early-dev-dialog";
-import { StaggeredNavFiles } from "@/components/landing/staggered-nav-files";
 import { Providers } from "@/components/providers";
+import { RouteShell } from "@/components/route-shell";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -58,9 +58,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link
           rel="apple-touch-icon"
           sizes="180x180"
-          href="/favicon/apple-touch-icon.png"
+          href="/favicon/light/apple-touch-icon.png"
         />
-        <link rel="manifest" href="/favicon/site.webmanifest" />
+        <link rel="manifest" href="/favicon/light/site.webmanifest" />
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -80,12 +80,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Providers>
           <EarlyDevProvider>
             <CommandMenuProvider>
-              <div className="relative h-dvh overflow-x-hidden">
-                <StaggeredNavFiles />
-                <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
-                  {children}
-                </div>
-              </div>
+              <RouteShell>{children}</RouteShell>
             </CommandMenuProvider>
           </EarlyDevProvider>
         </Providers>

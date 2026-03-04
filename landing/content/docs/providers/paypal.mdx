@@ -1,0 +1,29 @@
+---
+title: PayPal
+description: PayPal provider integration for PayKit.
+---
+
+<Callout type="warn">
+  This page is a placeholder and will be expanded soon.
+</Callout>
+
+## Overview
+
+PayPal provider docs are coming soon.
+
+## Installation
+
+```bash
+pnpm add @paykit/paypal
+```
+
+## Basic Setup
+
+```ts
+import { paypal } from "@paykit/paypal";
+
+const provider = paypal({
+  clientId: process.env.PAYPAL_CLIENT_ID!,
+  clientSecret: process.env.PAYPAL_CLIENT_SECRET!,
+});
+```

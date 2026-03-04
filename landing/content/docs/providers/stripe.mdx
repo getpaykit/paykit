@@ -1,0 +1,28 @@
+---
+title: Stripe
+description: Stripe provider integration for PayKit.
+---
+
+<Callout type="warn">
+  This page is a placeholder and will be expanded soon.
+</Callout>
+
+## Overview
+
+Stripe provider docs are coming soon.
+
+## Installation
+
+```bash
+pnpm add @paykit/stripe
+```
+
+## Basic Setup
+
+```ts
+import { stripe } from "@paykit/stripe";
+
+const provider = stripe({
+  secretKey: process.env.STRIPE_SECRET_KEY!,
+});
+```
