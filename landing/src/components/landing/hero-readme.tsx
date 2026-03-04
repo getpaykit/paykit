@@ -9,9 +9,9 @@ import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
+import { ProvidersSection } from "../sections/providers-section";
 import { useEarlyDevDialog } from "./early-dev-dialog";
 import { CodeExamplesSection, ServerClientTabs } from "./framework-sections";
-import { TrustedBy } from "./trusted-by";
 
 const pillColors = {
   neutral: {
@@ -228,7 +228,7 @@ export function HeroReadMe() {
               </span>
             </div>
 
-            <TrustedBy />
+            <ProvidersSection />
 
             <div className="my-4 flex items-center gap-3">
               <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">

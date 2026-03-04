@@ -42,17 +42,18 @@
   }
 }
 
+.animate-logo-marquee {
+  animation: logo-marquee 25s linear infinite !important;
+  animation-iteration-count: infinite !important;
+}
+
 @keyframes logo-marquee {
   0% {
     transform: translateX(0);
   }
   100% {
-    transform: translateX(-50%);
+    transform: translateX(-33.333%);
   }
-}
-
-.animate-logo-marquee {
-  animation: logo-marquee 30s linear infinite;
 }
 
 :root {
