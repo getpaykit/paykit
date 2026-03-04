@@ -1,7 +1,7 @@
 /* spell-checker:disable */
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "fumadocs-ui/css/black.css";
+@import "fumadocs-ui/css/neutral.css";
 @import "fumadocs-ui/css/preset.css";
 @import "shadcn/tailwind.css";
 @source "../components/**/*.{ts,tsx}";
