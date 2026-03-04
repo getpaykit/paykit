@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+
 import { MiniNavBar } from "@/components/layout/mini-nav-bar";
 import { Providers } from "@/components/providers";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export default function NotFound() {
         {/* Watermark */}
         <span
           aria-hidden="true"
-          className="pointer-events-none absolute select-none font-sans text-[clamp(10rem,30vw,22rem)] font-bold leading-none tracking-tighter text-foreground opacity-[0.015]"
+          className="text-foreground pointer-events-none absolute font-sans text-[clamp(10rem,30vw,22rem)] leading-none font-bold tracking-tighter opacity-[0.015] select-none"
         >
           404
         </span>
@@ -56,22 +57,19 @@ export default function NotFound() {
         >
           <motion.p
             variants={item}
-            className="font-mono text-xs uppercase tracking-widest text-foreground/30"
+            className="text-foreground/30 font-mono text-xs tracking-widest uppercase"
           >
             Error 404
           </motion.p>
 
           <motion.h1
             variants={item}
-            className="text-2xl font-medium tracking-tight text-foreground sm:text-3xl"
+            className="text-foreground text-2xl font-medium tracking-tight sm:text-3xl"
           >
             Page not found
           </motion.h1>
 
-          <motion.p
-            variants={item}
-            className="max-w-xs text-sm text-foreground/50"
-          >
+          <motion.p variants={item} className="text-foreground/50 max-w-xs text-sm">
             This route doesn't exist. Head back to the homepage.
           </motion.p>
 

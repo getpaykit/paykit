@@ -11,9 +11,7 @@ export function SidebarCategoryAccordion() {
     const onClick = (event: MouseEvent) => {
       if (!(event.target instanceof Element)) return;
 
-      const button = event.target.closest(
-        "button[aria-expanded]",
-      ) as HTMLButtonElement | null;
+      const button = event.target.closest("button[aria-expanded]") as HTMLButtonElement | null;
       if (!button || !isCategoryButton(button)) return;
 
       const sidebarRoot = button.closest("#nd-sidebar, #nd-sidebar-mobile");
@@ -31,10 +29,7 @@ export function SidebarCategoryAccordion() {
         );
 
         for (const sibling of categoryButtons) {
-          if (
-            sibling !== button &&
-            sibling.getAttribute("aria-expanded") === "true"
-          ) {
+          if (sibling !== button && sibling.getAttribute("aria-expanded") === "true") {
             sibling.click();
           }
         }

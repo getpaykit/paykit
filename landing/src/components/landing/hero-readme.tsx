@@ -4,9 +4,11 @@ import { motion } from "framer-motion";
 import { Github, MoveRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
+
 import { useEarlyDevDialog } from "./early-dev-dialog";
 import { CodeExamplesSection, ServerClientTabs } from "./framework-sections";
 import { TrustedBy } from "./trusted-by";
@@ -68,12 +70,8 @@ function FeaturePill({
       )}
       style={style}
     >
-      {dot && (
-        <span className={cn("inline-block size-1 rounded-full", c.dot)} />
-      )}
-      {label && (
-        <span className={cn("text-[10px] font-mono", c.text)}>{label}</span>
-      )}
+      {dot && <span className={cn("inline-block size-1 rounded-full", c.dot)} />}
+      {label && <span className={cn("text-[10px] font-mono", c.text)}>{label}</span>}
       {children}
     </div>
   );
@@ -84,14 +82,13 @@ const footerLinks = [{ label: "Author", href: "https://x.com/maxk4tz" }];
 function ReadmeFooter() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
   return (
-    <div className="relative mt-10 pt-8 pb-0 overflow-hidden">
+    <div className="relative mt-10 overflow-hidden pt-8 pb-0">
       {/* Dot grid */}
       <div
-        className="absolute inset-0 pointer-events-none select-none"
+        className="pointer-events-none absolute inset-0 select-none"
         aria-hidden="true"
         style={{
-          backgroundImage:
-            "radial-gradient(circle, currentColor 0.5px, transparent 0.5px)",
+          backgroundImage: "radial-gradient(circle, currentColor 0.5px, transparent 0.5px)",
           backgroundSize: "24px 24px",
           opacity: 0.03,
         }}
@@ -99,18 +96,18 @@ function ReadmeFooter() {
 
       {/* CTA */}
       <div className="relative">
-        <p className="text-center text-base text-foreground/60 dark:text-foreground/50 tracking-tight">
+        <p className="text-foreground/60 dark:text-foreground/50 text-center text-base tracking-tight">
           Own your payments with confidence in minutes.
         </p>
 
-        <div className="flex items-center justify-center gap-4 mt-4">
+        <div className="mt-4 flex items-center justify-center gap-4">
           <Link
             href="#"
             onClick={(e) => {
               e.preventDefault();
               openEarlyDevDialog();
             }}
-            className="inline-flex items-center gap-1.5 px-5 py-2 bg-foreground text-background text-xs font-mono uppercase tracking-wider hover:opacity-90 transition-opacity"
+            className="bg-foreground text-background inline-flex items-center gap-1.5 px-5 py-2 font-mono text-xs tracking-wider uppercase transition-opacity hover:opacity-90"
           >
             Read Docs
           </Link>
@@ -118,7 +115,7 @@ function ReadmeFooter() {
             href="https://github.com/getpaykit/paykit"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 px-4 py-2 border border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 text-xs font-mono uppercase tracking-wider transition-all"
+            className="border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 inline-flex items-center gap-1.5 border px-4 py-2 font-mono text-xs tracking-wider uppercase transition-all"
           >
             <Github className="size-3.5" />
             View on GitHub
@@ -127,8 +124,8 @@ function ReadmeFooter() {
       </div>
 
       {/* Footer */}
-      <div className="relative mt-10 pt-6 border-t border-dashed border-foreground/6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="border-foreground/6 relative mt-10 border-t border-dashed pt-6">
+        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5">
             {footerLinks.map((link, i) => (
               <span key={link.label} className="flex items-center">
@@ -136,27 +133,23 @@ function ReadmeFooter() {
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-1 text-xs font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
+                  className="group text-foreground/35 hover:text-foreground/70 inline-flex items-center gap-1 font-mono text-xs transition-colors"
                 >
                   {link.label}
                 </Link>
                 {i < footerLinks.length - 1 && (
-                  <span className="text-foreground/10 mx-1 text-xs select-none">
-                    /
-                  </span>
+                  <span className="text-foreground/10 mx-1 text-xs select-none">/</span>
                 )}
               </span>
             ))}
           </div>
 
-          <div className="flex items-center justify-between w-full sm:w-auto sm:gap-4 shrink-0">
-            <span className="text-xs text-foreground/35 dark:text-foreground/20 font-mono">
+          <div className="flex w-full shrink-0 items-center justify-between sm:w-auto sm:gap-4">
+            <span className="text-foreground/35 dark:text-foreground/20 font-mono text-xs">
               © {new Date().getFullYear()} PayKit
             </span>
             <div className="flex items-center gap-3 sm:gap-4">
-              <span className="text-foreground/10 select-none hidden sm:inline">
-                ·
-              </span>
+              <span className="text-foreground/10 hidden select-none sm:inline">·</span>
               <Link
                 href="https://x.com/getpaykit"
                 target="_blank"
@@ -175,7 +168,7 @@ function ReadmeFooter() {
               >
                 <Github className="h-4 w-4" />
               </Link>
-              <div className="h-4 w-4 flex text-foreground/15 items-center justify-center select-none">
+              <div className="text-foreground/15 flex h-4 w-4 items-center justify-center select-none">
                 |
               </div>
               <div className="-ml-4 sm:-ml-5">
@@ -196,56 +189,55 @@ export function HeroReadMe() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
-      className="flex flex-col w-full"
+      className="flex w-full flex-col"
     >
       {/* Markdown content */}
-      <div className="flex-1 overflow-y-auto no-scrollbar">
-        <div className="p-5 lg:p-5 pt-4 lg:pt-6 pb-0">
+      <div className="no-scrollbar flex-1 overflow-y-auto">
+        <div className="p-5 pt-4 pb-0 lg:p-5 lg:pt-6">
           <motion.article
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.4, delay: 0.3 }}
-            className="overflow-y-auto overflow-x-hidden no-scrollbar pt-[30px] pb-0"
+            className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0"
           >
-            <h1 className="flex items-center gap-2 text-sm sm:text-base font-mono text-neutral-800 dark:text-neutral-200 pb-2 sm:pb-3 mb-4 sm:mb-5 border-b border-foreground/10">
+            <h1 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
               README
             </h1>
 
-            <p className="text-sm sm:text-[15px] text-neutral-700 dark:text-neutral-300 leading-relaxed sm:leading-relaxed mb-5 sm:mb-6">
-              PayKit is a payments orchestration framework for TypeScript. It
-              sits between your app and payment providers like Stripe or PayPal,
-              giving you a unified API. Webhooks are verified and normalized
-              automatically. Your database owns the subscriptions, invoices, and
-              usage records — no provider lock-in.
+            <p className="mb-5 text-sm leading-relaxed text-neutral-700 sm:mb-6 sm:text-[15px] sm:leading-relaxed dark:text-neutral-300">
+              PayKit is a payments orchestration framework for TypeScript. It sits between your app
+              and payment providers like Stripe or PayPal, giving you a unified API. Webhooks are
+              verified and normalized automatically. Your database owns the subscriptions, invoices,
+              and usage records — no provider lock-in.
             </p>
 
             <div className="my-6">
-              <div className="flex items-center gap-3 mb-5">
-                <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+              <div className="mb-5 flex items-center gap-3">
+                <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
                   Configuration
                 </span>
-                <div className="flex-1 border-t border-foreground/[0.06]" />
+                <div className="border-foreground/[0.06] flex-1 border-t" />
               </div>
               <ServerClientTabs />
             </div>
 
-            <div className="flex items-center gap-3 my-4">
-              <div className="flex-1 border-t border-foreground/6"></div>
-              <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+            <div className="my-4 flex items-center gap-3">
+              <div className="border-foreground/6 flex-1 border-t"></div>
+              <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
                 Supported Providers
               </span>
             </div>
 
             <TrustedBy />
 
-            <div className="flex items-center gap-3 my-4">
-              <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+            <div className="my-4 flex items-center gap-3">
+              <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
                 Features
               </span>
-              <div className="flex-1 border-t border-foreground/6"></div>
+              <div className="border-foreground/6 flex-1 border-t"></div>
             </div>
 
-            <div className="relative grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 mb-2 border border-foreground/10 overflow-hidden">
+            <div className="border-foreground/10 relative mb-2 grid grid-cols-1 overflow-hidden border sm:grid-cols-2 md:grid-cols-3">
               {[
                 {
                   label: "Unified API",
@@ -317,7 +309,7 @@ export function HeroReadMe() {
                     )}
                   >
                     {/* Arrow icon — top right, visible on hover */}
-                    <span className="absolute top-3 right-3 lg:top-4 lg:right-4 opacity-0 -translate-y-0.5 group-hover/card:opacity-100 group-hover/card:translate-y-0 transition-all duration-200">
+                    <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-all duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -334,27 +326,27 @@ export function HeroReadMe() {
                         <polyline points="7 7 17 7 17 17" />
                       </svg>
                     </span>
-                    <div className="text-xs font-mono text-neutral-500 mb-2 uppercase tracking-wider transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
-                      <span className="text-foreground/35 dark:text-foreground/20 mr-1.5 transition-colors duration-200 group-hover/card:text-foreground/50 dark:group-hover/card:text-foreground/30">
+                    <div className="mb-2 font-mono text-xs tracking-wider text-neutral-500 uppercase transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                      <span className="text-foreground/35 dark:text-foreground/20 group-hover/card:text-foreground/50 dark:group-hover/card:text-foreground/30 mr-1.5 transition-colors duration-200">
                         {String(i + 1).padStart(2, "0")}
                       </span>
                       {feature.label}
                     </div>
-                    <div className="text-sm font-semibold text-neutral-800 dark:text-neutral-200 leading-snug mb-1.5 transition-colors duration-200 group-hover/card:text-neutral-900 dark:group-hover/card:text-neutral-100">
+                    <div className="mb-1.5 text-sm leading-snug font-semibold text-neutral-800 transition-colors duration-200 group-hover/card:text-neutral-900 dark:text-neutral-200 dark:group-hover/card:text-neutral-100">
                       {feature.headline}
                     </div>
-                    <div className="text-xs text-neutral-500 leading-relaxed transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                    <div className="text-xs leading-relaxed text-neutral-500 transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
                       {feature.desc}
                     </div>
                     {"providers" in feature && feature.providers && (
-                      <div className="flex items-center gap-2.5 mt-3">
+                      <div className="mt-3 flex items-center gap-2.5">
                         {/* Stripe */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
                           height="15"
                           viewBox="0 0 24 24"
-                          className="text-[#635BFF] opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0s]"
+                          className="text-[#635BFF] opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0s] group-hover/card:opacity-100"
                         >
                           <path
                             fill="currentColor"
@@ -367,7 +359,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 154.728 190.5"
-                          className="opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.05s]"
+                          className="opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.05s] group-hover/card:opacity-100"
                         >
                           <g transform="translate(898.192 276.071)">
                             <path
@@ -391,7 +383,7 @@ export function HeroReadMe() {
                           height="15"
                           viewBox="-0.5 -0.5 16 16"
                           fill="none"
-                          className="text-neutral-800 dark:text-neutral-200 opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.1s]"
+                          className="text-neutral-800 opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.1s] group-hover/card:opacity-100 dark:text-neutral-200"
                         >
                           <path
                             d="M7.5 14.337c-3.776 0-6.837-3.061-6.837-6.837C.663 3.724 3.724.663 7.5.663c3.776 0 6.837 3.061 6.837 6.837 0 3.776-3.061 6.837-6.837 6.837Z"
@@ -428,7 +420,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 24 24"
-                          className="text-[#FFC333] opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.15s]"
+                          className="text-[#FFC333] opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.15s] group-hover/card:opacity-100"
                         >
                           <path
                             fill="currentColor"
@@ -441,7 +433,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 160 201"
-                          className="text-neutral-800 dark:text-neutral-200 opacity-60 transition-all duration-300 group-hover/card:opacity-100 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.2s]"
+                          className="text-neutral-800 opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.2s] group-hover/card:opacity-100 dark:text-neutral-200"
                         >
                           <path
                             fill="currentColor"
@@ -454,7 +446,7 @@ export function HeroReadMe() {
                         <FeaturePill
                           dashed
                           label="+ Custom"
-                          className="justify-center h-[20px] group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.25s]"
+                          className="h-[20px] justify-center group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.25s]"
                         />
                       </div>
                     )}
@@ -462,28 +454,22 @@ export function HeroReadMe() {
                       <div
                         className="mt-3 flex items-center gap-1.5 text-[10px]"
                         style={{
-                          fontFamily:
-                            "var(--font-mono), Geist Mono, ui-monospace, monospace",
+                          fontFamily: "var(--font-mono), Geist Mono, ui-monospace, monospace",
                         }}
                       >
-                        <FeaturePill className="h-5 px-2 overflow-hidden">
+                        <FeaturePill className="h-5 overflow-hidden px-2">
                           <span className="text-foreground/35 whitespace-nowrap">
                             pk.checkout({"{"}{" "}
                             <span className="text-emerald-600/60 dark:text-emerald-400/50">
                               amount
                             </span>
                             :{" "}
-                            <span className="text-orange-500/60 dark:text-orange-400/50">
-                              990
-                            </span>{" "}
+                            <span className="text-orange-500/60 dark:text-orange-400/50">990</span>{" "}
                             {"}"})
                           </span>
                         </FeaturePill>
-                        <MoveRight
-                          className="text-foreground/20 shrink-0"
-                          size={10}
-                        />
-                        <FeaturePill color="blue" className="h-5 px-2 gap-1.5">
+                        <MoveRight className="text-foreground/20 shrink-0" size={10} />
+                        <FeaturePill color="blue" className="h-5 gap-1.5 px-2">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="10"
@@ -494,60 +480,42 @@ export function HeroReadMe() {
                             strokeWidth="2"
                             strokeLinecap="round"
                             strokeLinejoin="round"
-                            className="text-blue-500/50 dark:text-blue-400/40 shrink-0"
+                            className="shrink-0 text-blue-500/50 dark:text-blue-400/40"
                           >
                             <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
                             <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
                           </svg>
-                          <span className="text-blue-500/50 dark:text-blue-400/40">
-                            URL
-                          </span>
+                          <span className="text-blue-500/50 dark:text-blue-400/40">URL</span>
                         </FeaturePill>
                       </div>
                     )}
                     {"subscriptions" in feature && feature.subscriptions && (
-                      <div className="mt-3 flex items-center gap-1.5 relative overflow-hidden">
+                      <div className="relative mt-3 flex items-center gap-1.5 overflow-hidden">
                         <FeaturePill color="blue" dot label="trialing" />
-                        <MoveRight
-                          className="text-foreground/20 shrink-0"
-                          size={10}
-                        />
+                        <MoveRight className="text-foreground/20 shrink-0" size={10} />
                         <FeaturePill color="green" dot label="active" />
-                        <MoveRight
-                          className="text-foreground/20 shrink-0"
-                          size={10}
-                        />
+                        <MoveRight className="text-foreground/20 shrink-0" size={10} />
                         <FeaturePill color="yellow" dot label="past_due" />
-                        <MoveRight
-                          className="text-foreground/20 shrink-0"
-                          size={10}
-                        />
+                        <MoveRight className="text-foreground/20 shrink-0" size={10} />
                         <FeaturePill color="red" dot label="canceled" />
-                        <div className="absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+                        <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent" />
                       </div>
                     )}
                     {"database" in feature && feature.database && (
                       <div className="mt-3 flex items-center gap-1 font-mono text-[10px]">
                         <FeaturePill label="prisma" className="px-1.5 py-0.5" />
                         <FeaturePill label="drizzle" />
-                        <FeaturePill
-                          dashed
-                          label="+"
-                          className="justify-center size-[22px]"
-                        />
+                        <FeaturePill dashed label="+" className="size-[22px] justify-center" />
                       </div>
                     )}
                     {"typesafe" in feature && feature.typesafe && (
                       <FeaturePill
-                        className="mt-3 inline-flex h-5 px-2.5 text-[10px] w-fit"
+                        className="mt-3 inline-flex h-5 w-fit px-2.5 text-[10px]"
                         style={{
-                          fontFamily:
-                            "var(--font-mono), Geist Mono, ui-monospace, monospace",
+                          fontFamily: "var(--font-mono), Geist Mono, ui-monospace, monospace",
                         }}
                       >
-                        <span className="text-blue-500/50 dark:text-blue-400/40">
-                          PayKitEvent
-                        </span>
+                        <span className="text-blue-500/50 dark:text-blue-400/40">PayKitEvent</span>
                         <span className="text-foreground/35">{"<"}</span>
                         <span className="text-orange-500/60 dark:text-orange-400/50">
                           "payment.failed"
@@ -558,14 +526,9 @@ export function HeroReadMe() {
                     {"webhooks" in feature && feature.webhooks && (
                       <div className="mt-3 flex items-center gap-1.5 text-[10px]">
                         <FeaturePill className="h-5 px-2">
-                          <span className="text-foreground/35">
-                            billing.invoice.failed*
-                          </span>
+                          <span className="text-foreground/35">billing.invoice.failed*</span>
                         </FeaturePill>
-                        <MoveRight
-                          className="text-foreground/20 shrink-0"
-                          size={10}
-                        />
+                        <MoveRight className="text-foreground/20 shrink-0" size={10} />
                         <FeaturePill color="green" className="h-5 px-2">
                           <span className="text-green-600/60 dark:text-green-400/50">
                             payment.failed
@@ -577,10 +540,10 @@ export function HeroReadMe() {
                 </Link>
               ))}
               {/* + marks at grid intersections */}
-              <span className="hidden md:block absolute top-1/2 left-1/3 -translate-x-1/2 -translate-y-1/2 font-mono -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-1/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
                 +
               </span>
-              <span className="hidden md:block absolute top-1/2 left-2/3 -translate-x-1/2 -translate-y-1/2 font-mono -mt-[1px] -ml-[.5px] text-xs text-foreground/35 dark:text-foreground/20 select-none z-10">
+              <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-2/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
                 +
               </span>
             </div>

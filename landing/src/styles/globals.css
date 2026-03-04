@@ -100,16 +100,11 @@
   --font-mono: Geist Mono, monospace;
   --shadow-2xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
   --shadow-xs: 0px 1px 2px 0px hsl(0 0% 0% / 0.09);
-  --shadow-sm:
-    0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
-  --shadow:
-    0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
-  --shadow-md:
-    0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
-  --shadow-lg:
-    0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
-  --shadow-xl:
-    0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
+  --shadow-sm: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+  --shadow: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 1px 2px -1px hsl(0 0% 0% / 0.18);
+  --shadow-md: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 2px 4px -1px hsl(0 0% 0% / 0.18);
+  --shadow-lg: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 4px 6px -1px hsl(0 0% 0% / 0.18);
+  --shadow-xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.18), 0px 8px 10px -1px hsl(0 0% 0% / 0.18);
   --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
@@ -236,15 +231,14 @@
   }
 
   body {
-    @apply overscroll-none bg-background text-foreground selection:bg-foreground selection:text-background;
+    @apply bg-background text-foreground selection:bg-foreground selection:text-background overscroll-none;
   }
 }
 
 html {
   scroll-behavior: auto;
   scroll-padding-top: calc(
-    var(--fd-nav-height, 56px) + var(--fd-banner-height, 0px) +
-      var(--fd-tocnav-height, 0px) + 24px
+    var(--fd-nav-height, 56px) + var(--fd-banner-height, 0px) + var(--fd-tocnav-height, 0px) + 24px
   );
 }
 
@@ -323,8 +317,7 @@ button[aria-label="Collapse Sidebar"] svg {
 }
 
 #nd-sidebar > div.flex.flex-col.border-t.p-4.pt-2:has(.docs-sidebar-github-button),
-#nd-sidebar-mobile
-  > div.flex.flex-col.border-t.p-4.pt-2:has(.docs-sidebar-github-button) {
+#nd-sidebar-mobile > div.flex.flex-col.border-t.p-4.pt-2:has(.docs-sidebar-github-button) {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
@@ -341,14 +334,11 @@ button[aria-label="Collapse Sidebar"] svg {
 
 #nd-sidebar,
 #nd-sidebar-mobile {
-  --animate-fd-collapsible-down: fd-collapsible-down 220ms
-    cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fd-collapsible-down: fd-collapsible-down 220ms cubic-bezier(0.22, 1, 0.36, 1);
   --animate-fd-collapsible-up: fd-collapsible-up 170ms ease-out;
 }
 
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  :is(a, button).flex.flex-row.items-center.gap-2,
+#nd-sidebar [data-radix-scroll-area-viewport] :is(a, button).flex.flex-row.items-center.gap-2,
 #nd-sidebar-mobile
   [data-radix-scroll-area-viewport]
   :is(a, button).flex.flex-row.items-center.gap-2 {
@@ -403,9 +393,7 @@ button[aria-label="Collapse Sidebar"] svg {
 }
 
 /* Docs sidebar categories: replace default folder chevron with Hugeicons */
-#nd-sidebar
-  button[aria-expanded]
-  > svg:not(.docs-category-chevron):not(.docs-category-icon),
+#nd-sidebar button[aria-expanded] > svg:not(.docs-category-chevron):not(.docs-category-icon),
 #nd-sidebar-mobile
   button[aria-expanded]
   > svg:not(.docs-category-chevron):not(.docs-category-icon) {
@@ -455,9 +443,7 @@ button[aria-label="Collapse Sidebar"] svg {
 }
 
 /* Non-collapsible inner folders: render as separator-like labels */
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full,
+#nd-sidebar [data-radix-scroll-area-viewport] div.relative.flex.flex-row.items-center.gap-2.w-full,
 #nd-sidebar-mobile
   [data-radix-scroll-area-viewport]
   div.relative.flex.flex-row.items-center.gap-2.w-full {
@@ -487,17 +473,13 @@ button[aria-label="Collapse Sidebar"] svg {
 
 /* Remove folder guide rail (left vertical trace) */
 #nd-sidebar [data-radix-scroll-area-viewport] .before\:bg-fd-border::before,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  .before\:bg-fd-border::before {
+#nd-sidebar-mobile [data-radix-scroll-area-viewport] .before\:bg-fd-border::before {
   display: none !important;
 }
 
 /* Remove active item left marker */
 #nd-sidebar [data-radix-scroll-area-viewport] a[data-active="true"]::before,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  a[data-active="true"]::before {
+#nd-sidebar-mobile [data-radix-scroll-area-viewport] a[data-active="true"]::before {
   content: none !important;
   display: none !important;
 }
@@ -606,14 +588,8 @@ figure.shiki > div:first-child,
   animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
 }
 
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"],
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"] {
+#nd-sidebar [data-radix-scroll-area-viewport] > div > [data-state="open"],
+#nd-sidebar-mobile [data-radix-scroll-area-viewport] > div > [data-state="open"] {
   padding-bottom: 0.5rem;
 }
 

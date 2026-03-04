@@ -1,18 +1,12 @@
 import { BookOpenIcon } from "@heroicons/react/20/solid";
-import {
-  ArrowDownOnSquareIcon,
-  BanknotesIcon,
-} from "@heroicons/react/24/outline";
-import {
-  FolderIcon,
-  PlayIcon,
-  SquaresPlusIcon,
-} from "@heroicons/react/24/solid";
+import { ArrowDownOnSquareIcon, BanknotesIcon } from "@heroicons/react/24/outline";
+import { FolderIcon, PlayIcon, SquaresPlusIcon } from "@heroicons/react/24/solid";
 import { ArrowDown01Icon } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon } from "@hugeicons/react";
 import type * as PageTree from "fumadocs-core/page-tree";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import type { ReactElement, ReactNode } from "react";
+
 import { SidebarCategoryAccordion } from "@/components/docs/sidebar-category-accordion";
 import { LogoLockup } from "@/components/icons/logo";
 import { GITHUB_URL } from "@/lib/consts";
@@ -20,22 +14,14 @@ import { source } from "@/lib/source";
 
 const categoryIcons = {
   "get started": <PlayIcon className="docs-category-icon size-3! shrink-0" />,
-  integrations: (
-    <SquaresPlusIcon className="docs-category-icon size-3! shrink-0" />
-  ),
+  integrations: <SquaresPlusIcon className="docs-category-icon size-3! shrink-0" />,
   project: <FolderIcon className="docs-category-icon size-3! shrink-0" />,
 } as const;
 
 const pageIcons = {
-  introduction: (
-    <BookOpenIcon className="docs-category-icon size-3! shrink-0" />
-  ),
-  installation: (
-    <ArrowDownOnSquareIcon className="docs-category-icon size-3! shrink-0" />
-  ),
-  "basic usage": (
-    <BanknotesIcon className="docs-category-icon size-3! shrink-0" />
-  ),
+  introduction: <BookOpenIcon className="docs-category-icon size-3! shrink-0" />,
+  installation: <ArrowDownOnSquareIcon className="docs-category-icon size-3! shrink-0" />,
+  "basic usage": <BanknotesIcon className="docs-category-icon size-3! shrink-0" />,
 } as const;
 
 const providerPageIcons = {
@@ -167,7 +153,7 @@ function CategoryFolderIcon({ icon }: { icon?: ReactElement }) {
       <HugeiconsIcon
         icon={ArrowDown01Icon}
         strokeWidth={2}
-        className="docs-category-chevron pointer-events-none absolute right-5 top-1/2 size-4 -translate-y-1/2 transition-transform duration-150"
+        className="docs-category-chevron pointer-events-none absolute top-1/2 right-5 size-4 -translate-y-1/2 transition-transform duration-150"
       />
     </>
   );
@@ -187,8 +173,7 @@ function groupCategories(nodes: PageTree.Node[]): PageTree.Node[] {
         children: [],
       } as PageTree.Folder;
 
-      const icon =
-        typeof node.name === "string" ? getCategoryIcon(node.name) : undefined;
+      const icon = typeof node.name === "string" ? getCategoryIcon(node.name) : undefined;
       (
         currentCategory as PageTree.Folder & {
           icon?: ReactElement;
@@ -208,10 +193,7 @@ function groupCategories(nodes: PageTree.Node[]): PageTree.Node[] {
         : node;
 
     if (mappedNode.type === "page") {
-      const icon =
-        typeof mappedNode.name === "string"
-          ? getPageIcon(mappedNode.name)
-          : undefined;
+      const icon = typeof mappedNode.name === "string" ? getPageIcon(mappedNode.name) : undefined;
       if (icon) {
         (
           mappedNode as PageTree.Item & {
@@ -221,11 +203,7 @@ function groupCategories(nodes: PageTree.Node[]): PageTree.Node[] {
       }
     }
 
-    if (
-      mappedNode.type === "folder" &&
-      currentCategory &&
-      mappedNode.collapsible === undefined
-    ) {
+    if (mappedNode.type === "folder" && currentCategory && mappedNode.collapsible === undefined) {
       mappedNode = {
         ...mappedNode,
         collapsible: false,
@@ -255,7 +233,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const tree = withCollapsibleCategories(source.pageTree);
 
   return (
-    <div className="h-dvh overflow-y-auto overflow-x-hidden scroll-smooth">
+    <div className="h-dvh overflow-x-hidden overflow-y-auto scroll-smooth">
       <DocsLayout
         tree={tree}
         sidebar={{
@@ -281,9 +259,9 @@ export default function Layout({ children }: { children: ReactNode }) {
         }}
         nav={{
           title: (
-            <div className="flex flew-row items-center">
+            <div className="flew-row flex items-center">
               <LogoLockup className="h-4.5" />
-              <span className="leading-none ml-2.5 mb-[5px] text-foreground/50 font-normal scale-110">
+              <span className="text-foreground/50 mb-[5px] ml-2.5 scale-110 leading-none font-normal">
                 docs
               </span>
             </div>

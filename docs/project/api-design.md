@@ -10,9 +10,9 @@
 ### Server
 
 ```typescript
-import { createPayKit } from "paykit"
-import { stripe } from "paykit/providers/stripe"
-import { drizzleAdapter } from "paykit/adapters/drizzle"
+import { createPayKit } from "paykit";
+import { stripe } from "paykit/providers/stripe";
+import { drizzleAdapter } from "paykit/adapters/drizzle";
 
 export const paykit = createPayKit({
   // Database adapter — required
@@ -49,9 +49,7 @@ export const paykit = createPayKit({
   },
 
   // Plugins (optional)
-  plugins: [
-    walletPlugin(),
-  ],
+  plugins: [walletPlugin()],
 });
 ```
 
@@ -393,26 +391,26 @@ function InvoiceHistory() {
 
 All methods are available on `paykit.api.*` for server-side use:
 
-| Category           | Method                       | Description                        |
-| ------------------ | ---------------------------- | ---------------------------------- |
-| **Customers**      | `createCustomer`             | Create a customer                  |
-|                    | `getCustomer`                | Get customer by ID                 |
-|                    | `getCustomerByExternalId`    | Lookup by your internal ID         |
-|                    | `updateCustomer`             | Update customer data               |
-| **Checkout**       | `createCheckout`             | One-time payment (+ optional save) |
-| **Subscriptions**  | `createSubscription`         | Start a subscription               |
-|                    | `getSubscription`            | Get subscription by ID             |
-|                    | `listSubscriptions`          | List (filter by customer)          |
-|                    | `cancelSubscription`         | Cancel a subscription              |
-|                    | `pauseSubscription`          | Pause a subscription               |
-|                    | `resumeSubscription`         | Resume paused/canceled sub         |
-| **Payment Methods**| `attachPaymentMethod`        | Save a payment method              |
-|                    | `listPaymentMethods`         | List customer payment methods      |
-|                    | `setDefaultPaymentMethod`    | Set the default method             |
-|                    | `detachPaymentMethod`        | Remove a payment method            |
-| **Invoices**       | `createInvoice`              | Create a one-off invoice           |
-|                    | `getInvoice`                 | Get invoice by ID                  |
-|                    | `listInvoices`               | List (filter by customer)          |
+| Category            | Method                    | Description                        |
+| ------------------- | ------------------------- | ---------------------------------- |
+| **Customers**       | `createCustomer`          | Create a customer                  |
+|                     | `getCustomer`             | Get customer by ID                 |
+|                     | `getCustomerByExternalId` | Lookup by your internal ID         |
+|                     | `updateCustomer`          | Update customer data               |
+| **Checkout**        | `createCheckout`          | One-time payment (+ optional save) |
+| **Subscriptions**   | `createSubscription`      | Start a subscription               |
+|                     | `getSubscription`         | Get subscription by ID             |
+|                     | `listSubscriptions`       | List (filter by customer)          |
+|                     | `cancelSubscription`      | Cancel a subscription              |
+|                     | `pauseSubscription`       | Pause a subscription               |
+|                     | `resumeSubscription`      | Resume paused/canceled sub         |
+| **Payment Methods** | `attachPaymentMethod`     | Save a payment method              |
+|                     | `listPaymentMethods`      | List customer payment methods      |
+|                     | `setDefaultPaymentMethod` | Set the default method             |
+|                     | `detachPaymentMethod`     | Remove a payment method            |
+| **Invoices**        | `createInvoice`           | Create a one-off invoice           |
+|                     | `getInvoice`              | Get invoice by ID                  |
+|                     | `listInvoices`            | List (filter by customer)          |
 
 ---
 
@@ -430,15 +428,10 @@ interface PayKitProvider {
   // --- Payment methods ---
 
   // Save a payment method for future charges (provider-hosted UI)
-  attachPaymentMethod(data: {
-    customerId: string;
-    returnURL: string;
-  }): Promise<{ url: string }>;
+  attachPaymentMethod(data: { customerId: string; returnURL: string }): Promise<{ url: string }>;
 
   // Remove a saved payment method
-  detachPaymentMethod(data: {
-    paymentMethodId: string;
-  }): Promise<void>;
+  detachPaymentMethod(data: { paymentMethodId: string }): Promise<void>;
 
   // --- Charges ---
 
@@ -486,22 +479,15 @@ interface PayKitProvider {
   }): Promise<void>;
 
   // Pause a subscription on the provider
-  pauseSubscription(data: {
-    subscriptionId: string;
-  }): Promise<void>;
+  pauseSubscription(data: { subscriptionId: string }): Promise<void>;
 
   // Resume a subscription on the provider
-  resumeSubscription(data: {
-    subscriptionId: string;
-  }): Promise<void>;
+  resumeSubscription(data: { subscriptionId: string }): Promise<void>;
 
   // --- Webhooks ---
 
   // Verify signature + normalize raw provider event into a PayKit event
-  handleWebhook(data: {
-    body: string;
-    headers: Record<string, string>;
-  }): PayKitEvent;
+  handleWebhook(data: { body: string; headers: Record<string, string> }): PayKitEvent;
 }
 ```
 

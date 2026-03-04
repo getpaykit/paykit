@@ -268,10 +268,10 @@ export function HalftoneBackground() {
   return (
     <div
       ref={wrapperRef}
-      className="absolute inset-0 overflow-hidden bg-white dark:bg-background"
+      className="dark:bg-background absolute inset-0 overflow-hidden bg-white"
       aria-hidden="true"
     >
-      <canvas ref={canvasRef} className="w-full h-full invert dark:invert-0" />
+      <canvas ref={canvasRef} className="h-full w-full invert dark:invert-0" />
     </div>
   );
 }

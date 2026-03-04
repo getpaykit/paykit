@@ -1,27 +1,28 @@
 {
   "name": "@getpaykit/root",
   "private": true,
-  "type": "module",
-  "packageManager": "pnpm@10.4.1",
   "description": "Open payments orchestration for modern SaaS",
   "repository": {
     "type": "git",
     "url": "https://github.com/getpaykit/paykit"
   },
+  "type": "module",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "format": "biome format . --write",
-    "lint": "biome check . --error-on-warnings",
-    "lint:fix": "biome check . --fix --unsafe",
+    "format": "oxfmt --write",
+    "format:check": "oxfmt --check",
+    "lint": "oxlint --deny-warnings",
+    "lint:fix": "oxlint --fix",
     "typecheck": "tsc --build",
     "prepare": "simple-git-hooks"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.14",
     "@types/node": "catalog:",
-    "simple-git-hooks": "^2.13.1",
     "lint-staged": "^16.2.7",
+    "oxfmt": "^0.36.0",
+    "oxlint": "^1.51.0",
+    "simple-git-hooks": "^2.13.1",
     "turbo": "^2.8.10",
     "typescript": "catalog:"
   },
@@ -30,10 +31,12 @@
   },
   "lint-staged": {
     "*": [
-      "biome check --fix --no-errors-on-unmatched"
+      "oxlint --fix",
+      "oxfmt --write"
     ]
   },
   "engines": {
     "node": ">=22"
-  }
+  },
+  "packageManager": "pnpm@10.4.1"
 }

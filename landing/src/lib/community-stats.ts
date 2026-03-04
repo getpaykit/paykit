@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+
 import staticContributors from "./contributors-data.json";
 
 export interface CommunityStats {
@@ -58,13 +59,10 @@ async function fetchGitHubStats(): Promise<{
         next: { revalidate: 3600 },
         headers: githubHeaders,
       }),
-      fetch(
-        "https://api.github.com/repos/getpaykit/paykit/contributors?per_page=1&anon=true",
-        {
-          next: { revalidate: 3600 },
-          headers: githubHeaders,
-        },
-      ),
+      fetch("https://api.github.com/repos/getpaykit/paykit/contributors?per_page=1&anon=true", {
+        next: { revalidate: 3600 },
+        headers: githubHeaders,
+      }),
     ]);
 
     let stars = 26000;
@@ -85,10 +83,7 @@ async function fetchGitHubStats(): Promise<{
         }
       }
     } else {
-      console.error(
-        "Failed to fetch contributors:",
-        contributorsResponse.status,
-      );
+      console.error("Failed to fetch contributors:", contributorsResponse.status);
     }
 
     return { stars, contributors: contributorsCount };

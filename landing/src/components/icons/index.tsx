@@ -1,4 +1,5 @@
 import type { SVGProps } from "react";
+
 import { cn } from "@/lib/utils";
 
 export const Icons = {
@@ -143,12 +144,7 @@ export const Icons = {
     </svg>
   ),
   vue: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1.2em"
-      height="1.2em"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
       <path
         className="fill-foreground"
         d="M1.001 3h4l7 12l7-12h4l-11 19zm8.667 0L12 7l2.333-4h4.035L12 14L5.633 3z"
@@ -156,19 +152,9 @@ export const Icons = {
     </svg>
   ),
   express: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
-      viewBox="0 0 256 256"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256">
       <g fill="none">
-        <rect
-          width="256"
-          height="256"
-          className="fill-foreground"
-          rx="60"
-        ></rect>
+        <rect width="256" height="256" className="fill-foreground" rx="60"></rect>
         <path
           className="fill-background"
           d="M228 182.937a12.73 12.73 0 0 1-15.791-6.005c-9.063-13.567-19.071-26.522-28.69-39.755l-4.171-5.56c-11.454 15.346-22.908 30.08-33.361 45.371a12.23 12.23 0 0 1-15.012 5.894l42.98-57.659l-39.978-52.1a13.29 13.29 0 0 1 15.847 5.56c9.285 13.568 19.572 26.523 29.802 40.257c10.287-13.623 20.462-26.634 29.97-40.09a11.95 11.95 0 0 1 14.901-5.56l-15.513 20.573c-6.95 9.174-13.789 18.404-21.017 27.356a5.56 5.56 0 0 0 0 8.285c13.289 17.626 26.466 35.307 40.033 53.433M28 124.5c1.168-5.56 1.89-11.621 3.503-17.292c9.619-34.195 48.818-48.43 75.785-27.245c15.791 12.4 19.739 29.97 18.961 49.764H37.286c-1.446 35.363 24.075 56.714 56.713 45.816a33.86 33.86 0 0 0 21.518-23.965c1.724-5.56 4.504-6.505 9.786-4.893a45.15 45.15 0 0 1-21.573 32.972a52.26 52.26 0 0 1-60.884-7.784a54.77 54.77 0 0 1-13.678-32.138c0-1.89-.723-3.781-1.112-5.56A861 861 0 0 1 28 124.5m9.397-2.391h80.456c-.501-25.632-16.681-43.814-38.254-43.98c-24.02-.334-41.201 17.458-42.258 43.869z"
@@ -198,12 +184,7 @@ export const Icons = {
     </svg>
   ),
   javascript: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1.2em"
-      height="1.2em"
-      viewBox="0 0 512 512"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 512 512">
       <path
         className="fill-foreground"
         d="M32 32v448h448V32Zm240 348c0 43.61-25.76 64.87-63.05 64.87c-33.68 0-53.23-17.44-63.15-38.49l34.28-20.75c6.61 11.73 11.63 21.65 26.06 21.65c12 0 21.86-5.41 21.86-26.46V240h44Zm99.35 63.87c-39.09 0-64.35-17.64-76.68-42L329 382c9 14.74 20.75 24.56 41.5 24.56c17.44 0 27.57-7.72 27.57-19.75c0-14.43-10.43-19.54-29.68-28l-10.52-4.52c-30.38-12.92-50.52-29.16-50.52-63.45c0-31.57 24.05-54.63 61.64-54.63c26.77 0 46 8.32 59.85 32.68L396 290c-7.22-12.93-15-18-27.06-18c-12.33 0-20.15 7.82-20.15 18c0 12.63 7.82 17.74 25.86 25.56l10.52 4.51c35.79 15.34 55.94 31 55.94 66.16c.01 37.9-29.76 57.64-69.76 57.64"
@@ -211,12 +192,7 @@ export const Icons = {
     </svg>
   ),
   node: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1.2em"
-      height="1.2em"
-      viewBox="0 0 15 15"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 15 15">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -226,12 +202,7 @@ export const Icons = {
     </svg>
   ),
   book: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="1em"
-      height="1em"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M17.5 4.5c-1.95 0-4.05.4-5.5 1.5c-1.45-1.1-3.55-1.5-5.5-1.5c-1.45 0-2.99.22-4.28.79C1.49 5.62 1 6.33 1 7.14v11.28c0 1.3 1.22 2.26 2.48 1.94c.98-.25 2.02-.36 3.02-.36c1.56 0 3.22.26 4.56.92c.6.3 1.28.3 1.87 0c1.34-.67 3-.92 4.56-.92c1 0 2.04.11 3.02.36c1.26.33 2.48-.63 2.48-1.94V7.14c0-.81-.49-1.52-1.22-1.85c-1.28-.57-2.82-.79-4.27-.79M21 17.23c0 .63-.58 1.09-1.2.98c-.75-.14-1.53-.2-2.3-.2c-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5c.92 0 1.83.09 2.7.28c.46.1.8.51.8.98z"
@@ -381,13 +352,7 @@ export const Icons = {
           className="fill-muted-foreground stroke-muted-foreground"
           strokeWidth="4"
         />
-        <ellipse
-          cx="49.5"
-          cy="119"
-          rx="41.5"
-          ry="51"
-          className="fill-muted-foreground"
-        />
+        <ellipse cx="49.5" cy="119" rx="41.5" ry="51" className="fill-muted-foreground" />
         <path
           d="M34 38v-9c1 1 2 4 5 6l7 30-8 2c-1-23-2-23-4-29Z"
           className="fill-foreground stroke-muted-foreground"
@@ -414,10 +379,7 @@ export const Icons = {
           d="M44 18c-10 1-11 7-10 11l4-3c5-4 6-7 6-8Z"
           className="fill-foreground stroke-muted-foreground"
         />
-        <path
-          d="M34 29h7l18 4c-3-6-9-14-21-7l-4 3Z"
-          className="fill-foreground"
-        />
+        <path d="M34 29h7l18 4c-3-6-9-14-21-7l-4 3Z" className="fill-foreground" />
         <path
           d="M34 29c4-2 12-5 18-1m-18 1h7l18 4c-3-6-9-14-21-7l-4 3Z"
           className="stroke-muted-foreground"
@@ -430,10 +392,7 @@ export const Icons = {
           d="M34 29c-5 1-7 5-9 9l-9 10c0-17 7-18 13-19h5Zm0 0c-5 2-11 3-14 10"
           className="stroke-muted-foreground"
         />
-        <path
-          d="M41 29c9 2 13 10 15 14a25 25 0 0 1-22-14h7Z"
-          className="fill-foreground"
-        />
+        <path d="M41 29c9 2 13 10 15 14a25 25 0 0 1-22-14h7Z" className="fill-foreground" />
         <path
           d="M34 29c3 1 11 5 15 9m-15-9h7c9 2 13 10 15 14a25 25 0 0 1-22-14Z"
           className="stroke-muted-foreground"
@@ -537,10 +496,7 @@ export const Icons = {
         >
           <feFlood floodOpacity={0} result="BackgroundImageFix" />
           <feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape" />
-          <feGaussianBlur
-            result="effect1_foregroundBlur_115_108"
-            stdDeviation={5}
-          />
+          <feGaussianBlur result="effect1_foregroundBlur_115_108" stdDeviation={5} />
         </filter>
       </defs>
     </svg>

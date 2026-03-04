@@ -29,11 +29,7 @@ export function ThemeToggle() {
           strokeLinejoin="round"
           strokeWidth="2"
         >
-          <path
-            strokeDasharray="2"
-            strokeDashoffset="0"
-            d="M12 21v1M21 12h1M12 3v-1M3 12h-1"
-          />
+          <path strokeDasharray="2" strokeDashoffset="0" d="M12 21v1M21 12h1M12 3v-1M3 12h-1" />
           <path
             strokeDasharray="2"
             strokeDashoffset="0"

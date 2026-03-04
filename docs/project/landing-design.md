@@ -193,10 +193,9 @@ All follow Hero → Social proof → Code → Features → Testimonials → CTA.
 This design is that template minus everything that requires an existing
 user base.
 
-
 ## Style
 
-Want it to look clean and minimalistic, like Vercel, or Drizzle. 
+Want it to look clean and minimalistic, like Vercel, or Drizzle.
 Have limited container width, and defined sections, like vercel.
 Have blocks with borders, modern style, like better-auth.
 Have code examples.

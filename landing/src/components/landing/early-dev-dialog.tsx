@@ -2,13 +2,8 @@
 
 import { Github, Star } from "lucide-react";
 import type { ReactNode } from "react";
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+
 import {
   Dialog,
   DialogContent,
@@ -43,19 +38,17 @@ export function EarlyDevProvider({ children }: { children: ReactNode }) {
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              Coming Soon
-            </DialogTitle>
+            <DialogTitle className="flex items-center gap-2">Coming Soon</DialogTitle>
             <DialogDescription>
-              PayKit is in early development. Documentation and guides are being
-              written — star us on GitHub to follow along.
+              PayKit is in early development. Documentation and guides are being written — star us
+              on GitHub to follow along.
             </DialogDescription>
           </DialogHeader>
           <a
             href="https://github.com/getpaykit/paykit"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-md bg-foreground px-4 py-2 text-sm font-medium text-background transition-opacity hover:opacity-90"
+            className="bg-foreground text-background inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-opacity hover:opacity-90"
           >
             <Github className="size-4" />
             Star on GitHub

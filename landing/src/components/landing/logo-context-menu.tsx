@@ -1,8 +1,8 @@
 "use client";
 
 import { Code, Image, Type } from "lucide-react";
-import type { StaticImageData } from "next/image";
 import { useTheme } from "next-themes";
+import type { StaticImageData } from "next/image";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -21,10 +21,7 @@ interface ContextMenuProps {
   logoAssets: LogoAssets;
 }
 
-export default function LogoContextMenu({
-  logo,
-  logoAssets,
-}: ContextMenuProps) {
+export default function LogoContextMenu({ logo, logoAssets }: ContextMenuProps) {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
@@ -39,11 +36,7 @@ export default function LogoContextMenu({
     }
   };
 
-  const copySvgToClipboard = (
-    e: React.MouseEvent,
-    svgContent: string,
-    type: string,
-  ) => {
+  const copySvgToClipboard = (e: React.MouseEvent, svgContent: string, type: string) => {
     e.preventDefault();
     e.stopPropagation();
     navigator.clipboard
@@ -53,7 +46,7 @@ export default function LogoContextMenu({
           description: `${type} copied to clipboard`,
         });
       })
-      .catch((err) => {
+      .catch((_err) => {
         toast.error("", {
           description: `Failed to copy ${type} to clipboard`,
         });
@@ -61,11 +54,7 @@ export default function LogoContextMenu({
     setShowMenu(false);
   };
 
-  const downloadPng = (
-    e: React.MouseEvent,
-    pngData: StaticImageData,
-    fileName: string,
-  ) => {
+  const downloadPng = (e: React.MouseEvent, pngData: StaticImageData, fileName: string) => {
     e.preventDefault();
     e.stopPropagation();
     const link = document.createElement("a");
@@ -115,21 +104,17 @@ export default function LogoContextMenu({
 
   return (
     <div className="relative">
-      <div
-        ref={logoRef}
-        onContextMenu={handleContextMenu}
-        className="cursor-pointer"
-      >
+      <div ref={logoRef} onContextMenu={handleContextMenu} className="cursor-pointer">
         {logo}
       </div>
 
       {showMenu && (
         <div
           ref={menuRef}
-          className="fixed mx-10 z-50 bg-black border border-border p-1 rounded-sm shadow-xl w-56 overflow-hidden animate-fd-dialog-in duration-500"
+          className="border-border animate-fd-dialog-in fixed z-50 mx-10 w-56 overflow-hidden rounded-sm border bg-black p-1 shadow-xl duration-500"
         >
           <div className="">
-            <div className="flex p-0 gap-1 flex-col text-xs">
+            <div className="flex flex-col gap-1 p-0 text-xs">
               <button
                 onClick={(e) =>
                   copySvgToClipboard(
@@ -138,12 +123,12 @@ export default function LogoContextMenu({
                     "Logo SVG",
                   )
                 }
-                className="flex items-center gap-3 w-full p-2 text-white hover:bg-zinc-900 rounded-md transition-colors cursor-pointer"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-white transition-colors hover:bg-zinc-900"
               >
                 <div className="flex items-center">
                   <span className="text-zinc-400/30">[</span>
 
-                  <Code className="h-[13.8px] w-[13.8px] mx-[3px]" />
+                  <Code className="mx-[3px] h-[13.8px] w-[13.8px]" />
                   <span className="text-zinc-400/30">]</span>
                 </div>
                 <span>Copy Logo as SVG </span>
@@ -157,12 +142,12 @@ export default function LogoContextMenu({
                     "Logo Wordmark",
                   )
                 }
-                className="flex items-center gap-3 w-full p-2 text-white hover:bg-zinc-900 rounded-md transition-colors cursor-pointer"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-white transition-colors hover:bg-zinc-900"
               >
                 <div className="flex items-center">
                   <span className="text-zinc-400/30">[</span>
 
-                  <Type className="h-[13.8px] w-[13.8px] mx-[3px]" />
+                  <Type className="mx-[3px] h-[13.8px] w-[13.8px]" />
                   <span className="text-zinc-400/30">]</span>
                 </div>
                 <span>Copy Logo as Wordmark </span>
@@ -177,12 +162,12 @@ export default function LogoContextMenu({
                     `paykit-logo-${theme}.png`,
                   )
                 }
-                className="flex items-center gap-3 w-full p-2 text-white hover:bg-zinc-900 rounded-md transition-colors cursor-pointer"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-white transition-colors hover:bg-zinc-900"
               >
                 <div className="flex items-center">
                   <span className="text-zinc-400/30">[</span>
 
-                  <Image className="h-[13.8px] w-[13.8px] mx-[3px]" />
+                  <Image className="mx-[3px] h-[13.8px] w-[13.8px]" />
                   <span className="text-zinc-400/30">]</span>
                 </div>
                 <span>Download Logo PNG</span>
@@ -190,7 +175,7 @@ export default function LogoContextMenu({
               <hr className="border-border" />
               <button
                 onClick={(e) => downloadAllAssets(e)}
-                className="flex items-center gap-3 w-full p-2 text-white hover:bg-zinc-900 rounded-md transition-colors cursor-pointer"
+                className="flex w-full cursor-pointer items-center gap-3 rounded-md p-2 text-white transition-colors hover:bg-zinc-900"
               >
                 <div className="flex items-center">
                   <span className="text-zinc-400/30">[</span>
@@ -200,7 +185,7 @@ export default function LogoContextMenu({
                     width="1em"
                     height="1em"
                     viewBox="0 0 24 24"
-                    className="h-[13.8px] w-[13.8px] mx-[3px]"
+                    className="mx-[3px] h-[13.8px] w-[13.8px]"
                   >
                     <path
                       fill="none"

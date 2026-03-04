@@ -4,17 +4,14 @@ import { motion, useInView } from "framer-motion";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
+
 import { DynamicCodeBlock } from "@/components/ui/dynamic-code-block";
+
 import { useEarlyDevDialog } from "./early-dev-dialog";
 
 export const providerIcons: Record<string, () => React.ReactNode> = {
   Google: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 56 56"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 56 56">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -23,12 +20,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   GitHub: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 15 15"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 15 15">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -38,12 +30,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Apple: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 20 20"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -52,25 +39,12 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Microsoft: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
-      <path
-        fill="currentColor"
-        d="M2 3h9v9H2zm9 19H2v-9h9zM21 3v9h-9V3zm0 19h-9v-9h9z"
-      />
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+      <path fill="currentColor" d="M2 3h9v9H2zm9 19H2v-9h9zM21 3v9h-9V3zm0 19h-9v-9h9z" />
     </svg>
   ),
   Discord: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M18.59 5.89c-1.23-.57-2.54-.99-3.92-1.23c-.17.3-.37.71-.5 1.04c-1.46-.22-2.91-.22-4.34 0c-.14-.33-.34-.74-.51-1.04c-1.38.24-2.69.66-3.92 1.23c-2.48 3.74-3.15 7.39-2.82 10.98c1.65 1.23 3.24 1.97 4.81 2.46c.39-.53.73-1.1 1.03-1.69c-.57-.21-1.11-.48-1.62-.79c.14-.1.27-.21.4-.31c3.13 1.46 6.52 1.46 9.61 0c.13.11.26.21.4.31c-.51.31-1.06.57-1.62.79c.3.59.64 1.16 1.03 1.69c1.57-.49 3.17-1.23 4.81-2.46c.39-4.17-.67-7.78-2.82-10.98Zm-9.75 8.78c-.94 0-1.71-.87-1.71-1.94s.75-1.94 1.71-1.94s1.72.87 1.71 1.94c0 1.06-.75 1.94-1.71 1.94m6.31 0c-.94 0-1.71-.87-1.71-1.94s.75-1.94 1.71-1.94s1.72.87 1.71 1.94c0 1.06-.75 1.94-1.71 1.94"
@@ -78,12 +52,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Slack: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 2447.6 2452.5"
-      width="14"
-      height="14"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2447.6 2452.5" width="14" height="14">
       <g fill="currentColor">
         <path d="m897.4 0c-135.3.1-244.8 109.9-244.7 245.2-.1 135.3 109.5 245.1 244.8 245.2h244.8v-245.1c.1-135.3-109.5-245.1-244.9-245.3.1 0 .1 0 0 0m0 654h-652.6c-135.3.1-244.9 109.9-244.8 245.2-.2 135.3 109.4 245.1 244.7 245.3h652.7c135.3-.1 244.9-109.9 244.8-245.2.1-135.4-109.5-245.2-244.8-245.3z" />
         <path d="m2447.6 899.2c.1-135.3-109.5-245.1-244.8-245.2-135.3.1-244.9 109.9-244.8 245.2v245.3h244.8c135.3-.1 244.9-109.9 244.8-245.3zm-652.7 0v-654c.1-135.2-109.4-245-244.7-245.2-135.3.1-244.9 109.9-244.8 245.2v654c-.2 135.3 109.4 245.1 244.7 245.3 135.3-.1 244.9-109.9 244.8-245.3z" />
@@ -93,12 +62,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Twitter: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 448 512"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 448 512">
       <path
         fill="currentColor"
         d="M64 32C28.7 32 0 60.7 0 96v320c0 35.3 28.7 64 64 64h320c35.3 0 64-28.7 64-64V96c0-35.3-28.7-64-64-64zm297.1 84L257.3 234.6L379.4 396h-95.6L209 298.1L123.3 396H75.8l111-126.9L69.7 116h98l67.7 89.5l78.2-89.5zm-37.8 251.6L153.4 142.9h-28.3l171.8 224.7h26.3z"
@@ -106,12 +70,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Facebook: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 64 64"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 64 64">
       <path
         fill="currentColor"
         d="M59.5 1h-55C2.5 1 1 2.6 1 4.5v55c0 2 1.6 3.5 3.5 3.5h29.6V38.9h-8v-9.3h8v-6.9c0-8 4.8-12.4 12-12.4c2.4 0 4.8.1 7.2.4V19h-4.8c-3.8 0-4.6 1.8-4.6 4.5v5.9H53l-1.3 9.4h-8v23.8h15.8c2 0 3.5-1.5 3.5-3.5V4.5c-.1-2-1.7-3.5-3.5-3.5"
@@ -133,12 +92,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   GitLab: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 32 32"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 32 32">
       <path
         fill="currentColor"
         d="m28.568 12.893l-.037-.094l-3.539-9.235a.92.92 0 0 0-.364-.439a.95.95 0 0 0-1.083.058a.95.95 0 0 0-.314.477l-2.39 7.31h-9.675l-2.39-7.31a.93.93 0 0 0-.313-.478a.95.95 0 0 0-1.083-.058a.93.93 0 0 0-.365.438L3.47 12.794l-.035.093a6.57 6.57 0 0 0 2.18 7.595l.011.01l.033.022l5.39 4.037l2.668 2.019l1.624 1.226c.39.297.931.297 1.322 0l1.624-1.226l2.667-2.019l5.424-4.061l.013-.01a6.574 6.574 0 0 0 2.177-7.588Z"
@@ -146,12 +100,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Twitch: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -175,13 +124,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Figma: () => (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 15 15"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="14" height="14" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -191,12 +134,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Notion: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.28c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233l4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z"
@@ -222,12 +160,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   HuggingFace: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M12.025 1.13c-5.77 0-10.449 4.647-10.449 10.378c0 1.112.178 2.181.503 3.185c.064-.222.203-.444.416-.577a.96.96 0 0 1 .524-.15c.293 0 .584.124.84.284c.278.173.48.408.71.694c.226.282.458.611.684.951v-.014c.017-.324.106-.622.264-.874s.403-.487.762-.543c.3-.047.596.06.787.203s.31.313.4.467c.15.257.212.468.233.542c.01.026.653 1.552 1.657 2.54c.616.605 1.01 1.223 1.082 1.912c.055.537-.096 1.059-.38 1.572c.637.121 1.294.187 1.967.187c.657 0 1.298-.063 1.921-.178c-.287-.517-.44-1.041-.384-1.581c.07-.69.465-1.307 1.081-1.913c1.004-.987 1.647-2.513 1.657-2.539c.021-.074.083-.285.233-.542c.09-.154.208-.323.4-.467a1.08 1.08 0 0 1 .787-.203c.359.056.604.29.762.543s.247.55.265.874v.015c.225-.34.457-.67.683-.952c.23-.286.432-.52.71-.694c.257-.16.547-.284.84-.285a.97.97 0 0 1 .524.151c.228.143.373.388.43.625l.006.04a10.3 10.3 0 0 0 .534-3.273c0-5.731-4.678-10.378-10.449-10.378"
@@ -235,12 +168,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Reddit: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 32 32"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 32 32">
       <path
         d="M29.9999 12.0001C29.9998 11.2336 29.7793 10.4832 29.3649 9.8384C28.9505 9.19356 28.3595 8.68139 27.6623 8.36282C26.9652 8.04425 26.1911 7.93271 25.4324 8.04148C24.6736 8.15024 23.9621 8.47473 23.3824 8.97633C21.2887 7.86383 18.7874 7.19132 16.1749 7.03507L16.8237 3.13883L19.0387 3.47883C19.1511 4.17754 19.5068 4.81402 20.0431 5.27579C20.5794 5.73757 21.2616 5.99489 21.9693 6.00228C22.6769 6.00967 23.3644 5.76665 23.9102 5.31618C24.456 4.86571 24.825 4.23679 24.952 3.54058C25.0789 2.84437 24.9556 2.1257 24.604 1.51158C24.2523 0.897463 23.6948 0.427445 23.0301 0.184601C22.3654-0.0582438 21.6362-0.0582795 20.9715 0.1845C20.3067 0.42728 19.7492 0.897242 19.3974 1.51133L16.1474 1.01133C15.8874 0.971236 15.6221 1.03522 15.409 1.18941C15.1958 1.34361 15.052 1.57558 15.0087 1.83508L14.1499 7.02008C11.4199 7.13758 8.79744 7.81757 6.61744 8.97633C5.82132 8.30379 4.79416 7.96851 3.75457 8.04187C2.71499 8.11523 1.74508 8.59143 1.0513 9.36911C0.357515 10.1468-0.00535957 11.1645 0.0399123 12.2057C0.0851841 13.2469 0.535027 14.2293 1.29369 14.9438C1.09926 15.612 1.00036 16.3042 0.999944 17.0001C0.999944 19.7413 2.49994 22.2938 5.23869 24.1863C7.85994 26.0001 11.3262 27.0001 14.9999 27.0001C18.6737 27.0001 22.1399 26.0001 24.7612 24.1863C27.4999 22.2938 28.9999 19.7413 28.9999 17.0001C28.9995 16.3042 28.9006 15.612 28.7062 14.9438C29.1128 14.5686 29.4376 14.1135 29.6602 13.6069C29.8828 13.1004 29.9985 12.5534 29.9999 12.0001ZM7.99994 15.0001C7.99994 14.6045 8.11724 14.2178 8.337 13.8889C8.55677 13.56 8.86912 13.3037 9.23458 13.1523C9.60003 13.0009 10.0022 12.9613 10.3901 13.0385C10.7781 13.1157 11.1345 13.3062 11.4142 13.5859C11.6939 13.8656 11.8843 14.2219 11.9615 14.6099C12.0387 14.9979 11.9991 15.4 11.8477 15.7654C11.6963 16.1309 11.44 16.4433 11.1111 16.663C10.7822 16.8828 10.3955 17.0001 9.99994 17.0001C9.46951 17.0001 8.9608 16.7894 8.58573 16.4143C8.21066 16.0392 7.99994 15.5305 7.99994 15.0001ZM19.4687 21.8838C18.0927 22.6151 16.5582 22.9975 14.9999 22.9975C13.4417 22.9975 11.9072 22.6151 10.5312 21.8838C10.4151 21.8223 10.3123 21.7385 10.2287 21.6372C10.145 21.5359 10.0821 21.4191 10.0436 21.2935C10.005 21.1679 9.99162 21.036 10.0041 20.9052C10.0165 20.7744 10.0546 20.6474 10.1162 20.5313C10.1778 20.4153 10.2616 20.3125 10.3628 20.2288C10.4641 20.1451 10.5809 20.0822 10.7065 20.0437C10.8321 20.0052 10.964 19.9918 11.0948 20.0042C11.2256 20.0167 11.3526 20.0548 11.4687 20.1163C12.556 20.6944 13.7685 20.9967 14.9999 20.9967C16.2313 20.9967 17.4439 20.6944 18.5312 20.1163C18.6472 20.0548 18.7743 20.0167 18.9051 20.0042C19.0358 19.9918 19.1678 20.0052 19.2934 20.0437C19.419 20.0822 19.5358 20.1451 19.637 20.2288C19.7383 20.3125 19.8221 20.4153 19.8837 20.5313C19.9453 20.6474 19.9833 20.7744 19.9958 20.9052C20.0083 21.036 19.9948 21.1679 19.9563 21.2935C19.9178 21.4191 19.8549 21.5359 19.7712 21.6372C19.6875 21.7385 19.5847 21.8223 19.4687 21.8838ZM19.9999 17.0001C19.6044 17.0001 19.2177 16.8828 18.8888 16.663C18.5599 16.4433 18.3036 16.1309 18.1522 15.7654C18.0008 15.4 17.9612 14.9979 18.0384 14.6099C18.1155 14.2219 18.306 13.8656 18.5857 13.5859C18.8654 13.3062 19.2218 13.1157 19.6098 13.0385C19.9977 12.9613 20.3999 13.0009 20.7653 13.1523C21.1308 13.3037 21.4431 13.56 21.6629 13.8889C21.8826 14.2178 21.9999 14.6045 21.9999 15.0001C21.9999 15.5305 21.7892 16.0392 21.4142 16.4143C21.0391 16.7894 20.5304 17.0001 19.9999 17.0001Z"
         fill="currentColor"
@@ -248,12 +176,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   TikTok: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"
@@ -273,12 +196,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Dropbox: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 528 512"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 528 512">
       <path
         className="fill-current"
         fillRule="evenodd"
@@ -287,12 +205,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Zoom: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 16 16"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 16 16">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -327,12 +240,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Kick: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M9 3a1 1 0 0 1 1 1v3h1V6a1 1 0 0 1 .883-.993L12 5h1V4a1 1 0 0 1 .883-.993L14 3h6a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-.883.993L18 11h-1v2h1a1 1 0 0 1 .993.883L19 14v1h1a1 1 0 0 1 .993.883L21 16v4a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1h-1a1 1 0 0 1-.993-.883L11 18v-1h-1v3a1 1 0 0 1-.883.993L9 21H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"
@@ -340,12 +248,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Kakao: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 512 512"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 512 512">
       <path
         fill="currentColor"
         d="M 511.5,203.5 C 511.5,215.5 511.5,227.5 511.5,239.5C 504.002,286.989 482.002,326.489 445.5,358C 390.216,402.375 326.882,424.209 255.5,423.5C 239.751,423.476 224.085,422.643 208.5,421C 174.34,444.581 140.006,467.914 105.5,491C 95.6667,493.167 91.8333,489.333 94,479.5C 101.833,450.667 109.667,421.833 117.5,393C 85.5639,376.077 58.0639,353.577 35,325.5C 15.8353,299.834 4.00193,271.167 -0.5,239.5C -0.5,227.5 -0.5,215.5 -0.5,203.5C 7.09119,155.407 29.4245,115.574 66.5,84C 121.53,39.9708 184.53,18.4708 255.5,19.5C 326.47,18.4708 389.47,39.9708 444.5,84C 481.575,115.574 503.909,155.407 511.5,203.5 Z"
@@ -353,12 +256,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Line: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
@@ -366,12 +264,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   VK: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 20 20"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 20 20">
       <path
         fill="currentColor"
         fillRule="evenodd"
@@ -381,12 +274,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Naver: () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-    >
+    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
       <path
         fill="currentColor"
         d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"
@@ -414,12 +302,7 @@ export const providerIcons: Record<string, () => React.ReactNode> = {
     </svg>
   ),
   Salesforce: () => (
-    <svg
-      viewBox=".5 .5 999 699.242"
-      width="14"
-      height="14"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg viewBox=".5 .5 999 699.242" width="14" height="14" xmlns="http://www.w3.org/2000/svg">
       <path
         fill="currentColor"
         d="M416.224 76.763c32.219-33.57 77.074-54.391 126.682-54.391 65.946 0 123.48 36.772 154.12 91.361 26.626-11.896 56.098-18.514 87.106-18.514 118.94 0 215.368 97.268 215.368 217.247 0 119.993-96.428 217.261-215.368 217.261a213.735 213.735 0 0 1-42.422-4.227c-26.981 48.128-78.397 80.646-137.412 80.646-24.705 0-48.072-5.706-68.877-15.853-27.352 64.337-91.077 109.448-165.348 109.448-77.344 0-143.261-48.939-168.563-117.574-11.057 2.348-22.513 3.572-34.268 3.572C75.155 585.74.5 510.317.5 417.262c0-62.359 33.542-116.807 83.378-145.937-10.26-23.608-15.967-49.665-15.967-77.06C67.911 87.25 154.79.5 261.948.5c62.914 0 118.827 29.913 154.276 76.263"
@@ -598,17 +481,16 @@ export const { GET, POST } = paykit.handler`;
 export function ServerClientTabs() {
   const [activeTab, setActiveTab] = useState<"server" | "handler">("server");
   const serverCodeBlockClassName = activeTab === "server" ? "block" : "hidden";
-  const handlerCodeBlockClassName =
-    activeTab === "handler" ? "block" : "hidden";
+  const handlerCodeBlockClassName = activeTab === "handler" ? "block" : "hidden";
 
   return (
     <div className="relative">
-      <div className="relative overflow-hidden bg-neutral-50 dark:bg-background border border-foreground/[0.1] rounded-lg">
-        <div className="flex border-b border-foreground/[0.08] bg-neutral-100/50 dark:bg-card/50">
+      <div className="dark:bg-background border-foreground/[0.1] relative overflow-hidden rounded-lg border bg-neutral-50">
+        <div className="border-foreground/[0.08] dark:bg-card/50 flex border-b bg-neutral-100/50">
           <button
             type="button"
             onClick={() => setActiveTab("server")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-mono transition-colors relative ${
+            className={`relative flex items-center gap-1.5 px-4 py-2 font-mono text-[13px] transition-colors ${
               activeTab === "server"
                 ? "text-foreground/80"
                 : "text-foreground/40 hover:text-foreground/60"
@@ -616,13 +498,13 @@ export function ServerClientTabs() {
           >
             paykit.ts
             {activeTab === "server" && (
-              <span className="absolute bottom-0 left-2 right-2 h-px bg-foreground/50" />
+              <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
             )}
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("handler")}
-            className={`flex items-center gap-1.5 px-4 py-2 text-[13px] font-mono transition-colors relative ${
+            className={`relative flex items-center gap-1.5 px-4 py-2 font-mono text-[13px] transition-colors ${
               activeTab === "handler"
                 ? "text-foreground/80"
                 : "text-foreground/40 hover:text-foreground/60"
@@ -630,7 +512,7 @@ export function ServerClientTabs() {
           >
             route.ts
             {activeTab === "handler" && (
-              <span className="absolute bottom-0 left-2 right-2 h-px bg-foreground/50" />
+              <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
             )}
           </button>
         </div>
@@ -678,28 +560,27 @@ export function CodeExamplesSection() {
 
   return (
     <div>
-      <div className="flex items-center gap-3 mb-5">
-        <span className="text-base text-foreground/85 dark:text-foreground/75">
-          Unified{" "}
-          <span className="text-emerald-500 dark:text-emerald-400">API</span>
+      <div className="mb-5 flex items-center gap-3">
+        <span className="text-foreground/85 dark:text-foreground/75 text-base">
+          Unified <span className="text-emerald-500 dark:text-emerald-400">API</span>
         </span>
-        <div className="h-px flex-1 bg-foreground/[0.08]" />
+        <div className="bg-foreground/[0.08] h-px flex-1" />
       </div>
 
-      <p className="text-sm text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl leading-relaxed">
-        One API for checkout, subscriptions, invoices, and events — regardless
-        of which payment provider you use.
+      <p className="text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl text-sm leading-relaxed">
+        One API for checkout, subscriptions, invoices, and events — regardless of which payment
+        provider you use.
       </p>
 
-      <div className="border border-foreground/[0.1] overflow-hidden bg-neutral-50/50 dark:bg-background/40">
+      <div className="border-foreground/[0.1] dark:bg-background/40 overflow-hidden border bg-neutral-50/50">
         {/* Tabs */}
-        <div className="flex border-b border-foreground/[0.09] bg-neutral-100/50 dark:bg-card/50 overflow-x-auto no-scrollbar">
+        <div className="border-foreground/[0.09] dark:bg-card/50 no-scrollbar flex overflow-x-auto border-b bg-neutral-100/50">
           {tabs.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`flex items-center gap-1.5 px-3 py-2 text-[13px] font-mono transition-colors relative border-r border-foreground/[0.08] last:border-r-0 shrink-0 ${
+              className={`border-foreground/[0.08] relative flex shrink-0 items-center gap-1.5 border-r px-3 py-2 font-mono text-[13px] transition-colors last:border-r-0 ${
                 activeTab === tab
                   ? "text-foreground/90 bg-foreground/[0.03]"
                   : "text-foreground/45 hover:text-foreground/70"
@@ -707,7 +588,7 @@ export function CodeExamplesSection() {
             >
               {tab}
               {activeTab === tab && (
-                <span className="absolute bottom-0 left-0 right-0 h-px bg-emerald-500/70 dark:bg-emerald-400/60" />
+                <span className="absolute right-0 bottom-0 left-0 h-px bg-emerald-500/70 dark:bg-emerald-400/60" />
               )}
             </button>
           ))}
@@ -759,18 +640,16 @@ export function SocialProvidersSection() {
   );
 
   return (
-    <div ref={containerRef} className="flex gap-6 items-start">
+    <div ref={containerRef} className="flex items-start gap-6">
       <div className="shrink-0">
-        <span className="text-2xl font-light text-foreground/80 dark:text-foreground/70 tabular-nums leading-none">
+        <span className="text-foreground/80 dark:text-foreground/70 text-2xl leading-none font-light tabular-nums">
           35+
         </span>
-        <p className="text-sm text-foreground/55 dark:text-foreground/45 mt-1">
-          social providers
-        </p>
+        <p className="text-foreground/55 dark:text-foreground/45 mt-1 text-sm">social providers</p>
       </div>
 
       <div
-        className="relative flex-1 overflow-hidden border border-dashed border-foreground/[0.08]"
+        className="border-foreground/[0.08] relative flex-1 overflow-hidden border border-dashed"
         style={{ height: `${visibleRows * rowHeight}px` }}
       >
         <motion.div
@@ -778,17 +657,13 @@ export function SocialProvidersSection() {
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
           {allRows.map((row, rowIdx) => (
-            <div
-              key={rowIdx}
-              className="flex"
-              style={{ height: `${rowHeight}px` }}
-            >
+            <div key={rowIdx} className="flex" style={{ height: `${rowHeight}px` }}>
               {row.map((provider) => {
                 const Icon = providerIcons[provider];
                 return (
                   <span
                     key={provider}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-mono text-foreground/65 dark:text-foreground/50 border-r border-b border-dashed border-foreground/[0.06] cursor-default"
+                    className="text-foreground/65 dark:text-foreground/50 border-foreground/[0.06] inline-flex flex-1 cursor-default items-center justify-center gap-1.5 border-r border-b border-dashed px-3 py-2 font-mono text-xs"
                   >
                     {Icon && (
                       <span className="text-foreground/50 dark:text-foreground/35 shrink-0">
@@ -802,7 +677,7 @@ export function SocialProvidersSection() {
             </div>
           ))}
         </motion.div>
-        <div className="absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+        <div className="from-background pointer-events-none absolute inset-x-0 bottom-0 h-4 bg-gradient-to-t to-transparent" />
       </div>
     </div>
   );
@@ -816,12 +691,12 @@ export function PluginEcosystem() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="text-base text-foreground/85 dark:text-foreground/75">
+          <span className="text-foreground/85 dark:text-foreground/75 text-base">
             Plugin Ecosystem
           </span>
-          <span className="text-xs font-mono text-foreground/35 dark:text-foreground/50">
+          <span className="text-foreground/35 dark:text-foreground/50 font-mono text-xs">
             {plugins.length} official
           </span>
         </div>
@@ -831,7 +706,7 @@ export function PluginEcosystem() {
             e.preventDefault();
             openEarlyDevDialog();
           }}
-          className="text-xs font-mono text-foreground/35 dark:text-foreground/50 hover:text-foreground/55 transition-colors uppercase tracking-wider"
+          className="text-foreground/35 dark:text-foreground/50 hover:text-foreground/55 font-mono text-xs tracking-wider uppercase transition-colors"
         >
           browse all &rarr;
         </Link>
@@ -839,14 +714,14 @@ export function PluginEcosystem() {
 
       <div className="relative overflow-hidden">
         {/* Row 1 — scrolls left */}
-        <div className="flex animate-[marquee_40s_linear_infinite] mb-1.5">
+        <div className="mb-1.5 flex animate-[marquee_40s_linear_infinite]">
           {[...row1, ...row1].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
-              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-xs text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
+              className="text-foreground dark:text-foreground/90 border-foreground/[0.06] mr-1.5 inline-flex shrink-0 cursor-default items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs whitespace-nowrap"
             >
               {plugin.name}
-              <span className="text-xs font-mono uppercase tracking-wider text-foreground/50 ">
+              <span className="text-foreground/50 font-mono text-xs tracking-wider uppercase">
                 {categoryLabels[plugin.category]}
               </span>
             </span>
@@ -858,10 +733,10 @@ export function PluginEcosystem() {
           {[...row2, ...row2].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
-              className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 mr-1.5 text-xs text-foreground dark:text-foreground/90 border border-foreground/[0.06] rounded-sm cursor-default whitespace-nowrap"
+              className="text-foreground dark:text-foreground/90 border-foreground/[0.06] mr-1.5 inline-flex shrink-0 cursor-default items-center gap-1.5 rounded-sm border px-3 py-1.5 text-xs whitespace-nowrap"
             >
               {plugin.name}
-              <span className="text-xs font-mono uppercase tracking-wider text-foreground/50 ">
+              <span className="text-foreground/50 font-mono text-xs tracking-wider uppercase">
                 {categoryLabels[plugin.category]}
               </span>
             </span>
@@ -869,8 +744,8 @@ export function PluginEcosystem() {
         </div>
 
         {/* Side fades */}
-        <div className="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent pointer-events-none" />
-        <div className="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+        <div className="from-background pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r to-transparent" />
+        <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l to-transparent" />
       </div>
     </div>
   );
@@ -916,28 +791,23 @@ export function AiNativeSection() {
 
   useEffect(() => {
     if (!showSteps || visibleSteps >= steps.length) return;
-    const timeout = setTimeout(
-      () => setVisibleSteps((v) => v + 1),
-      visibleSteps === 0 ? 200 : 400,
-    );
+    const timeout = setTimeout(() => setVisibleSteps((v) => v + 1), visibleSteps === 0 ? 200 : 400);
     return () => clearTimeout(timeout);
   }, [showSteps, visibleSteps, steps.length]);
 
   return (
     <div ref={ref} className="mt-8">
-      <div className="flex items-center gap-3 mb-3">
-        <div className="flex-1 border-t border-foreground/[0.06]" />
-        <span className="text-xs text-foreground/60 dark:text-foreground/40 font-mono tracking-wider uppercase shrink-0">
+      <div className="mb-3 flex items-center gap-3">
+        <div className="border-foreground/[0.06] flex-1 border-t" />
+        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
           AI Native
         </span>
       </div>
-      <p className="text-sm text-foreground/70 dark:text-foreground/55 leading-[1.9] mb-5">
+      <p className="text-foreground/70 dark:text-foreground/55 mb-5 text-sm leading-[1.9]">
         Your auth lives in{" "}
-        <span className="text-foreground/75 dark:text-foreground/60">
-          your codebase
-        </span>{" "}
-        &mdash; so AI can configure it. Ships with{" "}
-        <span className="inline-flex items-center gap-1 text-foreground/75 dark:text-foreground/60">
+        <span className="text-foreground/75 dark:text-foreground/60">your codebase</span> &mdash; so
+        AI can configure it. Ships with{" "}
+        <span className="text-foreground/75 dark:text-foreground/60 inline-flex items-center gap-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="11"
@@ -963,7 +833,7 @@ export function AiNativeSection() {
           MCP server
         </span>
         ,{" "}
-        <span className="inline-flex items-center gap-1 text-foreground/75 dark:text-foreground/60">
+        <span className="text-foreground/75 dark:text-foreground/60 inline-flex items-center gap-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="11"
@@ -982,7 +852,7 @@ export function AiNativeSection() {
           Claude Code skills
         </span>
         , and{" "}
-        <span className="inline-flex items-center gap-1 text-foreground/75 dark:text-foreground/60">
+        <span className="text-foreground/75 dark:text-foreground/60 inline-flex items-center gap-1">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="11"
@@ -1003,23 +873,21 @@ export function AiNativeSection() {
         .
       </p>
 
-      <div className="border border-dashed border-foreground/[0.08] overflow-hidden">
+      <div className="border-foreground/[0.08] overflow-hidden border border-dashed">
         {/* Prompt line */}
-        <div className="flex items-center gap-2 px-3 py-2 border-b border-foreground/[0.06] bg-foreground/[0.015]">
-          <span className="text-foreground/35 font-mono text-xs select-none">
-            &rsaquo;
-          </span>
-          <span className="text-xs font-mono text-foreground/70 dark:text-foreground/55">
+        <div className="border-foreground/[0.06] bg-foreground/[0.015] flex items-center gap-2 border-b px-3 py-2">
+          <span className="text-foreground/35 font-mono text-xs select-none">&rsaquo;</span>
+          <span className="text-foreground/70 dark:text-foreground/55 font-mono text-xs">
             {promptText}
           </span>
           {!showSteps && inView && (
-            <span className="inline-block w-[1.5px] h-[12px] bg-foreground/50 animate-pulse" />
+            <span className="bg-foreground/50 inline-block h-[12px] w-[1.5px] animate-pulse" />
           )}
         </div>
 
         {/* Steps */}
         {showSteps && (
-          <div className="divide-y divide-foreground/[0.04]">
+          <div className="divide-foreground/[0.04] divide-y">
             {steps.slice(0, visibleSteps).map((step) => (
               <motion.div
                 key={step.text}
@@ -1028,14 +896,14 @@ export function AiNativeSection() {
                 transition={{ duration: 0.2 }}
                 className="flex items-center gap-2.5 px-3 py-1.5"
               >
-                <span className="text-[10px] font-mono uppercase tracking-wider text-foreground/45 dark:text-foreground/35 w-8 shrink-0">
+                <span className="text-foreground/45 dark:text-foreground/35 w-8 shrink-0 font-mono text-[10px] tracking-wider uppercase">
                   {step.label}
                 </span>
-                <span className="text-xs font-mono text-foreground/60 dark:text-foreground/45 truncate">
+                <span className="text-foreground/60 dark:text-foreground/45 truncate font-mono text-xs">
                   {step.text}
                 </span>
                 {"lines" in step && typeof step.lines === "number" && (
-                  <span className="text-xs font-mono text-emerald-600/70 dark:text-emerald-400/55 ml-auto shrink-0">
+                  <span className="ml-auto shrink-0 font-mono text-xs text-emerald-600/70 dark:text-emerald-400/55">
                     +{step.lines}
                   </span>
                 )}
@@ -1060,14 +928,14 @@ export function AiNativeSection() {
         )}
 
         {/* MCP clients */}
-        <div className="border-t border-foreground/[0.06] bg-foreground/[0.015]">
-          <div className="flex divide-x divide-foreground/[0.06]">
+        <div className="border-foreground/[0.06] bg-foreground/[0.015] border-t">
+          <div className="divide-foreground/[0.06] flex divide-x">
             {mcpClients.map((mc) => (
               <div key={mc.name} className="flex-1 px-3 py-2">
-                <p className="text-[10px] font-mono uppercase tracking-wider text-foreground/40 dark:text-foreground/30 mb-0.5">
+                <p className="text-foreground/40 dark:text-foreground/30 mb-0.5 font-mono text-[10px] tracking-wider uppercase">
                   {mc.name}
                 </p>
-                <code className="text-xs font-mono text-foreground/55 dark:text-foreground/40 truncate block">
+                <code className="text-foreground/55 dark:text-foreground/40 block truncate font-mono text-xs">
                   {mc.cmd}
                 </code>
               </div>

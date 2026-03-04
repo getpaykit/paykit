@@ -1,5 +1,6 @@
 import { Github } from "lucide-react";
 import Link from "next/link";
+
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 
@@ -13,10 +14,10 @@ const footerLinks = [
 
 export default function Footer() {
   return (
-    <footer className="relative z-40 w-full border-t border-foreground/[0.06] bg-background overflow-hidden">
+    <footer className="border-foreground/[0.06] bg-background relative z-40 w-full overflow-hidden border-t">
       {/* Large watermark logo */}
       <div
-        className="absolute -right-16 -bottom-12 pointer-events-none select-none opacity-[0.03]"
+        className="pointer-events-none absolute -right-16 -bottom-12 opacity-[0.03] select-none"
         aria-hidden="true"
       >
         <svg
@@ -37,37 +38,34 @@ export default function Footer() {
 
       {/* Decorative grid dots */}
       <div
-        className="absolute inset-0 pointer-events-none select-none"
+        className="pointer-events-none absolute inset-0 select-none"
         aria-hidden="true"
         style={{
-          backgroundImage:
-            "radial-gradient(circle, currentColor 0.5px, transparent 0.5px)",
+          backgroundImage: "radial-gradient(circle, currentColor 0.5px, transparent 0.5px)",
           backgroundSize: "24px 24px",
           opacity: 0.03,
         }}
       />
 
-      <div className="relative px-5 sm:px-6 lg:px-10 py-6 lg:py-8 space-y-5">
+      <div className="relative space-y-5 px-5 py-6 sm:px-6 lg:px-10 lg:py-8">
         <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
           {footerLinks.map((link, i) => (
             <span key={link.label} className="flex items-center">
               <Link
                 href={link.href}
-                className="group inline-flex items-center gap-1 text-xs font-mono text-foreground/35 hover:text-foreground/70 transition-colors"
+                className="group text-foreground/35 hover:text-foreground/70 inline-flex items-center gap-1 font-mono text-xs transition-colors"
               >
                 {link.label}
               </Link>
               {i < footerLinks.length - 1 && (
-                <span className="text-foreground/10 mx-1 text-xs select-none">
-                  /
-                </span>
+                <span className="text-foreground/10 mx-1 text-xs select-none">/</span>
               )}
             </span>
           ))}
         </div>
 
         <div className="flex items-center justify-between">
-          <span className="text-xs text-foreground/20 font-mono">
+          <span className="text-foreground/20 font-mono text-xs">
             © {new Date().getFullYear()} PayKit
           </span>
           <div className="flex items-center gap-3 sm:gap-4">
@@ -85,7 +83,7 @@ export default function Footer() {
             >
               <Github className="h-4 w-4" />
             </Link>
-            <div className="h-4 w-4 flex text-foreground/15 items-center justify-center select-none">
+            <div className="text-foreground/15 flex h-4 w-4 items-center justify-center select-none">
               |
             </div>
             <div className="-ml-4 sm:-ml-5">

@@ -15,9 +15,10 @@ Read `docs/idea.md` before making architectural decisions.
 pnpm install          # Install dependencies
 pnpm build            # Build all packages (Turbo)
 pnpm dev              # Dev mode (Turbo, persistent)
-pnpm lint             # Lint with Biome (--error-on-warnings)
+pnpm lint             # Lint with oxlint (--deny-warnings)
 pnpm lint:fix         # Auto-fix lint issues
-pnpm format           # Format with Biome
+pnpm format           # Format with oxfmt
+pnpm format:check     # Check formatting
 pnpm typecheck        # Type check (tsc --build)
 ```
 
@@ -27,8 +28,8 @@ Run specific tests with `vitest /path/to/<test-file> -t <pattern>`, not `pnpm te
 
 - **Runtime**: Node.js >= 22 | **Package manager**: pnpm 10.4.1 (workspaces)
 - **Build**: Turbo 2.8.10 | **Language**: TypeScript 5.9.2 (strict, composite)
-- **Linter/Formatter**: Biome 2.3.14 | **Validation**: Zod 4
-- **Git hooks**: Husky + lint-staged (runs `biome check --fix` on commit)
+- **Linter**: oxlint 1.51 | **Formatter**: oxfmt 0.36 | **Validation**: Zod 4
+- **Git hooks**: simple-git-hooks + lint-staged (runs `oxlint --fix` + `oxfmt --write` on commit)
 
 ### Landing Page
 
@@ -38,7 +39,7 @@ Run specific tests with `vitest /path/to/<test-file> -t <pattern>`, not `pnpm te
 
 ## Code Style
 
-Enforced by Biome and TypeScript config. Follow strictly.
+Enforced by oxlint, oxfmt, and TypeScript config. Follow strictly.
 
 - Strict mode with `noUncheckedIndexedAccess`, `useConst` enforced
 - `import type` with separated style; Node.js protocol (`node:fs`, `node:path`)
@@ -47,7 +48,7 @@ Enforced by Biome and TypeScript config. Follow strictly.
 - All promises must be awaited or explicitly voided
 - Avoid classes (use functions/objects) and enums (use `as const` or unions)
 - No `Buffer` in library code — use `Uint8Array`. `Buffer` allowed in tests
-- 2-space indent, Biome handles formatting — do not add Prettier
+- 2-space indent, oxfmt handles formatting — do not add Prettier or Biome
 
 ## Landing Page Conventions
 

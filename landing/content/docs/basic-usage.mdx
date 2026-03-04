@@ -3,9 +3,9 @@ title: Basic Usage
 description: Learn how to use PayKit to manage customers, subscriptions, and payments.
 ---
 
-
 <Callout type="warn">
-  PayKit is in early development. The API examples below represent the planned interface. See the [roadmap](/docs/roadmap) for current status.
+  PayKit is in early development. The API examples below represent the planned interface. See the
+  [roadmap](/docs/roadmap) for current status.
 </Callout>
 
 All payment operations go through the `paykit` instance you created during [installation](/docs/installation). The API is the same regardless of which provider is handling the actual payment.
@@ -78,7 +78,8 @@ const subscription = await paykit.subscriptions.create({
 ```
 
 <Callout>
-  PayKit does not sync products or prices to the provider. You pass amounts and descriptions inline. This keeps your product catalog in your own database.
+  PayKit does not sync products or prices to the provider. You pass amounts and descriptions inline.
+  This keeps your product catalog in your own database.
 </Callout>
 
 ### Subscription lifecycle

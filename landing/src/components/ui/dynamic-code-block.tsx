@@ -4,6 +4,7 @@ import { useShiki } from "fumadocs-core/highlight/client";
 import type { ComponentProps, FC } from "react";
 import { createContext, Suspense, use } from "react";
 import type { BundledTheme } from "shiki";
+
 import type { CodeBlockProps } from "@/components/ui/code-block";
 import { CodeBlock, Pre } from "@/components/ui/code-block";
 import { cn } from "@/lib/utils";
@@ -48,11 +49,7 @@ function DefaultPre(props: ComponentProps<"pre">) {
     <CodeBlock
       {...props}
       {...extraProps}
-      className={cn(
-        "my-0 border-t-0 rounded-none",
-        props.className,
-        extraProps?.className,
-      )}
+      className={cn("my-0 border-t-0 rounded-none", props.className, extraProps?.className)}
     >
       <Pre className="py-2">{props.children}</Pre>
     </CodeBlock>
@@ -80,18 +77,12 @@ export function DynamicCodeBlock({
 
   if (wrapInSuspense)
     children = (
-      <Suspense
-        fallback={
-          <Placeholder code={code} components={shikiOptions.components} />
-        }
-      >
+      <Suspense fallback={<Placeholder code={code} components={shikiOptions.components} />}>
         {children}
       </Suspense>
     );
 
-  return (
-    <PropsContext value={{ ...codeblock, allowCopy }}>{children}</PropsContext>
-  );
+  return <PropsContext value={{ ...codeblock, allowCopy }}>{children}</PropsContext>;
 }
 
 const EMPTY_COMPONENTS = {};
@@ -103,10 +94,7 @@ function Placeholder({
   code: string;
   components: HighlightOptions["components"];
 }) {
-  const { pre: Pre = "pre", code: Code = "code" } = components as Record<
-    string,
-    FC
-  >;
+  const { pre: Pre = "pre", code: Code = "code" } = components as Record<string, FC>;
 
   return (
     <Pre>
@@ -121,12 +109,6 @@ function Placeholder({
   );
 }
 
-function Internal({
-  code,
-  options,
-}: {
-  code: string;
-  options: HighlightOptions;
-}) {
+function Internal({ code, options }: { code: string; options: HighlightOptions }) {
   return useShiki(code, options);
 }

@@ -8,17 +8,12 @@ import type {
   ReactNode,
   RefObject,
 } from "react";
-import {
-  createContext,
-  forwardRef,
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-} from "react";
+import { createContext, forwardRef, useCallback, useContext, useMemo, useRef } from "react";
+
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn, mergeRefs } from "@/lib/utils";
+
 import { ScrollArea, ScrollBar, ScrollViewport } from "./scroll-area";
 import { useCopyButton } from "./use-copy-button";
 
@@ -66,10 +61,7 @@ const TabsContext = createContext<{
 
 export function Pre(props: ComponentProps<"pre">) {
   return (
-    <pre
-      {...props}
-      className={cn("min-w-full w-max *:flex *:flex-col", props.className)}
-    >
+    <pre {...props} className={cn("min-w-full w-max *:flex *:flex-col", props.className)}>
       {props.children}
     </pre>
   );
@@ -85,9 +77,7 @@ export function CodeBlock({
   icon,
   viewportProps = EMPTY_VIEWPORT_PROPS,
   children,
-  Actions = (props) => (
-    <div {...props} className={cn("empty:hidden", props.className)} />
-  ),
+  Actions = (props) => <div {...props} className={cn("empty:hidden", props.className)} />,
   ...props
 }: CodeBlockProps) {
   const isTab = useContext(TabsContext) !== null;
@@ -196,15 +186,8 @@ function CopyButton({
       onClick={onClick}
       {...props}
     >
-      <Check
-        className={cn("size-3.5 transition-transform", !checked && "scale-0")}
-      />
-      <Copy
-        className={cn(
-          "absolute size-3.5 transition-transform",
-          checked && "scale-0",
-        )}
-      />
+      <Check className={cn("size-3.5 transition-transform", !checked && "scale-0")} />
+      <Copy className={cn("absolute size-3.5 transition-transform", checked && "scale-0")} />
     </button>
   );
 }
@@ -250,10 +233,7 @@ export function CodeBlockTabsList(props: ComponentProps<typeof TabsList>) {
   );
 }
 
-export function CodeBlockTabsTrigger({
-  children,
-  ...props
-}: ComponentProps<typeof TabsTrigger>) {
+export function CodeBlockTabsTrigger({ children, ...props }: ComponentProps<typeof TabsTrigger>) {
   return (
     <TabsTrigger
       {...props}
@@ -262,7 +242,7 @@ export function CodeBlockTabsTrigger({
         props.className,
       )}
     >
-      <div className="absolute inset-x-2 bottom-0 h-px group-data-[state=active]:bg-fd-primary" />
+      <div className="group-data-[state=active]:bg-fd-primary absolute inset-x-2 bottom-0 h-px" />
       {children}
     </TabsTrigger>
   );
@@ -272,17 +252,7 @@ export function CodeBlockTabsTrigger({
 export const CodeBlockTab = TabsContent;
 
 export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
-  (
-    {
-      title,
-      allowCopy = true,
-      keepBackground = false,
-      icon,
-      viewportProps,
-      ...props
-    },
-    ref,
-  ) => {
+  ({ title, allowCopy = true, keepBackground = false, icon, viewportProps, ...props }, ref) => {
     const areaRef = useRef<HTMLDivElement>(null);
     const onCopy = useCallback(() => {
       const pre = areaRef.current?.getElementsByTagName("pre").item(0);
@@ -303,13 +273,12 @@ export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
         {...props}
         className={cn(
           "not-prose group fd-codeblock relative my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm",
-          keepBackground &&
-            "bg-[var(--shiki-light-bg)] dark:bg-[var(--shiki-dark-bg)]",
+          keepBackground && "bg-[var(--shiki-light-bg)] dark:bg-[var(--shiki-dark-bg)]",
           props.className,
         )}
       >
         {title ? (
-          <div className="flex flex-row items-center gap-2 border-b bg-fd-muted px-4 py-1.5">
+          <div className="bg-fd-muted flex flex-row items-center gap-2 border-b px-4 py-1.5">
             {icon ? (
               <div
                 className="text-fd-muted-foreground [&_svg]:size-3.5"
@@ -324,19 +293,12 @@ export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
                 {typeof icon !== "string" ? icon : null}
               </div>
             ) : null}
-            <figcaption className="flex-1 truncate text-fd-muted-foreground">
-              {title}
-            </figcaption>
-            {allowCopy ? (
-              <CopyButton className="-me-2" onCopy={onCopy} />
-            ) : null}
+            <figcaption className="text-fd-muted-foreground flex-1 truncate">{title}</figcaption>
+            {allowCopy ? <CopyButton className="-me-2" onCopy={onCopy} /> : null}
           </div>
         ) : (
           allowCopy && (
-            <CopyButton
-              className="absolute right-2 top-2 z-[2] backdrop-blur-md"
-              onCopy={onCopy}
-            />
+            <CopyButton className="absolute top-2 right-2 z-[2] backdrop-blur-md" onCopy={onCopy} />
           )
         )}
         <ScrollArea ref={areaRef} dir="ltr">

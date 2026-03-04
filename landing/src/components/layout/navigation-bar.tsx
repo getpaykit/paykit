@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
+
 import { LogoLockup } from "@/components/icons/logo";
 import { useEarlyDevDialog } from "@/components/landing/early-dev-dialog";
 
@@ -33,13 +34,13 @@ export function NavigationBar() {
 
   return (
     <>
-      <div className="fixed top-0 left-0 right-0 z-[99] flex items-start pointer-events-none">
+      <div className="pointer-events-none fixed top-0 right-0 left-0 z-[99] flex items-start">
         {/* Mobile — Logo + hamburger */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          className="lg:hidden flex items-center justify-between w-full pointer-events-auto bg-background border-b border-foreground/[0.06]"
+          className="bg-background border-foreground/[0.06] pointer-events-auto flex w-full items-center justify-between border-b lg:hidden"
         >
           <Link
             href="/"
@@ -51,31 +52,18 @@ export function NavigationBar() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="flex items-center justify-center px-4 py-3 text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 transition-colors"
+              className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 flex items-center justify-center px-4 py-3 transition-colors"
             >
               {mobileMenuOpen ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
                     d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
                   />
                 </svg>
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z"
-                  />
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                  <path fill="currentColor" d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z" />
                 </svg>
               )}
             </button>
@@ -87,19 +75,19 @@ export function NavigationBar() {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
-          className="relative w-full hidden lg:flex items-stretch justify-center border-b bg-background pointer-events-auto min-w-0"
+          className="bg-background pointer-events-auto relative hidden w-full min-w-0 items-stretch justify-center border-b lg:flex"
         >
-          <div className="relative flex items-stretch w-full max-w-[60rem]">
+          <div className="relative flex w-full max-w-[60rem] items-stretch">
             {/* Logo */}
             <Link
               href="/"
-              className="relative z-10 flex items-center gap-1 px-4 lg:px-5 py-3.5 shrink-0 transition-colors duration-150"
+              className="relative z-10 flex shrink-0 items-center gap-1 px-4 py-3.5 transition-colors duration-150 lg:px-5"
             >
               <LogoLockup className="h-5" />
             </Link>
             {/* File tabs — centered within container */}
-            <div className="absolute inset-0 flex items-stretch justify-center pointer-events-none">
-              <div className="flex items-stretch pointer-events-auto">
+            <div className="pointer-events-none absolute inset-0 flex items-stretch justify-center">
+              <div className="pointer-events-auto flex items-stretch">
                 {navFiles.map((item, index) => {
                   const active = isActive(item.path || item.href);
                   return (
@@ -125,14 +113,14 @@ export function NavigationBar() {
                               }
                             : undefined
                         }
-                        className={`group/tab relative flex items-center justify-center gap-1.5 px-3.5 xl:px-5.5 py-3.5 h-full ${index < navFiles.length - 1 ? "border-r border-foreground/[0.06]" : ""} transition-colors duration-150 ${
+                        className={`group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 ${index < navFiles.length - 1 ? "border-foreground/[0.06] border-r" : ""} transition-colors duration-150 ${
                           active
-                            ? "bg-background border-b-2 border-b-foreground/60"
-                            : "bg-transparent hover:bg-foreground/[0.03]"
+                            ? "bg-background border-b-foreground/60 border-b-2"
+                            : "hover:bg-foreground/[0.03] bg-transparent"
                         }`}
                       >
                         <span
-                          className={`font-mono text-sm uppercase tracking-wider transition-colors duration-150 whitespace-nowrap ${
+                          className={`font-mono text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
                             active
                               ? "text-foreground"
                               : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
@@ -158,9 +146,9 @@ export function NavigationBar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="lg:hidden fixed inset-0 z-[98] bg-background/95 backdrop-blur-sm pointer-events-auto"
+            className="bg-background/95 pointer-events-auto fixed inset-0 z-[98] backdrop-blur-sm lg:hidden"
           >
-            <div className="pt-[52px] flex flex-col h-full overflow-y-auto">
+            <div className="flex h-full flex-col overflow-y-auto pt-[52px]">
               {navFiles.map((item, i) => (
                 <motion.div
                   key={item.name}
@@ -181,14 +169,14 @@ export function NavigationBar() {
                         setMobileMenuOpen(false);
                       }
                     }}
-                    className={`flex items-center gap-2.5 px-5 py-3.5 border-b border-foreground/[0.06] transition-colors ${
+                    className={`border-foreground/[0.06] flex items-center gap-2.5 border-b px-5 py-3.5 transition-colors ${
                       isActive(item.path || item.href)
                         ? "bg-foreground/[0.04]"
                         : "hover:bg-foreground/[0.03]"
                     }`}
                   >
                     <span
-                      className={`font-mono text-base uppercase tracking-wider ${
+                      className={`font-mono text-base tracking-wider uppercase ${
                         isActive(item.path || item.href)
                           ? "text-foreground"
                           : "text-foreground/65 dark:text-foreground/50"
@@ -198,15 +186,11 @@ export function NavigationBar() {
                     </span>
                     {item.external && (
                       <svg
-                        className="h-2.5 w-2.5 text-foreground/35 dark:text-foreground/20 ml-auto"
+                        className="text-foreground/35 dark:text-foreground/20 ml-auto h-2.5 w-2.5"
                         viewBox="0 0 10 10"
                         fill="none"
                       >
-                        <path
-                          d="M1 9L9 1M9 1H3M9 1V7"
-                          stroke="currentColor"
-                          strokeWidth="1.2"
-                        />
+                        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.2" />
                       </svg>
                     )}
                   </Link>

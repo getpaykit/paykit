@@ -3,9 +3,9 @@ title: Installation
 description: Install PayKit and set up your first payments integration.
 ---
 
-
 <Callout type="warn">
-  PayKit is in early development. The packages below describe the planned installation flow. Check the [roadmap](/docs/roadmap) for current availability.
+  PayKit is in early development. The packages below describe the planned installation flow. Check
+  the [roadmap](/docs/roadmap) for current availability.
 </Callout>
 
 <Steps>
@@ -16,35 +16,20 @@ description: Install PayKit and set up your first payments integration.
 Install the core library, a provider adapter, and a database adapter.
 
 <Tabs items={["pnpm", "npm", "yarn", "bun"]}>
-  <Tab value="pnpm">
-    ```bash
-    pnpm add @paykit/core @paykit/stripe @paykit/prisma
-    ```
-  </Tab>
-  <Tab value="npm">
-    ```bash
-    npm install @paykit/core @paykit/stripe @paykit/prisma
-    ```
-  </Tab>
-  <Tab value="yarn">
-    ```bash
-    yarn add @paykit/core @paykit/stripe @paykit/prisma
-    ```
-  </Tab>
-  <Tab value="bun">
-    ```bash
-    bun add @paykit/core @paykit/stripe @paykit/prisma
-    ```
-  </Tab>
+  <Tab value="pnpm">```bash pnpm add @paykit/core @paykit/stripe @paykit/prisma ```</Tab>
+  <Tab value="npm">```bash npm install @paykit/core @paykit/stripe @paykit/prisma ```</Tab>
+  <Tab value="yarn">```bash yarn add @paykit/core @paykit/stripe @paykit/prisma ```</Tab>
+  <Tab value="bun">```bash bun add @paykit/core @paykit/stripe @paykit/prisma ```</Tab>
 </Tabs>
 
-| Package | Purpose |
-|---------|---------|
-| `@paykit/core` | Core orchestration library |
-| `@paykit/stripe` | Stripe provider adapter |
-| `@paykit/prisma` | Prisma database adapter |
+| Package          | Purpose                    |
+| ---------------- | -------------------------- |
+| `@paykit/core`   | Core orchestration library |
+| `@paykit/stripe` | Stripe provider adapter    |
+| `@paykit/prisma` | Prisma database adapter    |
 
 You can swap providers and database adapters freely. For example, use `@paykit/paypal` instead of `@paykit/stripe`, or `@paykit/drizzle` instead of `@paykit/prisma`.
+
 </Step>
 
 <Step>
@@ -79,6 +64,7 @@ PayKit needs a few tables to track customers, subscriptions, payment methods, an
     ```
 
     This adds the PayKit models to your Prisma schema and runs the migration.
+
   </Tab>
   <Tab value="Drizzle">
     ```bash
@@ -87,6 +73,7 @@ PayKit needs a few tables to track customers, subscriptions, payment methods, an
     ```
 
     This generates the Drizzle table definitions and pushes them to your database.
+
   </Tab>
 </Tabs>
 </Step>
@@ -113,6 +100,7 @@ export const paykit = createPayKit({
 ```
 
 This is the single entry point for all payment operations. The `paykit` instance is provider-agnostic — your application code never needs to import Stripe or PayPal directly.
+
 </Step>
 
 <Step>
@@ -127,6 +115,7 @@ PayKit normalizes webhooks from all providers into a single event format. Mount 
 
     export const POST = paykit.handler();
     ```
+
   </Tab>
   <Tab value="Express">
     ```ts title="server.ts"
@@ -141,6 +130,7 @@ PayKit normalizes webhooks from all providers into a single event format. Mount 
       paykit.handler(),
     );
     ```
+
   </Tab>
   <Tab value="Hono">
     ```ts title="server.ts"
@@ -151,10 +141,12 @@ PayKit normalizes webhooks from all providers into a single event format. Mount 
 
     app.post("/api/webhooks/paykit", paykit.handler());
     ```
+
   </Tab>
 </Tabs>
 
 Then point your provider's webhook settings to your endpoint (e.g., `https://yourapp.com/api/webhooks/paykit`).
+
 </Step>
 
 </Steps>

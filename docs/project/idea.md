@@ -42,6 +42,7 @@ delegate to each provider's native subscription/checkout/webhook systems.
 PayKit normalizes the interface and syncs state back to your database.
 
 This means:
+
 - Subscriptions use each provider's native engine (Stripe Billing, PayPal
   subscriptions, etc.) behind a unified API
 - Webhook events are normalized — `invoice.payment_failed` (Stripe) and

@@ -1,9 +1,11 @@
-import { GeistPixelSquare } from "geist/font/pixel";
-import { Geist, Geist_Mono } from "next/font/google";
-import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/next";
+import { GeistPixelSquare } from "geist/font/pixel";
+
+import "@/styles/globals.css";
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
+
 import { Providers } from "@/components/providers";
 import { OG_URL } from "@/lib/consts";
 
@@ -42,23 +44,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/favicon/favicon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/favicon/favicon-16x16.png"
-        />
-        <link
-          rel="apple-touch-icon"
-          sizes="180x180"
-          href="/favicon/light/apple-touch-icon.png"
-        />
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/light/apple-touch-icon.png" />
         <link rel="manifest" href="/favicon/light/site.webmanifest" />
         <script
           dangerouslySetInnerHTML={{
@@ -73,7 +61,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} font-sans antialiased overflow-x-hidden`}
+        className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} overflow-x-hidden font-sans antialiased`}
         suppressHydrationWarning
       >
         <Providers>{children}</Providers>

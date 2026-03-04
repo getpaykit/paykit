@@ -20,6 +20,7 @@ import {
   Users2,
 } from "lucide-react";
 import type { ReactNode, SVGProps } from "react";
+
 import { Icons } from "./icons";
 
 export interface SubpageItem {
@@ -104,12 +105,7 @@ export const contents: Content[] = [
   {
     title: "Get Started",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
         <path
           fill="currentColor"
           d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m-1 14H9V8h2zm1 0V8l5 4z"
@@ -138,12 +134,7 @@ export const contents: Content[] = [
         title: "Comparison",
         href: "/docs/comparison",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -157,12 +148,7 @@ export const contents: Content[] = [
         title: "Installation",
         href: "/docs/installation",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -176,12 +162,7 @@ export const contents: Content[] = [
         title: "Basic Usage",
         href: "/docs/basic-usage",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 16 16"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 16 16">
             <path
               fill="currentColor"
               d="M2 3.75C2 2.784 2.784 2 3.75 2h8.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25zM6 6.5a.5.5 0 0 0-1 0v4a.5.5 0 0 0 1 0zM8 8a.5.5 0 0 0-.5.5v2a.5.5 0 0 0 1 0v-2A.5.5 0 0 0 8 8m3-2.5a.5.5 0 0 0-1 0v5a.5.5 0 0 0 1 0z"
@@ -198,12 +179,7 @@ export const contents: Content[] = [
         href: "/docs/concepts/api",
         title: "API",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               className="fill-current"
               fillRule="evenodd"
@@ -234,12 +210,7 @@ export const contents: Content[] = [
         title: "Client",
         href: "/docs/concepts/client",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M4 8h4V4H4zm6 12h4v-4h-4zm-6 0h4v-4H4zm0-6h4v-4H4zm6 0h4v-4h-4zm6-10v4h4V4zm-6 4h4V4h-4zm6 6h4v-4h-4zm0 6h4v-4h-4z"
@@ -251,12 +222,7 @@ export const contents: Content[] = [
         title: "Cookies",
         href: "/docs/concepts/cookies",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 16 16"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 16 16">
             <path
               fill="currentColor"
               d="M8 1a7 7 0 1 0 6.926 5.978a.5.5 0 0 0-.781-.338a2 2 0 0 1-3.111-1.273a.5.5 0 0 0-.401-.4A2 2 0 0 1 9.36 1.854a.5.5 0 0 0-.338-.78A7 7 0 0 0 8 1m0 7.75a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5m-2 2a.75.75 0 1 1-1.5 0a.75.75 0 0 1 1.5 0M4.75 7a.75.75 0 1 1 0-1.5a.75.75 0 0 1 0 1.5m5.75 4.25a.75.75 0 1 1-1.5 0a.75.75 0 0 1 1.5 0"
@@ -266,13 +232,8 @@ export const contents: Content[] = [
       },
       {
         title: "Database",
-        icon: (props?: SVGProps<any>) => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 16 16"
-          >
+        icon: (_props?: SVGProps<any>) => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 16 16">
             <g fill="currentColor">
               <path d="M3.904 1.777C4.978 1.289 6.427 1 8 1s3.022.289 4.096.777C13.125 2.245 14 2.993 14 4s-.875 1.755-1.904 2.223C11.022 6.711 9.573 7 8 7s-3.022-.289-4.096-.777C2.875 5.755 2 5.007 2 4s.875-1.755 1.904-2.223"></path>
               <path d="M2 6.161V7c0 1.007.875 1.755 1.904 2.223C4.978 9.71 6.427 10 8 10s3.022-.289 4.096-.777C13.125 8.755 14 8.007 14 7v-.839c-.457.432-1.004.751-1.49.972C11.278 7.693 9.682 8 8 8s-3.278-.307-4.51-.867c-.486-.22-1.033-.54-1.49-.972"></path>
@@ -286,7 +247,7 @@ export const contents: Content[] = [
       {
         href: "/docs/concepts/email",
         title: "Email",
-        icon: (props?: SVGProps<any>) => (
+        icon: (_props?: SVGProps<any>) => (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1.2em"
@@ -307,7 +268,7 @@ export const contents: Content[] = [
       {
         href: "/docs/concepts/hooks",
         title: "Hooks",
-        icon: (props?: SVGProps<any>) => (
+        icon: (_props?: SVGProps<any>) => (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1.2em"
@@ -327,13 +288,8 @@ export const contents: Content[] = [
       {
         href: "/docs/concepts/plugins",
         title: "Plugins",
-        icon: (props?: SVGProps<any>) => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 20 20"
-          >
+        icon: (_props?: SVGProps<any>) => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 20 20">
             <path
               fill="currentColor"
               d="M20 14v4a2 2 0 0 1-2 2h-4v-2a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2H6a2 2 0 0 1-2-2v-4H2a2 2 0 0 1-2-2a2 2 0 0 1 2-2h2V6c0-1.1.9-2 2-2h4V2a2 2 0 0 1 2-2a2 2 0 0 1 2 2v2h4a2 2 0 0 1 2 2v4h-2a2 2 0 0 0-2 2a2 2 0 0 0 2 2z"
@@ -344,7 +300,7 @@ export const contents: Content[] = [
       {
         title: "OAuth",
         href: "/docs/concepts/oauth",
-        icon: (props?: SVGProps<any>) => (
+        icon: (_props?: SVGProps<any>) => (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1.2em"
@@ -381,12 +337,7 @@ export const contents: Content[] = [
         title: "Sessions",
         href: "/docs/concepts/session-management",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               className="fill-current"
               fillRule="evenodd"
@@ -400,12 +351,7 @@ export const contents: Content[] = [
         title: "TypeScript",
         href: "/docs/concepts/typescript",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1em"
-            height="1em"
-            viewBox="0 0 128 128"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 128 128">
             <path
               className="fill-current"
               d="M2 63.91v62.5h125v-125H2zm100.73-5a15.56 15.56 0 0 1 7.82 4.5a20.6 20.6 0 0 1 3 4c0 .16-5.4 3.81-8.69 5.85c-.12.08-.6-.44-1.13-1.23a7.09 7.09 0 0 0-5.87-3.53c-3.79-.26-6.23 1.73-6.21 5a4.6 4.6 0 0 0 .54 2.34c.83 1.73 2.38 2.76 7.24 4.86c8.95 3.85 12.78 6.39 15.16 10c2.66 4 3.25 10.46 1.45 15.24c-2 5.2-6.9 8.73-13.83 9.9a38.3 38.3 0 0 1-9.52-.1A23 23 0 0 1 80 109.19c-1.15-1.27-3.39-4.58-3.25-4.82a9 9 0 0 1 1.15-.73l4.6-2.64l3.59-2.08l.75 1.11a16.8 16.8 0 0 0 4.74 4.54c4 2.1 9.46 1.81 12.16-.62a5.43 5.43 0 0 0 .69-6.92c-1-1.39-3-2.56-8.59-5c-6.45-2.78-9.23-4.5-11.77-7.24a16.5 16.5 0 0 1-3.43-6.25a25 25 0 0 1-.22-8c1.33-6.23 6-10.58 12.82-11.87a31.7 31.7 0 0 1 9.49.26zm-29.34 5.24v5.12H57.16v46.23H45.65V69.26H29.38v-5a49 49 0 0 1 .14-5.16c.06-.08 10-.12 22-.1h21.81z"
@@ -417,12 +363,7 @@ export const contents: Content[] = [
         title: "Users & Accounts",
         href: "/docs/concepts/users-accounts",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               className="fill-current"
               d="M17 15q-1.05 0-1.775-.725T14.5 12.5t.725-1.775T17 10t1.775.725t.725 1.775t-.725 1.775T17 15m-4 5q-.425 0-.712-.288T12 19v-.4q0-.6.313-1.112t.887-.738q.9-.375 1.863-.562T17 16t1.938.188t1.862.562q.575.225.888.738T22 18.6v.4q0 .425-.288.713T21 20zm-3-8q-1.65 0-2.825-1.175T6 8t1.175-2.825T10 4t2.825 1.175T14 8t-1.175 2.825T10 12m-8 5.2q0-.85.425-1.562T3.6 14.55q1.5-.75 3.113-1.15T10 13q.875 0 1.75.15t1.75.35l-1.7 1.7q-.625.625-1.213 1.275T10 18v.975q0 .3.113.563t.362.462H4q-.825 0-1.412-.587T2 18z"
@@ -432,12 +373,7 @@ export const contents: Content[] = [
       },
     ],
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
         <path
           fill="currentColor"
           fillRule="evenodd"
@@ -455,12 +391,7 @@ export const contents: Content[] = [
   {
     title: "Authentication",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
         <path
           fill="currentColor"
           fillRule="evenodd"
@@ -474,12 +405,7 @@ export const contents: Content[] = [
         title: "Email & Password",
         href: "/docs/authentication/email-password",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -499,12 +425,7 @@ export const contents: Content[] = [
         title: "Apple",
         href: "/docs/authentication/apple",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 20 20"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 20 20">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -539,12 +460,7 @@ export const contents: Content[] = [
         title: "Cognito",
         href: "/docs/authentication/cognito",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 48 48"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 48 48">
             <path
               fill="currentColor"
               d="M24 4L6 14v20l18 10 18-10V14L24 4zm0 4.62l13.6 7.86v15.04L24 39.38 10.4 31.52V16.48L24 8.62z"
@@ -557,12 +473,7 @@ export const contents: Content[] = [
         title: "Discord",
         href: "/docs/authentication/discord",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M18.59 5.89c-1.23-.57-2.54-.99-3.92-1.23c-.17.3-.37.71-.5 1.04c-1.46-.22-2.91-.22-4.34 0c-.14-.33-.34-.74-.51-1.04c-1.38.24-2.69.66-3.92 1.23c-2.48 3.74-3.15 7.39-2.82 10.98c1.65 1.23 3.24 1.97 4.81 2.46c.39-.53.73-1.1 1.03-1.69c-.57-.21-1.11-.48-1.62-.79c.14-.1.27-.21.4-.31c3.13 1.46 6.52 1.46 9.61 0c.13.11.26.21.4.31c-.51.31-1.06.57-1.62.79c.3.59.64 1.16 1.03 1.69c1.57-.49 3.17-1.23 4.81-2.46c.39-4.17-.67-7.78-2.82-10.98Zm-9.75 8.78c-.94 0-1.71-.87-1.71-1.94s.75-1.94 1.71-1.94s1.72.87 1.71 1.94c0 1.06-.75 1.94-1.71 1.94m6.31 0c-.94 0-1.71-.87-1.71-1.94s.75-1.94 1.71-1.94s1.72.87 1.71 1.94c0 1.06-.75 1.94-1.71 1.94"
@@ -592,12 +503,7 @@ export const contents: Content[] = [
         title: "Facebook",
         href: "/docs/authentication/facebook",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 64 64"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 64 64">
             <path
               fill="currentColor"
               d="M59.5 1h-55C2.5 1 1 2.6 1 4.5v55c0 2 1.6 3.5 3.5 3.5h29.6V38.9h-8v-9.3h8v-6.9c0-8 4.8-12.4 12-12.4c2.4 0 4.8.1 7.2.4V19h-4.8c-3.8 0-4.6 1.8-4.6 4.5v5.9H53l-1.3 9.4h-8v23.8h15.8c2 0 3.5-1.5 3.5-3.5V4.5c-.1-2-1.7-3.5-3.5-3.5"
@@ -629,12 +535,7 @@ export const contents: Content[] = [
         title: "GitHub",
         href: "/docs/authentication/github",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 15 15"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 15 15">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -648,12 +549,7 @@ export const contents: Content[] = [
         title: "GitLab",
         href: "/docs/authentication/gitlab",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32">
             <path
               fill="currentColor"
               d="m28.568 12.893l-.037-.094l-3.539-9.235a.92.92 0 0 0-.364-.439a.95.95 0 0 0-1.083.058a.95.95 0 0 0-.314.477l-2.39 7.31h-9.675l-2.39-7.31a.93.93 0 0 0-.313-.478a.95.95 0 0 0-1.083-.058a.93.93 0 0 0-.365.438L3.47 12.794l-.035.093a6.57 6.57 0 0 0 2.18 7.595l.011.01l.033.022l5.39 4.037l2.668 2.019l1.624 1.226c.39.297.931.297 1.322 0l1.624-1.226l2.667-2.019l5.424-4.061l.013-.01a6.574 6.574 0 0 0 2.177-7.588Z"
@@ -665,12 +561,7 @@ export const contents: Content[] = [
         title: "Google",
         href: "/docs/authentication/google",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 56 56"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 56 56">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -683,12 +574,7 @@ export const contents: Content[] = [
         title: "Hugging Face",
         href: "/docs/authentication/huggingface",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M12.025 1.13c-5.77 0-10.449 4.647-10.449 10.378c0 1.112.178 2.181.503 3.185c.064-.222.203-.444.416-.577a.96.96 0 0 1 .524-.15c.293 0 .584.124.84.284c.278.173.48.408.71.694c.226.282.458.611.684.951v-.014c.017-.324.106-.622.264-.874s.403-.487.762-.543c.3-.047.596.06.787.203s.31.313.4.467c.15.257.212.468.233.542c.01.026.653 1.552 1.657 2.54c.616.605 1.01 1.223 1.082 1.912c.055.537-.096 1.059-.38 1.572c.637.121 1.294.187 1.967.187c.657 0 1.298-.063 1.921-.178c-.287-.517-.44-1.041-.384-1.581c.07-.69.465-1.307 1.081-1.913c1.004-.987 1.647-2.513 1.657-2.539c.021-.074.083-.285.233-.542c.09-.154.208-.323.4-.467a1.08 1.08 0 0 1 .787-.203c.359.056.604.29.762.543s.247.55.265.874v.015c.225-.34.457-.67.683-.952c.23-.286.432-.52.71-.694c.257-.16.547-.284.84-.285a.97.97 0 0 1 .524.151c.228.143.373.388.43.625l.006.04a10.3 10.3 0 0 0 .534-3.273c0-5.731-4.678-10.378-10.449-10.378M8.327 6.583a1.5 1.5 0 0 1 .713.174a1.487 1.487 0 0 1 .617 2.013c-.183.343-.762-.214-1.102-.094c-.38.134-.532.914-.917.71a1.487 1.487 0 0 1 .69-2.803m7.486 0a1.487 1.487 0 0 1 .689 2.803c-.385.204-.536-.576-.916-.71c-.34-.12-.92.437-1.103.094a1.487 1.487 0 0 1 .617-2.013a1.5 1.5 0 0 1 .713-.174m-10.68 1.55a.96.96 0 1 1 0 1.921a.96.96 0 0 1 0-1.92m13.838 0a.96.96 0 1 1 0 1.92a.96.96 0 0 1 0-1.92M8.489 11.458c.588.01 1.965 1.157 3.572 1.164c1.607-.007 2.984-1.155 3.572-1.164c.196-.003.305.12.305.454c0 .886-.424 2.328-1.563 3.202c-.22-.756-1.396-1.366-1.63-1.32q-.011.001-.02.006l-.044.026l-.01.008l-.03.024q-.018.017-.035.036l-.032.04a1 1 0 0 0-.058.09l-.014.025q-.049.088-.11.19a1 1 0 0 1-.083.116a1.2 1.2 0 0 1-.173.18q-.035.029-.075.058a1.3 1.3 0 0 1-.251-.243a1 1 0 0 1-.076-.107c-.124-.193-.177-.363-.337-.444c-.034-.016-.104-.008-.2.022q-.094.03-.216.087q-.06.028-.125.063l-.13.074q-.067.04-.136.086a3 3 0 0 0-.135.096a3 3 0 0 0-.26.219a2 2 0 0 0-.12.121a2 2 0 0 0-.106.128l-.002.002a2 2 0 0 0-.09.132l-.001.001a1.2 1.2 0 0 0-.105.212q-.013.036-.024.073c-1.139-.875-1.563-2.317-1.563-3.203c0-.334.109-.457.305-.454m.836 10.354c.824-1.19.766-2.082-.365-3.194c-1.13-1.112-1.789-2.738-1.789-2.738s-.246-.945-.806-.858s-.97 1.499.202 2.362c1.173.864-.233 1.45-.685.64c-.45-.812-1.683-2.896-2.322-3.295s-1.089-.175-.938.647s2.822 2.813 2.562 3.244s-1.176-.506-1.176-.506s-2.866-2.567-3.49-1.898s.473 1.23 2.037 2.16c1.564.932 1.686 1.178 1.464 1.53s-3.675-2.511-4-1.297c-.323 1.214 3.524 1.567 3.287 2.405c-.238.839-2.71-1.587-3.216-.642c-.506.946 3.49 2.056 3.522 2.064c1.29.33 4.568 1.028 5.713-.624m5.349 0c-.824-1.19-.766-2.082.365-3.194c1.13-1.112 1.789-2.738 1.789-2.738s.246-.945.806-.858s.97 1.499-.202 2.362c-1.173.864.233 1.45.685.64c.451-.812 1.683-2.896 2.322-3.295s1.089-.175.938.647s-2.822 2.813-2.562 3.244s1.176-.506 1.176-.506s2.866-2.567 3.49-1.898s-.473 1.23-2.037 2.16c-1.564.932-1.686 1.178-1.464 1.53s3.675-2.511 4-1.297c.323 1.214-3.524 1.567-3.287 2.405c.238.839 2.71-1.587 3.216-.642c.506.946-3.49 2.056-3.522 2.064c-1.29.33-4.568 1.028-5.713-.624"
@@ -699,7 +585,7 @@ export const contents: Content[] = [
       {
         title: "Kakao",
         href: "/docs/authentication/kakao",
-        icon: (props?: SVGProps<any>) => (
+        icon: (_props?: SVGProps<any>) => (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="1.2em"
@@ -719,12 +605,7 @@ export const contents: Content[] = [
         title: "Kick",
         href: "/docs/authentication/kick",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M9 3a1 1 0 0 1 1 1v3h1V6a1 1 0 0 1 .883-.993L12 5h1V4a1 1 0 0 1 .883-.993L14 3h6a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-1v1a1 1 0 0 1-.883.993L18 11h-1v2h1a1 1 0 0 1 .993.883L19 14v1h1a1 1 0 0 1 .993.883L21 16v4a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-1h-1a1 1 0 0 1-.993-.883L11 18v-1h-1v3a1 1 0 0 1-.883.993L9 21H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"
@@ -736,12 +617,7 @@ export const contents: Content[] = [
         title: "LINE",
         href: "/docs/authentication/line",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M19.365 9.863c.349 0 .63.285.63.631 0 .345-.281.63-.63.63H17.61v1.125h1.755c.349 0 .63.283.63.63 0 .344-.281.629-.63.629h-2.386c-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63h2.386c.346 0 .627.285.627.63 0 .349-.281.63-.63.63H17.61v1.125h1.755zm-3.855 3.016c0 .27-.174.51-.432.596-.064.021-.133.031-.199.031-.211 0-.391-.09-.51-.25l-2.443-3.317v2.94c0 .344-.279.629-.631.629-.346 0-.626-.285-.626-.629V8.108c0-.27.173-.51.43-.595.06-.023.136-.033.194-.033.195 0 .375.104.495.254l2.462 3.33V8.108c0-.345.282-.63.63-.63.345 0 .63.285.63.63v4.771zm-5.741 0c0 .344-.282.629-.631.629-.345 0-.627-.285-.627-.629V8.108c0-.345.282-.63.63-.63.346 0 .628.285.628.63v4.771zm-2.466.629H4.917c-.345 0-.63-.285-.63-.629V8.108c0-.345.285-.63.63-.63.348 0 .63.285.63.63v4.141h1.756c.348 0 .629.283.629.63 0 .344-.282.629-.629.629M24 10.314C24 4.943 18.615.572 12 .572S0 4.943 0 10.314c0 4.811 4.27 8.842 10.035 9.608.391.082.923.258 1.058.59.12.301.079.766.038 1.08l-.164 1.02c-.045.301-.24 1.186 1.049.645 1.291-.539 6.916-4.078 9.436-6.975C23.176 14.393 24 12.458 24 10.314"
@@ -789,12 +665,7 @@ export const contents: Content[] = [
         title: "Microsoft",
         href: "/docs/authentication/microsoft",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M2 3h9v9H2zm9 19H2v-9h9zM21 3v9h-9V3zm0 19h-9v-9h9z"
@@ -806,12 +677,7 @@ export const contents: Content[] = [
         title: "Naver",
         href: "/docs/authentication/naver",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M16.273 12.845 7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845Z"
@@ -824,12 +690,7 @@ export const contents: Content[] = [
         href: "/docs/authentication/notion",
 
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L17.86 1.968c-.42-.326-.981-.7-2.055-.607L3.01 2.295c-.466.046-.56.28-.374.466zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.167V6.354c0-.606-.233-.933-.748-.887l-15.177.887c-.56.047-.747.327-.747.933zm14.337.28c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952L12.21 19s0 .84-1.168.84l-3.222.186c-.093-.186 0-.653.327-.746l.84-.233V9.854L7.822 9.76c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.139c-.093-.514.28-.887.747-.933zM1.936 1.035l13.31-.98c1.634-.14 2.055-.047 3.082.7l4.249 2.986c.7.513.934.653.934 1.213v16.378c0 1.026-.373 1.634-1.68 1.726l-15.458.934c-.98.047-1.448-.093-1.962-.747l-3.129-4.06c-.56-.747-.793-1.306-.793-1.96V2.667c0-.839.374-1.54 1.447-1.632z"
@@ -881,11 +742,7 @@ export const contents: Content[] = [
             height="1.2em"
           >
             <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-            <g
-              id="SVGRepo_tracerCarrier"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            ></g>
+            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
               <path d="M4.328 16.127l-.011.07a.899.899 0 0 1-.887.744H.9a.892.892 0 0 1-.88-1.04L2.57.745A.892.892 0 0 1 3.45 0h6.92a4.141 4.141 0 0 1 4.142 4.141c0 .273-.017.54-.05.804a3.629 3.629 0 0 1 1.53 2.962 5.722 5.722 0 0 1-5.72 5.722h-.583c-.653 0-1.211.472-1.32 1.117l-.314 1.87.314-1.87a1.339 1.339 0 0 1 1.32-1.117h.582a5.722 5.722 0 0 0 5.722-5.722 3.629 3.629 0 0 0-1.53-2.962 6.52 6.52 0 0 1-6.47 5.716H6.06a.969.969 0 0 0-.93.701l-1.155 6.862c-.08.48.289.916.775.916h2.214a.786.786 0 0 0 .775-.655l.315-1.87-.315 1.87a.786.786 0 0 1-.775.655H4.751a.782.782 0 0 1-.6-.278.782.782 0 0 1-.175-.638l.352-2.097z"></path>
               <path d="M15.45 5.995c.365.567.578 1.242.578 1.967a5.722 5.722 0 0 1-5.722 5.722h-.581c-.654 0-1.212.472-1.32 1.117l-.63 3.739a.786.786 0 0 1-.774.655H4.973l1.15-6.833c.118-.41.495-.7.93-.7h1.932a6.52 6.52 0 0 0 6.464-5.667zm-10.477 13.2h-.187a.786.786 0 0 1-.775-.916l.057-.338h.355a.899.899 0 0 0 .886-.743l.012-.07-.348 2.067z"></path>
@@ -916,12 +773,7 @@ export const contents: Content[] = [
         title: "Reddit",
         href: "/docs/authentication/reddit",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32">
             <path
               d="M29.9999 12.0001C29.9998 11.2336 29.7793 10.4832 29.3649 9.8384C28.9505 9.19356 28.3595 8.68139 27.6623 8.36282C26.9652 8.04425 26.1911 7.93271 25.4324 8.04148C24.6736 8.15024 23.9621 8.47473 23.3824 8.97633C21.2887 7.86383 18.7874 7.19132 16.1749 7.03507L16.8237 3.13883L19.0387 3.47883C19.1511 4.17754 19.5068 4.81402 20.0431 5.27579C20.5794 5.73757 21.2616 5.99489 21.9693 6.00228C22.6769 6.00967 23.3644 5.76665 23.9102 5.31618C24.456 4.86571 24.825 4.23679 24.952 3.54058C25.0789 2.84437 24.9556 2.1257 24.604 1.51158C24.2523 0.897463 23.6948 0.427445 23.0301 0.184601C22.3654 -0.0582438 21.6362 -0.0582795 20.9715 0.1845C20.3067 0.42728 19.7492 0.897242 19.3974 1.51133L16.1474 1.01133C15.8874 0.971236 15.6221 1.03522 15.409 1.18941C15.1958 1.34361 15.052 1.57558 15.0087 1.83508L14.1499 7.02008C11.4199 7.13758 8.79744 7.81757 6.61744 8.97633C5.82132 8.30379 4.79416 7.96851 3.75457 8.04187C2.71499 8.11523 1.74508 8.59143 1.0513 9.36911C0.357515 10.1468 -0.00535957 11.1645 0.0399123 12.2057C0.0851841 13.2469 0.535027 14.2293 1.29369 14.9438C1.09926 15.612 1.00036 16.3042 0.999944 17.0001C0.999944 19.7413 2.49994 22.2938 5.23869 24.1863C7.85994 26.0001 11.3262 27.0001 14.9999 27.0001C18.6737 27.0001 22.1399 26.0001 24.7612 24.1863C27.4999 22.2938 28.9999 19.7413 28.9999 17.0001C28.9995 16.3042 28.9006 15.612 28.7062 14.9438C29.1128 14.5686 29.4376 14.1135 29.6602 13.6069C29.8828 13.1004 29.9985 12.5534 29.9999 12.0001ZM7.99994 15.0001C7.99994 14.6045 8.11724 14.2178 8.337 13.8889C8.55677 13.56 8.86912 13.3037 9.23458 13.1523C9.60003 13.0009 10.0022 12.9613 10.3901 13.0385C10.7781 13.1157 11.1345 13.3062 11.4142 13.5859C11.6939 13.8656 11.8843 14.2219 11.9615 14.6099C12.0387 14.9979 11.9991 15.4 11.8477 15.7654C11.6963 16.1309 11.44 16.4433 11.1111 16.663C10.7822 16.8828 10.3955 17.0001 9.99994 17.0001C9.46951 17.0001 8.9608 16.7894 8.58573 16.4143C8.21066 16.0392 7.99994 15.5305 7.99994 15.0001ZM19.4687 21.8838C18.0927 22.6151 16.5582 22.9975 14.9999 22.9975C13.4417 22.9975 11.9072 22.6151 10.5312 21.8838C10.4151 21.8223 10.3123 21.7385 10.2287 21.6372C10.145 21.5359 10.0821 21.4191 10.0436 21.2935C10.005 21.1679 9.99162 21.036 10.0041 20.9052C10.0165 20.7744 10.0546 20.6474 10.1162 20.5313C10.1778 20.4153 10.2616 20.3125 10.3628 20.2288C10.4641 20.1451 10.5809 20.0822 10.7065 20.0437C10.8321 20.0052 10.964 19.9918 11.0948 20.0042C11.2256 20.0167 11.3526 20.0548 11.4687 20.1163C12.556 20.6944 13.7685 20.9967 14.9999 20.9967C16.2313 20.9967 17.4439 20.6944 18.5312 20.1163C18.6472 20.0548 18.7743 20.0167 18.9051 20.0042C19.0358 19.9918 19.1678 20.0052 19.2934 20.0437C19.419 20.0822 19.5358 20.1451 19.637 20.2288C19.7383 20.3125 19.8221 20.4153 19.8837 20.5313C19.9453 20.6474 19.9833 20.7744 19.9958 20.9052C20.0083 21.036 19.9948 21.1679 19.9563 21.2935C19.9178 21.4191 19.8549 21.5359 19.7712 21.6372C19.6875 21.7385 19.5847 21.8223 19.4687 21.8838ZM19.9999 17.0001C19.6044 17.0001 19.2177 16.8828 18.8888 16.663C18.5599 16.4433 18.3036 16.1309 18.1522 15.7654C18.0008 15.4 17.9612 14.9979 18.0384 14.6099C18.1155 14.2219 18.306 13.8656 18.5857 13.5859C18.8654 13.3062 19.2218 13.1157 19.6098 13.0385C19.9977 12.9613 20.3999 13.0009 20.7653 13.1523C21.1308 13.3037 21.4431 13.56 21.6629 13.8889C21.8826 14.2178 21.9999 14.6045 21.9999 15.0001C21.9999 15.5305 21.7892 16.0392 21.4142 16.4143C21.0391 16.7894 20.5304 17.0001 19.9999 17.0001Z"
               fill="currentColor"
@@ -1023,12 +875,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "TikTok",
         href: "/docs/authentication/tiktok",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M19.589 6.686a4.793 4.793 0 0 1-3.77-4.245V2h-3.445v13.672a2.896 2.896 0 0 1-5.201 1.743l-.002-.001.002.001a2.895 2.895 0 0 1 3.183-4.51v-3.5a6.329 6.329 0 0 0-5.394 10.692 6.33 6.33 0 0 0 10.857-4.424V8.687a8.182 8.182 0 0 0 4.773 1.526V6.79a4.831 4.831 0 0 1-1.003-.104z"
@@ -1040,12 +887,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Twitch",
         href: "/docs/authentication/twitch",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -1092,12 +934,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "VK",
         href: "/docs/authentication/vk",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 20 20"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 20 20">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -1110,13 +947,8 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Zoom",
         href: "/docs/authentication/zoom",
-        icon: (props?: SVGProps<any>) => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 16 16"
-          >
+        icon: (_props?: SVGProps<any>) => (
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 16 16">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -1136,12 +968,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Other Social Providers",
         href: "/docs/authentication/other-social-providers",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M11.5 2a5.5 5.5 0 1 0 0 11a5.5 5.5 0 0 0 0-11M13 17.75a4.75 4.75 0 1 1 8.74 2.578l1.674 1.671l-1.413 1.415l-1.675-1.673A4.75 4.75 0 0 1 13 17.75M17.75 15a2.75 2.75 0 1 0 0 5.5a2.75 2.75 0 0 0 0-5.5m-5-1a6.22 6.22 0 0 0-1.25 3.75c0 1.641.633 3.135 1.667 4.25H2v-2a6 6 0 0 1 6-6z"
@@ -1154,12 +981,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
   {
     title: "Databases",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="16px"
-        height="16px"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16px" height="16px" viewBox="0 0 24 24">
         <path
           fill="currentColor"
           d="M12 11q-3.75 0-6.375-1.175T3 7q0-1.65 2.625-2.825Q8.25 3 12 3t6.375 1.175Q21 5.35 21 7q0 1.65-2.625 2.825Q15.75 11 12 11Zm0 5q-3.75 0-6.375-1.175T3 12V9.5q0 1.1 1.025 1.863q1.025.762 2.45 1.237q1.425.475 2.963.687q1.537.213 2.562.213t2.562-.213q1.538-.212 2.963-.687q1.425-.475 2.45-1.237Q21 10.6 21 9.5V12q0 1.65-2.625 2.825Q15.75 16 12 16Zm0 5q-3.75 0-6.375-1.175T3 17v-2.5q0 1.1 1.025 1.863q1.025.762 2.45 1.237q1.425.475 2.963.688q1.537.212 2.562.212t2.562-.212q1.538-.213 2.963-.688t2.45-1.237Q21 15.6 21 14.5V17q0 1.65-2.625 2.825Q15.75 21 12 21Z"
@@ -1268,13 +1090,13 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Other Relational Databases",
         href: "/docs/adapters/other-relational-databases",
-        icon: () => <Database className="w-4 h-4 text-current" />,
+        icon: () => <Database className="h-4 w-4 text-current" />,
       },
       {
         group: true,
         title: "Adapters",
         href: "",
-        icon: () => <Database className="w-4 h-4 text-current" />,
+        icon: () => <Database className="h-4 w-4 text-current" />,
       },
       {
         title: "Drizzle",
@@ -1360,7 +1182,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         group: true,
         title: "Others",
         href: "",
-        icon: () => <Database className="w-4 h-4 text-current" />,
+        icon: () => <Database className="h-4 w-4 text-current" />,
       },
       {
         title: "Community Adapters",
@@ -1390,12 +1212,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
   {
     title: "Integrations",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.3em"
-        height="1.3em"
-        viewBox="0 0 48 48"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 48 48">
         <path
           fill="currentColor"
           stroke="currentColor"
@@ -1510,12 +1327,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
   {
     title: "Plugins",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
         <g fill="none">
           <path d="M24 0v24H0V0zM12.593 23.258l-.011.002l-.071.035l-.02.004l-.014-.004l-.071-.035c-.01-.004-.019-.001-.024.005l-.004.01l-.017.428l.005.02l.01.013l.104.074l.015.004l.012-.004l.104-.074l.012-.016l.004-.017l-.017-.427c-.002-.01-.009-.017-.017-.018m.265-.113l-.013.002l-.185.093l-.01.01l-.003.011l.018.43l.005.012l.008.007l.201.093c.012.004.023 0 .029-.008l.004-.014l-.034-.614c-.003-.012-.01-.02-.02-.022m-.715.002a.023.023 0 0 0-.027.006l-.006.014l-.034.614c0 .012.007.02.017.024l.015-.002l.201-.093l.01-.008l.004-.011l.017-.43l-.003-.012l-.01-.01z" />
           <path
@@ -1530,49 +1342,44 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Authentication",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="w-4 h-4" />,
+        icon: () => <LucideAArrowDown className="h-4 w-4" />,
       },
 
       {
         title: "Two Factor",
-        icon: () => <ScanFace className="w-4 h-4" />,
+        icon: () => <ScanFace className="h-4 w-4" />,
         href: "/docs/plugins/2fa",
       },
       {
         title: "Username",
-        icon: () => <UserSquare2 className="w-4 h-4" />,
+        icon: () => <UserSquare2 className="h-4 w-4" />,
         href: "/docs/plugins/username",
       },
       {
         title: "Anonymous",
-        icon: () => <UserCircle className="w-4 h-4" />,
+        icon: () => <UserCircle className="h-4 w-4" />,
         href: "/docs/plugins/anonymous",
       },
       {
         title: "Phone Number",
-        icon: () => <Phone className="w-4 h-4" />,
+        icon: () => <Phone className="h-4 w-4" />,
         href: "/docs/plugins/phone-number",
       },
       {
         title: "Magic Link",
         href: "/docs/plugins/magic-link",
-        icon: () => <Mailbox className="w-4 h-4" />,
+        icon: () => <Mailbox className="h-4 w-4" />,
       },
       {
         title: "Email OTP",
         href: "/docs/plugins/email-otp",
-        icon: () => <Mail className="w-4 h-4" />,
+        icon: () => <Mail className="h-4 w-4" />,
       },
       {
         title: "Passkey",
         href: "/docs/plugins/passkey",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               className="fill-foreground"
               d="M3.25 9.65q-.175-.125-.213-.312t.113-.388q1.55-2.125 3.888-3.3t4.987-1.175q2.65 0 5 1.138T20.95 8.9q.175.225.113.4t-.213.3q-.15.125-.35.113t-.35-.213q-1.375-1.95-3.537-2.987t-4.588-1.038q-2.425 0-4.55 1.038T3.95 9.5q-.15.225-.35.25t-.35-.1m11.6 12.325q-2.6-.65-4.25-2.588T8.95 14.65q0-1.25.9-2.1t2.175-.85q1.275 0 2.175.85t.9 2.1q0 .825.625 1.388t1.475.562q.85 0 1.45-.562t.6-1.388q0-2.9-2.125-4.875T12.05 7.8q-2.95 0-5.075 1.975t-2.125 4.85q0 .6.113 1.5t.537 2.1q.075.225-.012.4t-.288.25q-.2.075-.387-.012t-.263-.288q-.375-.975-.537-1.937T3.85 14.65q0-3.325 2.413-5.575t5.762-2.25q3.375 0 5.8 2.25t2.425 5.575q0 1.25-.887 2.087t-2.163.838q-1.275 0-2.187-.837T14.1 14.65q0-.825-.612-1.388t-1.463-.562q-.85 0-1.463.563T9.95 14.65q0 2.425 1.438 4.05t3.712 2.275q.225.075.3.25t.025.375q-.05.175-.2.3t-.375.075M6.5 4.425q-.2.125-.4.063t-.3-.263q-.1-.2-.05-.362T6 3.575q1.4-.75 2.925-1.15t3.1-.4q1.6 0 3.125.388t2.95 1.112q.225.125.263.3t-.038.35q-.075.175-.25.275t-.425-.025q-1.325-.675-2.738-1.037t-2.887-.363q-1.45 0-2.85.338T6.5 4.425m2.95 17.2q-1.475-1.55-2.262-3.162T6.4 14.65q0-2.275 1.65-3.838t3.975-1.562q2.325 0 4 1.563T17.7 14.65q0 .225-.137.363t-.363.137q-.2 0-.35-.137t-.15-.363q0-1.875-1.388-3.137t-3.287-1.263q-1.9 0-3.262 1.263T7.4 14.65q0 2.025.7 3.438t2.05 2.837q.15.15.15.35t-.15.35q-.15.15-.35.15t-.35-.15m7.55-1.7q-2.225 0-3.863-1.5T11.5 14.65q0-.2.138-.35t.362-.15q.225 0 .363.15t.137.35q0 1.875 1.35 3.075t3.15 1.2q.15 0 .425-.025t.575-.075q.225-.05.388.063t.212.337q.05.2-.075.35t-.325.2q-.45.125-.787.138t-.413.012"
@@ -1584,12 +1391,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Generic OAuth",
         href: "/docs/plugins/generic-oauth",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <g
               fill="none"
               stroke="currentColor"
@@ -1607,12 +1409,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "One Tap",
         href: "/docs/plugins/one-tap",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 14 14"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 14 14">
             <path
               fill="currentColor"
               fillRule="evenodd"
@@ -1626,12 +1423,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Sign In With Ethereum",
         href: "/docs/plugins/siwe",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="m11.944 17.97-7.364-4.35 7.363 10.38 7.37-10.38-7.372 4.35zm.112-17.97-7.366 12.223 7.365 4.354 7.365-4.35z"
@@ -1644,18 +1436,13 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Authorization",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="w-4 h-4" />,
+        icon: () => <LucideAArrowDown className="h-4 w-4" />,
       },
       {
         title: "Admin",
         href: "/docs/plugins/admin",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               className="fill-current"
               d="M12 23C6.443 21.765 2 16.522 2 11V5l10-4l10 4v6c0 5.524-4.443 10.765-10 12M4 6v5a10.58 10.58 0 0 0 8 10a10.58 10.58 0 0 0 8-10V6l-8-3Z"
@@ -1707,25 +1494,20 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       },
       {
         title: "Organization",
-        icon: () => <Users2 className="w-4 h-4" />,
+        icon: () => <Users2 className="h-4 w-4" />,
         href: "/docs/plugins/organization",
       },
       {
         title: "Enterprise",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="w-4 h-4" />,
+        icon: () => <LucideAArrowDown className="h-4 w-4" />,
       },
       {
         title: "OIDC Provider",
         href: "/docs/plugins/oidc-provider",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32">
             <path
               fill="currentColor"
               d="M16 2a8 8 0 1 0 8 8a8.01 8.01 0 0 0-8-8m5.91 7h-2.438a15.3 15.3 0 0 0-.791-4.36A6.01 6.01 0 0 1 21.91 9m-5.888 6.999h-.008c-.38-.12-1.309-1.821-1.479-4.999h2.93c-.17 3.176-1.094 4.877-1.443 4.999M14.535 9c.17-3.176 1.094-4.877 1.443-4.999h.008c.38.12 1.309 1.821 1.479 4.999zM13.32 4.64A15.3 15.3 0 0 0 12.528 9H10.09a6.01 6.01 0 0 1 3.23-4.36M10.09 11h2.437a15.3 15.3 0 0 0 .792 4.36A6.01 6.01 0 0 1 10.09 11m8.59 4.36a15.3 15.3 0 0 0 .792-4.36h2.438a6.01 6.01 0 0 1-3.23 4.36M28 30H4a2 2 0 0 1-2-2v-6a2 2 0 0 1 2-2h24a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2M4 22v6h24v-6z"
@@ -1760,12 +1542,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "SSO",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32">
             <path
               fill="currentColor"
               d="M8 8h2v4H8zm0 6h2v4H8zm6-6h2v4h-2zm0 6h2v4h-2zm-6 6h2v4H8zm6 0h2v4h-2z"
@@ -1781,12 +1558,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "SCIM",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M2 19.5v-2h1.425q-1.175-1.05-1.8-2.488T1 12q0-2.675 1.675-4.737T7 4.65V6.7q-1.8.5-2.9 1.963T3 11.975q0 1.25.525 2.338T5 16.2v-1.7h2v5zm8-.15V17.3q1.8-.5 2.9-1.963t1.1-3.312q0-1.25-.525-2.337T12 7.8v1.7h-2v-5h5v2h-1.425q1.175 1.05 1.8 2.488T16 12q0 2.675-1.675 4.738T10 19.35m9.5.65L16 16.5l1.425-1.4l1.075 1.075V4h2v12.2l1.1-1.1l1.4 1.4z"
@@ -1800,22 +1572,17 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Utility",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="w-4 h-4" />,
+        icon: () => <LucideAArrowDown className="h-4 w-4" />,
       },
       {
         title: "Bearer",
-        icon: () => <Key className="w-4 h-4" />,
+        icon: () => <Key className="h-4 w-4" />,
         href: "/docs/plugins/bearer",
       },
       {
         title: "Device Authorization",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M20 18c1.1 0 1.99-.9 1.99-2L22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2zM4 6h16v10H4z"
@@ -1828,12 +1595,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Captcha",
         href: "/docs/plugins/captcha",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 48 48"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 48 48">
             <path
               fill="currentColor"
               d="M38.023 18.932A6.3 6.3 0 0 0 42.505 13c0-4.056-2.9-7-8.238-7a14.3 14.3 0 0 0-6.829 1.665.369.369 0 0 0-.171.383v2.732c0 .171.043.212.256.129A11.552 11.552 0 0 1 33.669 9.2c3.756 0 5.336 1.834 5.336 4.224 0 2.732-2.3 4.183-6.061 4.183h-1.58c-.213 0-.256.129-.256.3V20.6c0 .171.086.256.3.256H33.2c4.225 0 7.042 1.537 7.042 4.951 0 2.691-1.878 4.993-6.487 4.993a18.98 18.98 0 0 1-6.655-1.748 10.11 10.11 0 0 0 .882-4.107c0-6.281-4.631-8.511-8.6-8.511A16.789 16.789 0 0 0 12 18.379V3a1 1 0 0 0-1-1l-1.99.007a1 1 0 0 0-.795.4L4.4 5.453a2 2 0 0 0-.4 1.2v.331a1 1 0 0 0 1 1h3v19a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-4.91a14.046 14.046 0 0 1 6.709-2.012c3.4 0 5.469 1.661 5.469 5 0 2.566-1.252 5.06-5.065 9.273a65.711 65.711 0 0 1-6.849 6.719.666.666 0 0 0-.226.558v1.891c0 .43.283.492.451.492H28.2c.317 0 .416-.113.531-.4l.627-2.6a.362.362 0 0 0-.046-.324.479.479 0 0 0-.4-.137h-5.795c-3.224 0-3.886 0-5.152.082a40.482 40.482 0 0 0 4.957-5.367c1-1.222 1.855-2.33 2.586-3.4A22.187 22.187 0 0 0 33.8 34c5.763 0 10.074-2.945 10.074-8.2-.003-4.395-3.374-6.315-5.851-6.868Z"
@@ -1866,12 +1628,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Multi Session",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M16.885 13.616q-.82 0-1.41-.591t-.59-1.41t.59-1.41t1.41-.59q.819 0 1.41.59q.59.591.59 1.41q0 .82-.59 1.41q-.591.59-1.41.59m-4.5 5v-.9q0-.465.232-.843q.232-.379.66-.545q.845-.356 1.748-.534q.904-.177 1.86-.177q.916 0 1.821.177q.905.178 1.786.534q.428.166.66.545q.232.378.232.844v.9zm-2.77-7.23q-1.237 0-2.118-.882t-.881-2.118t.88-2.12t2.12-.88t2.118.88t.882 2.12t-.882 2.118t-2.118.882m-7 7.23V16.97q0-.648.357-1.192q.358-.544.973-.804q1.327-.673 2.756-1.015t2.914-.342q.605 0 1.211.063t1.212.167l-.427.446l-.427.447q-.393-.077-.785-.1t-.784-.023q-1.354 0-2.675.292t-2.518.942q-.327.183-.567.456t-.24.663v.646h6v1zm7-8.23q.825 0 1.412-.588t.588-1.412t-.588-1.413t-1.412-.587t-1.413.587t-.587 1.413t.587 1.412t1.413.588"
@@ -1884,12 +1641,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "OAuth Proxy",
         href: "/docs/plugins/oauth-proxy",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 32 32">
             <path
               fill="currentColor"
               d="M6 30h20a2 2 0 0 0 2-2v-6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2m0-8h20v6H6z"
@@ -1906,12 +1658,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "One-Time Token",
         href: "/docs/plugins/one-time-token",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1em"
-            height="1em"
-            viewBox="0 0 14 14"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 14 14">
             <path
               fill="none"
               stroke="currentColor"
@@ -1926,12 +1673,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Open API",
         href: "/docs/plugins/open-api",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.1em"
-            height="1.1em"
-            viewBox="0 0 32 32"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.1em" height="1.1em" viewBox="0 0 32 32">
             <path
               fill="currentColor"
               d="M16 0C7.177 0 0 7.177 0 16s7.177 16 16 16s16-7.177 16-16S24.823 0 16 0m0 1.527c7.995 0 14.473 6.479 14.473 14.473S23.994 30.473 16 30.473S1.527 23.994 1.527 16S8.006 1.527 16 1.527m-4.839 6.296c-.188-.005-.375 0-.568.005c-1.307.079-2.093.693-2.312 1.964c-.151.891-.125 1.796-.188 2.692a9 9 0 0 1-.156 1.38c-.177.813-.525 1.068-1.353 1.109q-.167.018-.324.057v1.948c1.5.073 1.704.605 1.823 2.172c.048.573-.015 1.147.021 1.719q.042.816.208 1.6c.344 1.432 1.745 1.911 3.433 1.624V22.38c-.272 0-.511.005-.74 0c-.579-.016-.792-.161-.844-.713c-.079-.713-.057-1.437-.099-2.156c-.089-1.339-.235-2.651-1.541-3.5c.672-.495 1.161-1.084 1.312-1.865c.109-.547.177-1.099.219-1.651s-.025-1.12.021-1.667c.077-.885.135-1.249 1.197-1.213c.161 0 .317-.021.495-.036V7.834c-.213 0-.411-.005-.604-.011m10.126.016a5.4 5.4 0 0 0-1.089.079v1.697c.329 0 .584 0 .833.005c.439.005.772.177.813.661c.041.443.041.891.083 1.339c.089.896.136 1.796.292 2.677c.136.724.636 1.265 1.255 1.713c-1.088.729-1.411 1.776-1.463 2.953c-.032.801-.052 1.615-.093 2.427c-.037.74-.297.979-1.043.995c-.208.011-.411.027-.64.041v1.74c.432 0 .833.027 1.235 0c1.239-.073 1.995-.677 2.239-1.885a15 15 0 0 0 .183-2.005c.041-.615.036-1.235.099-1.844c.093-.953.532-1.349 1.484-1.411q.133-.018.267-.057v-1.953c-.161-.021-.271-.037-.391-.041c-.713-.032-1.068-.272-1.251-.948a6.6 6.6 0 0 1-.197-1.324c-.052-.823-.047-1.656-.099-2.479c-.109-1.588-1.063-2.339-2.516-2.38zm-9.188 7.036c-1.432 0-1.536 2.109-.115 2.245h.079a1.103 1.103 0 0 0 1.167-1.037v-.061a1.13 1.13 0 0 0-1.104-1.147zm3.88 0a1.083 1.083 0 0 0-1.115 1.043c0 .036 0 .067.005.104c0 .672.459 1.099 1.147 1.099c.677 0 1.104-.443 1.104-1.136c-.005-.672-.459-1.115-1.141-1.109zm3.948 0a1.15 1.15 0 0 0-1.167 1.115c0 .625.505 1.131 1.136 1.131h.011c.567.099 1.135-.448 1.172-1.104c.031-.609-.521-1.141-1.152-1.141z"
@@ -1942,22 +1684,17 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "JWT",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1em"
-            height="1em"
-            viewBox="0 0 256 257"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 257">
             <path
-              className="opacity-70 fill-foreground"
+              className="fill-foreground opacity-70"
               d="M147.386 69.071L147.129 0h-38.515l.257 69.071l19.257 26.448zm-38.515 118.371v69.328h38.515v-69.328l-19.258-26.447z"
             ></path>
             <path
-              className="opacity-70 fill-foreground"
+              className="fill-foreground opacity-70"
               d="m147.386 187.442l40.57 55.976l31.069-22.596l-40.57-55.975l-31.069-10.015zM108.871 69.071L68.044 13.095L36.975 35.691l40.57 55.976l31.326 10.014z"
             ></path>
             <path
-              className="opacity-70 fill-foreground"
+              className="fill-foreground opacity-70"
               d="M77.545 91.667L11.811 70.355L0 106.816l65.733 21.569l31.069-10.271zm81.653 46.732l19.257 26.448l65.734 21.311L256 149.697l-65.733-21.312z"
             ></path>
             <path
@@ -1976,18 +1713,13 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Payments",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="w-4 h-4" />,
+        icon: () => <LucideAArrowDown className="h-4 w-4" />,
       },
       {
         title: "Stripe",
         href: "/docs/plugins/stripe",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="none"
               stroke="currentColor"
@@ -2038,12 +1770,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Autumn Billing",
         href: "/docs/plugins/autumn",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            width="1.2em"
-            height="1.2em"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
             <path
               d="M3.292,20.708a1,1,0,0,1,0-1.411L6.12,16.469A8.041,8.041,0,0,1,8.03,7.041C13.072,2,20.9,3.1,20.9,3.1S22,10.928,16.959,15.97a8.041,8.041,0,0,1-9.428,1.91L4.7,20.708A1,1,0,0,1,3.292,20.708Z"
               fill="currentColor"
@@ -2074,10 +1801,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
               width="196"
               height="164"
             >
-              <path
-                d="M234.375 58.5941H39.0624V221.355H234.375V58.5941Z"
-                fill="white"
-              />
+              <path d="M234.375 58.5941H39.0624V221.355H234.375V58.5941Z" fill="white" />
             </mask>
             <g mask="url(#mask0_27_29)">
               <path
@@ -2121,14 +1845,8 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path
-              d="M250 71L356.521 255.5H143.479L250 71Z"
-              fill="currentColor"
-            />
-            <path
-              d="M250 440L356.521 255.5H143.479L250 440Z"
-              fill="currentColor"
-            />
+            <path d="M250 71L356.521 255.5H143.479L250 71Z" fill="currentColor" />
+            <path d="M250 440L356.521 255.5H143.479L250 440Z" fill="currentColor" />
           </svg>
         ),
       },
@@ -2187,12 +1905,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
     title: "Guides",
     href: "/docs/guides",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 20 20"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 20 20">
         <path
           fill="currentColor"
           d="M6.819 17.259q.111.408.335.74h-.156c-1.104 0-2-.895-2.001-2l-.005-5.535zM4 16.499q0 .228.04.446l-.056-.015a2 2 0 0 1-1.416-2.45l1.426-5.34zm3.655.018a2 2 0 0 0 2.451 1.414l5.416-1.451a2 2 0 0 0 1.413-2.45L14.099 3.482a2 2 0 0 0-2.451-1.413l-5.416 1.45a2 2 0 0 0-1.413 2.449zM9 6.25a.75.75 0 1 1-1.5 0a.75.75 0 0 1 1.5 0"
@@ -2228,7 +1941,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Create a Database Adapter",
         href: "/docs/guides/create-a-db-adapter",
-        icon: () => <Database className="w-4 h-4 text-current" />,
+        icon: () => <Database className="h-4 w-4 text-current" />,
       },
       {
         title: "Browser Extension Guide",
@@ -2281,12 +1994,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Auth.js Migration Guide",
         href: "/docs/guides/next-auth-migration-guide",
         icon: () => (
-          <svg
-            width="1em"
-            height="1em"
-            viewBox="0 0 210 232"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg width="1em" height="1em" viewBox="0 0 210 232" xmlns="http://www.w3.org/2000/svg">
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -2304,13 +2012,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
               fill="url(#paint2_linear_128_61)"
               fillOpacity="0.21"
             />
-            <ellipse
-              cx="104.905"
-              cy="114.209"
-              rx="47.801"
-              ry="47.4802"
-              fill="#E3E2FA"
-            />
+            <ellipse cx="104.905" cy="114.209" rx="47.801" ry="47.4802" fill="#E3E2FA" />
             <path
               fillRule="evenodd"
               clipRule="evenodd"
@@ -2423,12 +2125,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Supabase Migration Guide",
         href: "/docs/guides/supabase-migration-guide",
         icon: () => (
-          <svg
-            height="1em"
-            width="1em"
-            viewBox="0 0 109 113"
-            xmlns="http://www.w3.org/2000/svg"
-          >
+          <svg height="1em" width="1em" viewBox="0 0 109 113" xmlns="http://www.w3.org/2000/svg">
             <path
               d="M63.7076 110.284C60.8481 113.885 55.0502 111.912 54.9813 107.314L53.9738 40.0627L99.1935 40.0627C107.384 40.0627 111.952 49.5228 106.859 55.9374L63.7076 110.284Z"
               fill="url(#paint0_linear)"
@@ -2496,12 +2193,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
   {
     title: "Reference",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.3em"
-        height="1.3em"
-        viewBox="0 0 20 20"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.3em" height="1.3em" viewBox="0 0 20 20">
         <path
           fill="currentColor"
           d="M0 3v16h5V3zm4 12H1v-1h3zm0-3H1v-1h3zm2-9v16h5V3zm4 12H7v-1h3zm0-3H7v-1h3zm1-8.5l4.1 15.4l4.8-1.3l-4-15.3zm7 10.6l-2.9.8l-.3-1l2.9-.8zm-.8-2.9l-2.9.8l-.2-1l2.9-.8z"
@@ -2513,12 +2205,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Options",
         href: "/docs/reference/options",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="currentColor"
               d="M6.5 16q1.175 0 2.288.263T11 17.05V7.2q-1.025-.6-2.175-.9T6.5 6q-.9 0-1.788.175T2.7 6.7v9.9q.875-.3 1.738-.45T6.5 16m6.5 1.05q1.1-.525 2.213-.787T17.5 16q.9 0 1.763.15T21 16.6V6.7q-.825-.35-1.713-.525T17.5 6q-1.175 0-2.325.3T13 7.2zm-1 2.425q-.35 0-.663-.087t-.587-.238q-.975-.575-2.05-.862T6.5 18q-1.05 0-2.062.275T2.5 19.05q-.525.275-1.012-.025T1 18.15V6.1q0-.275.138-.525T1.55 5.2q1.15-.6 2.4-.9T6.5 4q1.45 0 2.838.375T12 5.5q1.275-.75 2.663-1.125T17.5 4q1.3 0 2.55.3t2.4.9q.275.125.413.375T23 6.1v12.05q0 .575-.487.875t-1.013.025q-.925-.5-1.937-.775T17.5 18q-1.125 0-2.2.288t-2.05.862q-.275.15-.587.238t-.663.087m2-10.7q0-.225.163-.462T14.525 8q.725-.25 1.45-.375T17.5 7.5q.5 0 .988.063t.962.162q.225.05.388.25t.162.45q0 .425-.275.625t-.7.1q-.35-.075-.737-.112T17.5 9q-.65 0-1.275.125t-1.2.325q-.45.175-.737-.025T14 8.775m0 5.5q0-.225.163-.462t.362-.313q.725-.25 1.45-.375T17.5 13q.5 0 .988.063t.962.162q.225.05.388.25t.162.45q0 .425-.275.625t-.7.1q-.35-.075-.737-.112t-.788-.038q-.65 0-1.275.125t-1.2.325q-.45.175-.737-.025t-.288-.65"
@@ -2529,7 +2216,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Errors",
         href: "/docs/reference/errors",
-        icon: () => <TriangleAlertIcon className="w-4 h-4 text-current" />,
+        icon: () => <TriangleAlertIcon className="h-4 w-4 text-current" />,
         hasSubpages: true,
         subpages: [
           {
@@ -2583,12 +2270,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Contributing",
         href: "/docs/reference/contributing",
         icon: () => (
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="1.2em"
-            height="1.2em"
-            viewBox="0 0 24 24"
-          >
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1.2em" viewBox="0 0 24 24">
             <path
               fill="#888888"
               d="M6 3a3 3 0 0 1 3 3c0 1.31-.83 2.42-2 2.83v6.34c1.17.41 2 1.52 2 2.83a3 3 0 0 1-3 3a3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V8.83A2.99 2.99 0 0 1 3 6a3 3 0 0 1 3-3m0 2a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1a1 1 0 0 0-1-1m0 12a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1a1 1 0 0 0-1-1m15 1a3 3 0 0 1-3 3a3 3 0 0 1-3-3c0-1.31.83-2.42 2-2.83V7h-2v3.25L10.75 6L15 1.75V5h2a2 2 0 0 1 2 2v8.17c1.17.41 2 1.52 2 2.83m-3-1a1 1 0 0 0-1 1a1 1 0 0 0 1 1a1 1 0 0 0 1-1a1 1 0 0 0-1-1"
@@ -2599,23 +2281,23 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Resources",
         href: "/docs/reference/resources",
-        icon: () => <Book className="w-4 h-4 text-current" />,
+        icon: () => <Book className="h-4 w-4 text-current" />,
       },
 
       {
         title: "Security",
         href: "/docs/reference/security",
-        icon: () => <ShieldCheck className="w-4 h-4 text-current" />,
+        icon: () => <ShieldCheck className="h-4 w-4 text-current" />,
       },
       {
         title: "Telemetry",
         href: "/docs/reference/telemetry",
-        icon: () => <Binoculars className="w-4 h-4 text-current" />,
+        icon: () => <Binoculars className="h-4 w-4 text-current" />,
       },
       {
         title: "FAQ",
         href: "/docs/reference/faq",
-        icon: () => <CircleHelp className="w-4 h-4 text-current" />,
+        icon: () => <CircleHelp className="h-4 w-4 text-current" />,
       },
     ],
   },
@@ -2626,12 +2308,7 @@ export const examples: Content[] = [
     title: "Examples",
     href: "/docs/examples/next",
     Icon: () => (
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1.4em"
-        height="1.4em"
-        viewBox="0 0 24 24"
-      >
+      <svg xmlns="http://www.w3.org/2000/svg" width="1.4em" height="1.4em" viewBox="0 0 24 24">
         <path
           fill="currentColor"
           d="M2 6.95c0-.883 0-1.324.07-1.692A4 4 0 0 1 5.257 2.07C5.626 2 6.068 2 6.95 2c.386 0 .58 0 .766.017a4 4 0 0 1 2.18.904c.144.119.28.255.554.529L11 4c.816.816 1.224 1.224 1.712 1.495a4 4 0 0 0 .848.352C14.098 6 14.675 6 15.828 6h.374c2.632 0 3.949 0 4.804.77q.119.105.224.224c.77.855.77 2.172.77 4.804V14c0 3.771 0 5.657-1.172 6.828S17.771 22 14 22h-4c-3.771 0-5.657 0-6.828-1.172S2 17.771 2 14z"

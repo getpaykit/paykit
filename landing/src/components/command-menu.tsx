@@ -4,15 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useDocsSearch } from "fumadocs-core/search/client";
 import { FileText, Hash, Search, Text } from "lucide-react";
 import { useRouter } from "next/navigation";
-import {
-  createContext,
-  use,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+
 import { cn } from "@/lib/utils";
 
 // ─── Context ─────────────────────────────────────────────────────────────────
@@ -26,18 +19,13 @@ const CommandMenuContext = createContext<CommandMenuContextValue | null>(null);
 
 export function useCommandMenu() {
   const ctx = use(CommandMenuContext);
-  if (!ctx)
-    throw new Error("useCommandMenu must be used within CommandMenuProvider");
+  if (!ctx) throw new Error("useCommandMenu must be used within CommandMenuProvider");
   return ctx;
 }
 
 // ─── Provider ────────────────────────────────────────────────────────────────
 
-export function CommandMenuProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function CommandMenuProvider({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -102,7 +90,7 @@ function CommandMenuDialog() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -8 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="fixed left-[50%] top-[20%] z-[201] translate-x-[-50%] w-full max-w-[640px] px-4 sm:px-0"
+            className="fixed top-[20%] left-[50%] z-[201] w-full max-w-[640px] translate-x-[-50%] px-4 sm:px-0"
             onKeyDown={(e) => {
               if (e.key === "Escape") {
                 e.stopPropagation();
@@ -110,7 +98,7 @@ function CommandMenuDialog() {
               }
             }}
           >
-            <div className="border border-foreground/[0.08] bg-background shadow-2xl font-mono overflow-hidden flex flex-col max-h-[min(500px,60vh)]">
+            <div className="border-foreground/[0.08] bg-background flex max-h-[min(500px,60vh)] flex-col overflow-hidden border font-mono shadow-2xl">
               <SearchMode
                 query={searchQuery}
                 setQuery={setSearchQuery}
@@ -181,32 +169,28 @@ function SearchMode({
   return (
     <>
       {/* Input */}
-      <div className="flex items-center border-b border-foreground/[0.06] px-3">
-        <Search className="mr-2 size-4 shrink-0 text-muted-foreground" />
+      <div className="border-foreground/[0.06] flex items-center border-b px-3">
+        <Search className="text-muted-foreground mr-2 size-4 shrink-0" />
         <input
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="Search documentation..."
-          className="flex h-11 w-full bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground font-mono"
+          className="placeholder:text-muted-foreground flex h-11 w-full bg-transparent py-3 font-mono text-sm outline-none"
         />
       </div>
 
       {/* Results */}
-      <div className="overflow-y-auto flex-1 p-1">
+      <div className="flex-1 overflow-y-auto p-1">
         {results.isLoading && (
-          <div className="py-6 text-center text-sm text-muted-foreground">
-            Searching...
-          </div>
+          <div className="text-muted-foreground py-6 text-center text-sm">Searching...</div>
         )}
         {!results.isLoading && query && items.length === 0 && (
-          <div className="py-6 text-center text-sm text-muted-foreground">
-            No results found.
-          </div>
+          <div className="text-muted-foreground py-6 text-center text-sm">No results found.</div>
         )}
         {!results.isLoading && !query && (
-          <div className="py-6 text-center text-sm text-muted-foreground">
+          <div className="text-muted-foreground py-6 text-center text-sm">
             Type to search documentation...
           </div>
         )}
@@ -258,23 +242,16 @@ function SearchMode({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between border-t border-foreground/[0.06] px-3 py-1.5 text-xs text-muted-foreground">
+      <div className="border-foreground/[0.06] text-muted-foreground flex items-center justify-between border-t px-3 py-1.5 text-xs">
         <div className="flex gap-2">
           <span>
-            <kbd className="px-1 py-0.5 border border-foreground/[0.08]">
-              ↑↓
-            </kbd>{" "}
-            navigate
+            <kbd className="border-foreground/[0.08] border px-1 py-0.5">↑↓</kbd> navigate
           </span>
           <span>
-            <kbd className="px-1 py-0.5 border border-foreground/[0.08]">↵</kbd>{" "}
-            open
+            <kbd className="border-foreground/[0.08] border px-1 py-0.5">↵</kbd> open
           </span>
           <span>
-            <kbd className="px-1 py-0.5 border border-foreground/[0.08]">
-              esc
-            </kbd>{" "}
-            close
+            <kbd className="border-foreground/[0.08] border px-1 py-0.5">esc</kbd> close
           </span>
         </div>
       </div>
