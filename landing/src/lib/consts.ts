@@ -1,3 +1,4 @@
+export const OG_URL = "https://paykit.sh";
 export const GITHUB_URL = "https://github.com/getpaykit/paykit";
 export const X_URL = "https://x.com/getpaykit";
 export const DISCORD_URL = "https://discord.gg/paykit";
