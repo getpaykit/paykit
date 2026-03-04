@@ -4,10 +4,7 @@ import "@/styles/globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { CommandMenuProvider } from "@/components/command-menu";
-import { EarlyDevProvider } from "@/components/landing/early-dev-dialog";
 import { Providers } from "@/components/providers";
-import { RouteShell } from "@/components/route-shell";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -77,13 +74,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} font-sans antialiased overflow-x-hidden`}
         suppressHydrationWarning
       >
-        <Providers>
-          <EarlyDevProvider>
-            <CommandMenuProvider>
-              <RouteShell>{children}</RouteShell>
-            </CommandMenuProvider>
-          </EarlyDevProvider>
-        </Providers>
+        <Providers>{children}</Providers>
         <Analytics />
       </body>
     </html>

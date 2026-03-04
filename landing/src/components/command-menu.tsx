@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useDocsSearch } from "fumadocs-core/search/client";
 import { FileText, Hash, Search, Text } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   createContext,
   use,
@@ -39,12 +39,8 @@ export function CommandMenuProvider({
   children: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
-  const pathname = usePathname();
-  const isDocsRoute = pathname.startsWith("/docs");
 
   useEffect(() => {
-    if (isDocsRoute) return;
-
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -53,13 +49,7 @@ export function CommandMenuProvider({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isDocsRoute]);
-
-  useEffect(() => {
-    if (isDocsRoute && open) {
-      setOpen(false);
-    }
-  }, [isDocsRoute, open]);
+  }, []);
 
   const value = useMemo(() => ({ open, setOpen }), [open]);
 
