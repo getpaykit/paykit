@@ -71,11 +71,11 @@ export function HeroTitle() {
             href="https://github.com/getpaykit/paykit"
             target="_blank"
             rel="noopener noreferrer"
-            className="group relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-colors sm:px-5 sm:text-sm dark:text-neutral-300"
+            className="group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-colors sm:px-5 sm:text-sm"
           >
             {/* Diagonal lines background */}
             <span
-              className="absolute inset-0 opacity-[0.04] transition-opacity group-hover:opacity-[0.08]"
+              className="absolute inset-0 opacity-[0.13] transition-opacity group-hover:opacity-[0.18]"
               style={{
                 backgroundImage: `repeating-linear-gradient(
                   -45deg,
@@ -87,13 +87,13 @@ export function HeroTitle() {
               }}
             />
             {/* Top border */}
-            <span className="bg-foreground/20 group-hover:bg-foreground/30 absolute top-0 -right-[6px] -left-[6px] h-px transition-colors" />
+            <span className="bg-foreground/22 group-hover:bg-foreground/30 absolute top-0 -right-[6px] -left-[6px] h-px transition-colors" />
             {/* Bottom border */}
-            <span className="bg-foreground/20 group-hover:bg-foreground/30 absolute -right-[6px] bottom-0 -left-[6px] h-px transition-colors" />
+            <span className="bg-foreground/22 group-hover:bg-foreground/30 absolute -right-[6px] bottom-0 -left-[6px] h-px transition-colors" />
             {/* Left border */}
-            <span className="bg-foreground/20 group-hover:bg-foreground/30 absolute -top-[6px] -bottom-[6px] left-0 w-px transition-colors" />
+            <span className="bg-foreground/22 group-hover:bg-foreground/30 absolute -top-[6px] -bottom-[6px] left-0 w-px transition-colors" />
             {/* Right border */}
-            <span className="bg-foreground/20 group-hover:bg-foreground/30 absolute -top-[6px] right-0 -bottom-[6px] w-px transition-colors" />
+            <span className="bg-foreground/22 group-hover:bg-foreground/30 absolute -top-[6px] right-0 -bottom-[6px] w-px transition-colors" />
             <Github className="relative size-4" />
             <span className="relative">View on GitHub</span>
           </a>

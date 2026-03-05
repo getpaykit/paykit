@@ -9,7 +9,6 @@ Core lib:
 
 Other:
 
-- make secondary hero button lighter
 - docs code blocks having different styles and theme
 - make search icon smaller
 - design proper OG image in Figma
