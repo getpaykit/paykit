@@ -9,16 +9,10 @@ description: PayPal provider integration for PayKit.
 
 PayPal provider docs are coming soon.
 
-## Installation
-
-```bash
-pnpm add @paykit/paypal
-```
-
 ## Basic Setup
 
 ```ts
-import { paypal } from "@paykit/paypal";
+import { paypal } from "paykitjs/providers/paypal";
 
 const provider = paypal({
   clientId: process.env.PAYPAL_CLIENT_ID!,

@@ -1,11 +1,14 @@
 {
-  "name": "getpaykit",
+  "name": "paykitjs",
   "version": "0.1.0",
   "description": "TypeScript-first payments orchestration framework for modern SaaS",
   "keywords": [
+    "creem",
     "orchestration",
+    "paddle",
     "payments",
     "paypal",
+    "polar",
     "stripe",
     "subscriptions",
     "typescript"

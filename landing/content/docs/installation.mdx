@@ -4,51 +4,41 @@ description: Install PayKit and set up your first payments integration.
 ---
 
 <Callout type="warn">
-  PayKit is in early development. The packages below describe the planned installation flow. Check
-  the [roadmap](/docs/roadmap) for current availability.
+  PayKit is in early development. The steps below describe the planned installation flow. Check the
+  [roadmap](/docs/roadmap) for current availability.
 </Callout>
 
 <Steps>
 
 <Step>
-## Install the packages
-
-Install the core library, a provider adapter, and a database adapter.
+## Install the package
 
 <Tabs items={["pnpm", "npm", "yarn", "bun"]}>
   <Tab value="pnpm">
     ```bash
-    pnpm add @paykit/core @paykit/stripe @paykit/prisma
+    pnpm add paykitjs
     ```
 
   </Tab>
   <Tab value="npm">
     ```bash
-    npm install @paykit/core @paykit/stripe @paykit/prisma
+    npm install paykitjs
     ```
 
   </Tab>
   <Tab value="yarn">
     ```bash
-    yarn add @paykit/core @paykit/stripe @paykit/prisma
+    yarn add paykitjs
     ```
 
   </Tab>
   <Tab value="bun">
     ```bash
-    bun add @paykit/core @paykit/stripe @paykit/prisma
+    bun add paykitjs
     ```
 
   </Tab>
 </Tabs>
-
-| Package          | Purpose                    |
-| ---------------- | -------------------------- |
-| `@paykit/core`   | Core orchestration library |
-| `@paykit/stripe` | Stripe provider adapter    |
-| `@paykit/prisma` | Prisma database adapter    |
-
-You can swap providers and database adapters freely. For example, use `@paykit/paypal` instead of `@paykit/stripe`, or `@paykit/drizzle` instead of `@paykit/prisma`.
 
 </Step>
 
@@ -79,7 +69,7 @@ PayKit needs a few tables to track customers, subscriptions, payment methods, an
 <Tabs items={["Prisma", "Drizzle"]}>
   <Tab value="Prisma">
     ```bash
-    npx paykit generate prisma
+    npx paykitjs generate prisma
     npx prisma migrate dev
     ```
 
@@ -88,7 +78,7 @@ PayKit needs a few tables to track customers, subscriptions, payment methods, an
   </Tab>
   <Tab value="Drizzle">
     ```bash
-    npx paykit generate drizzle
+    npx paykitjs generate drizzle
     npx drizzle-kit push
     ```
 
@@ -104,9 +94,9 @@ PayKit needs a few tables to track customers, subscriptions, payment methods, an
 Create a file to initialize PayKit with your provider and database adapters.
 
 ```ts title="lib/paykit.ts"
-import { createPayKit } from "@paykit/core";
-import { stripe } from "@paykit/stripe";
-import { prismaAdapter } from "@paykit/prisma";
+import { createPayKit } from "paykitjs";
+import { stripe } from "paykitjs/providers/stripe";
+import { prismaAdapter } from "paykitjs/adapters/prisma";
 import { prisma } from "./prisma"; // your Prisma client
 
 export const paykit = createPayKit({

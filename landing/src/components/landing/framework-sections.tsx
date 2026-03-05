@@ -448,9 +448,9 @@ const invoice = await paykit.api.getInvoice({ id: "inv_abc" });
 // invoice.status  → "paid"`,
 };
 
-export const serverCode = `import { createPayKit } from "paykit"
-import { stripe } from "paykit/providers/stripe"
-import { drizzleAdapter } from "paykit/adapters/drizzle"
+export const serverCode = `import { createPayKit } from "paykitjs"
+import { stripe } from "paykitjs/providers/stripe"
+import { drizzleAdapter } from "paykitjs/adapters/drizzle"
 
 export const paykit = createPayKit({
   database: drizzleAdapter(db),
@@ -752,9 +752,9 @@ export function PluginEcosystem() {
 }
 
 const mcpClients = [
-  { name: "Cursor", cmd: "npx @getpaykit/cli mcp --cursor" },
-  { name: "Claude Code", cmd: "claude mcp add paykit" },
-  { name: "Open Code", cmd: "npx @getpaykit/cli mcp --open-code" },
+  { name: "Cursor", cmd: "npx paykitjs mcp --cursor" },
+  { name: "Claude Code", cmd: "claude mcp add paykitjs" },
+  { name: "Open Code", cmd: "npx paykitjs mcp --open-code" },
 ];
 
 export function AiNativeSection() {
@@ -768,8 +768,8 @@ export function AiNativeSection() {
 
   const steps = [
     { label: "mcp", text: "Connected to paykit docs" },
-    { label: "skill", text: "paykit/add-provider → stripe" },
-    { label: "skill", text: "paykit/add-plugin → subscriptions" },
+    { label: "skill", text: "paykitjs/add-provider → stripe" },
+    { label: "skill", text: "paykitjs/add-plugin → subscriptions" },
     { label: "write", text: "lib/auth.ts", lines: 14 },
     { label: "done", text: "Google OAuth + 2FA configured" },
   ];

@@ -1,5 +1,5 @@
 {
-  "name": "@getpaykit/root",
+  "name": "paykitjs-root",
   "private": true,
   "description": "Open payments orchestration for modern SaaS",
   "repository": {

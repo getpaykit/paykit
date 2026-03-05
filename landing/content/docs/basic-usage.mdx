@@ -161,8 +161,8 @@ Events are always based on your database state, not raw provider payloads. This 
 Add multiple providers to route payments based on region, currency, or business rules.
 
 ```ts
-import { stripe } from "@paykit/stripe";
-import { paypal } from "@paykit/paypal";
+import { stripe } from "paykitjs/providers/stripe";
+import { paypal } from "paykitjs/providers/paypal";
 
 const paykit = createPayKit({
   database: prismaAdapter(prisma),
