@@ -1,4 +1,4 @@
-import type { Charge, Customer, PaymentMethod, Refund } from "./models";
+import type { Customer, Payment, PaymentMethod, Refund } from "./models";
 
 export interface UpsertCustomerAction {
   type: "customer.upsert";
@@ -41,11 +41,31 @@ export interface DeletePaymentMethodAction {
   };
 }
 
+export interface NormalizedPayment {
+  amount: number;
+  createdAt: Date;
+  currency: string;
+  description?: string | null;
+  metadata?: Record<string, string>;
+  providerMethodId?: string | null;
+  providerPaymentId: string;
+  status: string;
+}
+
+export interface UpsertPaymentAction {
+  type: "payment.upsert";
+  data: {
+    payment: NormalizedPayment;
+    providerCustomerId: string;
+  };
+}
+
 export type WebhookApplyAction =
   | UpsertCustomerAction
   | DeleteCustomerAction
   | UpsertPaymentMethodAction
-  | DeletePaymentMethodAction;
+  | DeletePaymentMethodAction
+  | UpsertPaymentAction;
 
 export interface PayKitEventError {
   code?: string;
@@ -53,19 +73,19 @@ export interface PayKitEventError {
 }
 
 export interface PayKitEventMap {
-  "charge.failed": {
-    charge: Charge;
+  "payment.failed": {
     customer: Customer;
     error: PayKitEventError;
+    payment: Payment;
   };
-  "charge.refunded": {
-    charge: Charge;
+  "payment.refunded": {
     customer: Customer;
+    payment: Payment;
     refund: Refund;
   };
-  "charge.succeeded": {
-    charge: Charge;
+  "payment.succeeded": {
     customer: Customer;
+    payment: Payment;
   };
   "checkout.completed": {
     checkoutSessionId: string;
@@ -112,6 +132,10 @@ export interface NormalizedWebhookEventMap {
   };
   "payment_method.attached": {
     paymentMethod: NormalizedPaymentMethod;
+    providerCustomerId: string;
+  };
+  "payment.succeeded": {
+    payment: NormalizedPayment;
     providerCustomerId: string;
   };
   "payment_method.detached": {

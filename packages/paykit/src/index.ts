@@ -3,7 +3,7 @@ export { createPayKit } from "./core/create-paykit";
 export type { PayKitOptions, ProviderId } from "./types/options";
 export type { PayKitInstance, ScopedPayKitInstance, CustomerIdentity } from "./types/instance";
 export type { PayKitProvider } from "./providers/provider";
-export type { Charge, Customer, PaymentMethod, Refund } from "./types/models";
+export type { Customer, Payment, PaymentMethod, Refund } from "./types/models";
 export type {
   AnyNormalizedWebhookEvent,
   AnyPayKitEvent,

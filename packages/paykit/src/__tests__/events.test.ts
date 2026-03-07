@@ -27,6 +27,10 @@ describe("paykit events", () => {
         expectTypeOf(event).toEqualTypeOf<PayKitEvent<"checkout.completed">>();
         expectTypeOf(event.payload.customer.id).toEqualTypeOf<string>();
       },
+      "payment.succeeded": (event) => {
+        expectTypeOf(event).toEqualTypeOf<PayKitEvent<"payment.succeeded">>();
+        expectTypeOf(event.payload.payment.providerPaymentId).toEqualTypeOf<string>();
+      },
       "payment_method.attached": (event) => {
         expectTypeOf(event).toEqualTypeOf<PayKitEvent<"payment_method.attached">>();
         expectTypeOf(event.payload.paymentMethod.providerMethodId).toEqualTypeOf<string>();

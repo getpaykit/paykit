@@ -79,8 +79,8 @@ export const providerCustomer = pgTable(
   ],
 );
 
-export const charge = pgTable(
-  "charge",
+export const payment = pgTable(
+  "payment",
   {
     id: text("id").primaryKey(),
     customerId: text("customer_id")
@@ -88,23 +88,24 @@ export const charge = pgTable(
       .references(() => customer.id),
     paymentMethodId: text("payment_method_id").references(() => paymentMethod.id),
     providerId: text("provider_id").notNull(),
-    providerChargeId: text("provider_charge_id").notNull(),
+    providerPaymentId: text("provider_payment_id").notNull(),
     status: text("status").notNull(),
     amount: integer("amount").notNull(),
     currency: text("currency").notNull(),
     description: text("description"),
     metadata: jsonb("metadata").$type<Record<string, string> | null>(),
     createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
   },
   (table) => [
-    uniqueIndex("paykit_charge_provider_unique").on(table.providerId, table.providerChargeId),
-    index("paykit_charge_customer_provider_idx").on(table.customerId, table.providerId),
+    uniqueIndex("paykit_payment_provider_unique").on(table.providerId, table.providerPaymentId),
+    index("paykit_payment_customer_provider_idx").on(table.customerId, table.providerId),
   ],
 );
 
 export const schema = {
-  charge,
   customer,
+  payment,
   paymentMethod,
   providerCustomer,
 } as const;

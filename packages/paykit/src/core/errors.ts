@@ -3,6 +3,7 @@ const errorMessages = {
   PROVIDER_NOT_FOUND: "Provider not found",
   PROVIDER_CUSTOMER_NOT_FOUND: "Provider customer not found",
   PAYMENT_METHOD_NOT_FOUND: "Payment method not found",
+  PAYMENT_NOT_FOUND: "Payment not found",
   INVALID_WEBHOOK_PROVIDER: "Invalid webhook provider",
 } as const;
 

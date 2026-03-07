@@ -11,6 +11,9 @@ function createPayKitInstance(pool: Pool) {
       "checkout.completed": ({ payload }) => {
         console.info("[paykit] checkout.completed", payload);
       },
+      "payment.succeeded": ({ payload }) => {
+        console.info("[paykit] payment.succeeded", payload);
+      },
     },
     providers: [
       stripe({

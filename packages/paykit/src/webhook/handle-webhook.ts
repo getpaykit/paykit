@@ -9,8 +9,14 @@ import {
 import {
   deletePaymentMethodFromWebhook,
   getPaymentMethodByProviderMethodId,
+  toPublicPaymentMethod,
   upsertPaymentMethodFromWebhook,
 } from "../services/payment-method-service";
+import {
+  getPaymentByProviderPaymentId,
+  toPublicPayment,
+  upsertPaymentFromWebhook,
+} from "../services/payment-service";
 import type {
   AnyPayKitEvent,
   NormalizedWebhookEvent,
@@ -53,6 +59,15 @@ async function applyAction(
     await deletePaymentMethodFromWebhook(ctx, {
       providerId,
       providerMethodId: action.data.providerMethodId,
+    });
+    return;
+  }
+
+  if (action.type === "payment.upsert") {
+    await upsertPaymentFromWebhook(ctx, {
+      payment: action.data.payment,
+      providerCustomerId: action.data.providerCustomerId,
+      providerId,
     });
     return;
   }
@@ -119,7 +134,7 @@ async function toPublicEvent(
       name: "payment_method.attached",
       payload: {
         customer,
-        paymentMethod,
+        paymentMethod: toPublicPaymentMethod(paymentMethod),
       },
     };
     return publicEvent;
@@ -148,7 +163,39 @@ async function toPublicEvent(
       name: "payment_method.detached",
       payload: {
         customer,
-        paymentMethod,
+        paymentMethod: toPublicPaymentMethod(paymentMethod),
+      },
+    };
+    return publicEvent;
+  }
+
+  if (event.name === "payment.succeeded") {
+    const providerCustomer = await getProviderCustomerByProviderCustomerId(ctx.database, {
+      providerCustomerId: event.payload.providerCustomerId,
+      providerId,
+    });
+    if (!providerCustomer) {
+      throw new PayKitError("PROVIDER_CUSTOMER_NOT_FOUND");
+    }
+
+    const customer = await getCustomerById(ctx.database, providerCustomer.customerId);
+    if (!customer) {
+      throw new PayKitError("CUSTOMER_NOT_FOUND");
+    }
+
+    const payment = await getPaymentByProviderPaymentId(ctx, {
+      providerId,
+      providerPaymentId: event.payload.payment.providerPaymentId,
+    });
+    if (!payment) {
+      throw new PayKitError("PAYMENT_NOT_FOUND");
+    }
+
+    const publicEvent: PayKitEvent<"payment.succeeded"> = {
+      name: "payment.succeeded",
+      payload: {
+        customer,
+        payment: toPublicPayment(payment),
       },
     };
     return publicEvent;

@@ -26,21 +26,22 @@ export interface InternalPaymentMethod extends PaymentMethod {
   customerId: string;
 }
 
-export interface Charge {
+export interface Payment {
   id: string;
+  paymentMethodId: string | null;
   providerId: string;
-  providerChargeId: string;
+  providerPaymentId: string;
   status: string;
   amount: number;
   currency: string;
   description: string | null;
   metadata: Record<string, string> | null;
   createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface InternalCharge extends Charge {
+export interface InternalPayment extends Payment {
   customerId: string;
-  paymentMethodId: string | null;
 }
 
 export interface InternalProviderCustomer {

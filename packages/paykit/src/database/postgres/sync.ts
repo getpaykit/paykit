@@ -45,23 +45,24 @@ export async function syncPostgresSchema(db: NodePgDatabase<typeof schema>): Pro
     on paykit_payment_method (provider_id, provider_method_id);
     create index if not exists paykit_payment_method_customer_provider_idx
     on paykit_payment_method (customer_id, provider_id, deleted_at);
-    create table if not exists paykit_charge (
+    create table if not exists paykit_payment (
       id text primary key,
       customer_id text not null references paykit_customer(id),
       payment_method_id text references paykit_payment_method(id),
       provider_id text not null,
-      provider_charge_id text not null,
+      provider_payment_id text not null,
       status text not null,
       amount integer not null,
       currency text not null,
       description text,
       metadata jsonb,
-      created_at timestamp not null
+      created_at timestamp not null,
+      updated_at timestamp not null
     );
-    create unique index if not exists paykit_charge_provider_unique
-    on paykit_charge (provider_id, provider_charge_id);
-    create index if not exists paykit_charge_customer_provider_idx
-    on paykit_charge (customer_id, provider_id)
+    create unique index if not exists paykit_payment_provider_unique
+    on paykit_payment (provider_id, provider_payment_id);
+    create index if not exists paykit_payment_customer_provider_idx
+    on paykit_payment (customer_id, provider_id)
   `);
 
   try {

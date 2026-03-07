@@ -158,16 +158,16 @@ describe("paykit init", () => {
       from information_schema.tables
       where table_name in (
         'paykit_customer',
+        'paykit_payment',
         'paykit_provider_customer',
-        'paykit_payment_method',
-        'paykit_charge'
+        'paykit_payment_method'
       )
       order by table_name
     `);
 
     expect(result.rows.map((row: { table_name: string }) => row.table_name)).toEqual([
-      "paykit_charge",
       "paykit_customer",
+      "paykit_payment",
       "paykit_payment_method",
       "paykit_provider_customer",
     ]);
@@ -478,6 +478,44 @@ describe("paykit init", () => {
               },
             },
             {
+              actions: [
+                {
+                  data: {
+                    payment: {
+                      amount: 9900,
+                      createdAt: new Date("2026-03-07T00:00:00.000Z"),
+                      currency: "usd",
+                      description: "Lifetime License",
+                      metadata: {
+                        source: "checkout",
+                      },
+                      providerMethodId: "pm_provider_1",
+                      providerPaymentId: "pi_provider_1",
+                      status: "succeeded",
+                    },
+                    providerCustomerId: "cus_user_1",
+                  },
+                  type: "payment.upsert",
+                },
+              ],
+              name: "payment.succeeded",
+              payload: {
+                payment: {
+                  amount: 9900,
+                  createdAt: new Date("2026-03-07T00:00:00.000Z"),
+                  currency: "usd",
+                  description: "Lifetime License",
+                  metadata: {
+                    source: "checkout",
+                  },
+                  providerMethodId: "pm_provider_1",
+                  providerPaymentId: "pi_provider_1",
+                  status: "succeeded",
+                },
+                providerCustomerId: "cus_user_1",
+              },
+            },
+            {
               name: "checkout.completed",
               payload: {
                 checkoutSessionId: "cs_test_123",
@@ -529,6 +567,9 @@ describe("paykit init", () => {
         "checkout.completed": () => {
           receivedEvents.push("checkout.completed");
         },
+        "payment.succeeded": () => {
+          receivedEvents.push("payment.succeeded");
+        },
         "payment_method.attached": () => {
           receivedEvents.push("payment_method.attached");
         },
@@ -557,10 +598,26 @@ describe("paykit init", () => {
       customerId: "user_1",
       providerId: "stripe",
     });
-    expect(receivedEvents).toEqual(["payment_method.attached", "checkout.completed"]);
+    expect(receivedEvents).toEqual([
+      "payment_method.attached",
+      "payment.succeeded",
+      "checkout.completed",
+    ]);
     expect(methods).toHaveLength(1);
     expect(methods[0]?.providerMethodId).toBe("pm_provider_1");
     expect(methods[0]?.isDefault).toBe(true);
+
+    const payments = await pool.query(
+      "select provider_payment_id, payment_method_id, status from paykit_payment where customer_id = $1",
+      ["user_1"],
+    );
+    expect(payments.rows).toEqual([
+      {
+        payment_method_id: methods[0]?.id,
+        provider_payment_id: "pi_provider_1",
+        status: "succeeded",
+      },
+    ]);
 
     await paykit.handleWebhook({
       body: JSON.stringify({ id: "evt_payment_2" }),

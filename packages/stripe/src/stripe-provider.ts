@@ -81,13 +81,48 @@ function isPaymentMethodAttachedToCustomer(
   return getStripeCustomerId(paymentMethod.customer) === stripeCustomerId;
 }
 
-async function getCheckoutCompletedPaymentMethod(
+interface StripeCheckoutPaymentDetails {
+  paymentIntent: StripeSdk.PaymentIntent | null;
+  paymentMethod: StripeSdk.PaymentMethod | null;
+}
+
+function normalizeStripePaymentIntent(paymentIntent: StripeSdk.PaymentIntent): {
+  amount: number;
+  createdAt: Date;
+  currency: string;
+  description?: string | null;
+  metadata?: Record<string, string>;
+  providerMethodId?: string | null;
+  providerPaymentId: string;
+  status: string;
+} {
+  const providerMethodId =
+    typeof paymentIntent.payment_method === "string"
+      ? paymentIntent.payment_method
+      : paymentIntent.payment_method?.id;
+
+  return {
+    amount: paymentIntent.amount_received || paymentIntent.amount,
+    createdAt: new Date(paymentIntent.created * 1000),
+    currency: paymentIntent.currency,
+    description: paymentIntent.description,
+    metadata: Object.keys(paymentIntent.metadata).length > 0 ? paymentIntent.metadata : undefined,
+    providerMethodId,
+    providerPaymentId: paymentIntent.id,
+    status: paymentIntent.status,
+  };
+}
+
+async function getCheckoutPaymentDetails(
   client: StripeSdk,
   session: StripeSdk.Checkout.Session,
-): Promise<StripeSdk.PaymentMethod | null> {
+): Promise<StripeCheckoutPaymentDetails> {
   const stripeCustomerId = getStripeCustomerId(session.customer);
   if (!stripeCustomerId) {
-    return null;
+    return {
+      paymentIntent: null,
+      paymentMethod: null,
+    };
   }
 
   if (session.mode === "payment") {
@@ -96,7 +131,10 @@ async function getCheckoutCompletedPaymentMethod(
         ? session.payment_intent
         : session.payment_intent?.id;
     if (!paymentIntentId) {
-      return null;
+      return {
+        paymentIntent: null,
+        paymentMethod: null,
+      };
     }
 
     const paymentIntent = await client.paymentIntents.retrieve(paymentIntentId, {
@@ -104,19 +142,28 @@ async function getCheckoutCompletedPaymentMethod(
     });
     const paymentMethod = paymentIntent.payment_method;
     if (!paymentMethod || typeof paymentMethod === "string") {
-      return null;
+      return {
+        paymentIntent,
+        paymentMethod: null,
+      };
     }
 
-    return isPaymentMethodAttachedToCustomer(paymentMethod, stripeCustomerId)
-      ? paymentMethod
-      : null;
+    return {
+      paymentIntent,
+      paymentMethod: isPaymentMethodAttachedToCustomer(paymentMethod, stripeCustomerId)
+        ? paymentMethod
+        : null,
+    };
   }
 
   if (session.mode === "setup") {
     const setupIntentId =
       typeof session.setup_intent === "string" ? session.setup_intent : session.setup_intent?.id;
     if (!setupIntentId) {
-      return null;
+      return {
+        paymentIntent: null,
+        paymentMethod: null,
+      };
     }
 
     const setupIntent = await client.setupIntents.retrieve(setupIntentId, {
@@ -124,15 +171,24 @@ async function getCheckoutCompletedPaymentMethod(
     });
     const paymentMethod = setupIntent.payment_method;
     if (!paymentMethod || typeof paymentMethod === "string") {
-      return null;
+      return {
+        paymentIntent: null,
+        paymentMethod: null,
+      };
     }
 
-    return isPaymentMethodAttachedToCustomer(paymentMethod, stripeCustomerId)
-      ? paymentMethod
-      : null;
+    return {
+      paymentIntent: null,
+      paymentMethod: isPaymentMethodAttachedToCustomer(paymentMethod, stripeCustomerId)
+        ? paymentMethod
+        : null,
+    };
   }
 
-  return null;
+  return {
+    paymentIntent: null,
+    paymentMethod: null,
+  };
 }
 
 async function createCheckoutCompletedEvents(
@@ -151,7 +207,7 @@ async function createCheckoutCompletedEvents(
   }
 
   const events: NormalizedWebhookEvent[] = [];
-  const paymentMethod = await getCheckoutCompletedPaymentMethod(client, session);
+  const { paymentIntent, paymentMethod } = await getCheckoutPaymentDetails(client, session);
   if (paymentMethod) {
     const normalizedPaymentMethod = normalizeStripePaymentMethod(paymentMethod);
     events.push({
@@ -173,6 +229,26 @@ async function createCheckoutCompletedEvents(
   }
 
   if (session.mode === "payment") {
+    if (paymentIntent?.status === "succeeded") {
+      const normalizedPayment = normalizeStripePaymentIntent(paymentIntent);
+      events.push({
+        actions: [
+          {
+            data: {
+              payment: normalizedPayment,
+              providerCustomerId,
+            },
+            type: "payment.upsert",
+          },
+        ],
+        name: "payment.succeeded",
+        payload: {
+          payment: normalizedPayment,
+          providerCustomerId,
+        },
+      });
+    }
+
     events.push({
       name: "checkout.completed",
       payload: {

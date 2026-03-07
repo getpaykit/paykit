@@ -129,7 +129,7 @@ describe("stripe provider", () => {
     });
   });
 
-  it("should normalize payment checkout completion into attached and checkout events", async () => {
+  it("should normalize payment checkout completion into attached, payment, and checkout events", async () => {
     const webhookEvent = {
       data: {
         object: {
@@ -148,6 +148,15 @@ describe("stripe provider", () => {
     } as StripeSdk.Event;
     const constructEvent = vi.fn(() => webhookEvent);
     const retrievePaymentIntent = vi.fn(async () => ({
+      amount: 1999,
+      amount_received: 1999,
+      created: 1741305600,
+      currency: "usd",
+      description: "E2E checkout",
+      id: "pi_test_123",
+      metadata: {
+        source: "test",
+      },
       payment_method: {
         card: {
           exp_month: 10,
@@ -158,6 +167,7 @@ describe("stripe provider", () => {
         id: "pm_stripe_123",
         type: "card",
       },
+      status: "succeeded",
     }));
 
     const provider = createStripeProvider(
@@ -212,6 +222,44 @@ describe("stripe provider", () => {
             last4: "4242",
             providerMethodId: "pm_stripe_123",
             type: "card",
+          },
+          providerCustomerId: "cus_paykit_123",
+        },
+      },
+      {
+        actions: [
+          {
+            data: {
+              payment: {
+                amount: 1999,
+                createdAt: new Date("2025-03-07T00:00:00.000Z"),
+                currency: "usd",
+                description: "E2E checkout",
+                metadata: {
+                  source: "test",
+                },
+                providerMethodId: "pm_stripe_123",
+                providerPaymentId: "pi_test_123",
+                status: "succeeded",
+              },
+              providerCustomerId: "cus_paykit_123",
+            },
+            type: "payment.upsert",
+          },
+        ],
+        name: "payment.succeeded",
+        payload: {
+          payment: {
+            amount: 1999,
+            createdAt: new Date("2025-03-07T00:00:00.000Z"),
+            currency: "usd",
+            description: "E2E checkout",
+            metadata: {
+              source: "test",
+            },
+            providerMethodId: "pm_stripe_123",
+            providerPaymentId: "pi_test_123",
+            status: "succeeded",
           },
           providerCustomerId: "cus_paykit_123",
         },

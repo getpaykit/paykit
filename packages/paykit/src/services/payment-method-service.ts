@@ -175,7 +175,7 @@ export async function detachPaymentMethod(
     .where(eq(paymentMethod.id, existingPaymentMethod.id));
 }
 
-function toPublicPaymentMethod(method: InternalPaymentMethod): PaymentMethod {
+export function toPublicPaymentMethod(method: InternalPaymentMethod): PaymentMethod {
   const { customerId: _customerId, ...publicMethod } = method;
   return publicMethod;
 }
