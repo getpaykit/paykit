@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Github, MoveRight } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -64,7 +64,7 @@ function FeaturePill({
   return (
     <div
       className={cn(
-        "flex items-center border shrink-0 px-1.5 py-0.5 transition-all duration-300",
+        "flex shrink-0 items-center border px-1.5 py-0.5 transition-colors duration-200",
         dashed && "border-dashed",
         dot && "gap-1",
         c.box,
@@ -80,6 +80,7 @@ function FeaturePill({
 }
 
 const footerLinks = [{ label: "Author", href: URLs.authorX }];
+const enterEase = [0.23, 1, 0.32, 1] as const;
 
 function ReadmeFooter() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
@@ -117,7 +118,7 @@ function ReadmeFooter() {
             href={URLs.githubRepo}
             target="_blank"
             rel="noopener noreferrer"
-            className="border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 inline-flex items-center gap-1.5 border px-4 py-2 font-mono text-xs tracking-wider uppercase transition-all"
+            className="border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 inline-flex items-center gap-1.5 border px-4 py-2 font-mono text-xs tracking-wider uppercase transition-[color,border-color]"
           >
             <Github className="size-3.5" />
             View on GitHub
@@ -186,20 +187,22 @@ function ReadmeFooter() {
 
 export function HeroReadMe() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
+  const shouldReduceMotion = useReducedMotion();
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.12, ease: enterEase }}
+      style={{ willChange: "transform, opacity" }}
       className="flex w-full flex-col"
     >
       {/* Markdown content */}
       <div className="no-scrollbar flex-1 overflow-y-auto">
         <div className="p-5 pt-4 pb-0 lg:p-5 lg:pt-6">
           <motion.article
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
+            animate={shouldReduceMotion ? undefined : { opacity: 1 }}
+            transition={{ duration: 0.32, delay: 0.24, ease: enterEase }}
             className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0"
           >
             <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
@@ -294,12 +297,16 @@ export function HeroReadMe() {
                   className="contents"
                 >
                   <motion.div
-                    whileHover={{
-                      y: -2,
-                      transition: { duration: 0.2, ease: "easeOut" },
-                    }}
+                    whileHover={
+                      shouldReduceMotion
+                        ? undefined
+                        : {
+                            y: -2,
+                            transition: { duration: 0.18, ease: enterEase },
+                          }
+                    }
                     className={cn(
-                      "group/card relative p-4 lg:p-5 border-foreground/[0.1] min-h-[180px] transition-all duration-200 hover:bg-foreground/[0.02] hover:shadow-[inset_0_1px_0_0_rgba(128,128,128,0.1)] hover:z-10",
+                      "group/card relative min-h-[180px] border-foreground/[0.1] p-4 transition-[background-color,box-shadow] duration-200 hover:z-10 hover:bg-foreground/[0.02] hover:shadow-[inset_0_1px_0_0_rgba(128,128,128,0.1)] lg:p-5",
                       // Bottom border: remove for last row at each breakpoint
                       i < 5 && "border-b",
                       i >= 4 && "sm:border-b-0",
@@ -311,7 +318,7 @@ export function HeroReadMe() {
                     )}
                   >
                     {/* Arrow icon — top right, visible on hover */}
-                    <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-all duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
+                    <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-[transform,opacity] duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -348,7 +355,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 24 24"
-                          className="text-[#635BFF] opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0s] group-hover/card:opacity-100"
+                          className="text-[#635BFF] opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0s] group-hover/card:opacity-100"
                         >
                           <path
                             fill="currentColor"
@@ -361,7 +368,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 154.728 190.5"
-                          className="opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.05s] group-hover/card:opacity-100"
+                          className="opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.05s] group-hover/card:opacity-100"
                         >
                           <g transform="translate(898.192 276.071)">
                             <path
@@ -385,7 +392,7 @@ export function HeroReadMe() {
                           height="15"
                           viewBox="-0.5 -0.5 16 16"
                           fill="none"
-                          className="text-neutral-800 opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.1s] group-hover/card:opacity-100 dark:text-neutral-200"
+                          className="text-neutral-800 opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.1s] group-hover/card:opacity-100 dark:text-neutral-200"
                         >
                           <path
                             d="M7.5 14.337c-3.776 0-6.837-3.061-6.837-6.837C.663 3.724 3.724.663 7.5.663c3.776 0 6.837 3.061 6.837 6.837 0 3.776-3.061 6.837-6.837 6.837Z"
@@ -422,7 +429,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 24 24"
-                          className="text-[#FFC333] opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.15s] group-hover/card:opacity-100"
+                          className="text-[#FFC333] opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.15s] group-hover/card:opacity-100"
                         >
                           <path
                             fill="currentColor"
@@ -435,7 +442,7 @@ export function HeroReadMe() {
                           width="15"
                           height="15"
                           viewBox="0 0 160 201"
-                          className="text-neutral-800 opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.2s] group-hover/card:opacity-100 dark:text-neutral-200"
+                          className="text-neutral-800 opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.2s] group-hover/card:opacity-100 dark:text-neutral-200"
                         >
                           <path
                             fill="currentColor"
@@ -448,7 +455,7 @@ export function HeroReadMe() {
                         <CreemIcon
                           width={15}
                           height={15}
-                          className="opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.25s] group-hover/card:opacity-100"
+                          className="opacity-60 transition-[transform,opacity] duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.25s] group-hover/card:opacity-100"
                         />
                         {/* +more */}
                         <FeaturePill

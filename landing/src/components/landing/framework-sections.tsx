@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { motion, useInView, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -597,6 +597,7 @@ export function CodeExamplesSection() {
 
 export function SocialProvidersSection() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const shouldReduceMotion = useReducedMotion();
   const [scrollIndex, setScrollIndex] = useState(0);
   const visibleRows = 2;
   const perRow = 5;
@@ -605,11 +606,14 @@ export function SocialProvidersSection() {
   const maxScroll = totalRows - visibleRows;
 
   useEffect(() => {
+    if (shouldReduceMotion || maxScroll <= 0) {
+      return;
+    }
     const interval = setInterval(() => {
       setScrollIndex((prev) => (prev >= maxScroll ? 0 : prev + 1));
     }, 2500);
     return () => clearInterval(interval);
-  }, [maxScroll]);
+  }, [maxScroll, shouldReduceMotion]);
 
   const allRows = Array.from({ length: totalRows }, (_, rowIdx) =>
     socialProviders.slice(rowIdx * perRow, rowIdx * perRow + perRow),
@@ -629,8 +633,8 @@ export function SocialProvidersSection() {
         style={{ height: `${visibleRows * rowHeight}px` }}
       >
         <motion.div
-          animate={{ y: -(scrollIndex * rowHeight) }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
+          animate={shouldReduceMotion ? undefined : { y: -(scrollIndex * rowHeight) }}
+          transition={{ duration: 0.6, ease: [0.645, 0.045, 0.355, 1] }}
         >
           {allRows.map((row, rowIdx) => (
             <div key={rowIdx} className="flex" style={{ height: `${rowHeight}px` }}>
@@ -690,7 +694,7 @@ export function PluginEcosystem() {
 
       <div className="relative overflow-hidden">
         {/* Row 1 — scrolls left */}
-        <div className="mb-1.5 flex animate-[marquee_40s_linear_infinite]">
+        <div className="mb-1.5 flex motion-safe:animate-[marquee_40s_linear_infinite]">
           {[...row1, ...row1].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
@@ -705,7 +709,7 @@ export function PluginEcosystem() {
         </div>
 
         {/* Row 2 — scrolls right */}
-        <div className="flex animate-[marquee-reverse_45s_linear_infinite]">
+        <div className="flex motion-safe:animate-[marquee-reverse_45s_linear_infinite]">
           {[...row2, ...row2].map((plugin, i) => (
             <span
               key={`${plugin.name}-${i}`}
@@ -736,6 +740,7 @@ const mcpClients = [
 export function AiNativeSection() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.4 });
+  const shouldReduceMotion = useReducedMotion();
   const [promptText, setPromptText] = useState("");
   const [showSteps, setShowSteps] = useState(false);
   const [visibleSteps, setVisibleSteps] = useState(0);
@@ -753,6 +758,12 @@ export function AiNativeSection() {
   useEffect(() => {
     if (!inView || hasPlayed.current) return;
     hasPlayed.current = true;
+    if (shouldReduceMotion) {
+      setPromptText(fullPrompt);
+      setShowSteps(true);
+      setVisibleSteps(steps.length);
+      return;
+    }
     let i = 0;
     const typing = setInterval(() => {
       i++;
@@ -763,13 +774,13 @@ export function AiNativeSection() {
       }
     }, 30);
     return () => clearInterval(typing);
-  }, [inView]);
+  }, [inView, shouldReduceMotion, steps.length]);
 
   useEffect(() => {
-    if (!showSteps || visibleSteps >= steps.length) return;
+    if (shouldReduceMotion || !showSteps || visibleSteps >= steps.length) return;
     const timeout = setTimeout(() => setVisibleSteps((v) => v + 1), visibleSteps === 0 ? 200 : 400);
     return () => clearTimeout(timeout);
-  }, [showSteps, visibleSteps, steps.length]);
+  }, [showSteps, shouldReduceMotion, visibleSteps, steps.length]);
 
   return (
     <div ref={ref} className="mt-8">
@@ -857,7 +868,7 @@ export function AiNativeSection() {
             {promptText}
           </span>
           {!showSteps && inView && (
-            <span className="bg-foreground/50 inline-block h-[12px] w-[1.5px] animate-pulse" />
+            <span className="bg-foreground/50 inline-block h-[12px] w-[1.5px] motion-safe:animate-pulse" />
           )}
         </div>
 
@@ -867,9 +878,9 @@ export function AiNativeSection() {
             {steps.slice(0, visibleSteps).map((step) => (
               <motion.div
                 key={step.text}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
+                initial={shouldReduceMotion ? false : { opacity: 0, x: -4 }}
+                animate={shouldReduceMotion ? undefined : { opacity: 1, x: 0 }}
+                transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                 className="flex items-center gap-2.5 px-3 py-1.5"
               >
                 <span className="text-foreground/45 dark:text-foreground/35 w-8 shrink-0 font-mono text-[10px] tracking-wider uppercase">

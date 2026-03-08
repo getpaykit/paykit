@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { Github, Sparkle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -10,23 +10,30 @@ import { URLs } from "@/lib/consts";
 import { useEarlyDevDialog } from "./early-dev-dialog";
 
 const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
+const enterEase = [0.23, 1, 0.32, 1] as const;
+const moveEase = [0.645, 0.045, 0.355, 1] as const;
 
 export function HeroTitle() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
+  const shouldReduceMotion = useReducedMotion();
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
+    if (shouldReduceMotion) {
+      return;
+    }
     const interval = setInterval(() => {
       setWordIndex((i) => (i + 1) % rotatingWords.length);
-    }, 2500);
+    }, 2800);
     return () => clearInterval(interval);
-  }, []);
+  }, [shouldReduceMotion]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+      transition={{ duration: 0.42, ease: enterEase }}
+      style={{ willChange: "transform, opacity" }}
       className="relative flex w-full flex-col items-center px-5 pt-14 pb-0 text-center sm:px-6 sm:pt-18 md:pt-24 lg:px-7 lg:pt-32"
     >
       <div className="space-y-2 sm:space-y-1">
@@ -42,18 +49,25 @@ export function HeroTitle() {
         <h1 className="max-w-4xl text-xl leading-tight tracking-tight text-neutral-800 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl dark:text-neutral-200">
           Open-source payment orchestration for{" "}
           <span className="relative inline-flex overflow-hidden align-bottom">
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={rotatingWords[wordIndex]}
-                initial={{ y: "100%", opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: "-100%", opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
-                className="border-foreground/20 inline-block border-b border-dashed"
-              >
+            {shouldReduceMotion ? (
+              <span className="border-foreground/20 inline-block border-b border-dashed">
                 {rotatingWords[wordIndex]}
-              </motion.span>
-            </AnimatePresence>
+              </span>
+            ) : (
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={rotatingWords[wordIndex]}
+                  initial={{ y: "70%", opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: "-70%", opacity: 0 }}
+                  transition={{ duration: 0.26, ease: moveEase }}
+                  style={{ willChange: "transform, opacity" }}
+                  className="border-foreground/20 inline-block border-b border-dashed"
+                >
+                  {rotatingWords[wordIndex]}
+                </motion.span>
+              </AnimatePresence>
+            )}
           </span>
         </h1>
 

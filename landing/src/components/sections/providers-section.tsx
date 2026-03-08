@@ -38,9 +38,9 @@ export function ProvidersSection() {
           "linear-gradient(to right, transparent, black 15%, black 85%, transparent)",
       }}
     >
-      <div className="animate-logo-marquee flex w-fit">
+      <div className="motion-safe:animate-logo-marquee flex w-fit">
         {[0, 1, 2].map((setIdx) => (
-          <div key={setIdx} className="flex shrink-0 gap-10 pr-10">
+          <div key={setIdx} className="flex shrink-0 gap-10 pr-10" aria-hidden={setIdx > 0}>
             {providers.map((provider, i) => (
               <ProviderItem key={`${setIdx}-${i}-${provider.name}`} icon={provider.icon} />
             ))}
