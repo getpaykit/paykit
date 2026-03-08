@@ -48,7 +48,7 @@
     transform: translate3d(0, 0, 0);
   }
   100% {
-    transform: translate3d(-14px, 0, 0);
+    transform: translate3d(-10px, 0, 0);
   }
 }
 
@@ -63,13 +63,13 @@
   will-change: transform;
 }
 
-@keyframes paykit-code-type-line {
+@keyframes paykit-code-type-line-fast {
   0% {
-    max-width: 0ch;
-    opacity: 0.72;
+    clip-path: inset(0 100% 0 0);
+    opacity: 0.74;
   }
   100% {
-    max-width: calc(var(--paykit-line-chars, 80) * 1ch);
+    clip-path: inset(0 0% 0 0);
     opacity: 1;
   }
 }

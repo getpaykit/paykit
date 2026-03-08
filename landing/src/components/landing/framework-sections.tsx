@@ -500,26 +500,19 @@ function useCodeTypewriterAnimation({
   useLayoutEffect(() => {
     const resetLineStyles = (line: HTMLElement) => {
       line.style.animation = "";
-      line.style.maxWidth = "";
-      line.style.overflow = "";
-      line.style.display = "";
-      line.style.whiteSpace = "";
+      line.style.clipPath = "";
       line.style.willChange = "";
       line.style.opacity = "";
-      line.style.removeProperty("--paykit-line-chars");
-      line.style.removeProperty("--paykit-line-steps");
-      line.style.removeProperty("--paykit-line-delay");
     };
 
-    for (const panel of Object.values(panelRefs.current)) {
-      if (!panel) continue;
-      const lines = panel.querySelectorAll<HTMLElement>("pre .line");
-      for (const line of lines) {
-        resetLineStyles(line);
-      }
-    }
-
     if (shouldReduceMotion) {
+      for (const panel of Object.values(panelRefs.current)) {
+        if (!panel) continue;
+        const lines = panel.querySelectorAll<HTMLElement>("pre .line");
+        for (const line of lines) {
+          resetLineStyles(line);
+        }
+      }
       return;
     }
 
@@ -539,25 +532,12 @@ function useCodeTypewriterAnimation({
       }
 
       for (const line of lines) {
-        const text = line.textContent?.replace(/\t/g, "  ") ?? "";
-        const rawChars = text.length;
-        const visibleChars = text.trim().length;
-        const charCount = Math.max(8, Math.min(160, rawChars + 8));
-        const stepCount = Math.max(6, Math.min(90, visibleChars > 0 ? visibleChars : 8));
-
         line.style.animation = "none";
-        line.style.maxWidth = "0ch";
-        line.style.overflow = "hidden";
-        line.style.display = "block";
-        line.style.whiteSpace = "pre";
-        line.style.willChange = "max-width, opacity";
-        line.style.opacity = "0.86";
-        line.style.setProperty("--paykit-line-chars", String(charCount));
-        line.style.setProperty("--paykit-line-steps", String(stepCount));
-        line.style.setProperty("--paykit-line-delay", "0ms");
+        line.style.clipPath = "inset(0 100% 0 0)";
+        line.style.willChange = "clip-path, opacity";
+        line.style.opacity = "0.84";
         void line.offsetWidth;
-        line.style.animation =
-          "paykit-code-type-line 440ms steps(var(--paykit-line-steps), end) var(--paykit-line-delay) both";
+        line.style.animation = "paykit-code-type-line-fast 280ms steps(24, end) both";
       }
     };
 
@@ -697,7 +677,7 @@ export function ServerClientTabs() {
                         }
                 }
                 transition={{
-                  duration: shouldReduceMotion ? 0 : isActive ? 0.28 : 0,
+                  duration: shouldReduceMotion ? 0 : isActive ? 0.22 : 0,
                   ease: [0.23, 1, 0.32, 1],
                 }}
                 className={
@@ -851,7 +831,7 @@ export function CodeExamplesSection() {
                         }
                 }
                 transition={{
-                  duration: shouldReduceMotion ? 0 : isActive ? 0.28 : 0,
+                  duration: shouldReduceMotion ? 0 : isActive ? 0.22 : 0,
                   ease: [0.23, 1, 0.32, 1],
                 }}
                 className={
