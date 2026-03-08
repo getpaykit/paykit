@@ -9,6 +9,29 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@supports (view-transition-name: root) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  ::view-transition-old(root) {
+    z-index: 1;
+  }
+
+  ::view-transition-new(root) {
+    z-index: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none !important;
+  }
+}
+
 .hero-dots {
   mask-image: radial-gradient(ellipse 70% 8% at 50% 160px, black 0%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 70% 8% at 50% 160px, black 0%, transparent 100%);
@@ -43,12 +66,12 @@
   }
 }
 
-@keyframes github-stripes-drift {
+@keyframes github-stripes-flow {
   0% {
-    transform: translate3d(0, 0, 0);
+    background-position: 0 0;
   }
   100% {
-    transform: translate3d(-10px, 0, 0);
+    background-position: -5px 0;
   }
 }
 
@@ -60,7 +83,18 @@
     currentColor 4px,
     currentColor 5px
   );
-  will-change: transform;
+  background-repeat: repeat;
+  will-change: background-position;
+  transform: translateZ(0);
+  animation: github-stripes-flow 240ms linear infinite;
+  animation-play-state: paused;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .github-cta-button:hover .github-cta-stripes,
+  .github-cta-button:focus-visible .github-cta-stripes {
+    animation-play-state: running;
+  }
 }
 
 @keyframes paykit-code-type-line-fast {

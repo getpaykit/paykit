@@ -87,15 +87,15 @@ export function HeroTitle() {
             href={URLs.githubRepo}
             target="_blank"
             rel="noopener noreferrer"
-            className="group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-[color,transform] duration-200 motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0 sm:px-5 sm:text-sm"
+            className="github-cta-button group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-[color,transform] duration-200 motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0 sm:px-5 sm:text-sm"
           >
             {/* Diagonal lines background */}
             <span
               className="pointer-events-none absolute inset-0 overflow-hidden"
               aria-hidden="true"
             >
-              <span className="absolute -inset-x-4 inset-y-0 opacity-0 transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-[0.22] motion-safe:translate-x-1 motion-safe:group-hover:translate-x-0">
-                <span className="github-cta-stripes absolute inset-0 will-change-transform motion-safe:group-hover:animate-[github-stripes-drift_680ms_linear_infinite]" />
+              <span className="absolute -inset-x-4 inset-y-0 opacity-0 transition-opacity duration-180 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-[0.22]">
+                <span className="github-cta-stripes absolute inset-0" />
               </span>
             </span>
             {/* Top border */}

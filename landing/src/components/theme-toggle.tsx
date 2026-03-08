@@ -2,6 +2,7 @@
 import { useTheme } from "next-themes";
 
 import { Button } from "@/components/ui/button";
+import { setThemeWithRevealTransition } from "@/lib/theme-reveal-transition";
 
 export function ThemeToggle() {
   const { setTheme, resolvedTheme } = useTheme();
@@ -10,7 +11,13 @@ export function ThemeToggle() {
     <Button
       variant="link"
       size="icon"
-      onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
+      onClick={(event) =>
+        setThemeWithRevealTransition({
+          nextTheme: resolvedTheme === "light" ? "dark" : "light",
+          setTheme,
+          source: event.currentTarget,
+        })
+      }
       suppressHydrationWarning
     >
       {/* Sun icon - visible in light mode */}

@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
+import { setThemeWithRevealTransition } from "@/lib/theme-reveal-transition";
 
 export function ThemeSwitcher() {
   const { resolvedTheme, setTheme } = useTheme();
@@ -21,7 +22,13 @@ export function ThemeSwitcher() {
       variant="ghost"
       size="icon"
       className="text-fd-muted-foreground hover:text-fd-accent-foreground"
-      onClick={() => setTheme(activeTheme === "dark" ? "light" : "dark")}
+      onClick={(event) =>
+        setThemeWithRevealTransition({
+          nextTheme: activeTheme === "dark" ? "light" : "dark",
+          setTheme,
+          source: event.currentTarget,
+        })
+      }
       aria-label={activeTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
       suppressHydrationWarning
     >

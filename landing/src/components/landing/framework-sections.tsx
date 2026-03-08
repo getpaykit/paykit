@@ -503,16 +503,19 @@ function useCodeTypewriterAnimation({
       line.style.clipPath = "";
       line.style.willChange = "";
       line.style.opacity = "";
+      line.style.removeProperty("--paykit-line-delay");
+      line.style.removeProperty("--paykit-line-steps");
     };
 
-    if (shouldReduceMotion) {
-      for (const panel of Object.values(panelRefs.current)) {
-        if (!panel) continue;
-        const lines = panel.querySelectorAll<HTMLElement>("pre .line");
-        for (const line of lines) {
-          resetLineStyles(line);
-        }
+    for (const panel of Object.values(panelRefs.current)) {
+      if (!panel) continue;
+      const lines = panel.querySelectorAll<HTMLElement>("pre .line");
+      for (const line of lines) {
+        resetLineStyles(line);
       }
+    }
+
+    if (shouldReduceMotion) {
       return;
     }
 
@@ -531,14 +534,24 @@ function useCodeTypewriterAnimation({
         return;
       }
 
-      for (const line of lines) {
+      for (const [index, line] of lines.entries()) {
+        const visibleChars = line.textContent?.trim().length ?? 0;
+        const stepCount = Math.max(6, Math.min(30, visibleChars > 0 ? visibleChars : 8));
+
         line.style.animation = "none";
         line.style.clipPath = "inset(0 100% 0 0)";
         line.style.willChange = "clip-path, opacity";
         line.style.opacity = "0.84";
-        void line.offsetWidth;
-        line.style.animation = "paykit-code-type-line-fast 280ms steps(24, end) both";
+        line.style.setProperty("--paykit-line-delay", `${index * 14}ms`);
+        line.style.setProperty("--paykit-line-steps", String(stepCount));
       }
+
+      rafId = requestAnimationFrame(() => {
+        for (const line of lines) {
+          line.style.animation =
+            "paykit-code-type-line-fast 230ms steps(var(--paykit-line-steps), end) var(--paykit-line-delay) both";
+        }
+      });
     };
 
     rafId = requestAnimationFrame(() => applyTypewriterAnimation());
