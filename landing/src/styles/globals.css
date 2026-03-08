@@ -350,7 +350,6 @@ button[aria-label="Collapse Sidebar"] svg {
 
 #nd-sidebar .docs-sidebar-github-button,
 #nd-sidebar-mobile .docs-sidebar-github-button {
-  margin-right: auto;
   border: 0;
   border-radius: var(--radius);
 }
@@ -416,9 +415,11 @@ button[aria-label="Collapse Sidebar"] svg {
 }
 
 /* Docs sidebar categories: replace default folder chevron with Hugeicons */
-#nd-sidebar button[aria-expanded] > svg:not(.docs-category-chevron):not(.docs-category-icon),
+#nd-sidebar
+  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
+  > svg:not(.docs-category-chevron):not(.docs-category-icon),
 #nd-sidebar-mobile
-  button[aria-expanded]
+  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
   > svg:not(.docs-category-chevron):not(.docs-category-icon) {
   display: none !important;
 }
