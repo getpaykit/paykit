@@ -11,7 +11,7 @@ const repoRoot = join(currentDir, "..");
 
 /** @type {import("next").NextConfig} */
 const config = {
-  devIndicators: {
+  devIndicators: false && {
     position: "bottom-right",
   },
   outputFileTracingRoot: repoRoot,

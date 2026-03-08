@@ -7,6 +7,7 @@ import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 
+import { TocProgressFooter } from "@/components/docs/toc-progress-footer";
 import { source } from "@/lib/source";
 
 interface DocsPageProps {
@@ -35,6 +36,7 @@ export default async function Page({ params }: DocsPageProps) {
       toc={page.data.toc}
       full={page.data.full}
       tableOfContent={{
+        footer: <TocProgressFooter />,
         style: "clerk",
       }}
       tableOfContentPopover={{

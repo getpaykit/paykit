@@ -9,6 +9,7 @@ export const URLs = {
   site: "https://paykit.sh",
   githubOrg: "https://github.com/getpaykit",
   githubRepo: "https://github.com/getpaykit/paykit",
+  roadmap: "https://github.com/orgs/getpaykit/projects/1",
   x: "https://x.com/getpaykit",
   linkedin: "https://www.linkedin.com/company/getpaykit",
   discord: "https://discord.gg/paykit",
