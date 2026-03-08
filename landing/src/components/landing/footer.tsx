@@ -3,14 +3,7 @@ import Link from "next/link";
 
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
-
-const footerLinks = [
-  { label: "Terms", href: "/terms" },
-  { label: "Privacy", href: "/privacy" },
-  { label: "Blog", href: "/blog" },
-  { label: "Community", href: "/community" },
-  { label: "Changelog", href: "/changelog" },
-];
+import { URLs } from "@/lib/consts";
 
 export default function Footer() {
   return (
@@ -48,36 +41,20 @@ export default function Footer() {
       />
 
       <div className="relative space-y-5 px-5 py-6 sm:px-6 lg:px-10 lg:py-8">
-        <div className="flex flex-wrap items-center justify-center gap-x-1 gap-y-1.5">
-          {footerLinks.map((link, i) => (
-            <span key={link.label} className="flex items-center">
-              <Link
-                href={link.href}
-                className="group text-foreground/35 hover:text-foreground/70 inline-flex items-center gap-1 font-mono text-xs transition-colors"
-              >
-                {link.label}
-              </Link>
-              {i < footerLinks.length - 1 && (
-                <span className="text-foreground/10 mx-1 text-xs select-none">/</span>
-              )}
-            </span>
-          ))}
-        </div>
-
         <div className="flex items-center justify-between">
           <span className="text-foreground/20 font-mono text-xs">
             © {new Date().getFullYear()} PayKit
           </span>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link
-              href="https://x.com/getpaykit"
+              href={URLs.x}
               aria-label="Twitter/X"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >
               <Icons.XIcon className="h-3 w-3" />
             </Link>
             <Link
-              href="https://github.com/getpaykit"
+              href={URLs.githubOrg}
               aria-label="GitHub"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >

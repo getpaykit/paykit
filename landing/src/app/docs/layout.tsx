@@ -8,7 +8,7 @@ import type { ReactElement, ReactNode } from "react";
 import { SidebarCategoryAccordion } from "@/components/docs/sidebar-category-accordion";
 import { CreemIcon } from "@/components/icons/creem";
 import { LogoLockup } from "@/components/icons/logo";
-import { GITHUB_URL } from "@/lib/consts";
+import { URLs } from "@/lib/consts";
 import { source } from "@/lib/source";
 
 const categoryIcons = {
@@ -261,7 +261,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         sidebar={{
           footer: (
             <a
-              href={GITHUB_URL}
+              href={URLs.githubRepo}
               target="_blank"
               rel="noreferrer"
               aria-label="GitHub repository"

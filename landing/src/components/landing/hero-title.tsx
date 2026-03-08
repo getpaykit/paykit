@@ -5,6 +5,8 @@ import { Github, Sparkle } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { URLs } from "@/lib/consts";
+
 import { useEarlyDevDialog } from "./early-dev-dialog";
 
 const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
@@ -68,7 +70,7 @@ export function HeroTitle() {
             Read Docs
           </Link>
           <a
-            href="https://github.com/getpaykit/paykit"
+            href={URLs.githubRepo}
             target="_blank"
             rel="noopener noreferrer"
             className="group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-colors sm:px-5 sm:text-sm"

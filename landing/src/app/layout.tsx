@@ -2,12 +2,12 @@ import { Analytics } from "@vercel/analytics/next";
 import { GeistPixelSquare } from "geist/font/pixel";
 
 import "@/styles/globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 
 import { Providers } from "@/components/providers";
-import { OG_URL } from "@/lib/consts";
+import { OG_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, URLs } from "@/lib/consts";
 
 const fontSans = Geist({
   subsets: ["latin"],
@@ -19,47 +19,49 @@ const fontMono = Geist_Mono({
   variable: "--font-mono",
 });
 
-const title = "PayKit — Open-source payment orchestration for TypeScript";
-const description =
-  "Open-source TypeScript payment toolkit that unifies multiple payment providers behind a single, extensible API.";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(OG_URL),
-  title: { template: "%s | PayKit", default: title },
-  description,
+  metadataBase: new URL(URLs.site),
+  applicationName: SITE_NAME,
+  title: { template: `%s | ${SITE_NAME}`, default: SITE_TITLE },
+  description: SITE_DESCRIPTION,
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: [
+      { url: "/favicon/favicon.ico", sizes: "any" },
+      { url: "/favicon/favicon-32x32.png", type: "image/png", sizes: "32x32" },
+      { url: "/favicon/favicon-16x16.png", type: "image/png", sizes: "16x16" },
+    ],
+    apple: "/favicon/apple-touch-icon.png",
+  },
+  manifest: "/favicon/site.webmanifest",
   openGraph: {
     type: "website",
-    url: OG_URL,
-    siteName: "PayKit",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: title }],
+    url: URLs.site,
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [{ url: OG_IMAGE_PATH, width: 1200, height: 630, alt: SITE_TITLE }],
   },
   twitter: {
     card: "summary_large_image",
-    images: ["/og.png"],
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    images: [OG_IMAGE_PATH],
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fafaf9" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="icon" href="/favicon/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
-        <link rel="apple-touch-icon" sizes="180x180" href="/favicon/light/apple-touch-icon.png" />
-        <link rel="manifest" href="/favicon/light/site.webmanifest" />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-                    try {
-                      if (localStorage.theme === 'dark' || ((!('theme' in localStorage) || localStorage.theme === 'system') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-                        document.querySelector('meta[name="theme-color"]').setAttribute('content')
-                      }
-                    } catch (_) {}
-                  `,
-          }}
-        />
-      </head>
       <body
         className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} overflow-x-hidden font-sans antialiased`}
         suppressHydrationWarning

@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 import { Icons } from "@/components/icons";
 import { CreemIcon } from "@/components/icons/creem";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { URLs } from "@/lib/consts";
 import { cn } from "@/lib/utils";
 
 import { ProvidersSection } from "../sections/providers-section";
@@ -78,7 +79,7 @@ function FeaturePill({
   );
 }
 
-const footerLinks = [{ label: "Author", href: "https://x.com/maxk4tz" }];
+const footerLinks = [{ label: "Author", href: URLs.authorX }];
 
 function ReadmeFooter() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
@@ -113,7 +114,7 @@ function ReadmeFooter() {
             Read Docs
           </Link>
           <a
-            href="https://github.com/getpaykit/paykit"
+            href={URLs.githubRepo}
             target="_blank"
             rel="noopener noreferrer"
             className="border-foreground/12 text-foreground/50 dark:text-foreground/40 hover:text-foreground/70 hover:border-foreground/25 inline-flex items-center gap-1.5 border px-4 py-2 font-mono text-xs tracking-wider uppercase transition-all"
@@ -152,7 +153,7 @@ function ReadmeFooter() {
             <div className="flex items-center gap-3 sm:gap-4">
               <span className="text-foreground/10 hidden select-none sm:inline">·</span>
               <Link
-                href="https://x.com/getpaykit"
+                href={URLs.x}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Twitter/X"
@@ -161,7 +162,7 @@ function ReadmeFooter() {
                 <Icons.XIcon className="h-3.5 w-3.5" />
               </Link>
               <Link
-                href="https://github.com/getpaykit/paykit"
+                href={URLs.githubRepo}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
@@ -201,9 +202,9 @@ export function HeroReadMe() {
             transition={{ duration: 0.4, delay: 0.3 }}
             className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0"
           >
-            <h1 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
+            <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
               README
-            </h1>
+            </h2>
 
             <p className="mb-5 text-sm leading-relaxed text-neutral-700 sm:mb-6 sm:text-[15px] sm:leading-relaxed dark:text-neutral-300">
               PayKit is a payments orchestration framework for TypeScript. It sits between your app

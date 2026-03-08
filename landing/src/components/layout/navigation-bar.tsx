@@ -7,6 +7,7 @@ import { useCallback, useState } from "react";
 
 import { LogoLockup } from "@/components/icons/logo";
 import { useEarlyDevDialog } from "@/components/landing/early-dev-dialog";
+import { URLs } from "@/lib/consts";
 
 interface NavFileItem {
   name: string;
@@ -20,7 +21,7 @@ const navFiles: NavFileItem[] = [
   { name: "docs", href: "#" },
   {
     name: "github",
-    href: "https://github.com/getpaykit/paykit",
+    href: URLs.githubRepo,
     external: true,
   },
 ];
