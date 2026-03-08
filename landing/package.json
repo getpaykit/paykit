@@ -12,6 +12,7 @@
     "dev": "next dev",
     "preview": "next build && next start",
     "start": "next start",
+    "seo:lighthouse": "pnpm dlx @lhci/cli@0.15.1 autorun --config=./lighthouserc.json",
     "postinstall": "fumadocs-mdx",
     "typecheck": "tsc --noEmit"
   },

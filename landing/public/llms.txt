@@ -1,0 +1,22 @@
+# PayKit
+
+> Open-source payment orchestration for modern TypeScript applications.
+
+PayKit unifies multiple payment providers behind one API. It does not directly process payments.
+
+## Canonical URLs
+
+- https://paykit.sh/
+- https://paykit.sh/docs
+- https://paykit.sh/docs/installation
+- https://paykit.sh/docs/basic-usage
+- https://paykit.sh/docs/providers
+
+## Source
+
+- https://github.com/getpaykit/paykit
+
+## Contact
+
+- https://x.com/getpaykit
+- https://www.linkedin.com/company/getpaykit

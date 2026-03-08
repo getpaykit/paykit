@@ -6,6 +6,7 @@ import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layo
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import type { ComponentPropsWithoutRef } from "react";
 
 import { source } from "@/lib/source";
 
@@ -38,6 +39,9 @@ export default async function Page({ params }: DocsPageProps) {
         <MDXContent
           components={{
             ...defaultMdxComponents,
+            h1: ({ children, ...props }: ComponentPropsWithoutRef<"h1">) => (
+              <h2 {...props}>{children}</h2>
+            ),
             Callout,
             Card,
             Cards,
