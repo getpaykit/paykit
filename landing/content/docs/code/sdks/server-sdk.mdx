@@ -1,0 +1,53 @@
+---
+title: Server SDK
+description: The planned server-first SDK for creating PayKit instances and handling billing flows.
+---
+
+The core SDK is server-first. That is the primary integration surface for the MVP.
+
+## Create an instance
+
+```ts
+import { createPayKit } from "paykitjs";
+import { stripe } from "paykitjs/providers/stripe";
+import { postgresStorage } from "paykitjs/storage/postgres";
+
+export const paykit = createPayKit({
+  storage: postgresStorage({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+  ],
+});
+```
+
+## Planned namespaces
+
+| Namespace       | Purpose                                 |
+| --------------- | --------------------------------------- |
+| `customer`      | Sync and read billing identities        |
+| `checkout`      | Create hosted checkout sessions         |
+| `paymentMethod` | Save, list, default, and detach methods |
+| `charge`        | Charge saved methods and refund charges |
+| `handleWebhook` | Process raw provider webhook deliveries |
+| `asCustomer`    | Scope later calls to one customer       |
+
+## Event handlers
+
+```ts
+const paykit = createPayKit({
+  // ...
+  on: {
+    "charge.succeeded": async ({ customer, charge }) => {
+      await grantAccess(customer.referenceId, charge.id);
+    },
+  },
+});
+```
+
+PayKit runs handlers after verification and local sync, so your product logic can work against
+normalized state instead of raw provider events.

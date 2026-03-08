@@ -1,0 +1,4 @@
+{
+  "title": "APIs",
+  "pages": ["checkout", "payment-methods", "charges", "customers", "webhooks"]
+}

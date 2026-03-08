@@ -1,15 +1,17 @@
 ---
 title: PayPal
-description: PayPal provider integration for PayKit.
+description: PayPal is a planned first-party provider with the same normalized API shape as Stripe.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+<Callout type="warn">
+  PayPal support is planned, but the API examples on this page are still mock documentation.
+</Callout>
 
-## Overview
+PayPal matters because many SaaS teams need it alongside Stripe for regional coverage and customer
+preference. PayKit's goal is to keep the app-facing shape the same even when provider capabilities
+vary.
 
-PayPal provider docs are coming soon.
-
-## Basic Setup
+## Planned setup
 
 ```ts
 import { paypal } from "paykitjs/providers/paypal";
@@ -17,5 +19,18 @@ import { paypal } from "paykitjs/providers/paypal";
 const provider = paypal({
   clientId: process.env.PAYPAL_CLIENT_ID!,
   clientSecret: process.env.PAYPAL_CLIENT_SECRET!,
+  webhookId: process.env.PAYPAL_WEBHOOK_ID!,
 });
 ```
+
+## Planned scope
+
+- hosted checkout flows
+- customer mapping and provider account sync
+- saved payment methods where the provider flow supports them
+- webhook normalization into the same PayKit event model
+
+## Design goal
+
+Your business code should still call `paykit.checkout.create(...)` or
+`paykit.paymentMethod.list(...)` without branching on provider-native webhook names or customer IDs.

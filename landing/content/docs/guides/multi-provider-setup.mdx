@@ -1,0 +1,54 @@
+---
+title: Multi-provider Setup
+description: Configure more than one provider while keeping your app code on one billing model.
+---
+
+Multi-provider support is one of the main reasons to use PayKit in the first place.
+
+## 1. Register multiple adapters
+
+```ts
+import { createPayKit } from "paykitjs";
+import { postgresStorage } from "paykitjs/storage/postgres";
+import { paypal } from "paykitjs/providers/paypal";
+import { stripe } from "paykitjs/providers/stripe";
+
+export const paykit = createPayKit({
+  storage: postgresStorage({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+    paypal({
+      clientId: process.env.PAYPAL_CLIENT_ID!,
+      clientSecret: process.env.PAYPAL_CLIENT_SECRET!,
+      webhookId: process.env.PAYPAL_WEBHOOK_ID!,
+    }),
+  ],
+});
+```
+
+## 2. Choose the provider at the call site
+
+```ts
+await paykit.checkout.create({
+  providerId: "paypal",
+  customerId: "cust_abc",
+  amount: 2900,
+  description: "Starter plan",
+  successURL: "https://app.example.com/billing/success",
+});
+```
+
+## 3. Keep your business logic provider-agnostic
+
+The rest of the app should still work with:
+
+- PayKit customer IDs
+- PayKit payment-method IDs
+- PayKit event names
+
+That way, switching the provider for new traffic is a configuration choice rather than a rewrite.

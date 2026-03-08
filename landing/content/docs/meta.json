@@ -1,13 +1,15 @@
 {
   "root": true,
   "pages": [
-    "---Intro---",
-    "index",
-    "installation",
-    "basic-usage",
-    "---Integrations---",
+    "---Get Started---",
+    "get-started",
+    "---Features---",
+    "features",
+    "---Providers---",
     "providers",
-    "---Project---",
-    "roadmap"
+    "---Code---",
+    "code",
+    "---Guides---",
+    "guides"
   ]
 }

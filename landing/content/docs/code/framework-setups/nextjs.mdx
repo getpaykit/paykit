@@ -1,0 +1,58 @@
+---
+title: Next.js
+description: Use PayKit with the Next.js App Router and a provider-aware webhook route.
+---
+
+Next.js is a strong fit for the MVP because the server SDK and webhook handler map cleanly onto App
+Router route handlers.
+
+## Server setup
+
+```ts title="src/lib/paykit.ts"
+import { createPayKit } from "paykitjs";
+import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { stripe } from "paykitjs/providers/stripe";
+import { postgresStorage } from "paykitjs/storage/postgres";
+
+export const paykit = createPayKit({
+  storage: postgresStorage({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+  ],
+});
+
+export const paykitHandler = toNextJsHandler(paykit);
+```
+
+## Webhook route
+
+```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
+import { paykitHandler } from "@/lib/paykit";
+
+export const { GET, POST } = paykitHandler;
+```
+
+## Server action example
+
+```ts
+"use server";
+
+import { paykit } from "@/lib/paykit";
+
+export async function createCheckout(referenceId: string) {
+  const customer = await paykit.customer.sync({ referenceId });
+
+  return paykit.checkout.create({
+    providerId: "stripe",
+    customerId: customer.id,
+    amount: 2900,
+    description: "Starter plan",
+    successURL: "https://app.example.com/billing/success",
+  });
+}
+```

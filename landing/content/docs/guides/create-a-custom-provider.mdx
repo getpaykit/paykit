@@ -1,0 +1,36 @@
+---
+title: Creating a Custom Provider
+description: Implement the thin provider adapter contract behind PayKit's unified API.
+---
+
+Custom providers should stay thin. The adapter's job is to talk to one payment rail and return
+provider-native identifiers or normalized webhook events back to PayKit.
+
+## Target contract
+
+```ts
+interface PayKitProvider {
+  id: string;
+  upsertCustomer(...): Promise<{ providerCustomerId: string }>;
+  checkout(...): Promise<{ url: string }>;
+  attachPaymentMethod(...): Promise<{ url: string }>;
+  detachPaymentMethod(...): Promise<void>;
+  charge(...): Promise<ProviderCharge>;
+  refund(...): Promise<ProviderRefund>;
+  handleWebhook(...): Promise<NormalizedWebhookEvent | NormalizedWebhookEvent[]>;
+}
+```
+
+## Design rules
+
+- providers do not know about PayKit customer IDs
+- providers should only return provider-native identifiers or normalized provider data
+- webhook handlers should emit PayKit events, not leak provider event names
+
+## Build order
+
+1. Implement `upsertCustomer`
+2. Add hosted `checkout`
+3. Add payment-method attach and detach
+4. Add `charge` and `refund`
+5. Normalize webhook payloads into the PayKit event model

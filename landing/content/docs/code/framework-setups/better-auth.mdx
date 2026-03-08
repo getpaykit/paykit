@@ -1,0 +1,39 @@
+---
+title: Better-auth
+description: Keep billing tied to your auth identity by syncing Better Auth users into PayKit customers.
+---
+
+The Better Auth integration story is simple: authenticate with Better Auth, then use the auth user
+or account ID as PayKit's `referenceId`.
+
+## Example pattern
+
+```ts
+import { auth } from "@/lib/auth";
+import { paykit } from "@/lib/paykit";
+
+export async function createBillingCheckout() {
+  const session = await auth.api.getSession();
+
+  if (!session?.user) {
+    throw new Error("Unauthorized");
+  }
+
+  const customer = await paykit.customer.sync({
+    referenceId: session.user.id,
+    email: session.user.email ?? undefined,
+    name: session.user.name ?? undefined,
+  });
+
+  return paykit.checkout.create({
+    providerId: "stripe",
+    customerId: customer.id,
+    amount: 2900,
+    description: "Starter plan",
+    successURL: "https://app.example.com/billing/success",
+  });
+}
+```
+
+The important rule is that auth stays your identity layer. PayKit uses that identity to manage
+billing state and provider mappings.

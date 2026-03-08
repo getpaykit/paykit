@@ -1,0 +1,51 @@
+---
+title: Create Your First Checkout
+description: Launch a provider-hosted checkout from one PayKit server call.
+---
+
+This guide assumes you already created a PayKit instance and mounted the webhook route.
+
+## 1. Sync the app customer
+
+```ts
+const customer = await paykit.customer.sync({
+  referenceId: "user_123",
+  email: "jane@example.com",
+});
+```
+
+## 2. Create checkout
+
+```ts
+const checkout = await paykit.checkout.create({
+  providerId: "stripe",
+  customerId: customer.id,
+  amount: 2900,
+  description: "Starter plan",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
+  attachMethod: true,
+});
+```
+
+## 3. Redirect the user
+
+Send the user to `checkout.url`. The provider owns the payment UI.
+
+## 4. Process the webhook
+
+When the provider calls back, PayKit verifies the signature, normalizes the event, and updates local
+billing state.
+
+## 5. React to completion
+
+```ts
+const paykit = createPayKit({
+  // ...
+  on: {
+    "checkout.completed": async ({ customer }) => {
+      await grantStarterAccess(customer.referenceId);
+    },
+  },
+});
+```

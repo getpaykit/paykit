@@ -1,0 +1,52 @@
+---
+title: Customers
+description: Sync your app's billing identity into PayKit and keep provider mappings internal.
+---
+
+PayKit customers represent your application's billing identity, not a provider-native object.
+
+## Sync a customer
+
+```ts
+const customer = await paykit.customer.sync({
+  referenceId: "user_123",
+  email: "jane@example.com",
+  name: "Jane Doe",
+  metadata: { company: "Acme" },
+});
+```
+
+`referenceId` is the stable link to your app's user or account record.
+
+## Read or delete a customer
+
+```ts
+const customer = await paykit.customer.get({
+  referenceId: "user_123",
+});
+
+await paykit.customer.delete({
+  referenceId: "user_123",
+});
+```
+
+Delete is a PayKit-side soft delete or anonymize step. It does not promise provider-side deletion.
+
+## Scoped usage
+
+```ts
+const billing = paykit.asCustomer({
+  referenceId: "user_123",
+  email: "jane@example.com",
+  name: "Jane Doe",
+});
+
+await billing.checkout.create({
+  providerId: "stripe",
+  amount: 2900,
+  description: "Starter plan",
+  successURL: "https://app.example.com/billing/success",
+});
+```
+
+Scoped APIs remove repeated `customerId` plumbing in common flows.

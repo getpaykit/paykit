@@ -1,0 +1,30 @@
+---
+title: Elysia
+description: Run PayKit inside an Elysia server with a provider-aware webhook route.
+---
+
+Elysia fits the same server-first model as the rest of the framework setups: keep PayKit in the
+backend, let providers own checkout UIs, and process webhooks through one handler.
+
+## Example setup
+
+```ts
+import { Elysia } from "elysia";
+import { paykit } from "./lib/paykit";
+
+const app = new Elysia();
+
+app.post("/api/paykit/webhooks/:providerId", async ({ params, request, set }) => {
+  await paykit.handleWebhook({
+    providerId: params.providerId,
+    body: await request.text(),
+    headers: Object.fromEntries(request.headers.entries()),
+  });
+
+  set.status = 200;
+  return "";
+});
+```
+
+Use the request body in its raw form so adapter-level signature verification still has the original
+payload.

@@ -1,0 +1,27 @@
+---
+title: React SDK
+description: Why React is not part of the MVP and what a future React surface would likely cover.
+---
+
+React is intentionally **not** the main docs story for the MVP.
+
+<Callout type="warn">
+  A React SDK may arrive later, but the first product promise is a server-side orchestration layer.
+</Callout>
+
+## Why it is deferred
+
+- checkout and payment-method collection are provider-hosted in the MVP
+- the hard part is webhook normalization and billing-state sync on the server
+- shipping a React API too early would imply a larger abstraction than the product can honestly support
+
+## What a future React layer would likely do
+
+- thin helpers for redirecting to provider-hosted checkout
+- status polling or suspense-friendly reads of PayKit state
+- optional hooks for billing dashboards built on top of the server SDK
+
+## Recommended approach today
+
+Use the server SDK for all writes, then expose your own app endpoints or server actions for UI flows.
+That keeps the first integration path simple and aligned with the MVP.

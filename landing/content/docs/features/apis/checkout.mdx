@@ -1,0 +1,49 @@
+---
+title: Checkout
+description: Create provider-hosted checkouts through one PayKit API.
+---
+
+Checkout is the provider-hosted one-time payment flow in the MVP. Your app passes an amount,
+description, and redirect URLs. PayKit resolves the provider customer behind the scenes.
+
+## Create a checkout
+
+```ts
+const checkout = await paykit.checkout.create({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  amount: 9900,
+  description: "Lifetime license",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
+  attachMethod: true,
+  metadata: { campaign: "launch" },
+});
+```
+
+`checkout.url` is the provider-hosted URL you redirect the customer to.
+
+## Scoped usage
+
+```ts
+const billing = paykit.asCustomer({
+  referenceId: "user_123",
+  email: "jane@example.com",
+});
+
+const checkout = await billing.checkout.create({
+  providerId: "stripe",
+  amount: 9900,
+  description: "Lifetime license",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
+  attachMethod: true,
+});
+```
+
+## Behavior
+
+- `providerId` stays explicit at the call site
+- product and price catalog data stay in your app, not in PayKit
+- PayKit creates or reuses the matching `providerAccount` before calling the adapter
+- webhook completion is what finalizes the synced local state

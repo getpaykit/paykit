@@ -1,15 +1,18 @@
 ---
 title: Polar
-description: Polar provider integration for PayKit.
+description: Polar is on the roadmap as a future provider adapter.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+<Callout type="warn">
+  Polar is a roadmap provider. Treat this page as a placeholder for the eventual adapter docs.
+</Callout>
 
-## Overview
+## Why it belongs in the docs map
 
-Polar provider docs are coming soon.
+Polar is a common comparison point for modern SaaS billing, so documenting the future adapter early
+helps frame PayKit's provider-agnostic direction.
 
-## Basic Setup
+## Planned setup
 
 ```ts
 import { polar } from "paykitjs/providers/polar";
@@ -18,3 +21,9 @@ const provider = polar({
   accessToken: process.env.POLAR_ACCESS_TOKEN!,
 });
 ```
+
+## Expected scope
+
+- hosted checkout initiation
+- webhook normalization
+- synced customer and charge state

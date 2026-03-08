@@ -1,0 +1,44 @@
+---
+title: Introduction
+description: "Start with the PayKit MVP: server-side orchestration, provider-hosted flows, and local billing state."
+---
+
+PayKit is built for server-side payment orchestration. You call one API, providers still execute the
+payment work, and PayKit keeps the billing state your app depends on in Postgres.
+
+<Callout type="warn">
+  The package is still in development. Everything on this page reflects the planned MVP surface and
+  is written as mock documentation for the launch docs.
+</Callout>
+
+## What you get
+
+- A unified API for customer sync, checkout, payment methods, and direct charges
+- Provider webhook verification and normalization
+- PayKit-owned billing tables for local reads
+- One event model for post-payment product logic
+
+## What the MVP does not try to solve
+
+- It is not a merchant of record
+- It is not a browser-first SDK
+- It is not a universal subscriptions platform
+- It does not replace provider checkout or vaulting
+
+## Recommended reading order
+
+1. [Install PayKit](/docs/get-started/installation)
+2. [Learn the basic usage flow](/docs/get-started/usage)
+3. [Read the database model](/docs/features/concepts/database)
+4. [Create your first checkout](/docs/guides/create-your-first-checkout)
+
+## Mental model
+
+```txt
+App request -> PayKit API -> Provider adapter -> Provider
+Provider webhook -> PayKit verification -> Local sync -> Your event handler
+```
+
+Your application should treat PayKit as the billing-state layer above provider rails. That keeps
+provider-specific concepts out of business code while still letting providers do the work they are
+good at.

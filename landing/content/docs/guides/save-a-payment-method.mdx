@@ -1,0 +1,42 @@
+---
+title: Save a Payment Method
+description: Collect a provider-hosted payment method so you can charge it later.
+---
+
+This guide covers the standalone save-method flow, separate from a checkout.
+
+## 1. Ensure the customer exists
+
+```ts
+const customer = await paykit.customer.sync({
+  referenceId: "user_123",
+  email: "jane@example.com",
+});
+```
+
+## 2. Start the attach flow
+
+```ts
+const result = await paykit.paymentMethod.attach({
+  providerId: "stripe",
+  customerId: customer.id,
+  returnURL: "https://app.example.com/settings/billing",
+});
+```
+
+## 3. Redirect to the provider flow
+
+Send the user to `result.url`.
+
+## 4. Wait for webhook sync
+
+The provider webhook is what actually writes the normalized `paymentMethod` row into PayKit storage.
+
+## 5. Read the saved methods
+
+```ts
+const methods = await paykit.paymentMethod.list({
+  providerId: "stripe",
+  customerId: customer.id,
+});
+```

@@ -1,0 +1,99 @@
+---
+title: Usage
+description: "Walk through the MVP billing loop: sync a customer, create checkout, save a method, and charge it later."
+---
+
+All core flows start from one server instance:
+
+```ts
+import { paykit } from "@/lib/paykit";
+```
+
+The examples below use the planned server SDK and focus on the first shipping loop rather than a
+full billing platform.
+
+## 1. Sync a customer
+
+```ts
+const customer = await paykit.customer.sync({
+  referenceId: "user_123",
+  email: "jane@example.com",
+  name: "Jane Doe",
+});
+```
+
+`referenceId` is your app-level identity. PayKit maps that customer to provider-native customers
+internally through `providerAccount` records.
+
+## 2. Create a hosted checkout
+
+```ts
+const checkout = await paykit.checkout.create({
+  providerId: "stripe",
+  customerId: customer.id,
+  amount: 4900,
+  description: "Starter plan",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
+  attachMethod: true,
+});
+```
+
+Redirect the user to `checkout.url`. After the provider completes the flow, PayKit will process the
+provider webhook and sync the resulting local state.
+
+## 3. Start a save-payment-method flow
+
+```ts
+const result = await paykit.paymentMethod.attach({
+  providerId: "stripe",
+  customerId: customer.id,
+  returnURL: "https://app.example.com/settings/billing",
+});
+```
+
+This flow is separate from checkout when you want to collect a payment method first and charge it
+later.
+
+## 4. Charge a saved method
+
+```ts
+const methods = await paykit.paymentMethod.list({
+  providerId: "stripe",
+  customerId: customer.id,
+});
+
+const defaultMethod = methods[0];
+
+if (defaultMethod) {
+  await paykit.charge.create({
+    providerId: "stripe",
+    customerId: customer.id,
+    paymentMethodId: defaultMethod.id,
+    amount: 1900,
+    description: "March usage",
+  });
+}
+```
+
+## 5. React to normalized events
+
+```ts
+const paykit = createPayKit({
+  // ...
+  on: {
+    "payment_method.attached": async ({ customer, paymentMethod }) => {
+      console.log("saved", paymentMethod.id, "for", customer.referenceId);
+    },
+    "charge.succeeded": async ({ customer, charge }) => {
+      console.log("charged", customer.referenceId, charge.amount);
+    },
+  },
+});
+```
+
+## Where to go next
+
+- [Checkout API](/docs/features/apis/checkout)
+- [Payment methods API](/docs/features/apis/payment-methods)
+- [Charge a saved payment method](/docs/guides/charge-a-saved-payment-method)

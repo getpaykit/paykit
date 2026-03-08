@@ -1,20 +1,25 @@
 ---
-title: LemonSqueezy
-description: LemonSqueezy provider integration for PayKit.
+title: Lemon Squeezy
+description: Lemon Squeezy is planned as a future provider adapter in the broader docs tree.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+<Callout type="warn">
+  Lemon Squeezy is not in the first shipping set. This page exists as a docs placeholder for the
+  future provider matrix.
+</Callout>
 
-## Overview
-
-LemonSqueezy provider docs are coming soon.
-
-## Basic Setup
+## Planned setup
 
 ```ts
 import { lemonSqueezy } from "paykitjs/providers/lemonsqueezy";
 
 const provider = lemonSqueezy({
   apiKey: process.env.LEMONSQUEEZY_API_KEY!,
+  webhookSecret: process.env.LEMONSQUEEZY_WEBHOOK_SECRET!,
 });
 ```
+
+## Expected role
+
+The eventual adapter should expose the same app-facing PayKit primitives for checkout, synced
+customers, charges, and normalized webhook events.

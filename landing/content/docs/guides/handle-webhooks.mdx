@@ -1,0 +1,43 @@
+---
+title: Handle Webhooks
+description: Receive provider deliveries, verify them, and run business logic against normalized events.
+---
+
+Webhook handling is the center of PayKit's local-sync model.
+
+## 1. Mount a provider-aware route
+
+```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
+import { paykit } from "@/lib/paykit";
+import { toNextJsHandler } from "paykitjs/handlers/next-js";
+
+export const { GET, POST } = toNextJsHandler(paykit);
+```
+
+## 2. Configure provider webhook endpoints
+
+Point each provider to a route such as:
+
+```txt
+https://app.example.com/api/paykit/webhooks/stripe
+```
+
+## 3. Register event handlers
+
+```ts
+const paykit = createPayKit({
+  // ...
+  on: {
+    "payment_method.attached": async ({ customer }) => {
+      await markBillingReady(customer.referenceId);
+    },
+    "charge.failed": async ({ customer, error }) => {
+      await notifyBillingFailure(customer.referenceId, error);
+    },
+  },
+});
+```
+
+## 4. Trust the normalized model
+
+Your handlers should depend on PayKit event names and PayKit entity shapes, not raw provider JSON.

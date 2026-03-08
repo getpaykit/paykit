@@ -1,20 +1,28 @@
 ---
 title: Paddle
-description: Paddle provider integration for PayKit.
+description: Paddle is a future provider target for teams that need the same orchestration layer on top.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+<Callout type="warn">
+  Paddle is listed as a future integration. The examples below are placeholders for the docs tree.
+</Callout>
 
-## Overview
+Paddle would fit the same contract as other adapters: provider-native execution with PayKit-owned
+local billing state.
 
-Paddle provider docs are coming soon.
-
-## Basic Setup
+## Planned setup
 
 ```ts
 import { paddle } from "paykitjs/providers/paddle";
 
 const provider = paddle({
   apiKey: process.env.PADDLE_API_KEY!,
+  webhookSecret: process.env.PADDLE_WEBHOOK_SECRET!,
 });
 ```
+
+## Expected MVP coverage
+
+- checkout creation
+- webhook verification
+- local sync for customers, payment methods when supported, and charges

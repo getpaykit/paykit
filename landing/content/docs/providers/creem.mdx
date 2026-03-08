@@ -1,20 +1,28 @@
 ---
 title: Creem
-description: Creem provider integration for PayKit.
+description: Creem is a planned provider for teams that need a modern merchant workflow with the same PayKit API.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+<Callout type="warn">
+  Creem support is planned. This page documents the intended shape, not a released adapter.
+</Callout>
 
-## Overview
+Creem fits the broader PayKit goal of letting apps depend on one billing model even when the
+underlying provider differs.
 
-Creem provider docs are coming soon.
-
-## Basic Setup
+## Planned setup
 
 ```ts
 import { creem } from "paykitjs/providers/creem";
 
 const provider = creem({
   apiKey: process.env.CREEM_API_KEY!,
+  webhookSecret: process.env.CREEM_WEBHOOK_SECRET!,
 });
 ```
+
+## Planned focus
+
+- provider-hosted checkout
+- webhook verification and event normalization
+- customer and charge sync into the PayKit local model

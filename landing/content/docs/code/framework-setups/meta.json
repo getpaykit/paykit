@@ -1,0 +1,4 @@
+{
+  "title": "Framework Setups",
+  "pages": ["nextjs", "better-auth", "express", "elysia", "hono"]
+}

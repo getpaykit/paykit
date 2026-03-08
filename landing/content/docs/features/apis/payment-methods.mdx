@@ -1,0 +1,59 @@
+---
+title: Payment Methods
+description: Attach, list, default, and detach saved payment methods across providers.
+---
+
+PayKit treats payment methods as a first-class part of the MVP because the direct-charge flow depends
+on them.
+
+## Start an attach flow
+
+```ts
+const result = await paykit.paymentMethod.attach({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  returnURL: "https://app.example.com/settings/billing",
+});
+```
+
+The provider hosts the save flow. After the provider posts a webhook, PayKit normalizes that event
+and stores the method locally.
+
+## List saved methods
+
+```ts
+const methods = await paykit.paymentMethod.list({
+  providerId: "stripe",
+  customerId: "cust_abc",
+});
+```
+
+## Set the default method
+
+```ts
+await paykit.paymentMethod.setDefault({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  paymentMethodId: "pm_xyz",
+});
+```
+
+## Detach a method
+
+```ts
+await paykit.paymentMethod.detach({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  id: "pm_xyz",
+});
+```
+
+## Important boundary
+
+Providers never receive PayKit customer IDs directly. PayKit resolves:
+
+```txt
+customer -> providerAccount -> providerCustomerId
+```
+
+That mapping is why your app code can stay provider-agnostic.

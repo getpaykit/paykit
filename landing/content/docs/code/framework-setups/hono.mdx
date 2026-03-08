@@ -1,0 +1,29 @@
+---
+title: Hono
+description: Integrate the PayKit server SDK into a Hono app for webhook handling and billing actions.
+---
+
+Hono is a good fit when you want the same PayKit server contract on Node, Bun, or edge-style
+deployments that still allow provider webhook verification.
+
+## Example setup
+
+```ts
+import { Hono } from "hono";
+import { paykit } from "./lib/paykit";
+
+const app = new Hono();
+
+app.post("/api/paykit/webhooks/:providerId", async (c) => {
+  await paykit.handleWebhook({
+    providerId: c.req.param("providerId"),
+    body: await c.req.text(),
+    headers: Object.fromEntries(c.req.raw.headers.entries()),
+  });
+
+  return c.body(null, 200);
+});
+```
+
+Pair this with normal Hono routes or RPC endpoints for customer sync, checkout creation, and saved
+method charging.

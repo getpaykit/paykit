@@ -1,0 +1,42 @@
+---
+title: Charge a Saved Payment Method
+description: Use a synced payment method to run a direct one-time charge.
+---
+
+Charging a saved method is the main follow-up flow after payment-method attach.
+
+## 1. Load the customer's methods
+
+```ts
+const methods = await paykit.paymentMethod.list({
+  providerId: "stripe",
+  customerId: "cust_abc",
+});
+```
+
+## 2. Pick a method
+
+```ts
+const method = methods.find((item) => item.isDefault) ?? methods[0];
+
+if (!method) {
+  throw new Error("No saved payment method");
+}
+```
+
+## 3. Create the charge
+
+```ts
+await paykit.charge.create({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  paymentMethodId: method.id,
+  amount: 4900,
+  description: "March usage",
+});
+```
+
+## 4. Handle the outcome
+
+Use normalized events such as `charge.succeeded` and `charge.failed` to update your app logic after
+the provider finishes processing.

@@ -1,20 +1,34 @@
 ---
 title: Stripe
-description: Stripe provider integration for PayKit.
+description: Stripe is the first provider target for the PayKit MVP.
 ---
 
-<Callout type="warn">This page is a placeholder and will be expanded soon.</Callout>
+Stripe is the clearest first provider for the MVP billing loop:
 
-## Overview
-
-Stripe provider docs are coming soon.
-
-## Basic Setup
+- hosted checkout
+- saved payment methods
+- direct charging of saved methods
+- mature webhook coverage
 
 ```ts
-import { stripe } from "@paykitjs/stripe";
+import { stripe } from "paykitjs/providers/stripe";
 
 const provider = stripe({
   secretKey: process.env.STRIPE_SECRET_KEY!,
+  webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
 });
 ```
+
+## What Stripe should cover first
+
+- `checkout.create`
+- `paymentMethod.attach`
+- `paymentMethod.list`
+- `paymentMethod.detach`
+- `charge.create`
+- webhook normalization for checkout, payment methods, charges, and refunds
+
+## Notes
+
+Stripe is the reference adapter for the planned docs examples, so most snippets across the docs site
+use `providerId: "stripe"`.

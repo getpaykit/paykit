@@ -1,0 +1,116 @@
+---
+title: Installation
+description: Install the planned PayKit package, configure storage, and mount your first webhook handler.
+---
+
+<Callout type="warn">
+  This is the planned install flow for the MVP. Package names and helper exports may still change
+  before the first public release.
+</Callout>
+
+<Steps>
+
+<Step>
+## Install the packages
+
+<Tabs items={["pnpm", "npm", "bun"]}>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add paykitjs paykitjs/providers/stripe
+    ```
+
+  </Tab>
+  <Tab value="npm">
+    ```bash
+    npm install paykitjs paykitjs/providers/stripe
+    ```
+
+  </Tab>
+  <Tab value="bun">
+    ```bash
+    bun add paykitjs paykitjs/providers/stripe
+    ```
+
+  </Tab>
+</Tabs>
+
+</Step>
+
+<Step>
+## Configure environment variables
+
+```bash title=".env"
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/paykit
+
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+The MVP setup assumes PayKit-owned Postgres tables and provider credentials for at least one
+adapter.
+
+</Step>
+
+<Step>
+## Create the PayKit server instance
+
+```ts title="src/lib/paykit.ts"
+import { createPayKit } from "paykitjs";
+import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { stripe } from "paykitjs/providers/stripe";
+import { postgresStorage } from "paykitjs/storage/postgres";
+
+export const paykit = createPayKit({
+  storage: postgresStorage({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+  ],
+});
+
+export const paykitHandler = toNextJsHandler(paykit);
+```
+
+</Step>
+
+<Step>
+## Mount the webhook route
+
+```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
+import { paykitHandler } from "@/lib/paykit";
+
+export const { GET, POST } = paykitHandler;
+```
+
+PayKit uses the provider ID in the route to pick the right adapter and verify the incoming
+signature with the matching webhook secret.
+
+</Step>
+
+<Step>
+## Set up the database tables
+
+The MVP storage direction is PayKit-owned Postgres tables such as:
+
+- `paykit_customers`
+- `paykit_provider_accounts`
+- `paykit_payment_methods`
+- `paykit_charges`
+- `paykit_webhook_events`
+
+The migration story is still being finalized, but the docs assume an explicit PayKit-managed
+migration step rather than asking users to hand-author the schema.
+
+</Step>
+
+</Steps>
+
+## Next steps
+
+- [Read the basic usage flow](/docs/get-started/usage)
+- [Understand the local database model](/docs/features/concepts/database)
+- [Set up a framework handler](/docs/code/framework-setups/nextjs)

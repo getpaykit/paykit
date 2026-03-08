@@ -1,0 +1,11 @@
+{
+  "title": "Guides",
+  "pages": [
+    "create-a-custom-provider",
+    "create-your-first-checkout",
+    "save-a-payment-method",
+    "charge-a-saved-payment-method",
+    "handle-webhooks",
+    "multi-provider-setup"
+  ]
+}

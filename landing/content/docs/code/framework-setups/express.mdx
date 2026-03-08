@@ -1,0 +1,41 @@
+---
+title: Express
+description: Mount PayKit in an Express app and hand off provider webhooks to the server SDK.
+---
+
+Express works well when PayKit lives inside an existing Node API server.
+
+## Example setup
+
+```ts
+import express from "express";
+import { createPayKit } from "paykitjs";
+import { stripe } from "paykitjs/providers/stripe";
+import { postgresStorage } from "paykitjs/storage/postgres";
+
+const app = express();
+
+const paykit = createPayKit({
+  storage: postgresStorage({
+    connectionString: process.env.DATABASE_URL!,
+  }),
+  providers: [
+    stripe({
+      secretKey: process.env.STRIPE_SECRET_KEY!,
+      webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    }),
+  ],
+});
+
+app.post("/api/paykit/webhooks/:providerId", express.raw({ type: "*/*" }), async (req, res) => {
+  await paykit.handleWebhook({
+    providerId: req.params.providerId,
+    body: req.body,
+    headers: req.headers as Record<string, string>,
+  });
+
+  res.status(200).end();
+});
+```
+
+Use a raw body for signed webhook verification. JSON parsing too early will break many providers.

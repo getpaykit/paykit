@@ -1,0 +1,41 @@
+---
+title: Charges
+description: Directly charge a saved payment method and sync the outcome back into local state.
+---
+
+Charges are the "next step" API after checkout and payment-method save flows. They are central to the
+MVP because many SaaS products need app-owned billing logic on top of stored payment methods.
+
+<Callout>
+  The charge API is part of the planned MVP direction, but it follows checkout and payment-method
+  completion work. Treat the examples on this page as the intended shape.
+</Callout>
+
+## Create a charge
+
+```ts
+const charge = await paykit.charge.create({
+  providerId: "stripe",
+  customerId: "cust_abc",
+  paymentMethodId: "pm_xyz",
+  amount: 4900,
+  description: "March 2026 usage",
+  metadata: { month: "2026-03" },
+});
+```
+
+## Refund a charge
+
+```ts
+await paykit.charge.refund({
+  id: "ch_abc",
+  amount: 1000,
+});
+```
+
+## Design rules
+
+- charges always target a saved provider-backed payment method
+- the final source of truth is the synced local `charge` record
+- success and failure handlers should listen to normalized webhook events
+- refunds use PayKit charge IDs, not provider-native IDs, at the app boundary

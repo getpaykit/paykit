@@ -1,0 +1,50 @@
+---
+title: Webhooks
+description: Verify provider deliveries, normalize events, and sync local billing state.
+---
+
+Every important state transition in PayKit starts with a provider webhook. PayKit does three things
+in order:
+
+1. verify the provider webhook
+2. normalize it into one PayKit event shape
+3. sync local state and call your handlers
+
+## Framework handler
+
+```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
+import { paykit } from "@/lib/paykit";
+import { toNextJsHandler } from "paykitjs/handlers/next-js";
+
+export const { GET, POST } = toNextJsHandler(paykit);
+```
+
+## Low-level entry
+
+```ts
+await paykit.handleWebhook({
+  providerId: "stripe",
+  body,
+  headers,
+});
+```
+
+## Event model
+
+```ts
+const paykit = createPayKit({
+  // ...
+  on: {
+    "payment_method.attached": ({ customer, paymentMethod }) => {},
+    "payment_method.detached": ({ customer, paymentMethod }) => {},
+    "checkout.completed": ({ customer, providerId }) => {},
+    "charge.succeeded": ({ customer, charge }) => {},
+    "charge.failed": ({ customer, charge, error }) => {},
+    "charge.refunded": ({ customer, charge, refund }) => {},
+    "*": ({ event }) => {},
+  },
+});
+```
+
+The payloads use PayKit models, not raw provider payloads. That keeps handlers portable across
+providers.

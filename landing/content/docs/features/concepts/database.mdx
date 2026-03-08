@@ -1,0 +1,50 @@
+---
+title: Database
+description: Understand the Postgres-first storage model behind PayKit's local billing state.
+---
+
+PayKit's MVP assumes **PayKit-owned Postgres tables**. The product promise is not just a thin API
+wrapper over providers. It is a billing-state sync layer that your app can read from directly.
+
+## Why local state is part of the product
+
+Provider APIs are good execution engines, but most SaaS products still need billing data locally for:
+
+- product access and entitlements
+- internal operations and support tooling
+- analytics and exports
+- idempotent backend flows after webhooks
+
+PayKit keeps the minimum state needed for those jobs without forcing your app to rebuild webhook
+sync from scratch.
+
+## Synced entities in the MVP
+
+| Entity            | Purpose                                                          |
+| ----------------- | ---------------------------------------------------------------- |
+| `customer`        | Your app-level billing identity                                  |
+| `providerAccount` | Mapping between a PayKit customer and a provider-native customer |
+| `paymentMethod`   | Saved methods that can be attached, listed, and charged          |
+| `charge`          | One-time payment attempts and outcomes                           |
+| `webhookEvent`    | Provider deliveries and normalized event processing history      |
+
+## Expected table ownership
+
+The default path is explicit PayKit-managed tables such as `paykit_customers` and
+`paykit_payment_methods`. The docs do **not** assume Prisma or Drizzle adapters as the main MVP
+story.
+
+<Callout>
+  The guiding rule is simple: PayKit may own its own tables, but it should not silently take over a
+  user's application schema.
+</Callout>
+
+## Read model
+
+Business code should prefer reading normalized state from PayKit rather than reaching out to live
+provider APIs for every request. That keeps your product logic:
+
+- provider-agnostic
+- easier to cache
+- easier to test
+- stable across provider migrations

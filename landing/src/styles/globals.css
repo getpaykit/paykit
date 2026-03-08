@@ -379,9 +379,9 @@ button[aria-label="Collapse Sidebar"] svg {
   > div
   > [data-state]
   > :is(button, a).flex.flex-row.items-center.gap-2 {
-  border-top: 1px solid color-mix(in oklch, var(--border) 65%, transparent);
-  border-bottom: 1px solid color-mix(in oklch, var(--border) 65%, transparent);
-  border-color: color-mix(in oklch, var(--border) 65%, transparent) !important;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  border-color: var(--border) !important;
   transition-property: background-color, color !important;
   min-height: 41px !important;
 }
@@ -429,6 +429,54 @@ button[aria-label="Collapse Sidebar"] svg {
   transform: rotate(180deg);
 }
 
+/* Category triggers: top divider only, except for the first item */
+#nd-sidebar
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state]
+  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
+#nd-sidebar-mobile
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state]
+  > button[aria-expanded]:not(
+    [data-slot="dropdown-menu-trigger"]
+  ).flex.flex-row.items-center.gap-2 {
+  border-bottom: 0;
+}
+
+#nd-sidebar
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state]:first-child
+  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
+#nd-sidebar-mobile
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state]:first-child
+  > button[aria-expanded]:not(
+    [data-slot="dropdown-menu-trigger"]
+  ).flex.flex-row.items-center.gap-2 {
+  border-top: 0;
+}
+
+#nd-sidebar
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state="closed"]
+  + [data-state]
+  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
+#nd-sidebar-mobile
+  [data-radix-scroll-area-viewport]
+  > div
+  > [data-state="closed"]
+  + [data-state]
+  > button[aria-expanded]:not(
+    [data-slot="dropdown-menu-trigger"]
+  ).flex.flex-row.items-center.gap-2 {
+  border-top: 1px solid var(--border);
+}
+
 /* Sidebar search row: full width like category rows */
 #nd-sidebar > div.flex.flex-col.gap-3.p-4.pb-2,
 #nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2 {
@@ -455,6 +503,13 @@ button[aria-label="Collapse Sidebar"] svg {
   filter: none !important;
 }
 
+#nd-sidebar [data-search-full] svg,
+#nd-sidebar-mobile [data-search-full] svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
 #nd-sidebar
   [data-radix-scroll-area-viewport]
   .before\:bg-fd-border
@@ -471,16 +526,21 @@ button[aria-label="Collapse Sidebar"] svg {
 #nd-sidebar-mobile
   [data-radix-scroll-area-viewport]
   div.relative.flex.flex-row.items-center.gap-2.w-full {
+  @apply text-foreground/35;
+  display: flex;
+  align-items: center;
   border-radius: 0 !important;
   padding-inline: 1.25rem !important;
-  padding-top: 0.5rem;
-  padding-bottom: 0.2rem;
+  height: 1.2rem;
+  padding-top: 0;
+  padding-bottom: 0;
   font-size: 0.6875rem;
-  line-height: 0.95rem;
+  line-height: 0.8rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: color-mix(in oklch, var(--foreground) 30%, transparent);
   gap: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #nd-sidebar
@@ -489,10 +549,10 @@ button[aria-label="Collapse Sidebar"] svg {
 #nd-sidebar-mobile
   [data-radix-scroll-area-viewport]
   div.relative.flex.flex-row.items-center.gap-2.w-full::after {
+  @apply bg-border;
   content: "";
   flex: 1;
   height: 1px;
-  background: color-mix(in oklch, var(--foreground) 10%, transparent);
 }
 
 /* Remove folder guide rail (left vertical trace) */
