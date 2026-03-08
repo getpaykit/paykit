@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -28,8 +28,10 @@ const navFiles: NavFileItem[] = [
 
 export function NavigationBar() {
   const pathname = usePathname() || "/";
+  const shouldReduceMotion = useReducedMotion();
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const isActive = useCallback((href: string) => pathname === href, [pathname]);
 
@@ -106,6 +108,12 @@ export function NavigationBar() {
                         href={item.href}
                         target={item.external ? "_blank" : undefined}
                         rel={item.external ? "noreferrer" : undefined}
+                        onMouseEnter={() => setHoveredTab(item.name)}
+                        onMouseLeave={() =>
+                          setHoveredTab((prev) => (prev === item.name ? null : prev))
+                        }
+                        onFocus={() => setHoveredTab(item.name)}
+                        onBlur={() => setHoveredTab((prev) => (prev === item.name ? null : prev))}
                         onClick={
                           item.href === "#"
                             ? (e) => {
@@ -114,18 +122,36 @@ export function NavigationBar() {
                               }
                             : undefined
                         }
-                        className={`group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 ${index < navFiles.length - 1 ? "border-foreground/[0.06] border-r" : ""} transition-colors duration-150 ${
-                          active
-                            ? "bg-background border-b-foreground/60 border-b-2"
-                            : "hover:bg-foreground/[0.03] bg-transparent"
-                        }`}
+                        className={`group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 ${index < navFiles.length - 1 ? "border-foreground/[0.06] border-r" : ""} bg-transparent transition-colors duration-150`}
                       >
+                        {hoveredTab === item.name && (
+                          <motion.span
+                            layoutId="landing-nav-hover-highlight"
+                            transition={
+                              shouldReduceMotion
+                                ? { duration: 0 }
+                                : { type: "spring", stiffness: 430, damping: 36, mass: 0.7 }
+                            }
+                            className="bg-foreground/[0.03] pointer-events-none absolute inset-[3px] rounded-[2px]"
+                          />
+                        )}
+                        {active && (
+                          <motion.span
+                            layoutId="landing-nav-active-underline"
+                            transition={
+                              shouldReduceMotion
+                                ? { duration: 0 }
+                                : { type: "spring", stiffness: 480, damping: 36, mass: 0.68 }
+                            }
+                            className="bg-foreground/60 pointer-events-none absolute right-1 bottom-0 left-1 h-px"
+                          />
+                        )}
                         <span
                           className={`font-mono text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
                             active
                               ? "text-foreground"
                               : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
-                          }`}
+                          } relative z-10`}
                         >
                           {item.name}
                         </span>

@@ -3,7 +3,7 @@
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { DynamicCodeBlock } from "@/components/ui/dynamic-code-block";
 
@@ -488,52 +488,228 @@ const SHARED_CODEBLOCK_PROPS = {
   },
 } as const;
 
+function useCodeTypewriterAnimation({
+  activeKey,
+  panelRefs,
+  shouldReduceMotion,
+}: {
+  activeKey: string;
+  panelRefs: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
+  shouldReduceMotion: boolean;
+}) {
+  useLayoutEffect(() => {
+    const resetLineStyles = (line: HTMLElement) => {
+      line.style.animation = "";
+      line.style.maxWidth = "";
+      line.style.overflow = "";
+      line.style.display = "";
+      line.style.whiteSpace = "";
+      line.style.willChange = "";
+      line.style.opacity = "";
+      line.style.removeProperty("--paykit-line-chars");
+      line.style.removeProperty("--paykit-line-steps");
+      line.style.removeProperty("--paykit-line-delay");
+    };
+
+    for (const panel of Object.values(panelRefs.current)) {
+      if (!panel) continue;
+      const lines = panel.querySelectorAll<HTMLElement>("pre .line");
+      for (const line of lines) {
+        resetLineStyles(line);
+      }
+    }
+
+    if (shouldReduceMotion) {
+      return;
+    }
+
+    const panel = panelRefs.current[activeKey];
+    if (!panel) {
+      return;
+    }
+
+    let rafId: number | null = null;
+    const applyTypewriterAnimation = (attempt = 0) => {
+      const lines = panel.querySelectorAll<HTMLElement>("pre .line");
+      if (lines.length === 0) {
+        if (attempt < 20) {
+          rafId = requestAnimationFrame(() => applyTypewriterAnimation(attempt + 1));
+        }
+        return;
+      }
+
+      for (const line of lines) {
+        const text = line.textContent?.replace(/\t/g, "  ") ?? "";
+        const rawChars = text.length;
+        const visibleChars = text.trim().length;
+        const charCount = Math.max(8, Math.min(160, rawChars + 8));
+        const stepCount = Math.max(6, Math.min(90, visibleChars > 0 ? visibleChars : 8));
+
+        line.style.animation = "none";
+        line.style.maxWidth = "0ch";
+        line.style.overflow = "hidden";
+        line.style.display = "block";
+        line.style.whiteSpace = "pre";
+        line.style.willChange = "max-width, opacity";
+        line.style.opacity = "0.86";
+        line.style.setProperty("--paykit-line-chars", String(charCount));
+        line.style.setProperty("--paykit-line-steps", String(stepCount));
+        line.style.setProperty("--paykit-line-delay", "0ms");
+        void line.offsetWidth;
+        line.style.animation =
+          "paykit-code-type-line 440ms steps(var(--paykit-line-steps), end) var(--paykit-line-delay) both";
+      }
+    };
+
+    rafId = requestAnimationFrame(() => applyTypewriterAnimation());
+
+    return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
+    };
+  }, [activeKey, panelRefs, shouldReduceMotion]);
+}
+
 export function ServerClientTabs() {
+  const shouldReduceMotion = useReducedMotion();
+  const [tabDirection, setTabDirection] = useState<1 | -1>(1);
   const [activeTab, setActiveTab] = useState<"server" | "handler">("server");
-  const serverCodeBlockClassName = activeTab === "server" ? "block" : "hidden";
-  const handlerCodeBlockClassName = activeTab === "handler" ? "block" : "hidden";
+  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const tabs = [
+    { key: "server" as const, label: "paykit.ts", code: serverCode },
+    { key: "handler" as const, label: "route.ts", code: handlerCode },
+  ];
+  const activeTabIndex = tabs.findIndex((tab) => tab.key === activeTab);
+
+  const handleTabChange = (nextTab: "server" | "handler") => {
+    if (nextTab === activeTab) {
+      return;
+    }
+    const nextIndex = tabs.findIndex((tab) => tab.key === nextTab);
+    setTabDirection(nextIndex > activeTabIndex ? 1 : -1);
+    setActiveTab(nextTab);
+  };
+
+  useCodeTypewriterAnimation({
+    activeKey: activeTab,
+    panelRefs,
+    shouldReduceMotion: shouldReduceMotion === true,
+  });
 
   return (
     <div className="relative">
       <div className="dark:bg-background border-foreground/[0.1] relative overflow-hidden rounded-sm border bg-neutral-50">
-        <div className="border-foreground/[0.08] dark:bg-card/50 flex border-b bg-neutral-100/50">
-          <button
-            type="button"
-            onClick={() => setActiveTab("server")}
-            className={`relative flex items-center gap-1.5 px-4 py-2 font-mono text-[13px] transition-colors ${
-              activeTab === "server"
-                ? "text-foreground/80"
-                : "text-foreground/40 hover:text-foreground/60"
-            }`}
-          >
-            paykit.ts
-            {activeTab === "server" && (
-              <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("handler")}
-            className={`relative flex items-center gap-1.5 px-4 py-2 font-mono text-[13px] transition-colors ${
-              activeTab === "handler"
-                ? "text-foreground/80"
-                : "text-foreground/40 hover:text-foreground/60"
-            }`}
-          >
-            route.ts
-            {activeTab === "handler" && (
-              <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
-            )}
-          </button>
+        <div
+          className="border-foreground/[0.08] dark:bg-card/50 flex border-b bg-neutral-100/50"
+          role="tablist"
+          aria-label="PayKit setup files"
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              role="tab"
+              id={`server-client-tab-${tab.key}`}
+              aria-controls={`server-client-panel-${tab.key}`}
+              aria-selected={activeTab === tab.key}
+              onClick={() => handleTabChange(tab.key)}
+              className={`relative flex items-center gap-1.5 px-4 py-2 font-mono text-[13px] transition-[color,background-color] duration-150 ${
+                activeTab === tab.key
+                  ? "text-foreground/85"
+                  : "text-foreground/40 hover:bg-foreground/[0.02] hover:text-foreground/60"
+              }`}
+            >
+              {activeTab === tab.key && (
+                <motion.span
+                  layoutId="server-client-tab-active"
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 420, damping: 34, mass: 0.68 }
+                  }
+                  className="bg-foreground/[0.03] absolute inset-0"
+                />
+              )}
+              <span className="relative z-10">{tab.label}</span>
+              {activeTab === tab.key && (
+                <motion.span
+                  key={`${tab.key}-swallow`}
+                  initial={
+                    shouldReduceMotion
+                      ? false
+                      : {
+                          scaleX: 0.68,
+                          opacity: 0.8,
+                        }
+                  }
+                  animate={
+                    shouldReduceMotion
+                      ? undefined
+                      : {
+                          scaleX: 1,
+                          opacity: 1,
+                        }
+                  }
+                  transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ transformOrigin: tabDirection > 0 ? "left" : "right" }}
+                  className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px"
+                />
+              )}
+            </button>
+          ))}
         </div>
 
         <div className="relative">
-          <div className={serverCodeBlockClassName}>
-            <DynamicCodeBlock lang="ts" code={serverCode} codeblock={SHARED_CODEBLOCK_PROPS} />
-          </div>
-          <div className={handlerCodeBlockClassName}>
-            <DynamicCodeBlock lang="ts" code={handlerCode} codeblock={SHARED_CODEBLOCK_PROPS} />
-          </div>
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab.key;
+            return (
+              <motion.div
+                key={tab.key}
+                ref={(node) => {
+                  panelRefs.current[tab.key] = node;
+                }}
+                role="tabpanel"
+                id={`server-client-panel-${tab.key}`}
+                aria-labelledby={`server-client-tab-${tab.key}`}
+                aria-hidden={!isActive}
+                initial={false}
+                animate={
+                  shouldReduceMotion
+                    ? {
+                        opacity: isActive ? 1 : 0,
+                        y: 0,
+                        x: 0,
+                        filter: "blur(0px)",
+                      }
+                    : isActive
+                      ? {
+                          opacity: 1,
+                          y: 0,
+                          x: 0,
+                          filter: "blur(0px)",
+                        }
+                      : {
+                          opacity: 0,
+                          y: 6,
+                          x: tabDirection > 0 ? -16 : 16,
+                          filter: "blur(1.5px)",
+                        }
+                }
+                transition={{
+                  duration: shouldReduceMotion ? 0 : isActive ? 0.28 : 0,
+                  ease: [0.23, 1, 0.32, 1],
+                }}
+                className={
+                  isActive
+                    ? "relative z-10 w-full"
+                    : "pointer-events-none invisible absolute inset-0 z-0 w-full select-none"
+                }
+              >
+                <DynamicCodeBlock lang="ts" code={tab.code} codeblock={SHARED_CODEBLOCK_PROPS} />
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -542,7 +718,26 @@ export function ServerClientTabs() {
 
 export function CodeExamplesSection() {
   const tabs = Object.keys(codeExamples);
+  const shouldReduceMotion = useReducedMotion();
+  const [tabDirection, setTabDirection] = useState<1 | -1>(1);
   const [activeTab, setActiveTab] = useState<string>("Checkout");
+  const activeTabIndex = tabs.indexOf(activeTab);
+  const panelRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  const handleTabChange = (nextTab: string) => {
+    if (nextTab === activeTab) {
+      return;
+    }
+    const nextIndex = tabs.indexOf(nextTab);
+    setTabDirection(nextIndex > activeTabIndex ? 1 : -1);
+    setActiveTab(nextTab);
+  };
+
+  useCodeTypewriterAnimation({
+    activeKey: activeTab,
+    panelRefs,
+    shouldReduceMotion: shouldReduceMotion === true,
+  });
 
   return (
     <div>
@@ -559,36 +754,120 @@ export function CodeExamplesSection() {
       </p>
 
       <div className="border-foreground/[0.1] dark:bg-background/40 overflow-hidden rounded-sm border bg-neutral-50/50">
-        <div className="border-foreground/[0.09] dark:bg-card/50 no-scrollbar flex overflow-x-auto border-b bg-neutral-100/50">
+        <div
+          className="border-foreground/[0.09] dark:bg-card/50 no-scrollbar flex overflow-x-auto border-b bg-neutral-100/50"
+          role="tablist"
+          aria-label="Unified API examples"
+        >
           {tabs.map((tab) => (
             <button
               key={tab}
               type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`border-foreground/[0.08] relative flex shrink-0 items-center gap-1.5 border-r px-3 py-2 font-mono text-[13px] transition-colors last:border-r-0 ${
+              role="tab"
+              id={`unified-api-tab-${tab.toLowerCase()}`}
+              aria-controls={`unified-api-panel-${tab.toLowerCase()}`}
+              aria-selected={activeTab === tab}
+              onClick={() => handleTabChange(tab)}
+              className={`border-foreground/[0.08] relative flex shrink-0 items-center gap-1.5 border-r px-3 py-2 font-mono text-[13px] transition-[color,background-color] duration-150 last:border-r-0 ${
                 activeTab === tab
-                  ? "text-foreground/90 bg-foreground/[0.03]"
-                  : "text-foreground/45 hover:text-foreground/70"
+                  ? "text-foreground/90"
+                  : "text-foreground/45 hover:bg-foreground/[0.02] hover:text-foreground/70"
               }`}
             >
-              {tab}
               {activeTab === tab && (
-                <span className="absolute right-0 bottom-0 left-0 h-px bg-emerald-500/70 dark:bg-emerald-400/60" />
+                <motion.span
+                  layoutId="unified-api-tab-active"
+                  transition={
+                    shouldReduceMotion
+                      ? { duration: 0 }
+                      : { type: "spring", stiffness: 420, damping: 34, mass: 0.68 }
+                  }
+                  className="bg-foreground/[0.03] absolute inset-0"
+                />
+              )}
+              <span className="relative z-10">{tab}</span>
+              {activeTab === tab && (
+                <motion.span
+                  key={`${tab}-swallow`}
+                  initial={
+                    shouldReduceMotion
+                      ? false
+                      : {
+                          scaleX: 0.68,
+                          opacity: 0.8,
+                        }
+                  }
+                  animate={
+                    shouldReduceMotion
+                      ? undefined
+                      : {
+                          scaleX: 1,
+                          opacity: 1,
+                        }
+                  }
+                  transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
+                  style={{ transformOrigin: tabDirection > 0 ? "left" : "right" }}
+                  className="absolute right-0 bottom-0 left-0 h-px bg-emerald-500/70 dark:bg-emerald-400/60"
+                />
               )}
             </button>
           ))}
         </div>
 
-        <div>
-          {tabs.map((tab) => (
-            <div key={tab} className={activeTab === tab ? "block" : "hidden"}>
-              <DynamicCodeBlock
-                lang="ts"
-                code={codeExamples[tab] ?? ""}
-                codeblock={SHARED_CODEBLOCK_PROPS}
-              />
-            </div>
-          ))}
+        <div className="relative">
+          {tabs.map((tab) => {
+            const isActive = tab === activeTab;
+            return (
+              <motion.div
+                key={tab}
+                ref={(node) => {
+                  panelRefs.current[tab] = node;
+                }}
+                role="tabpanel"
+                id={`unified-api-panel-${tab.toLowerCase()}`}
+                aria-labelledby={`unified-api-tab-${tab.toLowerCase()}`}
+                aria-hidden={!isActive}
+                initial={false}
+                animate={
+                  shouldReduceMotion
+                    ? {
+                        opacity: isActive ? 1 : 0,
+                        y: 0,
+                        x: 0,
+                        filter: "blur(0px)",
+                      }
+                    : isActive
+                      ? {
+                          opacity: 1,
+                          y: 0,
+                          x: 0,
+                          filter: "blur(0px)",
+                        }
+                      : {
+                          opacity: 0,
+                          y: 6,
+                          x: tabDirection > 0 ? -16 : 16,
+                          filter: "blur(1.5px)",
+                        }
+                }
+                transition={{
+                  duration: shouldReduceMotion ? 0 : isActive ? 0.28 : 0,
+                  ease: [0.23, 1, 0.32, 1],
+                }}
+                className={
+                  isActive
+                    ? "relative z-10 w-full"
+                    : "pointer-events-none invisible absolute inset-0 z-0 w-full select-none"
+                }
+              >
+                <DynamicCodeBlock
+                  lang="ts"
+                  code={codeExamples[tab] ?? ""}
+                  codeblock={SHARED_CODEBLOCK_PROPS}
+                />
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </div>

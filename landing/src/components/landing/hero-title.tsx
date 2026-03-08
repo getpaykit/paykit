@@ -87,21 +87,17 @@ export function HeroTitle() {
             href={URLs.githubRepo}
             target="_blank"
             rel="noopener noreferrer"
-            className="group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-colors sm:px-5 sm:text-sm"
+            className="group dark:text-foreground/75 hover:dark:text-foreground/90 relative inline-flex items-center gap-1.5 px-4 py-2 text-xs font-medium text-neutral-600 transition-[color,transform] duration-200 motion-safe:hover:-translate-y-px motion-safe:active:translate-y-0 sm:px-5 sm:text-sm"
           >
             {/* Diagonal lines background */}
             <span
-              className="absolute inset-0 opacity-[0.13] transition-opacity group-hover:opacity-[0.18]"
-              style={{
-                backgroundImage: `repeating-linear-gradient(
-                  -45deg,
-                  transparent,
-                  transparent 4px,
-                  currentColor 4px,
-                  currentColor 5px
-                )`,
-              }}
-            />
+              className="pointer-events-none absolute inset-0 overflow-hidden"
+              aria-hidden="true"
+            >
+              <span className="absolute -inset-x-4 inset-y-0 opacity-0 transition-[opacity,transform] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] group-hover:opacity-[0.2] motion-safe:translate-x-1 motion-safe:group-hover:translate-x-0">
+                <span className="github-cta-stripes absolute inset-0 motion-safe:group-hover:animate-[github-stripes-drift_950ms_linear_infinite]" />
+              </span>
+            </span>
             {/* Top border */}
             <span className="bg-foreground/22 group-hover:bg-foreground/30 absolute top-0 -right-[6px] -left-[6px] h-px transition-colors" />
             {/* Bottom border */}
