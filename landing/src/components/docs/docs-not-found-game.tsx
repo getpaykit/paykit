@@ -98,14 +98,22 @@ function useSnakeGame() {
   useEffect(() => {
     if (dead) return;
     function handleKey(e: KeyboardEvent) {
-      const key = e.key;
-      if ((key === "ArrowUp" || key === "KeyW") && nextDir.current !== "down")
+      const key = e.key.toLowerCase();
+      const code = e.code;
+
+      if ((key === "arrowup" || key === "w" || code === "KeyW") && nextDir.current !== "down")
         nextDir.current = "up";
-      else if ((key === "ArrowDown" || key === "KeyS") && nextDir.current !== "up")
+      else if ((key === "arrowdown" || key === "s" || code === "KeyS") && nextDir.current !== "up")
         nextDir.current = "down";
-      else if ((key === "ArrowLeft" || key === "KeyA") && nextDir.current !== "right")
+      else if (
+        (key === "arrowleft" || key === "a" || code === "KeyA") &&
+        nextDir.current !== "right"
+      )
         nextDir.current = "left";
-      else if ((key === "ArrowRight" || key === "KeyD") && nextDir.current !== "left")
+      else if (
+        (key === "arrowright" || key === "d" || code === "KeyD") &&
+        nextDir.current !== "left"
+      )
         nextDir.current = "right";
     }
     window.addEventListener("keydown", handleKey);
@@ -131,6 +139,19 @@ export function DocsNotFoundGame() {
   const toggleFullscreen = useCallback(() => {
     setFullscreen((prev) => !prev);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        close();
+      }
+    }
+
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
+  }, [close, open]);
 
   if (!open) return null;
 
