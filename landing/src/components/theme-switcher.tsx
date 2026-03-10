@@ -2,8 +2,8 @@
 
 import { Moon, Sun } from "lucide-react";
 
-import { useThemeTransition } from "@/components/theme-transition-provider";
 import { Button } from "@/components/ui/button";
+import { useThemeTransition } from "@/components/use-theme-transition";
 
 export function ThemeSwitcher() {
   const { activeTheme, mounted, toggleTheme } = useThemeTransition();

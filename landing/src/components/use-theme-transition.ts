@@ -1,18 +1,10 @@
 "use client";
 
 import { useTheme } from "next-themes";
-import { createContext, useContext, useEffect, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 
 type ActiveTheme = "dark" | "light";
-
-type ThemeTransitionContextValue = {
-  activeTheme: ActiveTheme;
-  isTransitioning: boolean;
-  mounted: boolean;
-  toggleTheme: () => void;
-};
 
 type ViewTransitionLike = {
   finished: Promise<void>;
@@ -22,8 +14,6 @@ type DocumentWithViewTransition = Document & {
   startViewTransition?: (updateCallback: () => Promise<void> | void) => ViewTransitionLike;
 };
 
-const ThemeTransitionContext = createContext<ThemeTransitionContextValue | null>(null);
-
 function applyThemeToDocument(theme: ActiveTheme) {
   const root = document.documentElement;
   root.classList.remove("light", "dark");
@@ -31,7 +21,7 @@ function applyThemeToDocument(theme: ActiveTheme) {
   root.style.colorScheme = theme;
 }
 
-export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
+export function useThemeTransition() {
   const { resolvedTheme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -84,26 +74,9 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
     void runTransition();
   };
 
-  return (
-    <ThemeTransitionContext.Provider
-      value={{
-        activeTheme,
-        isTransitioning,
-        mounted,
-        toggleTheme,
-      }}
-    >
-      {children}
-    </ThemeTransitionContext.Provider>
-  );
-}
-
-export function useThemeTransition() {
-  const context = useContext(ThemeTransitionContext);
-
-  if (!context) {
-    throw new Error("useThemeTransition must be used within ThemeTransitionProvider");
-  }
-
-  return context;
+  return {
+    activeTheme,
+    mounted,
+    toggleTheme,
+  };
 }

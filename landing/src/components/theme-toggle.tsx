@@ -1,7 +1,7 @@
 "use client";
 
-import { useThemeTransition } from "@/components/theme-transition-provider";
 import { Button } from "@/components/ui/button";
+import { useThemeTransition } from "@/components/use-theme-transition";
 
 export function ThemeToggle() {
   const { toggleTheme } = useThemeTransition();
