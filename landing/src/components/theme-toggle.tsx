@@ -1,7 +1,17 @@
 "use client";
 
+import type { MouseEvent } from "react";
+
 import { useThemeTransition } from "@/components/theme-transition-provider";
 import { Button } from "@/components/ui/button";
+
+function getToggleOrigin(event: MouseEvent<HTMLButtonElement>) {
+  const rect = event.currentTarget.getBoundingClientRect();
+  return {
+    x: rect.left + rect.width / 2,
+    y: rect.top + rect.height / 2,
+  };
+}
 
 export function ThemeToggle() {
   const { activeTheme, toggleTheme } = useThemeTransition();
@@ -10,7 +20,10 @@ export function ThemeToggle() {
     <Button
       variant="link"
       size="icon"
-      onClick={toggleTheme}
+      onClick={(event) => {
+        toggleTheme(getToggleOrigin(event));
+      }}
+      className="cursor-pointer"
       aria-label={activeTheme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
       suppressHydrationWarning
     >

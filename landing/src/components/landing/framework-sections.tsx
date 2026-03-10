@@ -398,85 +398,138 @@ const _categoryColors: Record<string, string> = {
   ai: "text-pink-500/50 dark:text-pink-400/40",
 };
 
-const codeExamples: Record<string, string> = {
-  Checkout: `const checkout = await paykit.api.createCheckout({
-  customerId: "user_123",
-  amount: 9900, // $99.00
-  description: "Lifetime License",
-  successURL: "https://myapp.com/success",
-  cancelURL: "https://myapp.com/cancel",
+const codeExamples = {
+  Checkout: {
+    file: "checkout.ts",
+    lead: "Create a hosted checkout after syncing the billing identity you own.",
+    code: `import { paykit } from "@/server/paykit";
+
+const customer = await paykit.customer.sync({
+  id: "user_123",
+  email: "jane@example.com",
+  name: "Jane Doe",
+});
+
+const checkout = await paykit.checkout.create({
+  providerId: "stripe",
+  customerId: customer.id,
+  amount: 4900,
+  description: "Starter plan",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
   attachMethod: true,
 });
 
-// redirect user to checkout.url`,
-  Subscriptions: `const subscription = await paykit.api.createSubscription({
-  customerId: "user_123",
-  amount: 2900, // $29/mo
-  interval: "month",
-  description: "Pro Plan",
-  trialDays: 14,
+// redirect the customer to checkout.url`,
+  },
+  "As Customer": {
+    file: "billing.ts",
+    lead: "Scope repeat billing actions to one customer identity with asCustomer().",
+    code: `const billing = paykit.asCustomer({
+  id: "team_acme",
+  email: "billing@acme.com",
+  name: "Acme Inc.",
 });
 
-// cancel at period end
-await paykit.api.cancelSubscription({
-  id: subscription.id,
-  mode: "at_period_end",
+const checkout = await billing.checkout.create({
+  providerId: "stripe",
+  amount: 2900,
+  description: "Team plan",
+  successURL: "https://app.example.com/billing/success",
+  cancelURL: "https://app.example.com/billing/cancel",
+});
+
+const attach = await billing.paymentMethod.attach({
+  providerId: "stripe",
+  returnURL: "https://app.example.com/settings/billing",
 });`,
-  Events: `const paykit = createPayKit({
-  // ...
+  },
+  "Payment Methods": {
+    file: "payment-methods.ts",
+    lead: "List saved methods, mark a default, then charge against the normalized local record.",
+    code: `const methods = await paykit.paymentMethod.list({
+  providerId: "stripe",
+  customerId: "user_123",
+});
+
+const defaultMethod = methods[0];
+
+if (defaultMethod) {
+  await paykit.paymentMethod.setDefault({
+    providerId: "stripe",
+    customerId: "user_123",
+    paymentMethodId: defaultMethod.id,
+  });
+
+  await paykit.charge.create({
+    providerId: "stripe",
+    customerId: "user_123",
+    paymentMethodId: defaultMethod.id,
+    amount: 1900,
+    description: "March usage",
+  });
+}`,
+  },
+  Webhooks: {
+    file: "route.ts",
+    lead: "Verify provider webhooks through one route and react to normalized PayKit events.",
+    code: `import { stripe } from "@paykitjs/stripe";
+import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { createPayKit } from "paykitjs";
+
+const paykit = createPayKit({
+  database: pool,
+  providers: [stripe({ /* keys */ })],
   on: {
-    "subscription.activated": async ({ subscription, customer }) => {
-      await sendEmail(customer.email, "Welcome to Pro!");
+    "checkout.completed": ({ payload }) => {
+      console.info("checkout.completed", payload.customer.id);
     },
-    "payment.succeeded": async ({ payment }) => {
-      console.log("Payment received:", payment.id);
-    },
-    "invoice.payment_failed": async ({ invoice, error }) => {
-      await alertTeam(invoice.customerId, error);
+    "payment.succeeded": ({ payload }) => {
+      console.info("payment.succeeded", payload.payment.id);
     },
   },
-});`,
-  Invoices: `const invoices = await paykit.api.listInvoices({
-  customerId: "user_123",
-  status: "paid",
-  limit: 10,
 });
 
-const invoice = await paykit.api.getInvoice({ id: "inv_abc" });
-// invoice.pdfURL  → download link
-// invoice.total   → amount in cents
-// invoice.status  → "paid"`,
-};
+export const { GET, POST } = toNextJsHandler(paykit);`,
+  },
+} as const;
+
+type CodeExampleTab = keyof typeof codeExamples;
 
 export const serverCode = `import { createPayKit } from "paykitjs"
 import { stripe } from "@paykitjs/stripe"
-import { drizzleAdapter } from "paykitjs/adapters/drizzle"
+import { Pool } from "pg"
+
+const pool = new Pool({
+  connectionString: env.DATABASE_URL,
+})
 
 export const paykit = createPayKit({
-  database: drizzleAdapter(db),
+  database: pool,
 
   providers: [
     stripe({
+      currency: "usd",
       secretKey: env.STRIPE_SECRET_KEY,
       webhookSecret: env.STRIPE_WEBHOOK_SECRET,
     }),
   ],
 
   on: {
-    "subscription.activated": async ({ subscription, customer }) => {
-      await sendEmail(customer.email, "Welcome to Pro!")
+    "checkout.completed": ({ payload }) => {
+      console.info("[paykit] checkout.completed", payload)
     },
-    "payment.succeeded": async ({ payment }) => {
-      console.log("Payment received", payment)
+    "payment.succeeded": ({ payload }) => {
+      console.info("[paykit] payment.succeeded", payload)
     },
   },
 })`;
 
-export const handlerCode = `// app/api/paykit/[...path]/route.ts
-import { paykit } from "@/lib/paykit"
+export const handlerCode = `// src/app/api/paykit/webhooks/[providerId]/route.ts
+import { toNextJsHandler } from "paykitjs/handlers/next-js"
+import { paykit } from "@/server/paykit"
 
-// Handles webhooks and client API requests
-export const { GET, POST } = paykit.handler`;
+export const { GET, POST } = toNextJsHandler(paykit)`;
 
 const SHARED_CODEBLOCK_PROPS = {
   className:
@@ -541,8 +594,9 @@ export function ServerClientTabs() {
 }
 
 export function CodeExamplesSection() {
-  const tabs = Object.keys(codeExamples);
-  const [activeTab, setActiveTab] = useState<string>("Checkout");
+  const tabs = Object.keys(codeExamples) as CodeExampleTab[];
+  const [activeTab, setActiveTab] = useState<CodeExampleTab>("Checkout");
+  const activeExample = codeExamples[activeTab];
 
   return (
     <div>
@@ -554,8 +608,8 @@ export function CodeExamplesSection() {
       </div>
 
       <p className="text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl text-sm leading-relaxed">
-        One API for checkout, subscriptions, invoices, and events — regardless of which payment
-        provider you use.
+        One server API for hosted checkout, customer-scoped billing, saved payment methods, direct
+        charges, and verified provider webhooks.
       </p>
 
       <div className="border-foreground/[0.1] dark:bg-background/40 overflow-hidden rounded-sm border bg-neutral-50/50">
@@ -579,17 +633,16 @@ export function CodeExamplesSection() {
           ))}
         </div>
 
-        <div>
-          {tabs.map((tab) => (
-            <div key={tab} className={activeTab === tab ? "block" : "hidden"}>
-              <DynamicCodeBlock
-                lang="ts"
-                code={codeExamples[tab] ?? ""}
-                codeblock={SHARED_CODEBLOCK_PROPS}
-              />
-            </div>
-          ))}
+        <div className="border-foreground/[0.08] bg-background/40 flex flex-col gap-2 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-foreground/55 dark:text-foreground/45 text-sm leading-relaxed">
+            {activeExample.lead}
+          </p>
+          <span className="text-foreground/40 dark:text-foreground/35 font-mono text-xs tracking-wider uppercase">
+            {activeExample.file}
+          </span>
         </div>
+
+        <DynamicCodeBlock lang="ts" code={activeExample.code} codeblock={SHARED_CODEBLOCK_PROPS} />
       </div>
     </div>
   );

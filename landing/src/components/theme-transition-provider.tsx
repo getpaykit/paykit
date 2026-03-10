@@ -1,105 +1,70 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
 import { useTheme } from "next-themes";
 import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type ThemeName = "dark" | "light";
-type TransitionPhase = "cover" | "reveal";
+type ThemeToggleOrigin = {
+  x: number;
+  y: number;
+};
 
 type ThemeTransitionContextValue = {
   activeTheme: ThemeName;
   isMounted: boolean;
   isTransitioning: boolean;
-  toggleTheme: () => void;
+  toggleTheme: (origin?: ThemeToggleOrigin) => void;
 };
 
 const ThemeTransitionContext = createContext<ThemeTransitionContextValue | null>(null);
 
-function clearScheduledTimeouts(timeoutIds: number[]) {
-  for (const timeoutId of timeoutIds) {
-    window.clearTimeout(timeoutId);
-  }
-}
+type ViewTransitionController = {
+  finished: Promise<void>;
+};
+
+type DocumentWithViewTransition = Document & {
+  startViewTransition?: (update: () => Promise<void> | void) => ViewTransitionController;
+};
+
+const themeWipeClasses = ["theme-wipe-active", "theme-wipe-dark", "theme-wipe-light"] as const;
 
 function getNextTheme(theme: ThemeName): ThemeName {
   return theme === "dark" ? "light" : "dark";
 }
 
-function waitForThemePaint() {
-  return new Promise<void>((resolve) => {
-    window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => {
-        resolve();
-      });
-    });
-  });
+function clearThemeWipeClasses() {
+  document.documentElement.classList.remove(...themeWipeClasses);
 }
 
-function getCurtainBackground(theme: ThemeName) {
-  return theme === "dark"
-    ? "var(--theme-transition-dark-curtain)"
-    : "var(--theme-transition-light-curtain)";
+function applyResolvedTheme(theme: ThemeName) {
+  document.documentElement.classList.toggle("dark", theme === "dark");
+  document.documentElement.style.colorScheme = theme;
 }
 
-function getCurtainShadow(theme: ThemeName) {
-  return theme === "dark"
-    ? "var(--theme-transition-dark-shadow)"
-    : "var(--theme-transition-light-shadow)";
-}
-
-function ThemeCurtain({ phase, theme }: { phase: TransitionPhase; theme: ThemeName }) {
-  return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-      <motion.div
-        className="absolute top-0 right-[-10vw] left-[-10vw] h-[120vh] will-change-transform"
-        initial={{ y: "-118%" }}
-        animate={phase === "cover" ? { y: "0%" } : { y: "112%" }}
-        transition={{
-          duration: phase === "cover" ? 0.44 : 0.36,
-          ease: [0.23, 1, 0.32, 1],
-        }}
-        style={{
-          backgroundColor: getCurtainBackground(theme),
-          boxShadow: getCurtainShadow(theme),
-        }}
-      >
-        <div
-          className="absolute inset-0 opacity-40"
-          style={{
-            background:
-              "linear-gradient(180deg, transparent 0%, transparent 62%, rgba(255,255,255,0.06) 84%, rgba(0,0,0,0.06) 100%)",
-          }}
-        />
-        <div
-          className="absolute right-[4%] bottom-[-5.5rem] left-[4%] h-28 rounded-b-[100%]"
-          style={{
-            backgroundColor: getCurtainBackground(theme),
-            boxShadow: getCurtainShadow(theme),
-          }}
-        />
-        <div
-          className="absolute right-[10%] bottom-[-3rem] left-[10%] h-16 rounded-b-[100%] opacity-70"
-          style={{
-            background:
-              theme === "dark"
-                ? "linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))"
-                : "linear-gradient(180deg, rgba(255,255,255,0.68), rgba(255,255,255,0.18))",
-          }}
-        />
-      </motion.div>
-    </div>
+function setThemeTransitionOrigin(origin: ThemeToggleOrigin) {
+  const radius = Math.hypot(
+    Math.max(origin.x, window.innerWidth - origin.x),
+    Math.max(origin.y, window.innerHeight - origin.y),
   );
+
+  document.documentElement.style.setProperty("--theme-transition-x", `${origin.x}px`);
+  document.documentElement.style.setProperty("--theme-transition-y", `${origin.y}px`);
+  document.documentElement.style.setProperty("--theme-transition-full-radius", `${radius}px`);
+}
+
+function applyThemeWipeClasses(theme: ThemeName) {
+  clearThemeWipeClasses();
+  document.documentElement.classList.add("theme-wipe-active");
+  document.documentElement.classList.add(theme === "dark" ? "theme-wipe-dark" : "theme-wipe-light");
 }
 
 export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
   const { resolvedTheme, setTheme } = useTheme();
   const shouldReduceMotion = useReducedMotion();
   const [mounted, setMounted] = useState(false);
-  const [phase, setPhase] = useState<TransitionPhase | null>(null);
-  const [overlayTheme, setOverlayTheme] = useState<ThemeName | null>(null);
-  const timeoutIdsRef = useRef<number[]>([]);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const transitionRunRef = useRef(0);
 
   useEffect(() => {
@@ -107,31 +72,22 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
 
     return () => {
       transitionRunRef.current += 1;
-      clearScheduledTimeouts(timeoutIdsRef.current);
-      timeoutIdsRef.current = [];
+      clearThemeWipeClasses();
     };
   }, []);
 
   const activeTheme: ThemeName = mounted && resolvedTheme === "dark" ? "dark" : "light";
-  const isTransitioning = phase !== null;
 
-  const waitForDelay = (duration: number) => {
-    return new Promise<void>((resolve) => {
-      const timeoutId = window.setTimeout(() => {
-        timeoutIdsRef.current = timeoutIdsRef.current.filter((storedId) => storedId !== timeoutId);
-        resolve();
-      }, duration);
+  const finishTransition = (runId: number) => {
+    if (transitionRunRef.current !== runId) {
+      return;
+    }
 
-      timeoutIdsRef.current.push(timeoutId);
-    });
+    clearThemeWipeClasses();
+    setIsTransitioning(false);
   };
 
-  const resetTransition = () => {
-    setPhase(null);
-    setOverlayTheme(null);
-  };
-
-  const toggleTheme = () => {
+  const toggleTheme = (origin?: ThemeToggleOrigin) => {
     if (!mounted || isTransitioning) {
       return;
     }
@@ -139,39 +95,40 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
     const nextTheme = getNextTheme(activeTheme);
 
     if (shouldReduceMotion) {
+      applyResolvedTheme(nextTheme);
       setTheme(nextTheme);
       return;
     }
 
     const runId = transitionRunRef.current + 1;
     transitionRunRef.current = runId;
-    setOverlayTheme(nextTheme);
-    setPhase("cover");
+    setIsTransitioning(true);
 
-    void (async () => {
-      await waitForDelay(110);
-
-      if (transitionRunRef.current !== runId) {
-        return;
-      }
-
+    const documentWithViewTransition = document as DocumentWithViewTransition;
+    if (!documentWithViewTransition.startViewTransition) {
+      applyResolvedTheme(nextTheme);
       setTheme(nextTheme);
-      await waitForThemePaint();
-      await waitForDelay(180);
+      window.requestAnimationFrame(() => {
+        finishTransition(runId);
+      });
+      return;
+    }
 
-      if (transitionRunRef.current !== runId) {
-        return;
-      }
+    const fallbackOrigin = {
+      x: window.innerWidth - 40,
+      y: 40,
+    };
+    setThemeTransitionOrigin(origin ?? fallbackOrigin);
+    applyThemeWipeClasses(nextTheme);
 
-      setPhase("reveal");
-      await waitForDelay(320);
+    const transition = documentWithViewTransition.startViewTransition(() => {
+      applyResolvedTheme(nextTheme);
+      setTheme(nextTheme);
+    });
 
-      if (transitionRunRef.current !== runId) {
-        return;
-      }
-
-      resetTransition();
-    })();
+    void transition.finished.finally(() => {
+      finishTransition(runId);
+    });
   };
 
   return (
@@ -183,12 +140,7 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
         toggleTheme,
       }}
     >
-      <div className="relative isolate">
-        {mounted && overlayTheme && phase ? (
-          <ThemeCurtain phase={phase} theme={overlayTheme} />
-        ) : null}
-        <div className="relative z-[1]">{children}</div>
-      </div>
+      {children}
     </ThemeTransitionContext.Provider>
   );
 }

@@ -41,8 +41,8 @@ export function EarlyDevProvider({ children }: { children: ReactNode }) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">Coming Soon</DialogTitle>
             <DialogDescription>
-              PayKit is in early development. Documentation and guides are being written — star us
-              on GitHub to follow along.
+              PayKit is in early development. The foundation is live, and deeper guides plus more
+              provider coverage are still landing. Star the repo to follow along.
             </DialogDescription>
           </DialogHeader>
           <a

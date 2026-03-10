@@ -1,10 +1,10 @@
 import type { FAQPage, Organization, SoftwareApplication, WebSite, WithContext } from "schema-dts";
 
-export const OG_IMAGE_PATH = "/og.png";
+export const OG_IMAGE_PATH = "/opengraph-image";
 export const SITE_NAME = "PayKit";
-export const SITE_TITLE = "PayKit — Open-source payment orchestration for TypeScript";
+export const SITE_TITLE = "PayKit | Open-source payment orchestration for TypeScript";
 export const SITE_DESCRIPTION =
-  "Open-source TypeScript payment toolkit that unifies multiple payment providers behind a single, extensible API.";
+  "Open-source payment orchestration for TypeScript apps. Run hosted checkout, saved methods, charges, and provider webhooks through one API while your own database stays the source of truth.";
 export const URLs = {
   site: "https://paykit.sh",
   githubOrg: "https://github.com/getpaykit",
@@ -62,7 +62,7 @@ export const faqSchema: WithContext<FAQPage> = {
       name: "What is PayKit?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "PayKit is an open-source payment orchestration framework for TypeScript apps.",
+        text: "PayKit is an open-source payment orchestration framework for TypeScript apps that gives you one API for checkout, saved methods, charges, and provider webhooks.",
       },
     },
     {
@@ -70,7 +70,7 @@ export const faqSchema: WithContext<FAQPage> = {
       name: "Does PayKit process payments?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. PayKit orchestrates providers behind one API and does not process payments itself.",
+        text: "No. PayKit sits between your app and payment providers so you can keep billing state and business logic on your side.",
       },
     },
   ],

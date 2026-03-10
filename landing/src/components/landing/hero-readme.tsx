@@ -99,7 +99,7 @@ function ReadmeFooter() {
       {/* CTA */}
       <div className="relative">
         <p className="text-foreground/60 dark:text-foreground/50 text-center text-base tracking-tight">
-          Own your payments with confidence in minutes.
+          Ship billing flows without wiring your app to one provider.
         </p>
 
         <div className="mt-4 flex items-center justify-center gap-4">
@@ -207,10 +207,11 @@ export function HeroReadMe() {
             </h2>
 
             <p className="mb-5 text-sm leading-relaxed text-neutral-700 sm:mb-6 sm:text-[15px] sm:leading-relaxed dark:text-neutral-300">
-              PayKit is a payments orchestration framework for TypeScript. It sits between your app
-              and payment providers like Stripe or PayPal, giving you a unified API. Webhooks are
-              verified and normalized automatically. Your database owns the subscriptions, invoices,
-              and usage records — no provider lock-in.
+              PayKit sits between your app and providers like Stripe or PayPal so your product can
+              speak one billing API. Use hosted checkout, save methods for later charges, and
+              process provider webhooks through typed, normalized events. PayKit keeps the provider
+              edge thin while your own database stays the source of truth for customers, payment
+              methods, and payments.
             </p>
 
             <div className="my-6">
@@ -243,43 +244,43 @@ export function HeroReadMe() {
               {[
                 {
                   label: "Unified API",
-                  headline: "One API, every provider.",
-                  desc: "Stripe, PayPal, and regional PSPs behind a single TypeScript interface. Swap providers with config, not rewrites.",
+                  headline: "Switch providers without rewrites.",
+                  desc: "Keep checkout, saved methods, and charges behind one TypeScript interface instead of letting provider code leak into your app.",
                   providers: true,
                   href: "#",
                 },
                 {
                   label: "Subscriptions",
-                  headline: "Provider-native, unified.",
-                  desc: "Create, cancel, pause, resume — using each provider's own billing engine behind one consistent API.",
+                  headline: "Use native billing engines.",
+                  desc: "Let each provider run recurring billing while your app keeps one contract for create, pause, resume, and cancel flows.",
                   subscriptions: true,
                   href: "#",
                 },
                 {
                   label: "Checkout",
-                  headline: "Payments in minutes.",
-                  desc: "One-time payments, hosted checkout. Pass an amount and description — no product catalog needed.",
+                  headline: "Launch hosted checkout fast.",
+                  desc: "Create a checkout from amount, description, and redirect URLs. No provider dashboard choreography required.",
                   checkout: true,
                   href: "#",
                 },
                 {
                   label: "Webhook Engine",
-                  headline: "Normalized events.",
-                  desc: "Stripe's invoice.payment_failed and PayPal's BILLING.SUBSCRIPTION.PAYMENT.FAILED both become one typed event.",
+                  headline: "Turn provider noise into product events.",
+                  desc: "Map provider-specific webhook payloads into one typed event model your app can route, log, and react to.",
                   webhooks: true,
                   href: "#",
                 },
                 {
                   label: "Your Database",
-                  headline: "You own the state.",
-                  desc: "Prisma and Drizzle adapters sync everything to your DB. Business logic reads from your tables, not provider APIs.",
+                  headline: "Make your database the source of truth.",
+                  desc: "Sync customers, payment methods, and payments into tables your product can query directly instead of calling provider APIs.",
                   database: true,
                   href: "#",
                 },
                 {
                   label: "Type-Safe",
-                  headline: "End-to-end types.",
-                  desc: "Zod-validated inputs, typed events, plugin endpoints that merge into paykit.api.* automatically.",
+                  headline: "Catch billing mistakes earlier.",
+                  desc: "Typed providers, typed events, and validated inputs keep payment logic explicit as your integration surface grows.",
                   typesafe: true,
                   href: "#",
                 },

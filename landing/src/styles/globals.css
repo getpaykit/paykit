@@ -28,6 +28,45 @@
   }
 }
 
+.docs-crt-screen::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 80% 80% at 50% 50%,
+    transparent 50%,
+    oklch(0 0 0 / 0.08) 85%,
+    oklch(0 0 0 / 0.14) 100%
+  );
+}
+
+.docs-crt-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    oklch(0 0 0 / 0.03) 2px,
+    oklch(0 0 0 / 0.03) 3px
+  );
+}
+
+.dark .docs-crt-screen::after {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent 0,
+    transparent 2px,
+    oklch(1 0 0 / 0.025) 2px,
+    oklch(1 0 0 / 0.025) 3px
+  );
+}
+
 @keyframes icon-bounce {
   0% {
     transform: translateY(0);
@@ -75,7 +114,66 @@
   }
 }
 
+@keyframes theme-cutout-reveal {
+  from {
+    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+  }
+  to {
+    clip-path: circle(
+      var(--theme-transition-full-radius) at var(--theme-transition-x) var(--theme-transition-y)
+    );
+  }
+}
+
+@keyframes theme-cutout-conceal {
+  from {
+    clip-path: circle(
+      var(--theme-transition-full-radius) at var(--theme-transition-x) var(--theme-transition-y)
+    );
+  }
+  to {
+    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+  }
+}
+
+:root::view-transition-old(root),
+:root::view-transition-new(root) {
+  animation: none;
+}
+
+html.theme-wipe-active::view-transition-group(root),
+html.theme-wipe-active::view-transition-image-pair(root) {
+  animation-duration: 180ms;
+}
+
+html.theme-wipe-active::view-transition-old(root),
+html.theme-wipe-active::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html.theme-wipe-dark::view-transition-old(root) {
+  z-index: 0;
+}
+
+html.theme-wipe-dark::view-transition-new(root) {
+  animation: theme-cutout-reveal 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  z-index: 1;
+}
+
+html.theme-wipe-light::view-transition-new(root) {
+  z-index: 0;
+}
+
+html.theme-wipe-light::view-transition-old(root) {
+  animation: theme-cutout-conceal 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  z-index: 1;
+}
+
 :root {
+  --theme-transition-x: calc(100vw - 40px);
+  --theme-transition-y: 40px;
+  --theme-transition-full-radius: 0px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -128,10 +226,6 @@
   --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  --theme-transition-light-curtain: oklch(1 0 0);
-  --theme-transition-dark-curtain: oklch(0.182 0 0);
-  --theme-transition-light-shadow: 0 30px 90px rgba(15, 23, 42, 0.18);
-  --theme-transition-dark-shadow: 0 34px 120px rgba(0, 0, 0, 0.56);
 }
 
 .dark {

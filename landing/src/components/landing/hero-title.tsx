@@ -9,7 +9,7 @@ import { URLs } from "@/lib/consts";
 
 import { useEarlyDevDialog } from "./early-dev-dialog";
 
-const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
+const rotatingWords = ["TypeScript apps", "SaaS teams", "provider changes"];
 
 export function HeroTitle() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
@@ -36,7 +36,7 @@ export function HeroTitle() {
             aria-hidden="true"
           />
           <span className="text-sm text-neutral-600 sm:text-base dark:text-neutral-100">
-            Own your payments
+            Keep billing logic in your app
           </span>
         </div>
         <h1 className="max-w-4xl text-xl leading-tight tracking-tight text-neutral-800 sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl dark:text-neutral-200">
