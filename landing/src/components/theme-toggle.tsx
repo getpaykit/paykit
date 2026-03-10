@@ -1,18 +1,13 @@
 "use client";
-import { useTheme } from "next-themes";
 
+import { useThemeTransition } from "@/components/theme-transition-provider";
 import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
-  const { setTheme, resolvedTheme } = useTheme();
+  const { toggleTheme } = useThemeTransition();
 
   return (
-    <Button
-      variant="link"
-      size="icon"
-      onClick={() => setTheme(resolvedTheme === "light" ? "dark" : "light")}
-      suppressHydrationWarning
-    >
+    <Button variant="link" size="icon" onClick={toggleTheme} suppressHydrationWarning>
       {/* Sun icon - visible in light mode */}
       <svg
         xmlns="http://www.w3.org/2000/svg"
