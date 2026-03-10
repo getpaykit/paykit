@@ -1,6 +1,6 @@
 import type * as PageTree from "fumadocs-core/page-tree";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
-import { BookOpen, Coins, Download, Folder, Github, Play, SquareStack } from "lucide-react";
+import { Github } from "lucide-react";
 import { cloneElement } from "react";
 import type { ReactElement, ReactNode } from "react";
 

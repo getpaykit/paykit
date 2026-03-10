@@ -6,16 +6,12 @@ import type { ReactNode } from "react";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 
 type ThemeName = "dark" | "light";
-type ThemeToggleOrigin = {
-  x: number;
-  y: number;
-};
 
 type ThemeTransitionContextValue = {
   activeTheme: ThemeName;
   isMounted: boolean;
   isTransitioning: boolean;
-  toggleTheme: (origin?: ThemeToggleOrigin) => void;
+  toggleTheme: () => void;
 };
 
 const ThemeTransitionContext = createContext<ThemeTransitionContextValue | null>(null);
@@ -28,14 +24,14 @@ type DocumentWithViewTransition = Document & {
   startViewTransition?: (update: () => Promise<void> | void) => ViewTransitionController;
 };
 
-const themeWipeClasses = ["theme-wipe-active", "theme-wipe-dark", "theme-wipe-light"] as const;
+const themeTurnClasses = ["theme-turn-active", "theme-turn-dark", "theme-turn-light"] as const;
 
 function getNextTheme(theme: ThemeName): ThemeName {
   return theme === "dark" ? "light" : "dark";
 }
 
-function clearThemeWipeClasses() {
-  document.documentElement.classList.remove(...themeWipeClasses);
+function clearThemeTurnClasses() {
+  document.documentElement.classList.remove(...themeTurnClasses);
 }
 
 function applyResolvedTheme(theme: ThemeName) {
@@ -43,21 +39,10 @@ function applyResolvedTheme(theme: ThemeName) {
   document.documentElement.style.colorScheme = theme;
 }
 
-function setThemeTransitionOrigin(origin: ThemeToggleOrigin) {
-  const radius = Math.hypot(
-    Math.max(origin.x, window.innerWidth - origin.x),
-    Math.max(origin.y, window.innerHeight - origin.y),
-  );
-
-  document.documentElement.style.setProperty("--theme-transition-x", `${origin.x}px`);
-  document.documentElement.style.setProperty("--theme-transition-y", `${origin.y}px`);
-  document.documentElement.style.setProperty("--theme-transition-full-radius", `${radius}px`);
-}
-
-function applyThemeWipeClasses(theme: ThemeName) {
-  clearThemeWipeClasses();
-  document.documentElement.classList.add("theme-wipe-active");
-  document.documentElement.classList.add(theme === "dark" ? "theme-wipe-dark" : "theme-wipe-light");
+function applyThemeTurnClasses(theme: ThemeName) {
+  clearThemeTurnClasses();
+  document.documentElement.classList.add("theme-turn-active");
+  document.documentElement.classList.add(theme === "dark" ? "theme-turn-dark" : "theme-turn-light");
 }
 
 export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
@@ -72,7 +57,7 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
 
     return () => {
       transitionRunRef.current += 1;
-      clearThemeWipeClasses();
+      clearThemeTurnClasses();
     };
   }, []);
 
@@ -83,11 +68,11 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    clearThemeWipeClasses();
+    clearThemeTurnClasses();
     setIsTransitioning(false);
   };
 
-  const toggleTheme = (origin?: ThemeToggleOrigin) => {
+  const toggleTheme = () => {
     if (!mounted || isTransitioning) {
       return;
     }
@@ -114,12 +99,7 @@ export function ThemeTransitionProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const fallbackOrigin = {
-      x: window.innerWidth - 40,
-      y: 40,
-    };
-    setThemeTransitionOrigin(origin ?? fallbackOrigin);
-    applyThemeWipeClasses(nextTheme);
+    applyThemeTurnClasses(nextTheme);
 
     const transition = documentWithViewTransition.startViewTransition(() => {
       applyResolvedTheme(nextTheme);

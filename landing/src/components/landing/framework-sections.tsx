@@ -820,7 +820,7 @@ export function AiNativeSection() {
 
   useEffect(() => {
     if (!showSteps || visibleSteps >= steps.length) return;
-    const timeout = setTimeout(() => setVisibleSteps((v) => v + 1), visibleSteps === 0 ? 200 : 400);
+    const timeout = setTimeout(() => setVisibleSteps((v) => v + 1), visibleSteps === 0 ? 120 : 220);
     return () => clearTimeout(timeout);
   }, [showSteps, visibleSteps, steps.length]);
 
@@ -922,7 +922,7 @@ export function AiNativeSection() {
                 key={step.text}
                 initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.16, ease: "easeOut" }}
                 className="flex items-center gap-2.5 px-3 py-1.5"
               >
                 <span className="text-foreground/45 dark:text-foreground/35 w-8 shrink-0 font-mono text-[10px] tracking-wider uppercase">

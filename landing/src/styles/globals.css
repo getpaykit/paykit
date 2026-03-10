@@ -114,25 +114,14 @@
   }
 }
 
-@keyframes theme-cutout-reveal {
+@keyframes theme-mask-reveal {
   from {
-    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+    clip-path: inset(0 0 100% 0);
+    filter: brightness(0.99) drop-shadow(0 20px 26px var(--theme-turn-shadow-color));
   }
   to {
-    clip-path: circle(
-      var(--theme-transition-full-radius) at var(--theme-transition-x) var(--theme-transition-y)
-    );
-  }
-}
-
-@keyframes theme-cutout-conceal {
-  from {
-    clip-path: circle(
-      var(--theme-transition-full-radius) at var(--theme-transition-x) var(--theme-transition-y)
-    );
-  }
-  to {
-    clip-path: circle(0 at var(--theme-transition-x) var(--theme-transition-y));
+    clip-path: inset(0 0 0% 0);
+    filter: brightness(1) drop-shadow(0 0 0 var(--theme-turn-shadow-color));
   }
 }
 
@@ -141,39 +130,36 @@
   animation: none;
 }
 
-html.theme-wipe-active::view-transition-group(root),
-html.theme-wipe-active::view-transition-image-pair(root) {
-  animation-duration: 180ms;
+html.theme-turn-active::view-transition-group(root),
+html.theme-turn-active::view-transition-image-pair(root) {
+  animation: none;
 }
 
-html.theme-wipe-active::view-transition-old(root),
-html.theme-wipe-active::view-transition-new(root) {
+html.theme-turn-active::view-transition-old(root),
+html.theme-turn-active::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
 
-html.theme-wipe-dark::view-transition-old(root) {
+html.theme-turn-active::view-transition-old(root) {
   z-index: 0;
 }
 
-html.theme-wipe-dark::view-transition-new(root) {
-  animation: theme-cutout-reveal 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
+html.theme-turn-active::view-transition-new(root) {
+  animation: theme-mask-reveal 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: clip-path, filter;
   z-index: 1;
 }
 
-html.theme-wipe-light::view-transition-new(root) {
-  z-index: 0;
+html.theme-turn-light::view-transition-new(root) {
+  --theme-turn-shadow-color: oklch(0 0 0 / 0.12);
 }
 
-html.theme-wipe-light::view-transition-old(root) {
-  animation: theme-cutout-conceal 180ms cubic-bezier(0.4, 0, 0.2, 1) both;
-  z-index: 1;
+html.theme-turn-dark::view-transition-new(root) {
+  --theme-turn-shadow-color: oklch(0 0 0 / 0.28);
 }
 
 :root {
-  --theme-transition-x: calc(100vw - 40px);
-  --theme-transition-y: 40px;
-  --theme-transition-full-radius: 0px;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);

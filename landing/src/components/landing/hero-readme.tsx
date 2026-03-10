@@ -190,18 +190,13 @@ export function HeroReadMe() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
       className="flex w-full flex-col"
     >
       {/* Markdown content */}
       <div className="no-scrollbar flex-1 overflow-y-auto">
         <div className="p-5 pt-4 pb-0 lg:p-5 lg:pt-6">
-          <motion.article
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0"
-          >
+          <article className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0">
             <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
               README
             </h2>
@@ -563,7 +558,7 @@ export function HeroReadMe() {
             </div>
 
             <ReadmeFooter />
-          </motion.article>
+          </article>
         </div>
       </div>
     </motion.div>
