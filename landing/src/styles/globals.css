@@ -128,6 +128,10 @@
   --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+  --theme-transition-light-curtain: oklch(1 0 0);
+  --theme-transition-dark-curtain: oklch(0.182 0 0);
+  --theme-transition-light-shadow: 0 30px 90px rgba(15, 23, 42, 0.18);
+  --theme-transition-dark-shadow: 0 34px 120px rgba(0, 0, 0, 0.56);
 }
 
 .dark {
