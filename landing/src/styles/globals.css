@@ -194,6 +194,19 @@
   }
 }
 
+/*
+ * Fumadocs ships several docs surfaces with hard-coded `rounded-xl`.
+ * Normalize them at the docs container level so light and dark use the same radius.
+ */
+#nd-page :is(.rounded-xl, .rounded-2xl) {
+  border-radius: var(--radius-lg);
+}
+
+#nd-page .last\:rounded-b-xl:last-child {
+  border-bottom-right-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
 @theme inline {
   --breakpoint-navbar: 64rem;
   --color-background: var(--background);
