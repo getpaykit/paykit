@@ -12,60 +12,65 @@ import type { PayKitInstance } from "../types/instance";
 import type { PayKitOptions, ProviderId } from "../types/options";
 import { handleWebhook } from "../webhook/handle-webhook";
 import { createScopedInstance } from "./as-customer";
-import { createContext } from "./context";
+import { createContext, type PayKitContext } from "./context";
+import { attachPayKitInternalState } from "./internal";
 
 export function createPayKit<const TProviders extends readonly PayKitProvider[]>(
   options: PayKitOptions<TProviders>,
 ): PayKitInstance<ProviderId<TProviders>> {
-  const contextPromise = Promise.resolve(createContext(options));
+  let contextPromise: Promise<PayKitContext<ProviderId<TProviders>, TProviders>> | undefined;
+  const getContext = () => {
+    contextPromise ??= createContext(options);
+    return contextPromise;
+  };
 
-  return {
+  const instance: PayKitInstance<ProviderId<TProviders>> = {
     customer: {
       async sync(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return syncCustomer(ctx.database, input);
       },
       async get(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return getCustomerById(ctx.database, input.id);
       },
       async delete(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         await deleteCustomerById(ctx.database, input.id);
       },
     },
     charge: {
       async create(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return createCharge(ctx, input);
       },
     },
     checkout: {
       async create(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return createCheckout(ctx, input);
       },
     },
     paymentMethod: {
       async attach(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return attachPaymentMethod(ctx, input);
       },
       async list(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         return listPaymentMethods(ctx, input);
       },
       async setDefault(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         await setDefaultPaymentMethod(ctx, input);
       },
       async detach(input) {
-        const ctx = await contextPromise;
+        const ctx = await getContext();
         await detachPaymentMethod(ctx, input);
       },
     },
     async handleWebhook(input) {
-      const ctx = await contextPromise;
+      const ctx = await getContext();
       return handleWebhook(ctx, input);
     },
     asCustomer(identity) {
@@ -73,42 +78,48 @@ export function createPayKit<const TProviders extends readonly PayKitProvider[]>
       return {
         charge: {
           async create(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             return scoped.charge.create(input);
           },
         },
         checkout: {
           async create(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             return scoped.checkout.create(input);
           },
         },
         paymentMethod: {
           async attach(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             return scoped.paymentMethod.attach(input);
           },
           async list(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             return scoped.paymentMethod.list(input);
           },
           async setDefault(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             await scoped.paymentMethod.setDefault(input);
           },
           async detach(input) {
-            const ctx = await contextPromise;
+            const ctx = await getContext();
             const scoped = createScopedInstance(ctx, identity);
             await scoped.paymentMethod.detach(input);
           },
         },
       };
     },
-    $context: contextPromise,
+    get $context() {
+      return getContext();
+    },
   };
+
+  return attachPayKitInternalState(instance, {
+    database: options.database,
+  });
 }

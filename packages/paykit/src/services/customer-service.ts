@@ -3,7 +3,7 @@ import { and, eq, isNull } from "drizzle-orm";
 import type { PayKitContext } from "../core/context";
 import { PayKitError } from "../core/errors";
 import { generateId } from "../core/utils";
-import type { PayKitDatabase } from "../database/postgres/database";
+import type { PayKitDatabase } from "../database";
 import { customer, providerCustomer } from "../database/postgres/schema";
 import type { Customer, InternalProviderCustomer } from "../types/models";
 

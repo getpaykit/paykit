@@ -18,27 +18,45 @@
     "type": "git",
     "url": "git+https://github.com/getpaykit/paykit.git"
   },
+  "bin": {
+    "paykitjs": "./dist/cli/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./handlers/next-js": {
-      "types": "./src/handlers/next-js/index.ts",
-      "default": "./src/handlers/next-js/index.ts"
+      "types": "./dist/handlers/next-js/index.d.ts",
+      "default": "./dist/handlers/next-js/index.js"
     }
   },
+  "scripts": {
+    "build": "tsdown --config tsdown.config.ts",
+    "db:generate": "pnpm db:generate:postgres",
+    "db:generate:postgres": "drizzle-kit generate --config src/database/postgres/drizzle.config.ts"
+  },
   "dependencies": {
+    "commander": "^12.1.0",
+    "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
+    "jiti": "^2.6.1",
     "pg": "^8.20.0",
+    "typescript": "^5.9.2",
     "zod": "^4.0.0"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.3.15",
     "@types/pg": "^8.18.0",
+    "drizzle-kit": "^0.31.5",
     "pg-mem": "^3.0.14",
-    "typescript": "^5.9.2",
+    "tsdown": "^0.21.1",
     "vitest": "^4.0.18"
   }
 }

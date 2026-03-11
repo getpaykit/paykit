@@ -1,4 +1,4 @@
-import { createPostgresDatabase, type PayKitDatabase } from "../database/postgres/database";
+import { createDatabase, type PayKitDatabase } from "../database/index";
 import type { PayKitProvider } from "../providers/provider";
 import type { PayKitEventHandlers } from "../types/events";
 import type { PayKitOptions, ProviderId } from "../types/options";
@@ -37,7 +37,7 @@ export async function createContext<const TProviders extends readonly PayKitProv
     providers.set(provider.id as ProviderId<TProviders>, provider);
   }
 
-  const database = await createPostgresDatabase(options.database);
+  const database = await createDatabase(options.database);
 
   return {
     options,

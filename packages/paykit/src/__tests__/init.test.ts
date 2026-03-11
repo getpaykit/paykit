@@ -1,100 +1,9 @@
 import type { Pool } from "pg";
-import { newDb } from "pg-mem";
 import { describe, expect, it } from "vitest";
 
-import { toNextJsHandler } from "../handlers/next-js";
+import { toNextJsHandler } from "../handlers/next-js/index";
 import { createPayKit, defineProvider } from "../index";
-import { mockProvider } from "../test-utils/mock-provider";
-
-function createTestPool(): Pool {
-  const db = newDb();
-  const adapter = db.adapters.createPg();
-  const pool = new adapter.Pool() as unknown as Pool & {
-    connect: () => Promise<{
-      query: (...args: unknown[]) => Promise<unknown>;
-      release: () => void;
-    }>;
-    query: (...args: unknown[]) => Promise<unknown>;
-  };
-
-  const sanitizeQuery = (query: unknown): { rowMode: "array" | undefined; value: unknown } => {
-    if (!query || typeof query === "string") {
-      return { rowMode: undefined, value: query };
-    }
-    const { rowMode, types: _types, ...rest } = query as Record<string, unknown>;
-    return {
-      rowMode: rowMode === "array" ? "array" : undefined,
-      value: rest,
-    };
-  };
-
-  const getFieldNames = (query: unknown, result: unknown): string[] => {
-    const queryText = typeof query === "string" ? query : (query as { text?: string }).text;
-
-    if (queryText) {
-      const selectMatch = queryText.match(/select\s+(.+?)\s+from\s/isu);
-      const returningMatch = queryText.match(/returning\s+(.+)$/isu);
-      const segment = selectMatch?.[1] ?? returningMatch?.[1];
-      if (segment) {
-        const matches = [...segment.matchAll(/"([^"]+)"/gu)];
-        if (matches.length > 0) {
-          return matches.map((match) => match[1]!);
-        }
-      }
-    }
-
-    const queryResult = result as { rows?: Array<Record<string, unknown>> };
-    return queryResult.rows?.[0] ? Object.keys(queryResult.rows[0]) : [];
-  };
-
-  const adaptResult = (result: unknown, rowMode: "array" | undefined): unknown => {
-    if (rowMode !== "array") {
-      return result;
-    }
-
-    const queryResult = result as {
-      rows?: Array<Record<string, unknown>>;
-      fields?: Array<{ name: string }>;
-    };
-    const rows = queryResult.rows ?? [];
-    const fieldNames = getFieldNames(currentQuery, result);
-
-    return {
-      ...queryResult,
-      rows: rows.map((row) => fieldNames.map((fieldName) => row[fieldName])),
-    };
-  };
-
-  let currentQuery: unknown;
-  const originalQuery = pool.query.bind(pool) as (...args: unknown[]) => Promise<unknown>;
-  pool.query = ((...args: unknown[]) => {
-    const [query, ...rest] = args;
-    currentQuery = query;
-    const sanitized = sanitizeQuery(query);
-    return originalQuery(sanitized.value, ...rest).then((result) =>
-      adaptResult(result, sanitized.rowMode),
-    );
-  }) as typeof pool.query;
-
-  const originalConnect = pool.connect.bind(pool);
-  pool.connect = (async () => {
-    const client = await originalConnect();
-    const originalClientQuery = client.query.bind(client) as (
-      ...args: unknown[]
-    ) => Promise<unknown>;
-    client.query = ((...args: unknown[]) => {
-      const [query, ...rest] = args;
-      currentQuery = query;
-      const sanitized = sanitizeQuery(query);
-      return originalClientQuery(sanitized.value, ...rest).then((result) =>
-        adaptResult(result, sanitized.rowMode),
-      );
-    }) as typeof client.query;
-    return client;
-  }) as typeof pool.connect;
-
-  return pool as unknown as Pool;
-}
+import { createMigratedTestPool, createTestPool, mockProvider } from "../test-utils/index";
 
 async function getStoredCustomerId(pool: Pool, customerId: string): Promise<string> {
   const result = await pool.query("select id from paykit_customer where id = $1", [customerId]);
@@ -145,8 +54,18 @@ describe("paykit init", () => {
     expect(typeof handlers.POST).toBe("function");
   });
 
-  it("should initialize context and sync schema on startup", async () => {
+  it("should initialize context lazily without requiring migrations to run first", async () => {
     const pool = createTestPool();
+    const paykit = createPayKit({
+      database: pool,
+      providers: [mockProvider()],
+    });
+
+    await expect(paykit.$context).resolves.toBeDefined();
+  });
+
+  it("should initialize context after migrations have run", async () => {
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [mockProvider()],
@@ -176,7 +95,7 @@ describe("paykit init", () => {
   });
 
   it("should initialize with Postgres storage and sync customers", async () => {
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [mockProvider()],
@@ -246,7 +165,7 @@ describe("paykit init", () => {
       },
     });
 
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [provider],
@@ -291,7 +210,7 @@ describe("paykit init", () => {
   });
 
   it("should use transactions in Postgres storage for setDefault", async () => {
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [mockProvider()],
@@ -392,7 +311,7 @@ describe("paykit init", () => {
       },
     });
 
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [provider],
@@ -454,7 +373,7 @@ describe("paykit init", () => {
   });
 
   it("should create scoped direct charges for saved payment methods", async () => {
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [mockProvider()],
@@ -494,7 +413,7 @@ describe("paykit init", () => {
 
   it("should fail to charge when the payment method does not exist for the customer", async () => {
     const paykit = createPayKit({
-      database: createTestPool(),
+      database: await createMigratedTestPool(),
       providers: [mockProvider()],
     });
 
@@ -581,7 +500,7 @@ describe("paykit init", () => {
       },
     });
 
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       providers: [provider],
@@ -634,9 +553,12 @@ describe("paykit init", () => {
     ]);
   });
 
-  it("should fail when database setup is invalid", async () => {
+  it("should fail when a database query cannot be executed", async () => {
     const paykit = createPayKit({
       database: {
+        connect: async () => {
+          throw new Error("db unavailable");
+        },
         query: async () => {
           throw new Error("db unavailable");
         },
@@ -644,7 +566,13 @@ describe("paykit init", () => {
       providers: [mockProvider()],
     });
 
-    await expect(paykit.$context).rejects.toThrow(/Failed query|db unavailable/);
+    await expect(paykit.$context).resolves.toBeDefined();
+    await expect(
+      paykit.customer.sync({
+        id: "user_1",
+        email: "user@example.com",
+      }),
+    ).rejects.toThrow(/Failed query|db unavailable/);
   });
 
   it("should pass the raw request body string to providers through the next handler", async () => {
@@ -697,7 +625,7 @@ describe("paykit init", () => {
       },
     });
 
-    const database = createTestPool();
+    const database = await createMigratedTestPool();
     const paykit = createPayKit({
       database,
       providers: [provider],
@@ -814,7 +742,7 @@ describe("paykit init", () => {
     });
 
     const paykit = createPayKit({
-      database: createTestPool(),
+      database: await createMigratedTestPool(),
       on: {
         "payment.failed": ({ payload }) => {
           failedPaymentId = payload.payment.providerPaymentId;
@@ -992,7 +920,7 @@ describe("paykit init", () => {
       },
     });
 
-    const pool = createTestPool();
+    const pool = await createMigratedTestPool();
     const paykit = createPayKit({
       database: pool,
       on: {
@@ -1180,7 +1108,7 @@ describe("paykit init", () => {
     });
 
     const paykit = createPayKit({
-      database: createTestPool(),
+      database: await createMigratedTestPool(),
       on: {
         "payment_method.detached": ({ payload }) => {
           detachedPaymentMethodDeletedAt = payload.paymentMethod.deletedAt;
