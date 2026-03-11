@@ -86,7 +86,6 @@ function ReadmeFooter() {
   const { open: openEarlyDevDialog } = useEarlyDevDialog();
   return (
     <div className="relative mt-10 overflow-hidden pt-8 pb-0">
-      {/* Dot grid */}
       <div
         className="pointer-events-none absolute inset-0 select-none"
         aria-hidden="true"
@@ -97,7 +96,6 @@ function ReadmeFooter() {
         }}
       />
 
-      {/* CTA */}
       <div className="relative">
         <p className="text-foreground/60 dark:text-foreground/50 text-center text-base tracking-tight">
           Own your payments with confidence in minutes.
@@ -126,7 +124,6 @@ function ReadmeFooter() {
         </div>
       </div>
 
-      {/* Footer */}
       <div className="border-foreground/6 relative mt-10 border-t border-dashed pt-6">
         <div className="mb-8">
           <AskAiCluster />
@@ -198,7 +195,6 @@ export function HeroReadMe() {
       transition={{ duration: 0.45, ease: "easeOut" }}
       className="flex w-full flex-col"
     >
-      {/* Markdown content */}
       <div className="no-scrollbar flex-1 overflow-y-auto">
         <div className="p-5 pt-4 pb-0 lg:p-5 lg:pt-6">
           <article className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0">
@@ -300,17 +296,13 @@ export function HeroReadMe() {
                     }}
                     className={cn(
                       "group/card relative p-4 lg:p-5 border-foreground/[0.1] min-h-[180px] transition-all duration-200 hover:bg-foreground/[0.02] hover:shadow-[inset_0_1px_0_0_rgba(128,128,128,0.1)] hover:z-10",
-                      // Bottom border: remove for last row at each breakpoint
                       i < 5 && "border-b",
                       i >= 4 && "sm:border-b-0",
                       i < 3 ? "md:border-b" : "md:border-b-0",
-                      // Right border: 2-col layout
                       i % 2 === 0 && i < 5 && "sm:border-r",
-                      // 3-col: right border for cols 1 & 2, remove for col 3
                       i % 3 !== 2 ? "md:border-r" : "md:border-r-0",
                     )}
                   >
-                    {/* Arrow icon — top right, visible on hover */}
                     <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-all duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -342,7 +334,6 @@ export function HeroReadMe() {
                     </div>
                     {"providers" in feature && feature.providers && (
                       <div className="mt-3 flex items-center gap-2.5">
-                        {/* Stripe */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
@@ -355,7 +346,6 @@ export function HeroReadMe() {
                             d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409c0-.831.683-1.305 1.901-1.305c2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0C9.667 0 7.589.654 6.104 1.872C4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219c2.585.92 3.445 1.574 3.445 2.583c0 .98-.84 1.545-2.354 1.545c-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813c1.664-1.305 2.525-3.236 2.525-5.732c0-4.128-2.524-5.851-6.594-7.305z"
                           />
                         </svg>
-                        {/* PayPal */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
@@ -378,7 +368,6 @@ export function HeroReadMe() {
                             />
                           </g>
                         </svg>
-                        {/* Polar */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
@@ -416,7 +405,6 @@ export function HeroReadMe() {
                             strokeWidth="1"
                           />
                         </svg>
-                        {/* LemonSqueezy */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
@@ -429,7 +417,6 @@ export function HeroReadMe() {
                             d="m7.4916 10.835 2.3748-6.5114a3.1497 3.1497 0 0 0-.065-2.3418C9.0315.183 6.9427-.398 5.2928.265 3.643.929 2.71 2.4348 3.512 4.3046l2.8197 6.5615c.219.509.97.489 1.16-.03m1.6798 1.0969 6.5334-2.7758c2.1699-.9219 2.7218-3.6907 1.022-5.2905l-.068-.063c-1.6669-1.5469-4.4217-1.002-5.3706 1.0359L8.3566 11.135c-.234.503.295 1.0199.8159.7979m.373.87 6.6454-2.5119c2.2078-.8349 4.6206.745 4.5886 3.0398l-.002.09c-.048 2.2358-2.3938 3.7376-4.5536 2.9467l-6.6724-2.4418a.595.595 0 0 1-.006-1.1229m-.386 1.9269 6.4375 2.9767a3.2997 3.2997 0 0 1 1.6658 1.6989c.769 1.7998-.283 3.6396-1.9328 4.3016-1.6499.662-3.4097.235-4.2097-1.6359l-2.8027-6.5694c-.217-.509.328-1.009.8419-.772"
                           />
                         </svg>
-                        {/* Paddle */}
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="15"
@@ -444,13 +431,11 @@ export function HeroReadMe() {
                             d="M32.154 10.694V21.113l34.575.751c33.315.724 34.94.966 44.623 6.66 32.453 19.077 29.294 71.09-5.193 85.472-5.992 2.5-15.922 3.3-40.958 3.3H32.154v41.49 41.49h11.702 11.702v-30.632-30.632l26.064-.855c22.107-.726 27.679-1.634 36.703-5.991 15.017-7.254 29.536-22.83 35.153-37.716 9.43-24.991 2.627-55.38-16.353-73.051C118.533 4.09 105.065.275 62.559.275H32.154v10.42zm0 26.143c0 1.387-1.915 6.477-4.255 11.311-4.213 8.704-16.779 18.085-24.226 18.085-2.015 0-3.434 1.757-3.434 4.255 0 2.87 1.42 4.255 4.362 4.255 11.183 0 23.508 11.673 26.394 24.999 2.155 9.95 5.853 8.496 10.734-4.219 4.59-11.957 14.662-20.78 23.719-20.78 3.585 0 5.004-1.207 5.004-4.256 0-2.498-1.42-4.255-3.434-4.255-7.447 0-20.013-9.381-24.226-18.085-2.34-4.834-4.255-9.923-4.255-11.31 0-1.386-1.436-2.52-3.191-2.52s-3.192 1.134-3.192 2.52z"
                           />
                         </svg>
-                        {/* Creem */}
                         <CreemIcon
                           width={15}
                           height={15}
                           className="opacity-60 transition-all duration-300 group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.25s] group-hover/card:opacity-100"
                         />
-                        {/* +more */}
                         <FeaturePill
                           dashed
                           label="+ Custom"
@@ -547,7 +532,6 @@ export function HeroReadMe() {
                   </motion.div>
                 </Link>
               ))}
-              {/* + marks at grid intersections */}
               <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-1/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
                 +
               </span>
@@ -556,7 +540,6 @@ export function HeroReadMe() {
               </span>
             </div>
 
-            {/* Code Examples */}
             <div className="my-8">
               <CodeExamplesSection />
             </div>
