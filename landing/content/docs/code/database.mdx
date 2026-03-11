@@ -30,14 +30,17 @@ sync from scratch.
 
 ## Expected table ownership
 
-The default path is explicit PayKit-managed tables such as `paykit_customers` and
-`paykit_payment_methods`. The docs do **not** assume Prisma or Drizzle adapters as the main MVP
-story.
+The default path is explicit PayKit-managed tables such as `paykit_customer` and
+`paykit_payment_method`, plus a `paykit_migrations` journal table. The docs do **not** assume
+Prisma or Drizzle adapters as the main MVP story.
 
 <Callout>
   The guiding rule is simple: PayKit may own its own tables, but it should not silently take over a
   user's application schema.
 </Callout>
+
+PayKit applies schema changes through `paykitjs migrate`. Runtime code never creates or mutates
+schema on startup.
 
 ## Read model
 

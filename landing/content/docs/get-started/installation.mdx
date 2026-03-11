@@ -41,13 +41,15 @@ This is an example using Stripe, but you can install the [providers](/docs/provi
 <Step>
 ## Configure PayKit
 
-```ts title="src/lib/paykit.ts"
+```ts title="paykit.ts"
 import { createPayKit } from "paykitjs";
 import { stripe } from "@paykitjs/stripe";
-import { drizzleAdapter } from "paykitjs/adapters/drizzle";
+import { Pool } from "pg";
 
 export const paykit = createPayKit({
-  database: drizzleAdapter(db),
+  database: new Pool({
+    connectionString: process.env.DATABASE_URL!,
+  }),
   providers: [
     stripe({
       secretKey: process.env.STRIPE_SECRET_KEY!,
@@ -62,6 +64,8 @@ export const paykit = createPayKit({
 });
 ```
 
+PayKit CLI discovers `paykit.ts` by default, so keep your exported instance in that file.
+
 </Step>
 
 <Step>
@@ -75,6 +79,18 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
 Set the database URL and provider credentials used by your PayKit instance.
+
+</Step>
+
+<Step>
+## Run PayKit migrations
+
+```bash
+npx paykitjs migrate
+```
+
+This applies PayKit's packaged SQL migrations and creates the `paykit_*` tables plus the
+`paykit_migrations` journal. PayKit does not create tables at runtime.
 
 </Step>
 
@@ -98,14 +114,14 @@ PayKit uses the provider ID in the route to select the adapter and verify the we
 
 PayKit's MVP stores billing state in Postgres using PayKit-owned tables such as:
 
-- `paykit_customers`
-- `paykit_provider_accounts`
-- `paykit_payment_methods`
-- `paykit_charges`
-- `paykit_webhook_events`
+- `paykit_customer`
+- `paykit_provider_customer`
+- `paykit_payment_method`
+- `paykit_payment`
+- `paykit_migrations`
 
-The exact migration flow is still being finalized, but the intended setup is PayKit-managed rather
-than hand-written application schema.
+The migration flow is first-party and explicit: update your PayKit version, run `paykitjs migrate`,
+then start your app.
 
 </Step>
 
