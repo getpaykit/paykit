@@ -12,6 +12,7 @@ import { URLs } from "@/lib/consts";
 import { cn } from "@/lib/utils";
 
 import { ProvidersSection } from "../sections/providers-section";
+import { AskAiCluster } from "./ask-ai-cluster";
 import { useEarlyDevDialog } from "./early-dev-dialog";
 import { CodeExamplesSection, ServerClientTabs } from "./framework-sections";
 
@@ -127,6 +128,10 @@ function ReadmeFooter() {
 
       {/* Footer */}
       <div className="border-foreground/6 relative mt-10 border-t border-dashed pt-6">
+        <div className="mb-8">
+          <AskAiCluster />
+        </div>
+
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5">
             {footerLinks.map((link, i) => (
@@ -190,18 +195,13 @@ export function HeroReadMe() {
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
       className="flex w-full flex-col"
     >
       {/* Markdown content */}
       <div className="no-scrollbar flex-1 overflow-y-auto">
         <div className="p-5 pt-4 pb-0 lg:p-5 lg:pt-6">
-          <motion.article
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0"
-          >
+          <article className="no-scrollbar overflow-x-hidden overflow-y-auto pt-[30px] pb-0">
             <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
               README
             </h2>
@@ -210,7 +210,7 @@ export function HeroReadMe() {
               PayKit is a payments orchestration framework for TypeScript. It sits between your app
               and payment providers like Stripe or PayPal, giving you a unified API. Webhooks are
               verified and normalized automatically. Your database owns the subscriptions, invoices,
-              and usage records — no provider lock-in.
+              and usage recordsm, no provider lock-in.
             </p>
 
             <div className="my-6">
@@ -562,7 +562,7 @@ export function HeroReadMe() {
             </div>
 
             <ReadmeFooter />
-          </motion.article>
+          </article>
         </div>
       </div>
     </motion.div>
