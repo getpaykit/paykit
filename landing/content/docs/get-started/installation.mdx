@@ -98,11 +98,11 @@ This applies PayKit's packaged SQL migrations and creates the `paykit_*` tables 
 ## Add the webhook route
 
 ```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
-import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { paykitHandler } from "paykitjs/handlers/next";
 
 import { paykit } from "@/lib/paykit";
 
-export const { GET, POST } = toNextJsHandler(paykit);
+export const { GET, POST } = paykitHandler(paykit);
 ```
 
 PayKit uses the provider ID in the route to select the adapter and verify the webhook signature.

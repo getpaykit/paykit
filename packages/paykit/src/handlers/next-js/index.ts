@@ -1,1 +1,1 @@
-export { toNextJsHandler } from "./to-next-js-handler";
+export { paykitHandler } from "./to-next-js-handler";

@@ -10,7 +10,7 @@ Router route handlers.
 
 ```ts title="src/lib/paykit.ts"
 import { createPayKit } from "paykitjs";
-import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { paykitHandler } from "paykitjs/handlers/next";
 import { stripe } from "paykitjs/providers/stripe";
 import { postgresStorage } from "paykitjs/storage/postgres";
 
@@ -26,15 +26,15 @@ export const paykit = createPayKit({
   ],
 });
 
-export const paykitHandler = toNextJsHandler(paykit);
+export const handler = paykitHandler(paykit);
 ```
 
 ## Webhook route
 
 ```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
-import { paykitHandler } from "@/lib/paykit";
+import { handler } from "@/lib/paykit";
 
-export const { GET, POST } = paykitHandler;
+export const { GET, POST } = handler;
 ```
 
 ## Server action example

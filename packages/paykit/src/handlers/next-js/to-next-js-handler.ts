@@ -62,7 +62,7 @@ async function parseBody(request: Request): Promise<string> {
   return request.text();
 }
 
-export function toNextJsHandler(paykit: Pick<PayKitInstance, "handleWebhook">): {
+export function paykitHandler(paykit: Pick<PayKitInstance, "handleWebhook">): {
   GET: (request: Request, context?: NextRouteContext) => Promise<Response>;
   POST: (request: Request, context?: NextRouteContext) => Promise<Response>;
 } {

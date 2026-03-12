@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import { describe, expect, it } from "vitest";
 
-import { toNextJsHandler } from "../handlers/next-js/index";
+import { paykitHandler } from "../handlers/next-js/index";
 import { createPayKit, defineProvider } from "../index";
 import { createMigratedTestPool, createTestPool, mockProvider } from "../test-utils/index";
 
@@ -49,7 +49,7 @@ describe("paykit init", () => {
       providers: [mockProvider()],
     });
 
-    const handlers = toNextJsHandler(paykit);
+    const handlers = paykitHandler(paykit);
     expect(typeof handlers.GET).toBe("function");
     expect(typeof handlers.POST).toBe("function");
   });
@@ -651,7 +651,7 @@ describe("paykit init", () => {
       successURL: "https://example.com/success",
     });
 
-    const { POST } = toNextJsHandler(paykit);
+    const { POST } = paykitHandler(paykit);
     const response = await POST(
       new Request("https://example.com/api/pay/webhooks/stripe", {
         body: JSON.stringify({ id: "evt_test" }),

@@ -14,9 +14,9 @@ in order:
 
 ```ts title="src/app/api/paykit/webhooks/[providerId]/route.ts"
 import { paykit } from "@/lib/paykit";
-import { toNextJsHandler } from "paykitjs/handlers/next-js";
+import { paykitHandler } from "paykitjs/handlers/next";
 
-export const { GET, POST } = toNextJsHandler(paykit);
+export const { GET, POST } = paykitHandler(paykit);
 ```
 
 ## Low-level entry

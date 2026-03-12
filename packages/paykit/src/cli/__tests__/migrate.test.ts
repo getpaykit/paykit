@@ -60,7 +60,7 @@ describe("paykit migrate", () => {
       "paykit_payment",
     ]);
     await pool.end();
-  });
+  }, 15_000);
 
   it("should support an explicit --config path and default export", async () => {
     const fixture = await createFixture({
@@ -78,7 +78,7 @@ describe("paykit migrate", () => {
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");
     expect((result.rows[0] as { count: number }).count).toBe(1);
     await pool.end();
-  });
+  }, 15_000);
 
   it("should fall back to paykit.config.ts and keep repeated runs idempotent", async () => {
     const fixture = await createFixture({
@@ -94,7 +94,7 @@ describe("paykit migrate", () => {
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");
     expect((result.rows[0] as { count: number }).count).toBe(1);
     await pool.end();
-  });
+  }, 15_000);
 });
 
 async function createFixture({

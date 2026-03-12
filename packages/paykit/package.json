@@ -32,9 +32,9 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./handlers/next-js": {
-      "types": "./dist/handlers/next-js/index.d.ts",
-      "default": "./dist/handlers/next-js/index.js"
+    "./handlers/next": {
+      "types": "./dist/handlers/next/index.d.ts",
+      "default": "./dist/handlers/next/index.js"
     }
   },
   "scripts": {
