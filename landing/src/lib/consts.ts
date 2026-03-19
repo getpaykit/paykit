@@ -17,6 +17,8 @@ export const URLs = {
   authorX: "https://x.com/maxk4tz",
 } as const;
 
+export const VERSION_TEXT = "v0.1 beta";
+
 export const websiteSchema: WithContext<WebSite> = {
   "@context": "https://schema.org",
   "@type": "WebSite",

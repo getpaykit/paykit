@@ -14,8 +14,9 @@ import {
 import { SidebarCategoryAccordion } from "@/components/docs/sidebar-category-accordion";
 import { LogoLockup } from "@/components/icons/logo";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { URLs } from "@/lib/consts";
+import { URLs, VERSION_TEXT } from "@/lib/consts";
 import { source } from "@/lib/source";
 
 function normalizeName(name: string): string {
@@ -175,6 +176,14 @@ export default function Layout({ children }: { children: ReactNode }) {
           title: (
             <div className="flew-row flex items-center">
               <LogoLockup className="h-4.5" />
+              {VERSION_TEXT && (
+                <Badge
+                  className="text-muted-foreground mb-0.5 ml-3 rounded-xs px-1"
+                  variant={"outline"}
+                >
+                  {VERSION_TEXT}
+                </Badge>
+              )}
             </div>
           ),
           url: "/",
