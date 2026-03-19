@@ -35,7 +35,7 @@ export function UnifiedApiSection({
               key={tab}
               type="button"
               onClick={() => setActiveTab(tab)}
-              className={`border-foreground/[0.08] relative flex shrink-0 items-center gap-1.5 border-r px-3 py-2 font-mono text-[13px] transition-colors last:border-r-0 ${
+              className={`border-foreground/[0.08] relative flex shrink-0 items-center gap-1.5 border-r px-3 py-2 text-[13px] transition-colors last:border-r-0 ${
                 activeTab === tab
                   ? "text-foreground/90 bg-foreground/[0.03]"
                   : "text-foreground/45 hover:text-foreground/70"

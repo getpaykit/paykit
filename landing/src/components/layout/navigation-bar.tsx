@@ -115,7 +115,7 @@ export function NavigationBar() {
                         }`}
                       >
                         <span
-                          className={`font-mono text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
+                          className={`text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
                             active
                               ? "text-foreground"
                               : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
@@ -165,7 +165,7 @@ export function NavigationBar() {
                     }`}
                   >
                     <span
-                      className={`font-mono text-base tracking-wider uppercase ${
+                      className={`text-base tracking-wider uppercase ${
                         isActive(item.path || item.href)
                           ? "text-foreground"
                           : "text-foreground/65 dark:text-foreground/50"

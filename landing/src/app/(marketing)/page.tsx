@@ -40,7 +40,7 @@ export default function HomePage() {
           <div className="mx-auto flex w-full max-w-[60rem] flex-col">
             <HeroTitle />
             <ReadmeMotion>
-              <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 font-mono text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
+              <h2 className="border-foreground/10 mb-4 flex items-center gap-2 border-b pb-2 text-sm text-neutral-800 sm:mb-5 sm:pb-3 sm:text-base dark:text-neutral-200">
                 README
               </h2>
               <DescriptionSection />
