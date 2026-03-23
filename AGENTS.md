@@ -68,3 +68,11 @@ Enforced by oxlint, oxfmt, and TypeScript config. Follow strictly.
 
 - When asked opinion questions ("Maybe do this?", "what do you think?", "should we do X?"), **only answer** — don't make code changes unless explicitly asked!!
 - Never `git commit`, `git push`, or run database migrations without explicit approval or being asked
+
+## gstack
+
+Use /browse from gstack for all web browsing. Never use mcp**claude-in-chrome**\* tools.
+Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
+/design-consultation, /review, /ship, /browse, /qa, /qa-only, /design-review,
+/setup-browser-cookies, /retro, /investigate, /document-release, /codex, /careful,
+/freeze, /guard, /unfreeze, /gstack-upgrade.
