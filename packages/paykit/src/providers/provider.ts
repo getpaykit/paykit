@@ -44,6 +44,15 @@ export interface PayKitProvider<TId extends string = string> {
     providerMethodId: string;
   }): Promise<NormalizedPayment>;
 
+  syncProduct(data: {
+    id: string;
+    name: string;
+    priceAmount: number;
+    priceInterval?: string | null;
+    existingProviderProductId?: string | null;
+    existingProviderPriceId?: string | null;
+  }): Promise<{ providerProductId: string; providerPriceId: string }>;
+
   handleWebhook(data: {
     body: string;
     headers: Record<string, string>;

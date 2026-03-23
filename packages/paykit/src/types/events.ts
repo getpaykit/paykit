@@ -1,4 +1,27 @@
-import type { Customer, Payment, PaymentMethod, Refund } from "./models";
+export interface NormalizedPaymentMethod {
+  expiryMonth?: number;
+  expiryYear?: number;
+  isDefault?: boolean;
+  last4?: string;
+  providerMethodId: string;
+  type: string;
+}
+
+export interface NormalizedPayment {
+  amount: number;
+  createdAt: Date;
+  currency: string;
+  description?: string | null;
+  metadata?: Record<string, string>;
+  providerMethodId?: string | null;
+  providerPaymentId: string;
+  status: string;
+}
+
+export interface PayKitEventError {
+  code?: string;
+  message: string;
+}
 
 export interface UpsertCustomerAction {
   type: "customer.upsert";
@@ -17,15 +40,6 @@ export interface DeleteCustomerAction {
   };
 }
 
-export interface NormalizedPaymentMethod {
-  expiryMonth?: number;
-  expiryYear?: number;
-  isDefault?: boolean;
-  last4?: string;
-  providerMethodId: string;
-  type: string;
-}
-
 export interface UpsertPaymentMethodAction {
   type: "payment_method.upsert";
   data: {
@@ -39,17 +53,6 @@ export interface DeletePaymentMethodAction {
   data: {
     providerMethodId: string;
   };
-}
-
-export interface NormalizedPayment {
-  amount: number;
-  createdAt: Date;
-  currency: string;
-  description?: string | null;
-  metadata?: Record<string, string>;
-  providerMethodId?: string | null;
-  providerPaymentId: string;
-  status: string;
 }
 
 export interface UpsertPaymentAction {
@@ -67,60 +70,10 @@ export type WebhookApplyAction =
   | DeletePaymentMethodAction
   | UpsertPaymentAction;
 
-export interface PayKitEventError {
-  code?: string;
-  message: string;
-}
-
-export interface PayKitEventMap {
-  "payment.failed": {
-    customer: Customer;
-    error: PayKitEventError;
-    payment: Payment;
-  };
-  "payment.refunded": {
-    customer: Customer;
-    payment: Payment;
-    refund: Refund;
-  };
-  "payment.succeeded": {
-    customer: Customer;
-    payment: Payment;
-  };
-  "checkout.completed": {
-    checkoutSessionId: string;
-    customer: Customer;
-    paymentStatus: string | null;
-    providerId: string;
-    status: string | null;
-  };
-  "payment_method.attached": {
-    customer: Customer;
-    paymentMethod: PaymentMethod;
-  };
-  "payment_method.detached": {
-    customer: Customer;
-    paymentMethod: PaymentMethod;
-  };
-}
-
-export type PayKitEventName = keyof PayKitEventMap;
-
 type EventByName<TEventMap extends object, TName extends keyof TEventMap> = {
   name: TName;
   payload: TEventMap[TName];
 };
-
-export type AnyPayKitEvent = {
-  [TName in PayKitEventName]: EventByName<PayKitEventMap, TName>;
-}[PayKitEventName];
-
-export type PayKitEvent<TName extends PayKitEventName = PayKitEventName> = Extract<
-  AnyPayKitEvent,
-  { name: TName }
->;
-
-export type PayKitEventPayload<TName extends PayKitEventName> = PayKitEventMap[TName];
 
 export interface NormalizedWebhookEventMap {
   "checkout.completed": {
@@ -160,18 +113,14 @@ export type NormalizedWebhookEvent<
   TName extends NormalizedWebhookEventName = NormalizedWebhookEventName,
 > = Extract<AnyNormalizedWebhookEvent, { name: TName }>;
 
-export type PayKitNamedEventHandler<TName extends PayKitEventName> = (
-  event: PayKitEvent<TName>,
-) => Promise<void> | void;
+// User-facing event system — events will be added as billing services are built.
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface PayKitEventMap {}
 
-export interface PayKitCatchAllEvent<TEvent extends AnyPayKitEvent = AnyPayKitEvent> {
-  event: TEvent;
-}
-
-export type PayKitCatchAllEventHandler = (input: PayKitCatchAllEvent) => Promise<void> | void;
+export type PayKitEventName = keyof PayKitEventMap;
 
 export type PayKitEventHandlers = {
-  [TName in PayKitEventName]?: PayKitNamedEventHandler<TName>;
+  [TName in PayKitEventName]?: (event: { name: TName; payload: PayKitEventMap[TName] }) => Promise<void> | void;
 } & {
-  "*"?: PayKitCatchAllEventHandler;
+  "*"?: (input: { event: { name: PayKitEventName; payload: PayKitEventMap[PayKitEventName] } }) => Promise<void> | void;
 };

@@ -1,9 +1,14 @@
 import type { Pool } from "pg";
 
+import type { PayKitProvider } from "../providers/provider";
+import type { Product } from "../types/product";
+
 export const payKitInternalSymbol = Symbol.for("paykitjs.internal");
 
 export interface PayKitInternalState {
   database: Pool;
+  provider: PayKitProvider;
+  products: Product[];
 }
 
 export function attachPayKitInternalState<T extends object>(

@@ -118,36 +118,36 @@ export async function getProviderCustomerByProviderCustomerId(
   );
 }
 
-export async function upsertProviderCustomer<TProviderId extends string>(
-  ctx: PayKitContext<TProviderId>,
-  input: { customerId: string; providerId: TProviderId },
+export async function upsertProviderCustomer(
+  ctx: PayKitContext,
+  input: { customerId: string },
 ): Promise<InternalProviderCustomer> {
-  return ctx.database.transaction(async (tx) => {
-    const customer = await getCustomerByIdOrThrow(tx, input.customerId);
+  const providerId = ctx.provider.id;
 
-    const existing = await getProviderCustomer(tx, input);
+  return ctx.database.transaction(async (tx) => {
+    const existingCustomer = await getCustomerByIdOrThrow(tx, input.customerId);
+
+    const existing = await getProviderCustomer(tx, {
+      customerId: input.customerId,
+      providerId,
+    });
     if (existing) {
       return existing;
     }
 
-    const provider = ctx.providers.get(input.providerId);
-    if (!provider) {
-      throw new PayKitError("PROVIDER_NOT_FOUND");
-    }
-
-    const { providerCustomerId } = await provider.upsertCustomer({
-      id: customer.id,
-      email: customer.email ?? undefined,
-      name: customer.name ?? undefined,
-      metadata: customer.metadata ?? undefined,
+    const { providerCustomerId } = await ctx.provider.upsertCustomer({
+      id: existingCustomer.id,
+      email: existingCustomer.email ?? undefined,
+      name: existingCustomer.name ?? undefined,
+      metadata: existingCustomer.metadata ?? undefined,
     });
 
     const rows = await tx
       .insert(providerCustomer)
       .values({
         id: generateId("pa"),
-        customerId: customer.id,
-        providerId: input.providerId,
+        customerId: existingCustomer.id,
+        providerId,
         providerCustomerId,
         createdAt: new Date(),
       })

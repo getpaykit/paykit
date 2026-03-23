@@ -9,7 +9,7 @@ export const env = createEnv({
   server: {
     APP_URL: z.string().url(),
     DATABASE_URL: z.string().min(1),
-    NODE_ENV: z.enum(["development", "test", "production"]),
+    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1),
   },

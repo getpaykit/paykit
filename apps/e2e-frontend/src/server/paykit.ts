@@ -1,48 +1,32 @@
 import { stripe } from "@paykitjs/stripe";
-import { createPayKit } from "paykitjs";
+import { createPayKit, product } from "paykitjs";
 import { Pool } from "pg";
 
 import { env } from "@/env";
 
-function createPayKitInstance(pool: Pool) {
-  return createPayKit({
-    database: pool,
-    on: {
-      "checkout.completed": ({ payload }) => {
-        console.info("[paykit] checkout.completed", payload);
-      },
-      "payment.succeeded": ({ payload }) => {
-        console.info("[paykit] payment.succeeded", payload);
-      },
-    },
-    providers: [
-      stripe({
-        currency: "usd",
-        secretKey: env.STRIPE_SECRET_KEY,
-        webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-      }),
-    ],
-  });
-}
+export const starterPack = product({
+  id: "starter_pack",
+  name: "Starter Pack",
+  price: { amount: 1999 },
+});
 
-type AppPayKit = ReturnType<typeof createPayKitInstance>;
+export const proMonthly = product({
+  id: "pro_monthly",
+  name: "Pro Monthly",
+  price: { amount: 2200, interval: "month" },
+});
 
-const globalForPayKit = globalThis as typeof globalThis & {
-  paykitPool?: Pool;
-  paykitInstance?: AppPayKit;
-};
-
-const pool =
-  globalForPayKit.paykitPool ??
-  new Pool({
-    connectionString: env.DATABASE_URL,
-  });
-
-const paykit = globalForPayKit.paykitInstance ?? createPayKitInstance(pool);
-
+const globalForPool = globalThis as typeof globalThis & { paykitPool?: Pool };
+const pool = globalForPool.paykitPool ?? new Pool({ connectionString: env.DATABASE_URL });
 if (process.env.NODE_ENV !== "production") {
-  globalForPayKit.paykitPool = pool;
-  globalForPayKit.paykitInstance = paykit;
+  globalForPool.paykitPool = pool;
 }
 
-export { paykit };
+export const paykit = createPayKit({
+  database: pool,
+  provider: stripe({
+    secretKey: env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+  }),
+  products: [starterPack, proMonthly],
+});

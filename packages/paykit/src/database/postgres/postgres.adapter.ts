@@ -5,7 +5,7 @@ import { migrate } from "drizzle-orm/node-postgres/migrator";
 import type { Pool } from "pg";
 
 import type { PayKitDatabaseAdapter } from "../adapter";
-import { schema } from "./schema";
+import * as schema from "./schema";
 
 export type PostgresPayKitDatabase = NodePgDatabase<typeof schema>;
 

@@ -11,6 +11,7 @@
     "dev": "next dev --turbo",
     "preview": "next build && next start",
     "start": "next start",
+    "paykitjs": "tsx --conditions=dev-source ../../packages/paykit/src/cli/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

@@ -1,7 +1,8 @@
 import { createDatabase, type PayKitDatabase } from "../database/index";
 import type { PayKitProvider } from "../providers/provider";
 import type { PayKitEventHandlers } from "../types/events";
-import type { PayKitOptions, ProviderId } from "../types/options";
+import type { PayKitOptions } from "../types/options";
+import type { Product } from "../types/product";
 
 const noopLogger = {
   debug: () => {},
@@ -10,31 +11,23 @@ const noopLogger = {
   error: () => {},
 };
 
-export interface PayKitContext<
-  TProviderId extends string = string,
-  TProviders extends readonly PayKitProvider[] = readonly PayKitProvider[],
-> {
-  options: PayKitOptions<TProviders>;
+export interface PayKitContext {
+  options: PayKitOptions;
   database: PayKitDatabase;
-  providers: Map<TProviderId, PayKitProvider>;
+  provider: PayKitProvider;
+  products: Product[];
+  eventHandlers: PayKitEventHandlers;
   logger: {
     debug: (message: string, ...args: unknown[]) => void;
     info: (message: string, ...args: unknown[]) => void;
     warn: (message: string, ...args: unknown[]) => void;
     error: (message: string, ...args: unknown[]) => void;
   };
-  eventHandlers: PayKitEventHandlers;
 }
 
-export async function createContext<const TProviders extends readonly PayKitProvider[]>(
-  options: PayKitOptions<TProviders>,
-): Promise<PayKitContext<ProviderId<TProviders>, TProviders>> {
-  if (options.providers.length === 0) {
-    throw new Error("At least one provider is required");
-  }
-  const providers = new Map<ProviderId<TProviders>, PayKitProvider>();
-  for (const provider of options.providers) {
-    providers.set(provider.id as ProviderId<TProviders>, provider);
+export async function createContext(options: PayKitOptions): Promise<PayKitContext> {
+  if (!options.provider) {
+    throw new Error("A provider is required");
   }
 
   const database = await createDatabase(options.database);
@@ -42,8 +35,9 @@ export async function createContext<const TProviders extends readonly PayKitProv
   return {
     options,
     database,
-    providers,
-    logger: options.logger ?? noopLogger,
+    provider: options.provider,
+    products: options.products ?? [],
     eventHandlers: options.on ?? {},
+    logger: options.logger ?? noopLogger,
   };
 }

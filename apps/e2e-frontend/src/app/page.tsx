@@ -1,27 +1,15 @@
-import { CheckoutButton } from "@/app/_components/checkout-button";
+import { CustomerTestPanel } from "@/app/_components/checkout-button";
 import { HydrateClient } from "@/trpc/server";
 
-const checkoutExample = `curl -X POST http://localhost:3000/api/rest/paykit/checkout \\
+const createCustomerExample = `curl -X POST http://localhost:3000/api/rest/paykit/customers \\
   -H "content-type: application/json" \\
   -d '{
-    "customer": {
-      "id": "api-demo-user",
-      "email": "api-demo@example.com",
-      "name": "API Demo Customer"
-    },
-    "amount": 1999,
-    "description": "REST checkout",
-    "attachMethod": true
+    "id": "api-demo-user",
+    "email": "api-demo@example.com",
+    "name": "API Demo Customer"
   }'`;
 
-const chargeExample = `curl -X POST http://localhost:3000/api/rest/paykit/charge \\
-  -H "content-type: application/json" \\
-  -d '{
-    "customerId": "api-demo-user",
-    "paymentMethodId": "pm_your_saved_method",
-    "amount": 1999,
-    "description": "REST charge"
-  }'`;
+const getCustomerExample = `curl http://localhost:3000/api/rest/paykit/customers/api-demo-user`;
 
 export default function Home() {
   return (
@@ -31,15 +19,15 @@ export default function Home() {
           <div className="space-y-3">
             <p className="text-sm tracking-[0.3em] text-white/50 uppercase">PayKit E2E frontend</p>
             <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
-              Trigger checkout through tRPC or REST
+              Manual testing dashboard
             </h1>
             <p className="max-w-2xl text-base text-white/70">
-              Use this page to exercise the Next.js demo app against Stripe in test mode through the
-              existing tRPC flow or the new local-only REST API.
+              Use this page to exercise customer operations and product sync through the tRPC and
+              REST APIs.
             </p>
           </div>
 
-          <CheckoutButton />
+          <CustomerTestPanel />
 
           <section className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6">
             <div className="space-y-2">
@@ -47,30 +35,26 @@ export default function Home() {
               <p className="text-sm text-white/70">
                 The app also exposes a local-only Elysia API under{" "}
                 <code className="rounded bg-white/10 px-2 py-1 text-xs">/api/rest/paykit</code> for
-                checkout and direct-charge testing.
+                testing.
               </p>
             </div>
 
             <div className="space-y-3">
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold tracking-[0.2em] text-white/60 uppercase">
-                  Checkout
+                  Create customer
                 </h3>
                 <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-xs text-white/80">
-                  <code>{checkoutExample}</code>
+                  <code>{createCustomerExample}</code>
                 </pre>
               </div>
 
               <div className="space-y-2">
                 <h3 className="text-sm font-semibold tracking-[0.2em] text-white/60 uppercase">
-                  Charge
+                  Get customer
                 </h3>
-                <p className="text-sm text-white/60">
-                  Run this after saving a payment method for the same customer. Use the local PayKit
-                  payment method ID.
-                </p>
                 <pre className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/80 p-4 text-xs text-white/80">
-                  <code>{chargeExample}</code>
+                  <code>{getCustomerExample}</code>
                 </pre>
               </div>
             </div>

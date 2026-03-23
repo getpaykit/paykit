@@ -29,12 +29,14 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
+      "dev-source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
     "./handlers/next": {
-      "types": "./dist/handlers/next/index.d.ts",
-      "default": "./dist/handlers/next/index.js"
+      "dev-source": "./src/handlers/next.ts",
+      "types": "./dist/handlers/next.d.ts",
+      "default": "./dist/handlers/next.js"
     }
   },
   "scripts": {

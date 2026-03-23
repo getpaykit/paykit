@@ -10,6 +10,7 @@
   "type": "module",
   "exports": {
     ".": {
+      "dev-source": "./src/index.ts",
       "types": "./src/index.ts",
       "default": "./src/index.ts"
     }

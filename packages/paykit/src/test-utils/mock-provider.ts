@@ -31,6 +31,13 @@ export function mockProvider() {
       };
     },
 
+    async syncProduct(data) {
+      return {
+        providerProductId: `mock_prod_${data.id}`,
+        providerPriceId: `mock_price_${data.id}_${String(data.priceAmount)}`,
+      };
+    },
+
     async handleWebhook() {
       return [];
     },

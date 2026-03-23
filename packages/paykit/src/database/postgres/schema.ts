@@ -103,9 +103,21 @@ export const payment = pgTable(
   ],
 );
 
-export const schema = {
-  customer,
-  payment,
-  paymentMethod,
-  providerCustomer,
-} as const;
+export const product = pgTable(
+  "product",
+  {
+    internalId: text("internal_id").primaryKey(),
+    id: text("id").notNull(),
+    version: integer("version").notNull().default(1),
+    name: text("name").notNull(),
+    priceAmount: integer("price_amount").notNull(),
+
+    priceInterval: text("price_interval"),
+    providerProductId: text("provider_product_id"),
+    providerPriceId: text("provider_price_id"),
+
+    createdAt: timestamp("created_at").notNull(),
+    updatedAt: timestamp("updated_at").notNull(),
+  },
+  (table) => [uniqueIndex("paykit_product_id_version_unique").on(table.id, table.version)],
+);

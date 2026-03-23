@@ -5,7 +5,6 @@ import StripeSdk from "stripe";
 export interface StripeProviderOptions {
   secretKey: string;
   webhookSecret: string;
-  currency?: string;
 }
 
 const PAYKIT_SOURCE_METADATA_KEY = "paykit_source";
@@ -397,7 +396,7 @@ function createDirectChargeFailedEvents(event: StripeSdk.Event): NormalizedWebho
 }
 
 export function createStripeProvider(client: StripeSdk, options: StripeProviderOptions) {
-  const currency = options.currency ?? "usd";
+  const currency = "usd";
 
   return defineProvider({
     id: "stripe",
@@ -458,6 +457,37 @@ export function createStripeProvider(client: StripeSdk, options: StripeProviderO
       });
 
       return normalizeStripePaymentIntent(paymentIntent);
+    },
+
+    async syncProduct(data) {
+      let providerProductId = data.existingProviderProductId;
+      if (!providerProductId) {
+        const stripeProduct = await client.products.create({
+          name: data.name,
+          metadata: { paykit_product_id: data.id },
+        });
+        providerProductId = stripeProduct.id;
+      } else {
+        await client.products.update(providerProductId, { name: data.name });
+      }
+
+      if (data.existingProviderPriceId) {
+        return { providerProductId, providerPriceId: data.existingProviderPriceId };
+      }
+
+      const priceParams: StripeSdk.PriceCreateParams = {
+        product: providerProductId,
+        unit_amount: data.priceAmount,
+        currency,
+      };
+      if (data.priceInterval) {
+        priceParams.recurring = {
+          interval: data.priceInterval as "month" | "year",
+        };
+      }
+      const stripePrice = await client.prices.create(priceParams);
+
+      return { providerProductId, providerPriceId: stripePrice.id };
     },
 
     async handleWebhook(data) {

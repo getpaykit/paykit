@@ -111,7 +111,7 @@ function loadDotEnv(cwd: string): void {
 async function loadModule(cwd: string, configPath: string): Promise<unknown> {
   loadDotEnv(cwd);
 
-  const jiti = createJiti(import.meta.url, {
+  const jiti = createJiti(configPath, {
     alias: getPathAliases(cwd),
     interopDefault: false,
     moduleCache: false,
