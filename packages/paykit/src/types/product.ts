@@ -7,7 +7,10 @@ const productIdSchema = z
   .regex(/^[a-z0-9_-]+$/, "Product id must be lowercase alphanumeric with dashes or underscores");
 
 const priceSchema = z.object({
-  amount: z.number().positive("Price amount must be positive").max(999_999.99, "Price amount must not exceed $999,999.99"),
+  amount: z
+    .number()
+    .positive("Price amount must be positive")
+    .max(999_999.99, "Price amount must not exceed $999,999.99"),
   interval: z.enum(["month", "year"]).optional(),
 });
 

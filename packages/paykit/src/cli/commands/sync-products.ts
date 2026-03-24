@@ -7,10 +7,7 @@ import { syncProducts } from "../../services/product-sync-service";
 import { getPayKitConfig } from "../utils/get-config";
 import { runPayKitMigrations } from "../utils/run-migrations";
 
-export async function syncProductsAction(options: {
-  config?: string;
-  cwd: string;
-}): Promise<void> {
+export async function syncProductsAction(options: { config?: string; cwd: string }): Promise<void> {
   const cwd = path.resolve(options.cwd);
   const config = await getPayKitConfig({
     configPath: options.config,

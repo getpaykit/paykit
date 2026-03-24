@@ -72,7 +72,9 @@ function FeaturePill({
       style={style}
     >
       {dot && <span className={cn("inline-block size-1 rounded-full", c.dot)} />}
-      {label && <span className={cn(labelMono && "font-mono", "text-[10px]", c.text)}>{label}</span>}
+      {label && (
+        <span className={cn(labelMono && "font-mono", "text-[10px]", c.text)}>{label}</span>
+      )}
       {children}
     </div>
   );

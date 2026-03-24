@@ -120,7 +120,12 @@ export interface PayKitEventMap {}
 export type PayKitEventName = keyof PayKitEventMap;
 
 export type PayKitEventHandlers = {
-  [TName in PayKitEventName]?: (event: { name: TName; payload: PayKitEventMap[TName] }) => Promise<void> | void;
+  [TName in PayKitEventName]?: (event: {
+    name: TName;
+    payload: PayKitEventMap[TName];
+  }) => Promise<void> | void;
 } & {
-  "*"?: (input: { event: { name: PayKitEventName; payload: PayKitEventMap[PayKitEventName] } }) => Promise<void> | void;
+  "*"?: (input: {
+    event: { name: PayKitEventName; payload: PayKitEventMap[PayKitEventName] };
+  }) => Promise<void> | void;
 };

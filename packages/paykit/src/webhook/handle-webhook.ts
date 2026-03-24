@@ -1,8 +1,5 @@
 import type { PayKitContext } from "../core/context";
-import {
-  deleteCustomerById,
-  syncCustomer,
-} from "../services/customer-service";
+import { deleteCustomerById, syncCustomer } from "../services/customer-service";
 import type { WebhookApplyAction } from "../types/events";
 
 export interface HandleWebhookInput {
@@ -10,10 +7,7 @@ export interface HandleWebhookInput {
   headers: Record<string, string>;
 }
 
-async function applyAction(
-  ctx: PayKitContext,
-  action: WebhookApplyAction,
-): Promise<void> {
+async function applyAction(ctx: PayKitContext, action: WebhookApplyAction): Promise<void> {
   if (action.type === "customer.upsert") {
     await syncCustomer(ctx.database, action.data);
     return;

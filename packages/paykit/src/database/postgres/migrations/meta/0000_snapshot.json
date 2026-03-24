@@ -201,12 +201,8 @@
           "name": "paykit_payment_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_payment",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -214,12 +210,8 @@
           "name": "paykit_payment_payment_method_id_paykit_payment_method_id_fk",
           "tableFrom": "paykit_payment",
           "tableTo": "paykit_payment_method",
-          "columnsFrom": [
-            "payment_method_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_method_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -363,12 +355,8 @@
           "name": "paykit_payment_method_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_payment_method",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -547,12 +535,8 @@
           "name": "paykit_provider_customer_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_provider_customer",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -604,12 +588,8 @@
           "name": "paykit_provider_product_product_internal_id_paykit_product_internal_id_fk",
           "tableFrom": "paykit_provider_product",
           "tableTo": "paykit_product",
-          "columnsFrom": [
-            "product_internal_id"
-          ],
-          "columnsTo": [
-            "internal_id"
-          ],
+          "columnsFrom": ["product_internal_id"],
+          "columnsTo": ["internal_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -617,10 +597,7 @@
       "compositePrimaryKeys": {
         "paykit_provider_product_product_internal_id_provider_id_pk": {
           "name": "paykit_provider_product_product_internal_id_provider_id_pk",
-          "columns": [
-            "product_internal_id",
-            "provider_id"
-          ]
+          "columns": ["product_internal_id", "provider_id"]
         }
       },
       "uniqueConstraints": {},

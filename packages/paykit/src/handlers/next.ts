@@ -9,9 +9,7 @@ function headersToRecord(headers: Headers): Record<string, string> {
   return result;
 }
 
-export function paykitHandler(
-  paykit: Pick<PayKitInstance, "handler" | "handleWebhook">,
-): {
+export function paykitHandler(paykit: Pick<PayKitInstance, "handler" | "handleWebhook">): {
   GET: (request: Request) => Promise<Response>;
   POST: (request: Request) => Promise<Response>;
 } {

@@ -10,7 +10,6 @@ export interface StripeProviderOptions {
 const PAYKIT_SOURCE_METADATA_KEY = "paykit_source";
 const PAYKIT_PROVIDER_CUSTOMER_METADATA_KEY = "paykit_provider_customer_id";
 
-
 function getStripeCustomerId(
   customer: string | StripeSdk.Customer | StripeSdk.DeletedCustomer | null,
 ): string | null {

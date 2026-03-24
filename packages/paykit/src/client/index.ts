@@ -26,8 +26,7 @@ export function createPayKitClient<Instance>(options?: PayKitClientOptions) {
       },
       apply: async (_, __, args) => {
         const routePath =
-          "/" +
-          path.map((s) => s.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)).join("/");
+          "/" + path.map((s) => s.replace(/[A-Z]/g, (l) => `-${l.toLowerCase()}`)).join("/");
         const body = (args[0] as Record<string, unknown>) ?? {};
 
         return $fetch(routePath, {
@@ -85,6 +84,6 @@ type InferClientAPI<Instance> = Instance extends { api: infer API }
               ? PathToMethod<P, (body: InferBody<API[K]>) => Promise<InferReturn<API[K]>>>
               : never
             : never;
-          }[keyof API]
+        }[keyof API]
       >
     : never;

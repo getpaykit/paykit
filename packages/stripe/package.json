@@ -10,8 +10,8 @@
   "type": "module",
   "exports": {
     ".": {
-      "paykit-source": "./src/index.ts",
       "types": "./src/index.ts",
+      "paykit-source": "./src/index.ts",
       "default": "./src/index.ts"
     }
   },
