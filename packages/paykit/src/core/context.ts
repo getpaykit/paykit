@@ -14,7 +14,7 @@ export interface PayKitContext {
   options: PayKitOptions;
   database: PayKitDatabase;
   provider: PayKitProvider;
-  products: Product[];
+  products: readonly Product[];
   logger: PayKitLogger;
 }
 

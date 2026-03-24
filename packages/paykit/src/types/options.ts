@@ -14,7 +14,7 @@ export interface PayKitLogger {
 export interface PayKitOptions {
   database: Pool;
   provider: PayKitProvider;
-  products?: Product[];
+  products?: readonly Product[];
   basePath?: string;
   client?: {
     identify?: (request: Request) => Promise<{

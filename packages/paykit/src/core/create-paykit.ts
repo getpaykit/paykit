@@ -1,5 +1,5 @@
 import { createPayKitRouter, getEndpoints } from "../api";
-import type { PayKitInstance } from "../types/instance";
+import type { PayKitAPI, PayKitInstance } from "../types/instance";
 import type { PayKitOptions } from "../types/options";
 import { handleWebhook } from "../webhook/handle-webhook";
 import { createContext, type PayKitContext } from "./context";
@@ -14,14 +14,16 @@ export function isPayKitInstance(value: unknown): value is PayKitInstance {
   );
 }
 
-export function createPayKit(options: PayKitOptions): PayKitInstance {
+export function createPayKit<const TOptions extends PayKitOptions>(
+  options: TOptions,
+): PayKitInstance<TOptions> {
   let contextPromise: Promise<PayKitContext> | undefined;
   const getContext = () => {
     contextPromise ??= createContext(options);
     return contextPromise;
   };
 
-  const paykit: PayKitInstance = {
+  const paykit: PayKitInstance<TOptions> = {
     options,
 
     async handler(request: Request) {
@@ -31,12 +33,12 @@ export function createPayKit(options: PayKitOptions): PayKitInstance {
     },
 
     get api() {
-      return getEndpoints(getContext());
+      return getEndpoints(getContext()) as unknown as PayKitAPI<TOptions>;
     },
 
     async checkout(input) {
-      const api = getEndpoints(getContext());
-      return api.checkout({ body: input } as unknown as Parameters<typeof api.checkout>[0]);
+      const api = getEndpoints(getContext()) as unknown as PayKitAPI<TOptions>;
+      return api.checkout({ body: input });
     },
 
     async handleWebhook(input) {

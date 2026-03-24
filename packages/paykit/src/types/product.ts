@@ -22,14 +22,18 @@ const productConfigSchema = z.object({
 
 export type PriceInterval = z.infer<typeof priceSchema>["interval"];
 export type ProductPrice = z.infer<typeof priceSchema>;
-export type ProductConfig = z.infer<typeof productConfigSchema>;
+type ParsedProductConfig = z.infer<typeof productConfigSchema>;
 
-export type Product = Readonly<ProductConfig> & {
+export type ProductConfig<TId extends string = string> = Omit<ParsedProductConfig, "id"> & {
+  id: TId;
+};
+
+export type Product<TConfig extends ProductConfig = ProductConfig> = Readonly<TConfig> & {
   /** Price amount in cents, derived from the dollar amount. */
   readonly priceAmountCents: number;
 };
 
-export function product(config: ProductConfig): Product {
+export function product<const TConfig extends ProductConfig>(config: TConfig): Product<TConfig> {
   const result = productConfigSchema.safeParse(config);
 
   if (!result.success) {
@@ -44,5 +48,5 @@ export function product(config: ProductConfig): Product {
   return Object.freeze({
     ...parsed,
     priceAmountCents,
-  });
+  }) as Product<TConfig>;
 }

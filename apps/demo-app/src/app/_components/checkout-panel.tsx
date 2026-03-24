@@ -4,9 +4,11 @@ import { useMutation } from "@tanstack/react-query";
 
 import { paykitClient } from "@/lib/paykit-client";
 
+type CheckoutProductId = Parameters<typeof paykitClient.checkout>[0]["productId"];
+
 export function CheckoutPanel() {
   const checkout = useMutation({
-    mutationFn: async ({ productId }: { productId: string }) => {
+    mutationFn: async ({ productId }: { productId: CheckoutProductId }) => {
       const result = await paykitClient.checkout({
         productId,
         successUrl: `${window.location.origin}/checkout/success`,
