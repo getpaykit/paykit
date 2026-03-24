@@ -7,7 +7,7 @@ It sits between your app and payment providers (Stripe, PayPal, regional PSPs),
 providing a unified API without vendor lock-in. PayKit does **not** process
 payments — it orchestrates them.
 
-Read `ob/idea.md` before making architectural decisions.
+Read `ob/spec.md` before making architectural decisions.
 
 ## Commands
 
