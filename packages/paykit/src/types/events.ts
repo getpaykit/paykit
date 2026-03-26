@@ -18,6 +18,31 @@ export interface NormalizedPayment {
   status: string;
 }
 
+export interface NormalizedSubscription {
+  cancelAtPeriodEnd: boolean;
+  canceledAt?: Date | null;
+  currentPeriodEndAt?: Date | null;
+  currentPeriodStartAt?: Date | null;
+  endedAt?: Date | null;
+  providerPriceId?: string | null;
+  providerSubscriptionId: string;
+  providerSubscriptionScheduleId?: string | null;
+  status: string;
+}
+
+export interface NormalizedInvoice {
+  currency: string;
+  hostedUrl?: string | null;
+  periodEndAt?: Date | null;
+  periodStartAt?: Date | null;
+  providerInvoiceId: string;
+  status: string | null;
+  totalAmount: number;
+}
+
+export interface CheckoutCompletedSubscription extends NormalizedSubscription {}
+export interface CheckoutCompletedInvoice extends NormalizedInvoice {}
+
 export interface PayKitEventError {
   code?: string;
   message: string;
@@ -63,12 +88,40 @@ export interface UpsertPaymentAction {
   };
 }
 
+export interface UpsertSubscriptionAction {
+  type: "subscription.upsert";
+  data: {
+    providerCustomerId: string;
+    subscription: NormalizedSubscription;
+  };
+}
+
+export interface DeleteSubscriptionAction {
+  type: "subscription.delete";
+  data: {
+    providerCustomerId: string;
+    providerSubscriptionId: string;
+  };
+}
+
+export interface UpsertInvoiceAction {
+  type: "invoice.upsert";
+  data: {
+    invoice: NormalizedInvoice;
+    providerCustomerId: string;
+    providerSubscriptionId?: string | null;
+  };
+}
+
 export type WebhookApplyAction =
   | UpsertCustomerAction
   | DeleteCustomerAction
   | UpsertPaymentMethodAction
   | DeletePaymentMethodAction
-  | UpsertPaymentAction;
+  | UpsertPaymentAction
+  | UpsertSubscriptionAction
+  | DeleteSubscriptionAction
+  | UpsertInvoiceAction;
 
 type EventByName<TEventMap extends object, TName extends keyof TEventMap> = {
   name: TName;
@@ -78,10 +131,16 @@ type EventByName<TEventMap extends object, TName extends keyof TEventMap> = {
 export interface NormalizedWebhookEventMap {
   "checkout.completed": {
     checkoutSessionId: string;
+    invoice?: CheckoutCompletedInvoice;
+    metadata?: Record<string, string>;
+    mode?: "payment" | "setup" | "subscription";
+    providerInvoiceId?: string;
+    providerSubscriptionId?: string;
     paymentStatus: string | null;
     providerCustomerId: string;
     providerEventId?: string;
     status: string | null;
+    subscription?: CheckoutCompletedSubscription;
   };
   "payment_method.attached": {
     paymentMethod: NormalizedPaymentMethod;
@@ -95,6 +154,19 @@ export interface NormalizedWebhookEventMap {
     error: PayKitEventError;
     payment: NormalizedPayment;
     providerCustomerId: string;
+  };
+  "subscription.updated": {
+    providerCustomerId: string;
+    subscription: NormalizedSubscription;
+  };
+  "subscription.deleted": {
+    providerCustomerId: string;
+    providerSubscriptionId: string;
+  };
+  "invoice.updated": {
+    invoice: NormalizedInvoice;
+    providerCustomerId: string;
+    providerSubscriptionId?: string | null;
   };
   "payment_method.detached": {
     providerMethodId: string;
@@ -113,9 +185,18 @@ export type NormalizedWebhookEvent<
   TName extends NormalizedWebhookEventName = NormalizedWebhookEventName,
 > = Extract<AnyNormalizedWebhookEvent, { name: TName }>;
 
-// User-facing event system — events will be added as billing services are built.
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface PayKitEventMap {}
+export interface PayKitEventMap {
+  "customer.updated": {
+    customerId: string;
+    plans: readonly {
+      currentPeriodEndAt: Date | null;
+      endedAt: Date | null;
+      id: string;
+      startedAt: Date | null;
+      status: string;
+    }[];
+  };
+}
 
 export type PayKitEventName = keyof PayKitEventMap;
 

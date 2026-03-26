@@ -1,10 +1,16 @@
 import type { PayKitContext } from "../core/context";
-import type { StoredProduct } from "../types/models";
+import type { StoredProductFeature } from "../types/models";
+import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
 import {
-  getLatestProduct,
-  getProviderProductByProductId,
+  getLatestProductSnapshot,
+  getProviderPrice,
+  getProviderProduct,
+  insertPrice,
   insertProductVersion,
+  replaceProductFeatures,
   updateProductName,
+  upsertFeature,
+  upsertProviderPrice,
   upsertProviderProduct,
 } from "./product-service";
 
@@ -14,78 +20,181 @@ export interface SyncProductResult {
   action: "created" | "updated" | "unchanged";
 }
 
-function priceChanged(
-  existing: StoredProduct,
-  priceAmount: number,
-  priceInterval: string | null,
+function serializeFeatureConfig(config: Record<string, unknown> | null): string {
+  return JSON.stringify(config ?? null);
+}
+
+function featuresChanged(
+  existing: readonly StoredProductFeature[],
+  next: readonly NormalizedPlanFeature[],
 ): boolean {
-  return existing.priceAmount !== priceAmount || existing.priceInterval !== priceInterval;
+  if (existing.length !== next.length) {
+    return true;
+  }
+
+  return existing.some((storedFeature, index) => {
+    const nextFeature = next[index];
+    if (!nextFeature) {
+      return true;
+    }
+
+    return (
+      storedFeature.featureId !== nextFeature.id ||
+      storedFeature.limit !== nextFeature.limit ||
+      storedFeature.resetInterval !== nextFeature.resetInterval ||
+      serializeFeatureConfig(storedFeature.config) !== serializeFeatureConfig(nextFeature.config)
+    );
+  });
+}
+
+function planChanged(
+  existing: Awaited<ReturnType<typeof getLatestProductSnapshot>>,
+  next: NormalizedPlan,
+): boolean {
+  if (!existing) {
+    return true;
+  }
+
+  return (
+    existing.product.group !== next.group ||
+    existing.product.isDefault !== next.isDefault ||
+    (existing.price?.amount ?? null) !== next.priceAmount ||
+    (existing.price?.interval ?? null) !== next.priceInterval ||
+    featuresChanged(existing.features, next.includes)
+  );
+}
+
+export async function dryRunSyncProducts(ctx: PayKitContext): Promise<SyncProductResult[]> {
+  const results: SyncProductResult[] = [];
+
+  for (const plan of ctx.plans.plans) {
+    const existing = await getLatestProductSnapshot(ctx.database, plan.id);
+    let action: SyncProductResult["action"] = "unchanged";
+
+    if (!existing) {
+      action = "created";
+    } else if (planChanged(existing, plan)) {
+      action = "created";
+    } else if (existing.product.name !== plan.name) {
+      action = "updated";
+    }
+
+    results.push({
+      action,
+      id: plan.id,
+      version: existing ? existing.product.version : 1,
+    });
+  }
+
+  return results;
 }
 
 export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResult[]> {
   const results: SyncProductResult[] = [];
   const providerId = ctx.provider.id;
 
-  for (const productDef of ctx.products) {
-    const priceInterval = productDef.price.interval ?? null;
-    const existing = await getLatestProduct(ctx.database, productDef.id);
+  for (const schemaFeature of ctx.plans.features) {
+    await upsertFeature(ctx.database, schemaFeature);
+  }
 
-    let stored: StoredProduct;
-    let action: SyncProductResult["action"];
+  for (const plan of ctx.plans.plans) {
+    const existing = await getLatestProductSnapshot(ctx.database, plan.id);
+    const existingProviderProduct = existing
+      ? await getProviderProduct(ctx.database, existing.product.internalId, providerId)
+      : null;
+    const existingProviderPrice =
+      existing?.price && existingProviderProduct
+        ? await getProviderPrice(ctx.database, existing.price.id, providerId)
+        : null;
+
+    let storedProduct = existing?.product ?? null;
+    let storedPrice = existing?.price ?? null;
+    let action: SyncProductResult["action"] = "unchanged";
 
     if (!existing) {
-      stored = await insertProductVersion(ctx.database, {
-        id: productDef.id,
+      storedProduct = await insertProductVersion(ctx.database, {
+        group: plan.group,
+        id: plan.id,
+        isDefault: plan.isDefault,
+        name: plan.name,
         version: 1,
-        name: productDef.name,
-        priceAmount: productDef.priceAmountCents,
-        priceInterval,
+      });
+      if (plan.priceAmount !== null && plan.priceInterval !== null) {
+        storedPrice = await insertPrice(ctx.database, {
+          amount: plan.priceAmount,
+          interval: plan.priceInterval,
+          productInternalId: storedProduct.internalId,
+        });
+      } else {
+        storedPrice = null;
+      }
+      await replaceProductFeatures(ctx.database, {
+        features: plan.includes,
+        productInternalId: storedProduct.internalId,
       });
       action = "created";
-    } else if (priceChanged(existing, productDef.priceAmountCents, priceInterval)) {
-      stored = await insertProductVersion(ctx.database, {
-        id: productDef.id,
-        version: existing.version + 1,
-        name: productDef.name,
-        priceAmount: productDef.priceAmountCents,
-        priceInterval,
+    } else if (planChanged(existing, plan)) {
+      storedProduct = await insertProductVersion(ctx.database, {
+        group: plan.group,
+        id: plan.id,
+        isDefault: plan.isDefault,
+        name: plan.name,
+        version: existing.product.version + 1,
+      });
+      if (plan.priceAmount !== null && plan.priceInterval !== null) {
+        storedPrice = await insertPrice(ctx.database, {
+          amount: plan.priceAmount,
+          interval: plan.priceInterval,
+          productInternalId: storedProduct.internalId,
+        });
+      } else {
+        storedPrice = null;
+      }
+      await replaceProductFeatures(ctx.database, {
+        features: plan.includes,
+        productInternalId: storedProduct.internalId,
       });
       action = "created";
-    } else if (existing.name !== productDef.name) {
-      await updateProductName(ctx.database, existing.internalId, productDef.name);
-      stored = { ...existing, name: productDef.name };
+    } else if (existing.product.name !== plan.name) {
+      await updateProductName(ctx.database, existing.product.internalId, plan.name);
+      storedProduct = { ...existing.product, name: plan.name };
       action = "updated";
-    } else {
-      stored = existing;
-      action = "unchanged";
     }
 
-    const existingProvider = await getProviderProductByProductId(
-      ctx.database,
-      productDef.id,
-      providerId,
-    );
+    if (!storedProduct) {
+      throw new Error(`Failed to sync plan "${plan.id}".`);
+    }
 
-    const needsProviderSync = action !== "unchanged" || !existingProvider;
-
-    if (needsProviderSync) {
-      const providerResult = await ctx.provider.syncProduct({
-        id: productDef.id,
-        name: productDef.name,
-        priceAmount: productDef.priceAmountCents,
-        priceInterval,
-        existingProviderProductId: existingProvider?.providerProductId ?? null,
-        existingProviderPriceId:
-          action === "unchanged" ? (existingProvider?.providerPriceId ?? null) : null,
+    if (storedPrice) {
+      const shouldReuseExistingPriceId =
+        action !== "created" && existingProviderPrice?.providerPriceId !== undefined;
+      const providerResult = await ctx.stripe.syncProduct({
+        existingProviderPriceId: shouldReuseExistingPriceId
+          ? (existingProviderPrice?.providerPriceId ?? null)
+          : null,
+        existingProviderProductId: existingProviderProduct?.providerProductId ?? null,
+        id: plan.id,
+        name: plan.name,
+        priceAmount: storedPrice.amount,
+        priceInterval: storedPrice.interval,
       });
 
-      await upsertProviderProduct(ctx.database, stored.internalId, providerId, providerResult);
+      await upsertProviderProduct(ctx.database, {
+        productInternalId: storedProduct.internalId,
+        providerId,
+        providerProductId: providerResult.providerProductId,
+      });
+      await upsertProviderPrice(ctx.database, {
+        priceId: storedPrice.id,
+        providerId,
+        providerPriceId: providerResult.providerPriceId,
+      });
     }
 
     results.push({
-      id: productDef.id,
-      version: stored.version,
       action,
+      id: plan.id,
+      version: storedProduct.version,
     });
   }
 

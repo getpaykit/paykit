@@ -2,13 +2,17 @@ import { createRouter } from "better-call";
 
 import type { PayKitContext } from "../core/context";
 import type { PayKitOptions } from "../types/options";
-import { checkout } from "./routes/checkout";
+import { customerPortal } from "./routes/customer-portal";
+import { subscribe } from "./routes/subscribe";
+import { webhook } from "./routes/webhook";
 
-export const endpoints = { checkout } as const;
+export const clientEndpoints = { subscribe, customerPortal } as const;
+export const endpoints = { ...clientEndpoints, webhook } as const;
 
+/** derives funcs like .subscribe() automatically from client endpoints */
 export function getEndpoints(ctx: PayKitContext | Promise<PayKitContext>) {
   const wrapped = Object.fromEntries(
-    Object.entries(endpoints).map(([key, endpoint]) => {
+    Object.entries(clientEndpoints).map(([key, endpoint]) => {
       const fn = async (args: { body: unknown }) => {
         const resolved = await ctx;
         return (endpoint as (...args: unknown[]) => unknown)({
@@ -21,12 +25,12 @@ export function getEndpoints(ctx: PayKitContext | Promise<PayKitContext>) {
     }),
   );
 
-  return wrapped as typeof endpoints;
+  return wrapped as typeof clientEndpoints;
 }
 
 export function createPayKitRouter(ctx: PayKitContext, options: PayKitOptions) {
   return createRouter(endpoints, {
-    basePath: options.basePath ?? "/api/paykit",
+    basePath: options.basePath ?? "/paykit/api",
     routerContext: ctx,
     onError(e) {
       ctx.logger.error("API error:", e);

@@ -1,4 +1,6 @@
 import { createPayKitRouter, getEndpoints } from "../api";
+import { syncCustomerWithDefaults } from "../services/customer-service";
+import { checkEntitlement, reportEntitlement } from "../services/entitlement-service";
 import type { PayKitAPI, PayKitInstance } from "../types/instance";
 import type { PayKitOptions } from "../types/options";
 import { handleWebhook } from "../webhook/handle-webhook";
@@ -36,9 +38,24 @@ export function createPayKit<const TOptions extends PayKitOptions>(
       return getEndpoints(getContext()) as unknown as PayKitAPI<TOptions>;
     },
 
-    async checkout(input) {
+    async ensureCustomer(input) {
+      const ctx = await getContext();
+      return syncCustomerWithDefaults(ctx, input);
+    },
+
+    async subscribe(input) {
       const api = getEndpoints(getContext()) as unknown as PayKitAPI<TOptions>;
-      return api.checkout({ body: input });
+      return api.subscribe({ body: input });
+    },
+
+    async check(input) {
+      const ctx = await getContext();
+      return checkEntitlement(ctx.database, input);
+    },
+
+    async report(input) {
+      const ctx = await getContext();
+      return reportEntitlement(ctx.database, input);
     },
 
     async handleWebhook(input) {

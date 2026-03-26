@@ -4,8 +4,14 @@ import type { PayKitContext } from "../core/context";
 import { PayKitError } from "../core/errors";
 import { generateId } from "../core/utils";
 import type { PayKitDatabase } from "../database";
-import { customer, providerCustomer } from "../database/postgres/schema";
+import { customer, providerCustomer } from "../database/schema";
 import type { Customer, InternalProviderCustomer } from "../types/models";
+import {
+  getActiveCustomerProductInGroup,
+  getScheduledCustomerProductsInGroup,
+  insertCustomerProductRecord,
+} from "./billing-service";
+import { getLatestProductWithPrice } from "./product-service";
 
 function anonymizedEmail(id: string): string {
   return `deleted+${id}@paykit.local`;
@@ -65,6 +71,73 @@ export async function syncCustomer(
     throw new Error("Failed to create customer.");
   }
   return row;
+}
+
+export async function ensureDefaultPlansForCustomer(
+  ctx: PayKitContext,
+  customerId: string,
+): Promise<void> {
+  const defaultPlans = ctx.plans.plans.filter((plan) => plan.isDefault);
+  if (defaultPlans.length === 0) {
+    return;
+  }
+
+  for (const defaultPlan of defaultPlans) {
+    if (!defaultPlan.group) {
+      continue;
+    }
+
+    const activeProduct = await getActiveCustomerProductInGroup(ctx.database, {
+      customerId,
+      group: defaultPlan.group,
+      providerId: ctx.provider.id,
+    });
+    if (activeProduct) {
+      continue;
+    }
+
+    const scheduledProducts = await getScheduledCustomerProductsInGroup(ctx.database, {
+      customerId,
+      group: defaultPlan.group,
+      providerId: ctx.provider.id,
+    });
+    if (scheduledProducts.length > 0) {
+      continue;
+    }
+
+    const storedPlan = await getLatestProductWithPrice(ctx.database, {
+      id: defaultPlan.id,
+      providerId: ctx.provider.id,
+    });
+    if (!storedPlan) {
+      continue;
+    }
+
+    if (storedPlan.priceId !== null) {
+      ctx.logger.warn(
+        `Skipping default plan "${defaultPlan.id}" for customer "${customerId}" because paid default plans are not auto-attached yet.`,
+      );
+      continue;
+    }
+
+    await insertCustomerProductRecord(ctx.database, {
+      customerId,
+      planFeatures: defaultPlan.includes,
+      productInternalId: storedPlan.internalId,
+      providerId: ctx.provider.id,
+      startedAt: new Date(),
+      status: "active",
+    });
+  }
+}
+
+export async function syncCustomerWithDefaults(
+  ctx: PayKitContext,
+  input: SyncCustomerInput,
+): Promise<Customer> {
+  const syncedCustomer = await syncCustomer(ctx.database, input);
+  await ensureDefaultPlansForCustomer(ctx, syncedCustomer.id);
+  return syncedCustomer;
 }
 
 export async function getCustomerById(
@@ -135,7 +208,7 @@ export async function upsertProviderCustomer(
       return existing;
     }
 
-    const { providerCustomerId } = await ctx.provider.upsertCustomer({
+    const { providerCustomerId } = await ctx.stripe.upsertCustomer({
       id: existingCustomer.id,
       email: existingCustomer.email ?? undefined,
       name: existingCustomer.name ?? undefined,

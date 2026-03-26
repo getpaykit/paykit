@@ -1,8 +1,8 @@
 import type { Pool } from "pg";
 
-import type { PayKitProvider } from "../providers/provider";
+import type { StripeProviderConfig } from "../providers/provider";
 import type { PayKitEventHandlers } from "./events";
-import type { Product } from "./product";
+import type { PayKitPlansModule } from "./schema";
 
 export interface PayKitLogger {
   debug: (message: string, ...args: unknown[]) => void;
@@ -13,8 +13,8 @@ export interface PayKitLogger {
 
 export interface PayKitOptions {
   database: Pool;
-  provider: PayKitProvider;
-  products?: readonly Product[];
+  provider: StripeProviderConfig;
+  plans?: PayKitPlansModule;
   basePath?: string;
   client?: {
     identify?: (request: Request) => Promise<{

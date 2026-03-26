@@ -5,7 +5,7 @@ export default defineConfig({
   copy: [
     {
       flatten: false,
-      from: "src/database/*/migrations/**/*",
+      from: "src/database/migrations/**/*",
     },
   ],
   deps: {

@@ -2,14 +2,16 @@
 
 import { Command } from "commander";
 
-import { migrateCommand } from "./commands/migrate";
-import { syncProductsCommand } from "./commands/sync-products";
+import { initCommand } from "./commands/init";
+import { pushCommand } from "./commands/push";
+import { statusCommand } from "./commands/status";
 
 const program = new Command()
   .name("paykitjs")
   .description("CLI for PayKit")
-  .addCommand(migrateCommand)
-  .addCommand(syncProductsCommand);
+  .addCommand(initCommand)
+  .addCommand(pushCommand)
+  .addCommand(statusCommand);
 
 try {
   await program.parseAsync(process.argv);

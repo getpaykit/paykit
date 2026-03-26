@@ -124,7 +124,6 @@ async function loadModule(cwd: string, configPath: string): Promise<unknown> {
 
   const jiti = createJiti(configPath, {
     alias: getPathAliases(cwd),
-    conditions: ["paykit-source"],
     interopDefault: false,
     jsx: true,
     moduleCache: false,
@@ -151,7 +150,7 @@ function isPayKitLike(value: unknown): value is { options: PayKitOptions } {
   const paykit = value as Record<string, unknown>;
   return (
     typeof paykit.handler === "function" &&
-    typeof paykit.checkout === "function" &&
+    typeof paykit.subscribe === "function" &&
     typeof paykit.handleWebhook === "function" &&
     "options" in paykit
   );

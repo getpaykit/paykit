@@ -3,6 +3,8 @@
 import { redirect, useSearchParams } from "next/navigation";
 
 import { AuthForm } from "@/app/_components/auth-form";
+import { Card, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 
 function getSafeRedirectPath(redirectTo: string | null) {
@@ -22,12 +24,15 @@ export function LoginPageContent() {
     return (
       <div className="flex w-full max-w-lg flex-col gap-6">
         <div className="space-y-2">
-          <p className="text-sm tracking-widest text-white/50 uppercase">PayKit Demo</p>
+          <p className="text-muted-foreground text-sm tracking-widest uppercase">PayKit Demo</p>
           <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
-          Checking your session...
-        </div>
+        <Card>
+          <CardContent className="space-y-3">
+            <Skeleton className="h-4 w-48" />
+            <Skeleton className="h-4 w-32" />
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -39,10 +44,10 @@ export function LoginPageContent() {
   return (
     <div className="flex w-full max-w-lg flex-col gap-6">
       <div className="space-y-2">
-        <p className="text-sm tracking-widest text-white/50 uppercase">PayKit Demo</p>
+        <p className="text-muted-foreground text-sm tracking-widest uppercase">PayKit Demo</p>
         <h1 className="text-3xl font-semibold tracking-tight">Sign in</h1>
-        <p className="text-sm text-white/70">
-          Authentication is handled separately so the main route can stay focused on checkout.
+        <p className="text-muted-foreground text-sm">
+          Authentication is handled separately so the main route can stay focused on billing.
         </p>
       </div>
       <AuthForm redirectTo={redirectTo} />

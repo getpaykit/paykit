@@ -1,23 +1,39 @@
 "use client";
 
-import { redirect } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { toast } from "sonner";
 
-import { CheckoutPanel } from "@/app/_components/checkout-panel";
+import { FeaturesPanel } from "@/app/_components/features-panel";
+import { SubscribePanel } from "@/app/_components/subscribe-panel";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
 import { authClient } from "@/lib/auth-client";
 
 export function CheckoutPageContent() {
   const { data: session, error, isPending } = authClient.useSession();
+  const searchParams = useSearchParams();
+  const toastShown = useRef(false);
+
+  useEffect(() => {
+    if (toastShown.current) return;
+    const checkout = searchParams.get("checkout");
+    if (checkout === "success") {
+      toastShown.current = true;
+      toast.success("Billing flow completed successfully");
+    } else if (checkout === "canceled") {
+      toastShown.current = true;
+      toast.warning("Billing flow was canceled");
+    }
+  }, [searchParams]);
 
   if (isPending) {
     return (
-      <div className="flex w-full max-w-lg flex-col gap-6">
-        <div className="space-y-2">
-          <p className="text-sm tracking-widest text-white/50 uppercase">PayKit Demo</p>
-          <h1 className="text-3xl font-semibold tracking-tight">Checkout</h1>
-        </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 text-sm text-white/70">
-          Loading your session...
-        </div>
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-4 w-64" />
+        <Skeleton className="h-48 w-full rounded-xl" />
       </div>
     );
   }
@@ -27,28 +43,34 @@ export function CheckoutPageContent() {
   }
 
   return (
-    <div className="flex w-full max-w-lg flex-col gap-6">
-      <div className="space-y-2">
-        <p className="text-sm tracking-widest text-white/50 uppercase">PayKit Demo</p>
-        <h1 className="text-3xl font-semibold tracking-tight">Checkout</h1>
-        <p className="text-sm text-white/70">Authentication lives on a dedicated login route.</p>
-      </div>
-      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/5 p-4">
-        <div className="flex-1">
-          <p className="text-sm text-white/70">Signed in as</p>
-          <p className="font-medium">{session.user.email}</p>
+    <div className="flex flex-col gap-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
+          <p className="text-muted-foreground text-sm">
+            Manage your subscription and billing details.
+          </p>
         </div>
-        <button
-          className="rounded-full border border-white/10 px-4 py-2 text-sm transition hover:bg-white/10"
-          onClick={() => {
-            void authClient.signOut();
-          }}
-          type="button"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <span className="text-muted-foreground text-sm">{session.user.email}</span>
+          <Button
+            onClick={() => {
+              void authClient.signOut();
+            }}
+            size="sm"
+            variant="ghost"
+          >
+            Sign out
+          </Button>
+        </div>
       </div>
-      <CheckoutPanel />
+      <Separator />
+      <SubscribePanel />
+      <Separator />
+      <section className="flex flex-col gap-3">
+        <h2 className="text-sm font-medium">Features</h2>
+        <FeaturesPanel />
+      </section>
     </div>
   );
 }

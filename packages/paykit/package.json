@@ -25,38 +25,46 @@
     "dist"
   ],
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "paykit-source": "./src/index.ts",
-      "default": "./dist/index.js"
+    ".": "./src/index.ts",
+    "./handlers/next": "./src/handlers/next.ts",
+    "./client": "./src/client/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "./handlers/next": {
+        "types": "./dist/handlers/next.d.ts",
+        "default": "./dist/handlers/next.js"
+      },
+      "./client": {
+        "types": "./dist/client/index.d.ts",
+        "default": "./dist/client/index.js"
+      }
     },
-    "./handlers/next": {
-      "types": "./dist/handlers/next.d.ts",
-      "paykit-source": "./src/handlers/next.ts",
-      "default": "./dist/handlers/next.js"
-    },
-    "./client": {
-      "types": "./dist/client/index.d.ts",
-      "paykit-source": "./src/client/index.ts",
-      "default": "./dist/client/index.js"
-    }
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "scripts": {
     "build": "tsdown --config tsdown.config.ts",
-    "db:generate": "pnpm db:generate:postgres",
-    "db:generate:postgres": "drizzle-kit generate --config src/database/postgres/drizzle.config.ts"
+    "db:generate": "drizzle-kit generate --config src/database/drizzle.config.ts"
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.21",
+    "@clack/prompts": "^1.1.0",
     "better-call": "^2.0.2",
     "commander": "^12.1.0",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "jiti": "^2.6.1",
     "pg": "^8.20.0",
+    "picocolors": "^1.1.1",
+    "stripe": "^19.1.0",
     "typescript": "^5.9.2",
     "zod": "^4.0.0"
   },

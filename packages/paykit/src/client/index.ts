@@ -1,13 +1,13 @@
 import { createFetch } from "@better-fetch/fetch";
 
-import type { endpoints } from "../api";
+import type { clientEndpoints } from "../api";
 
 export interface PayKitClientOptions {
   baseURL?: string;
 }
 
 export function createPayKitClient<Instance>(options?: PayKitClientOptions) {
-  const baseURL = options?.baseURL ?? "/api/paykit";
+  const baseURL = options?.baseURL ?? "/paykit/api";
   const isCredentialsSupported =
     typeof globalThis.Request !== "undefined" && "credentials" in Request.prototype;
 
@@ -76,7 +76,7 @@ type InferClientAPI<Instance> = Instance extends { api: infer API }
           : never;
       }[keyof API]
     >
-  : typeof endpoints extends infer API
+  : typeof clientEndpoints extends infer API
     ? UnionToIntersection<
         {
           [K in keyof API]: API[K] extends { path: infer P }
