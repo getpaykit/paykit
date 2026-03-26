@@ -179,12 +179,8 @@
           "name": "paykit_customer_entitlement_customer_product_id_paykit_customer_product_id_fk",
           "tableFrom": "paykit_customer_entitlement",
           "tableTo": "paykit_customer_product",
-          "columnsFrom": [
-            "customer_product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -192,12 +188,8 @@
           "name": "paykit_customer_entitlement_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_customer_entitlement",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -205,12 +197,8 @@
           "name": "paykit_customer_entitlement_feature_id_paykit_feature_id_fk",
           "tableFrom": "paykit_customer_entitlement",
           "tableTo": "paykit_feature",
-          "columnsFrom": [
-            "feature_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["feature_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -299,12 +287,8 @@
           "name": "paykit_customer_price_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_customer_price",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -312,12 +296,8 @@
           "name": "paykit_customer_price_customer_product_id_paykit_customer_product_id_fk",
           "tableFrom": "paykit_customer_price",
           "tableTo": "paykit_customer_product",
-          "columnsFrom": [
-            "customer_product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -325,12 +305,8 @@
           "name": "paykit_customer_price_price_id_paykit_price_id_fk",
           "tableFrom": "paykit_customer_price",
           "tableTo": "paykit_price",
-          "columnsFrom": [
-            "price_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["price_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -520,12 +496,8 @@
           "name": "paykit_customer_product_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_customer_product",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -533,12 +505,8 @@
           "name": "paykit_customer_product_product_internal_id_paykit_product_internal_id_fk",
           "tableFrom": "paykit_customer_product",
           "tableTo": "paykit_product",
-          "columnsFrom": [
-            "product_internal_id"
-          ],
-          "columnsTo": [
-            "internal_id"
-          ],
+          "columnsFrom": ["product_internal_id"],
+          "columnsTo": ["internal_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -727,12 +695,8 @@
           "name": "paykit_invoice_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_invoice",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -740,12 +704,8 @@
           "name": "paykit_invoice_subscription_id_paykit_subscription_id_fk",
           "tableFrom": "paykit_invoice",
           "tableTo": "paykit_subscription",
-          "columnsFrom": [
-            "subscription_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["subscription_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -959,12 +919,8 @@
           "name": "paykit_payment_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_payment",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -972,12 +928,8 @@
           "name": "paykit_payment_payment_method_id_paykit_payment_method_id_fk",
           "tableFrom": "paykit_payment",
           "tableTo": "paykit_payment_method",
-          "columnsFrom": [
-            "payment_method_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["payment_method_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1121,12 +1073,8 @@
           "name": "paykit_payment_method_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_payment_method",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1316,12 +1264,8 @@
           "name": "paykit_price_product_internal_id_paykit_product_internal_id_fk",
           "tableFrom": "paykit_price",
           "tableTo": "paykit_product",
-          "columnsFrom": [
-            "product_internal_id"
-          ],
-          "columnsTo": [
-            "internal_id"
-          ],
+          "columnsFrom": ["product_internal_id"],
+          "columnsTo": ["internal_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1401,12 +1345,8 @@
           "name": "paykit_product_feature_product_internal_id_paykit_product_internal_id_fk",
           "tableFrom": "paykit_product_feature",
           "tableTo": "paykit_product",
-          "columnsFrom": [
-            "product_internal_id"
-          ],
-          "columnsTo": [
-            "internal_id"
-          ],
+          "columnsFrom": ["product_internal_id"],
+          "columnsTo": ["internal_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1414,12 +1354,8 @@
           "name": "paykit_product_feature_feature_id_paykit_feature_id_fk",
           "tableFrom": "paykit_product_feature",
           "tableTo": "paykit_feature",
-          "columnsFrom": [
-            "feature_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["feature_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1427,10 +1363,7 @@
       "compositePrimaryKeys": {
         "paykit_product_feature_product_internal_id_feature_id_pk": {
           "name": "paykit_product_feature_product_internal_id_feature_id_pk",
-          "columns": [
-            "product_internal_id",
-            "feature_id"
-          ]
+          "columns": ["product_internal_id", "feature_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1522,12 +1455,8 @@
           "name": "paykit_provider_customer_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_provider_customer",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1573,12 +1502,8 @@
           "name": "paykit_provider_product_product_internal_id_paykit_product_internal_id_fk",
           "tableFrom": "paykit_provider_product",
           "tableTo": "paykit_product",
-          "columnsFrom": [
-            "product_internal_id"
-          ],
-          "columnsTo": [
-            "internal_id"
-          ],
+          "columnsFrom": ["product_internal_id"],
+          "columnsTo": ["internal_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1586,10 +1511,7 @@
       "compositePrimaryKeys": {
         "paykit_provider_product_product_internal_id_provider_id_pk": {
           "name": "paykit_provider_product_product_internal_id_provider_id_pk",
-          "columns": [
-            "product_internal_id",
-            "provider_id"
-          ]
+          "columns": ["product_internal_id", "provider_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1632,12 +1554,8 @@
           "name": "paykit_provider_price_price_id_paykit_price_id_fk",
           "tableFrom": "paykit_provider_price",
           "tableTo": "paykit_price",
-          "columnsFrom": [
-            "price_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["price_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1645,10 +1563,7 @@
       "compositePrimaryKeys": {
         "paykit_provider_price_price_id_provider_id_pk": {
           "name": "paykit_provider_price_price_id_provider_id_pk",
-          "columns": [
-            "price_id",
-            "provider_id"
-          ]
+          "columns": ["price_id", "provider_id"]
         }
       },
       "uniqueConstraints": {},
@@ -1810,12 +1725,8 @@
           "name": "paykit_subscription_customer_id_paykit_customer_id_fk",
           "tableFrom": "paykit_subscription",
           "tableTo": "paykit_customer",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1823,12 +1734,8 @@
           "name": "paykit_subscription_customer_product_id_paykit_customer_product_id_fk",
           "tableFrom": "paykit_subscription",
           "tableTo": "paykit_customer_product",
-          "columnsFrom": [
-            "customer_product_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["customer_product_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

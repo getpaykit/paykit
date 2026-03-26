@@ -100,13 +100,7 @@ describe("paykit sync-products", () => {
   }, 15_000);
 });
 
-async function createFixture({
-  filePath,
-  globalKey,
-}: {
-  filePath: string;
-  globalKey: string;
-}) {
+async function createFixture({ filePath, globalKey }: { filePath: string; globalKey: string }) {
   const cwd = await fs.mkdtemp(path.join(process.cwd(), "paykit-sync-products-test-"));
   temporaryDirectories.push(cwd);
   temporaryGlobalKeys.push(globalKey);

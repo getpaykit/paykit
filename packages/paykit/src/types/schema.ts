@@ -30,7 +30,9 @@ function formatValidationError(
   id: string,
   messages: string[],
 ): Error {
-  return new Error(`Invalid ${entityType} "${id}":\n${messages.map((message) => `  - ${message}`).join("\n")}`);
+  return new Error(
+    `Invalid ${entityType} "${id}":\n${messages.map((message) => `  - ${message}`).join("\n")}`,
+  );
 }
 
 function deriveNameFromId(id: string): string {
@@ -55,8 +57,14 @@ export interface PayKitFeatureDefinition<
   type: TType;
 }
 
-type BooleanFeatureDefinition<TId extends string = string> = PayKitFeatureDefinition<TId, "boolean">;
-type MeteredFeatureDefinition<TId extends string = string> = PayKitFeatureDefinition<TId, "metered">;
+type BooleanFeatureDefinition<TId extends string = string> = PayKitFeatureDefinition<
+  TId,
+  "boolean"
+>;
+type MeteredFeatureDefinition<TId extends string = string> = PayKitFeatureDefinition<
+  TId,
+  "metered"
+>;
 
 type BooleanFeatureInclude<TFeature extends BooleanFeatureDefinition = BooleanFeatureDefinition> =
   Readonly<{
@@ -74,8 +82,8 @@ export type PayKitFeatureInclude =
   | BooleanFeatureInclude<BooleanFeatureDefinition>
   | MeteredFeatureInclude<MeteredFeatureDefinition>;
 
-type BooleanFeatureCallable<TFeature extends BooleanFeatureDefinition> = (() => BooleanFeatureInclude<TFeature>) &
-  Readonly<TFeature>;
+type BooleanFeatureCallable<TFeature extends BooleanFeatureDefinition> =
+  (() => BooleanFeatureInclude<TFeature>) & Readonly<TFeature>;
 
 type MeteredFeatureCallable<TFeature extends MeteredFeatureDefinition> = ((
   config: MeteredFeatureConfig,
@@ -136,15 +144,16 @@ export interface NormalizedSchema {
 
 export type PayKitPlansModule = Record<string, unknown>;
 
-export type PlanIdFromPlans<TPlans> = TPlans extends Record<PropertyKey, unknown>
-  ? TPlans[keyof TPlans] extends infer TValue
-    ? TValue extends { id: infer TId extends string }
-      ? TValue extends PayKitPlan
-        ? TId
+export type PlanIdFromPlans<TPlans> =
+  TPlans extends Record<PropertyKey, unknown>
+    ? TPlans[keyof TPlans] extends infer TValue
+      ? TValue extends { id: infer TId extends string }
+        ? TValue extends PayKitPlan
+          ? TId
+          : never
         : never
       : never
-    : never
-  : never;
+    : never;
 
 function defineHiddenBrand(target: object, symbol: symbol): void {
   Object.defineProperty(target, symbol, {
@@ -194,7 +203,9 @@ export function feature<const TId extends string, const TType extends FeatureTyp
   const featureType =
     definition.type === "boolean" || definition.type === "metered" ? definition.type : null;
   if (!featureType) {
-    throw formatValidationError("feature", parsedId.data, ["Feature type must be boolean or metered"]);
+    throw formatValidationError("feature", parsedId.data, [
+      "Feature type must be boolean or metered",
+    ]);
   }
 
   const featureDefinition = Object.freeze({

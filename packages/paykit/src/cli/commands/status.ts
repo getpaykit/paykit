@@ -78,7 +78,9 @@ async function statusAction(options: { config?: string; cwd: string }): Promise<
     const endpoints = await client.webhookEndpoints.list({ limit: 100 });
     const activeEndpoints = endpoints.data.filter((ep) => ep.status === "enabled");
     if (activeEndpoints.length > 0) {
-      const lines = activeEndpoints.map((ep) => picocolors.dim(`- Webhook endpoint registered (${ep.url})`));
+      const lines = activeEndpoints.map((ep) =>
+        picocolors.dim(`- Webhook endpoint registered (${ep.url})`),
+      );
       webhookStatus = lines.join("\n  ");
     } else {
       webhookStatus = picocolors.dim("- No webhook endpoint (use Stripe CLI for local testing)");

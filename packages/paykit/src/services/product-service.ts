@@ -135,18 +135,16 @@ export async function insertProductVersion(
 ): Promise<StoredProduct> {
   const now = new Date();
   const internalId = generateId("prod");
-  await database
-    .insert(product)
-    .values({
-      createdAt: now,
-      group: input.group,
-      id: input.id,
-      internalId,
-      isDefault: input.isDefault,
-      name: input.name,
-      updatedAt: now,
-      version: input.version,
-    });
+  await database.insert(product).values({
+    createdAt: now,
+    group: input.group,
+    id: input.id,
+    internalId,
+    isDefault: input.isDefault,
+    name: input.name,
+    updatedAt: now,
+    version: input.version,
+  });
 
   return {
     createdAt: now,
@@ -201,16 +199,14 @@ export async function insertPrice(
 ): Promise<StoredPrice> {
   const now = new Date();
   const priceId = generateId("price");
-  await database
-    .insert(price)
-    .values({
-      amount: input.amount,
-      createdAt: now,
-      id: priceId,
-      interval: input.interval,
-      productInternalId: input.productInternalId,
-      updatedAt: now,
-    });
+  await database.insert(price).values({
+    amount: input.amount,
+    createdAt: now,
+    id: priceId,
+    interval: input.interval,
+    productInternalId: input.productInternalId,
+    updatedAt: now,
+  });
 
   return {
     amount: input.amount,

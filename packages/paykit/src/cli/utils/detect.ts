@@ -13,7 +13,8 @@ export function detectPackageManager(cwd: string): "pnpm" | "npm" | "yarn" | "bu
   while (true) {
     if (fs.existsSync(path.join(dir, "pnpm-lock.yaml"))) return "pnpm";
     if (fs.existsSync(path.join(dir, "yarn.lock"))) return "yarn";
-    if (fs.existsSync(path.join(dir, "bun.lockb")) || fs.existsSync(path.join(dir, "bun.lock"))) return "bun";
+    if (fs.existsSync(path.join(dir, "bun.lockb")) || fs.existsSync(path.join(dir, "bun.lock")))
+      return "bun";
     if (fs.existsSync(path.join(dir, "package-lock.json"))) return "npm";
     const parent = path.dirname(dir);
     if (parent === dir) break;

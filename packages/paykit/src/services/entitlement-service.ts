@@ -110,7 +110,12 @@ async function resetStaleEntitlements(
   let changed = false;
 
   for (const row of rows) {
-    if (row.nextResetAt && row.nextResetAt <= now && row.resetInterval && row.originalLimit != null) {
+    if (
+      row.nextResetAt &&
+      row.nextResetAt <= now &&
+      row.resetInterval &&
+      row.originalLimit != null
+    ) {
       const nextReset = addResetInterval(now, row.resetInterval);
       await db.execute(sql`
         UPDATE paykit_customer_entitlement

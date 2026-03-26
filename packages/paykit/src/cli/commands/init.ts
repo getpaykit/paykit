@@ -227,7 +227,9 @@ async function initAction(options: { cwd: string }): Promise<void> {
       spinner.stop(`Installed ${toInstall.join(", ")}`);
     } catch {
       spinner.stop("Could not install automatically");
-      p.log.step(`Add to your package.json manually:\n  ${picocolors.dim(`${installCmd} ${toInstall.join(" ")}`)}`);
+      p.log.step(
+        `Add to your package.json manually:\n  ${picocolors.dim(`${installCmd} ${toInstall.join(" ")}`)}`,
+      );
     }
   } else {
     p.log.step("Dependencies already installed");
@@ -286,7 +288,9 @@ async function initAction(options: { cwd: string }): Promise<void> {
 
   if (files.length > 0) {
     const fileList = files.map((f) => `  ${picocolors.dim(f.path)}`).join("\n");
-    p.log.success(`Created ${String(files.length)} file${files.length === 1 ? "" : "s"}:\n${fileList}`);
+    p.log.success(
+      `Created ${String(files.length)} file${files.length === 1 ? "" : "s"}:\n${fileList}`,
+    );
   }
 
   if (skipped.length > 0) {

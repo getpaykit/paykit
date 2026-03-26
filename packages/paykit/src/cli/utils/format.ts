@@ -11,9 +11,8 @@ export async function getStripeAccountInfo(secretKey: string): Promise<StripeAcc
   try {
     const client = new StripeSdk(secretKey);
     const account = await client.accounts.retrieve();
-    const name = account.settings?.dashboard?.display_name
-      || account.business_profile?.name
-      || account.id;
+    const name =
+      account.settings?.dashboard?.display_name || account.business_profile?.name || account.id;
     return { displayName: name, mode };
   } catch {
     return { displayName: "unknown", mode };
@@ -53,7 +52,15 @@ export function stripeMode(secretKey: string): "test mode" | "live mode" {
     : "live mode";
 }
 
-export function getConnectionString(pool: { options?: { connectionString?: string; host?: string; port?: number; database?: string; user?: string } }): string {
+export function getConnectionString(pool: {
+  options?: {
+    connectionString?: string;
+    host?: string;
+    port?: number;
+    database?: string;
+    user?: string;
+  };
+}): string {
   const opts = pool.options;
   if (opts?.connectionString) {
     return maskConnectionString(opts.connectionString);

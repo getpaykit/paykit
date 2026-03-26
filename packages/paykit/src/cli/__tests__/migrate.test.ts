@@ -43,7 +43,11 @@ describe("paykit migrate", () => {
     });
 
     const cfg = await getPayKitConfig({ cwd: fixture.cwd });
-    try { await runPayKitMigrations(cfg); } finally { await cfg.options.database.end(); }
+    try {
+      await runPayKitMigrations(cfg);
+    } finally {
+      await cfg.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query(
@@ -73,7 +77,11 @@ describe("paykit migrate", () => {
     });
 
     const cfg = await getPayKitConfig({ configPath: fixture.filePath, cwd: fixture.cwd });
-    try { await runPayKitMigrations(cfg); } finally { await cfg.options.database.end(); }
+    try {
+      await runPayKitMigrations(cfg);
+    } finally {
+      await cfg.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");
@@ -89,9 +97,17 @@ describe("paykit migrate", () => {
     });
 
     const cfg1 = await getPayKitConfig({ cwd: fixture.cwd });
-    try { await runPayKitMigrations(cfg1); } finally { await cfg1.options.database.end(); }
+    try {
+      await runPayKitMigrations(cfg1);
+    } finally {
+      await cfg1.options.database.end();
+    }
     const cfg2 = await getPayKitConfig({ cwd: fixture.cwd });
-    try { await runPayKitMigrations(cfg2); } finally { await cfg2.options.database.end(); }
+    try {
+      await runPayKitMigrations(cfg2);
+    } finally {
+      await cfg2.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");

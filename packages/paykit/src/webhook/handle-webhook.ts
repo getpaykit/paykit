@@ -224,10 +224,16 @@ async function finalizeSubscriptionCheckout(
       await executeStripeAction(ctx, billingPlan.stripe.subscriptionAction);
     }
 
-    await executePayKitPlan(ctx, ctx.provider.id, billingPlan.paykit, {
-      invoice: checkoutInvoice,
-      subscription: checkoutSubscription,
-    }, { deferred: true });
+    await executePayKitPlan(
+      ctx,
+      ctx.provider.id,
+      billingPlan.paykit,
+      {
+        invoice: checkoutInvoice,
+        subscription: checkoutSubscription,
+      },
+      { deferred: true },
+    );
 
     await deleteMetadataById(ctx.database, metadataId);
     return billingPlan.paykit.customerId;
@@ -292,7 +298,9 @@ async function finalizeLegacyCheckout(
 
   if (storedPlan && normalizedPlan) {
     const currentPeriodStartAt =
-      checkoutSubscription?.currentPeriodStartAt ?? existingSubscription?.currentPeriodStartAt ?? null;
+      checkoutSubscription?.currentPeriodStartAt ??
+      existingSubscription?.currentPeriodStartAt ??
+      null;
     const currentPeriodEndAt =
       checkoutSubscription?.currentPeriodEndAt ?? existingSubscription?.currentPeriodEndAt ?? null;
     const currentGroupActiveProduct = storedPlan.group
@@ -338,7 +346,9 @@ async function finalizeLegacyCheckout(
       providerCheckoutSessionId: event.payload.checkoutSessionId,
       startedAt: currentPeriodStartAt ?? targetCustomerProduct.startedAt,
       status:
-        checkoutSubscription?.status ?? existingSubscription?.status ?? targetCustomerProduct.status,
+        checkoutSubscription?.status ??
+        existingSubscription?.status ??
+        targetCustomerProduct.status,
       subscriptionId: existingSubscription?.id ?? targetCustomerProduct.subscriptionId,
     });
 

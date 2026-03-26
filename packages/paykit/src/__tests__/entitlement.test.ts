@@ -27,10 +27,7 @@ const free = plan({
 const pro = plan({
   group: "base",
   id: "pro",
-  includes: [
-    messagesFeature({ limit: 1000, reset: "month" }),
-    proModelsFeature(),
-  ],
+  includes: [messagesFeature({ limit: 1000, reset: "month" }), proModelsFeature()],
   price: { amount: 20, interval: "month" },
 });
 

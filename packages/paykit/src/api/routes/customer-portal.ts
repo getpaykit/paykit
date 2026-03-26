@@ -9,7 +9,9 @@ function resolveReturnUrl(request: Request | undefined, explicitReturnUrl?: stri
   }
 
   if (!request) {
-    throw new Error("A returnUrl is required when openCustomerPortal is called without a request context");
+    throw new Error(
+      "A returnUrl is required when openCustomerPortal is called without a request context",
+    );
   }
 
   return new URL("/", request.url).toString();
@@ -29,10 +31,7 @@ export const customerPortal = createPayKitEndpoint(
 
     const providerCustomer = await ctx.context.database.query.providerCustomer.findFirst({
       where: (fields, { and, eq }) =>
-        and(
-          eq(fields.customerId, customerId),
-          eq(fields.providerId, ctx.context.provider.id),
-        ),
+        and(eq(fields.customerId, customerId), eq(fields.providerId, ctx.context.provider.id)),
     });
 
     if (!providerCustomer) {

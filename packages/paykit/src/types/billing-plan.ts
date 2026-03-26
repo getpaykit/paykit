@@ -1,4 +1,8 @@
-import type { ProviderInvoice, ProviderRequiredAction, ProviderSubscription } from "../providers/provider";
+import type {
+  ProviderInvoice,
+  ProviderRequiredAction,
+  ProviderSubscription,
+} from "../providers/provider";
 import type { NormalizedPlanFeature } from "./schema";
 
 // ---------------------------------------------------------------------------

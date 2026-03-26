@@ -1,12 +1,13 @@
 import type { CheckResult, ReportResult } from "../services/entitlement-service";
+import type { Customer } from "./models";
 import type { PayKitOptions } from "./options";
 import type { PlanIdFromPlans } from "./schema";
-import type { Customer } from "./models";
 
-type PlanIdFromOptions<TOptions extends PayKitOptions> =
-  [PlanIdFromPlans<TOptions["plans"]>] extends [never]
-    ? string
-    : PlanIdFromPlans<TOptions["plans"]>;
+type PlanIdFromOptions<TOptions extends PayKitOptions> = [
+  PlanIdFromPlans<TOptions["plans"]>,
+] extends [never]
+  ? string
+  : PlanIdFromPlans<TOptions["plans"]>;
 
 export type PayKitSubscribeInput<TOptions extends PayKitOptions = PayKitOptions> = {
   planId: PlanIdFromOptions<TOptions>;
@@ -40,11 +41,7 @@ type PayKitEndpoint<TPath extends string, TBody, TResult> = ((ctx: {
 };
 
 export interface PayKitAPI<TOptions extends PayKitOptions = PayKitOptions> {
-  subscribe: PayKitEndpoint<
-    "/subscribe",
-    PayKitSubscribeInput<TOptions>,
-    PayKitSubscribeResult
-  >;
+  subscribe: PayKitEndpoint<"/subscribe", PayKitSubscribeInput<TOptions>, PayKitSubscribeResult>;
 }
 
 export interface PayKitInstance<TOptions extends PayKitOptions = PayKitOptions> {
@@ -58,16 +55,8 @@ export interface PayKitInstance<TOptions extends PayKitOptions = PayKitOptions> 
     metadata?: Record<string, string>;
   }): Promise<Customer>;
   subscribe(input: PayKitSubscribeInput<TOptions>): Promise<PayKitSubscribeResult>;
-  check(input: {
-    customerId: string;
-    featureId: string;
-    required?: number;
-  }): Promise<CheckResult>;
-  report(input: {
-    customerId: string;
-    featureId: string;
-    amount?: number;
-  }): Promise<ReportResult>;
+  check(input: { customerId: string; featureId: string; required?: number }): Promise<CheckResult>;
+  report(input: { customerId: string; featureId: string; amount?: number }): Promise<ReportResult>;
   handleWebhook(input: {
     body: string;
     headers: Record<string, string>;

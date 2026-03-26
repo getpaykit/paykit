@@ -1,37 +1,38 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
+
 import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 import { auth } from "@/server/auth";
 import { pool } from "@/server/db";
 import { paykit } from "@/server/paykit";
 
 export const paykitRouter = createTRPCRouter({
-	currentPlans: publicProcedure.query(async ({ ctx }) => {
-		const session = await auth.api.getSession({ headers: ctx.headers });
-		if (!session) {
-			throw new TRPCError({
-				code: "UNAUTHORIZED",
-				message: "Not authenticated",
-			});
-		}
+  currentPlans: publicProcedure.query(async ({ ctx }) => {
+    const session = await auth.api.getSession({ headers: ctx.headers });
+    if (!session) {
+      throw new TRPCError({
+        code: "UNAUTHORIZED",
+        message: "Not authenticated",
+      });
+    }
 
-		await paykit.ensureCustomer({
-			email: session.user.email,
-			id: session.user.id,
-			name: session.user.name ?? undefined,
-		});
+    await paykit.ensureCustomer({
+      email: session.user.email,
+      id: session.user.id,
+      name: session.user.name ?? undefined,
+    });
 
-		const result = await pool.query<{
-			amount: number | null;
-			canceled: boolean;
-			currentPeriodEndAt: Date | null;
-			id: string;
-			interval: string | null;
-			name: string;
-			startedAt: Date | null;
-			status: string;
-		}>(
-			`
+    const result = await pool.query<{
+      amount: number | null;
+      canceled: boolean;
+      currentPeriodEndAt: Date | null;
+      id: string;
+      interval: string | null;
+      name: string;
+      startedAt: Date | null;
+      status: string;
+    }>(
+      `
       select
         p.id,
         p.name,
@@ -48,36 +49,36 @@ export const paykitRouter = createTRPCRouter({
         and (cp.ended_at is null or cp.ended_at > now() or cp.status = 'scheduled')
       order by cp.created_at desc
     `,
-			[session.user.id],
-		);
+      [session.user.id],
+    );
 
-		return result.rows;
-	}),
+    return result.rows;
+  }),
 
-	checkFeature: publicProcedure
-		.input(z.object({ featureId: z.string() }))
-		.query(async ({ ctx, input }) => {
-			const session = await auth.api.getSession({ headers: ctx.headers });
-			if (!session) {
-				throw new TRPCError({ code: "UNAUTHORIZED" });
-			}
-			return paykit.check({
-				customerId: session.user.id,
-				featureId: input.featureId,
-			});
-		}),
+  checkFeature: publicProcedure
+    .input(z.object({ featureId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const session = await auth.api.getSession({ headers: ctx.headers });
+      if (!session) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return paykit.check({
+        customerId: session.user.id,
+        featureId: input.featureId,
+      });
+    }),
 
-	reportUsage: publicProcedure
-		.input(z.object({ amount: z.number().int().min(1).optional(), featureId: z.string() }))
-		.mutation(async ({ ctx, input }) => {
-			const session = await auth.api.getSession({ headers: ctx.headers });
-			if (!session) {
-				throw new TRPCError({ code: "UNAUTHORIZED" });
-			}
-			return paykit.report({
-				amount: input.amount,
-				customerId: session.user.id,
-				featureId: input.featureId,
-			});
-		}),
+  reportUsage: publicProcedure
+    .input(z.object({ amount: z.number().int().min(1).optional(), featureId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const session = await auth.api.getSession({ headers: ctx.headers });
+      if (!session) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      return paykit.report({
+        amount: input.amount,
+        customerId: session.user.id,
+        featureId: input.featureId,
+      });
+    }),
 });

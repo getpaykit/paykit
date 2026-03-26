@@ -7,7 +7,12 @@ import picocolors from "picocolors";
 import { createContext } from "../../core/context";
 import { getPendingMigrationCount, migrateDatabase } from "../../database/index";
 import { dryRunSyncProducts, syncProducts } from "../../services/product-sync-service";
-import { formatPlanLine, formatPrice, getConnectionString, getStripeAccountInfo } from "../utils/format";
+import {
+  formatPlanLine,
+  formatPrice,
+  getConnectionString,
+  getStripeAccountInfo,
+} from "../utils/format";
 import { getPayKitConfig } from "../utils/get-config";
 
 async function pushAction(options: { config?: string; cwd: string; yes?: boolean }): Promise<void> {
@@ -23,8 +28,8 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
 
     p.log.info(
       `Connected\n` +
-      `  Database ${picocolors.dim("·")} ${connStr}\n` +
-      `  Stripe   ${picocolors.dim("·")} ${stripeAccount.displayName} (${stripeAccount.mode})`,
+        `  Database ${picocolors.dim("·")} ${connStr}\n` +
+        `  Stripe   ${picocolors.dim("·")} ${stripeAccount.displayName} (${stripeAccount.mode})`,
     );
 
     // Dry-run: check what needs to change
@@ -36,7 +41,9 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
 
     // Schema section
     if (pendingMigrations > 0) {
-      p.log.step(`${String(pendingMigrations)} pending migration${pendingMigrations === 1 ? "" : "s"}`);
+      p.log.step(
+        `${String(pendingMigrations)} pending migration${pendingMigrations === 1 ? "" : "s"}`,
+      );
     } else {
       p.log.step(`Schema ${picocolors.dim("·")} up to date`);
     }

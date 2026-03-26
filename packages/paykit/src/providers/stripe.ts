@@ -221,9 +221,7 @@ async function getCheckoutPaymentDetails(client: StripeSdk, session: StripeSdk.C
     // Retrieve the payment method from the subscription's default_payment_method.
     if (session.mode === "subscription") {
       const subscriptionId =
-        typeof session.subscription === "string"
-          ? session.subscription
-          : session.subscription?.id;
+        typeof session.subscription === "string" ? session.subscription : session.subscription?.id;
       if (subscriptionId) {
         const sub = await client.subscriptions.retrieve(subscriptionId, {
           expand: ["default_payment_method"],
@@ -745,10 +743,9 @@ export function createStripeProvider(
       }
 
       // Fetch the current subscription to get the current price and period end.
-      const currentSub = (await client.subscriptions.retrieve(
-        data.providerSubscriptionId,
-        { expand: ["items"] },
-      )) as StripeSubscriptionWithExtras;
+      const currentSub = (await client.subscriptions.retrieve(data.providerSubscriptionId, {
+        expand: ["items"],
+      })) as StripeSubscriptionWithExtras;
       const periodEndSeconds = getLatestPeriodEnd(currentSub);
       if (typeof periodEndSeconds !== "number") {
         throw new Error("Stripe subscription did not include current_period_end.");
@@ -767,7 +764,7 @@ export function createStripeProvider(
         const existingScheduleId =
           typeof currentSub.schedule === "string"
             ? currentSub.schedule
-            : currentSub.schedule?.id ?? null;
+            : (currentSub.schedule?.id ?? null);
         schedule = existingScheduleId
           ? await client.subscriptionSchedules.retrieve(existingScheduleId)
           : await client.subscriptionSchedules.create({
@@ -829,7 +826,7 @@ export function createStripeProvider(
         scheduleId =
           typeof currentSubscription.schedule === "string"
             ? currentSubscription.schedule
-            : currentSubscription.schedule?.id ?? null;
+            : (currentSubscription.schedule?.id ?? null);
       }
       if (scheduleId) {
         await client.subscriptionSchedules.release(scheduleId);
@@ -852,10 +849,7 @@ export function createStripeProvider(
       let scheduleId = data.providerSubscriptionScheduleId ?? null;
       if (!scheduleId) {
         const sub = await client.subscriptions.retrieve(data.providerSubscriptionId);
-        scheduleId =
-          typeof sub.schedule === "string"
-            ? sub.schedule
-            : sub.schedule?.id ?? null;
+        scheduleId = typeof sub.schedule === "string" ? sub.schedule : (sub.schedule?.id ?? null);
       }
       if (scheduleId) {
         await client.subscriptionSchedules.release(scheduleId);

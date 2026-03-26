@@ -9,6 +9,7 @@ import type {
   StripeSubscriptionAction,
 } from "../types/billing-plan";
 import { serializeBillingPlan } from "../types/billing-plan";
+import type { StoredSubscription } from "../types/models";
 import type { NormalizedPlan } from "../types/schema";
 import {
   buildSubscribeResult,
@@ -37,7 +38,6 @@ import { upsertProviderCustomer } from "./customer-service";
 import { getDefaultPaymentMethod } from "./payment-method-service";
 import type { StoredProductWithPrice } from "./product-service";
 import { getDefaultProductInGroup, getLatestProductWithPrice } from "./product-service";
-import type { StoredSubscription } from "../types/models";
 
 // ---------------------------------------------------------------------------
 // Subscribe context — assembled in setup, passed through all stages
@@ -77,7 +77,10 @@ interface SubscribeContext {
 // Main entry point — 4-stage pipeline
 // ---------------------------------------------------------------------------
 
-export async function subscribeToPlan(ctx: PayKitContext, input: SubscribeInput): Promise<SubscribeResult> {
+export async function subscribeToPlan(
+  ctx: PayKitContext,
+  input: SubscribeInput,
+): Promise<SubscribeResult> {
   const subCtx = await setupSubscribeContext(ctx, input);
   const paykitPlan = computeBillingPlan(subCtx);
   const stripePlan = evaluateStripePlan(subCtx, paykitPlan);
@@ -89,7 +92,10 @@ export async function subscribeToPlan(ctx: PayKitContext, input: SubscribeInput)
 // Stage 1: Setup — gather all data needed for decision-making
 // ---------------------------------------------------------------------------
 
-async function setupSubscribeContext(ctx: PayKitContext, input: SubscribeInput): Promise<SubscribeContext> {
+async function setupSubscribeContext(
+  ctx: PayKitContext,
+  input: SubscribeInput,
+): Promise<SubscribeContext> {
   const providerId = ctx.provider.id;
   const normalizedPlan = ctx.plans.plans.find((plan) => plan.id === input.planId);
   const storedPlan = await getLatestProductWithPrice(ctx.database, {
@@ -130,16 +136,17 @@ async function setupSubscribeContext(ctx: PayKitContext, input: SubscribeInput):
       })
     : [];
 
-  const activeSubscription =
-    activeProduct?.subscriptionId
-      ? await getSubscriptionByCustomerProductId(ctx.database, activeProduct.id)
-      : null;
+  const activeSubscription = activeProduct?.subscriptionId
+    ? await getSubscriptionByCustomerProductId(ctx.database, activeProduct.id)
+    : null;
 
   const activeAmount = activeProduct?.priceAmount ?? 0;
   const targetAmount = storedPlan.priceAmount ?? 0;
-  const isUpgrade = activeProduct != null && activeSubscription != null && targetAmount > activeAmount;
+  const isUpgrade =
+    activeProduct != null && activeSubscription != null && targetAmount > activeAmount;
 
-  const shouldUseCheckout = isPaidTarget && input.redirectMode !== "never" && defaultPaymentMethod == null;
+  const shouldUseCheckout =
+    isPaidTarget && input.redirectMode !== "never" && defaultPaymentMethod == null;
 
   return {
     activeProduct,
@@ -168,7 +175,8 @@ async function setupSubscribeContext(ctx: PayKitContext, input: SubscribeInput):
 // ---------------------------------------------------------------------------
 
 function computeBillingPlan(subCtx: SubscribeContext): PayKitBillingPlan {
-  const { activeProduct, activeSubscription, scheduledProducts, storedPlan, normalizedPlan } = subCtx;
+  const { activeProduct, activeSubscription, scheduledProducts, storedPlan, normalizedPlan } =
+    subCtx;
   const now = new Date();
 
   const basePlan: PayKitBillingPlan = {
@@ -272,7 +280,8 @@ function computeBillingPlan(subCtx: SubscribeContext): PayKitBillingPlan {
 
   // --- Downgrade or cancel-to-free (schedule at period end) ---
   if (subCtx.isFreeTarget || !subCtx.isUpgrade) {
-    const currentPeriodEndAt = activeSubscription.currentPeriodEndAt ?? activeProduct.currentPeriodEndAt;
+    const currentPeriodEndAt =
+      activeSubscription.currentPeriodEndAt ?? activeProduct.currentPeriodEndAt;
 
     return {
       ...basePlan,
@@ -328,7 +337,10 @@ function computeBillingPlan(subCtx: SubscribeContext): PayKitBillingPlan {
 // Stage 3: Evaluate — translate PayKit plan to Stripe actions
 // ---------------------------------------------------------------------------
 
-function evaluateStripePlan(subCtx: SubscribeContext, paykitPlan: PayKitBillingPlan): StripeBillingPlan {
+function evaluateStripePlan(
+  subCtx: SubscribeContext,
+  paykitPlan: PayKitBillingPlan,
+): StripeBillingPlan {
   const noAction: StripeBillingPlan = {
     checkoutAction: { type: "none" },
     invoiceAction: { type: "none" },
@@ -364,7 +376,8 @@ function evaluateStripePlan(subCtx: SubscribeContext, paykitPlan: PayKitBillingP
     return {
       ...noAction,
       subscriptionAction: {
-        currentPeriodEndAt: activeSubscription.currentPeriodEndAt ?? activeProduct?.currentPeriodEndAt,
+        currentPeriodEndAt:
+          activeSubscription.currentPeriodEndAt ?? activeProduct?.currentPeriodEndAt,
         providerSubscriptionId: activeSubscription.providerSubscriptionId,
         providerSubscriptionScheduleId: activeSubscription.providerSubscriptionScheduleId,
         type: "cancel",
@@ -575,7 +588,18 @@ export async function executePayKitPlan(
   ctx: PayKitContext,
   providerId: string,
   plan: PayKitBillingPlan,
-  stripeResult: { subscription?: ProviderSubscription | null; invoice?: { providerInvoiceId: string; currency: string; status: string | null; totalAmount: number; hostedUrl?: string | null; periodStartAt?: Date | null; periodEndAt?: Date | null } | null },
+  stripeResult: {
+    subscription?: ProviderSubscription | null;
+    invoice?: {
+      providerInvoiceId: string;
+      currency: string;
+      status: string | null;
+      totalAmount: number;
+      hostedUrl?: string | null;
+      periodStartAt?: Date | null;
+      periodEndAt?: Date | null;
+    } | null;
+  },
   options?: { deferred?: boolean },
 ): Promise<void> {
   await ctx.database.transaction(async (tx) => {
@@ -650,7 +674,9 @@ export async function executePayKitPlan(
       const isScheduled = insertOp.status === "scheduled";
       const periodStart = isScheduled
         ? (insertOp.currentPeriodStartAt ?? null)
-        : (stripeResult.subscription?.currentPeriodStartAt ?? insertOp.currentPeriodStartAt ?? null);
+        : (stripeResult.subscription?.currentPeriodStartAt ??
+          insertOp.currentPeriodStartAt ??
+          null);
       const periodEnd = isScheduled
         ? (insertOp.currentPeriodEndAt ?? null)
         : (stripeResult.subscription?.currentPeriodEndAt ?? insertOp.currentPeriodEndAt ?? null);

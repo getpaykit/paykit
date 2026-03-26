@@ -364,10 +364,7 @@ export const webhookEvent = pgTable(
     processedAt: timestamp("processed_at"),
   },
   (table) => [
-    uniqueIndex("paykit_webhook_event_provider_unique").on(
-      table.providerId,
-      table.providerEventId,
-    ),
+    uniqueIndex("paykit_webhook_event_provider_unique").on(table.providerId, table.providerEventId),
     index("paykit_webhook_event_status_idx").on(table.providerId, table.status),
   ],
 );

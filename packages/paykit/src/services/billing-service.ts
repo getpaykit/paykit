@@ -16,12 +16,8 @@ import type {
   ProviderRequiredAction,
   ProviderSubscription,
 } from "../providers/provider";
-import type {
-  StoredCustomerProduct,
-  StoredInvoice,
-  StoredSubscription,
-} from "../types/models";
 import type { NormalizedInvoice, NormalizedSubscription } from "../types/events";
+import type { StoredCustomerProduct, StoredInvoice, StoredSubscription } from "../types/models";
 import type { NormalizedPlanFeature } from "../types/schema";
 
 export type RedirectMode = "always" | "if_required" | "never";
@@ -311,7 +307,12 @@ export async function beginWebhookEvent(
 
 export async function finishWebhookEvent(
   database: PayKitDatabase,
-  input: { error?: string; providerEventId: string; providerId: string; status: "failed" | "processed" },
+  input: {
+    error?: string;
+    providerEventId: string;
+    providerId: string;
+    status: "failed" | "processed";
+  },
 ): Promise<void> {
   await database
     .update(webhookEvent)
@@ -347,27 +348,27 @@ export async function upsertSubscriptionRecord(
     canceledAt:
       input.subscription.canceledAt !== undefined
         ? (input.subscription.canceledAt ?? null)
-        : existing?.canceledAt ?? null,
+        : (existing?.canceledAt ?? null),
     currentPeriodEndAt:
       input.subscription.currentPeriodEndAt !== undefined
         ? (input.subscription.currentPeriodEndAt ?? null)
-        : existing?.currentPeriodEndAt ?? null,
+        : (existing?.currentPeriodEndAt ?? null),
     currentPeriodStartAt:
       input.subscription.currentPeriodStartAt !== undefined
         ? (input.subscription.currentPeriodStartAt ?? null)
-        : existing?.currentPeriodStartAt ?? null,
+        : (existing?.currentPeriodStartAt ?? null),
     customerId: input.customerId,
     customerProductId: input.customerProductId ?? null,
     endedAt:
       input.subscription.endedAt !== undefined
         ? (input.subscription.endedAt ?? null)
-        : existing?.endedAt ?? null,
+        : (existing?.endedAt ?? null),
     providerId: input.providerId,
     providerSubscriptionId: input.subscription.providerSubscriptionId,
     providerSubscriptionScheduleId:
       input.subscription.providerSubscriptionScheduleId !== undefined
         ? (input.subscription.providerSubscriptionScheduleId ?? null)
-        : existing?.providerSubscriptionScheduleId ?? null,
+        : (existing?.providerSubscriptionScheduleId ?? null),
     status: input.subscription.status,
     updatedAt: now,
   };
@@ -583,7 +584,9 @@ export async function deleteCustomerProducts(
     .delete(customerPrice)
     .where(inArray(customerPrice.customerProductId, [...customerProductIds]));
 
-  await database.delete(customerProduct).where(inArray(customerProduct.id, [...customerProductIds]));
+  await database
+    .delete(customerProduct)
+    .where(inArray(customerProduct.id, [...customerProductIds]));
 }
 
 export async function deleteScheduledCustomerProductsInGroup(
@@ -753,13 +756,9 @@ export async function syncCustomerProductFromSubscription(
   },
 ): Promise<void> {
   const endedAt =
-    input.subscription.cancelAtPeriodEnd === false
-      ? null
-      : (input.subscription.endedAt ?? null);
+    input.subscription.cancelAtPeriodEnd === false ? null : (input.subscription.endedAt ?? null);
   const canceledAt =
-    input.subscription.cancelAtPeriodEnd === false
-      ? null
-      : (input.subscription.canceledAt ?? null);
+    input.subscription.cancelAtPeriodEnd === false ? null : (input.subscription.canceledAt ?? null);
 
   await database
     .update(customerProduct)
