@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import type { ComponentPropsWithoutRef } from "react";
 
-import { TocProgressFooter } from "@/components/docs/toc-progress-footer";
+import { TocFooter } from "@/components/docs/toc-footer";
 import { source } from "@/lib/source";
 import { cn } from "@/lib/utils";
 
@@ -42,7 +42,7 @@ export default async function Page({ params }: DocsPageProps) {
       toc={page.data.toc}
       full={page.data.full}
       tableOfContent={{
-        footer: <TocProgressFooter />,
+        footer: <TocFooter />,
         style: "clerk",
       }}
       tableOfContentPopover={{

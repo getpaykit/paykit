@@ -3,11 +3,17 @@
   "pages": [
     "---Get Started---",
     "get-started",
-    "---Features---",
-    "features",
+    "---Concepts---",
+    "concepts",
+    "---Flows---",
+    "flows",
     "---Providers---",
     "providers",
-    "---Code---",
-    "code"
+    "---Databases---",
+    "databases",
+    "---Integrations---",
+    "integrations",
+    "---Guides---",
+    "guides"
   ]
 }

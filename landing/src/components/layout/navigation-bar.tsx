@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { LogoLockup } from "@/components/icons/logo";
-import { useEarlyDevDialog } from "@/components/landing/early-dev-dialog";
 import { URLs } from "@/lib/consts";
 
 interface NavFileItem {
@@ -18,7 +17,7 @@ interface NavFileItem {
 
 const navFiles: NavFileItem[] = [
   { name: "readme", href: "/" },
-  { name: "docs", href: "#" },
+  { name: "docs", href: "/docs", path: "/docs" },
   {
     name: "github",
     href: URLs.githubRepo,
@@ -28,10 +27,13 @@ const navFiles: NavFileItem[] = [
 
 export function NavigationBar() {
   const pathname = usePathname() || "/";
-  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const isActive = useCallback((href: string) => pathname === href, [pathname]);
+  const isActive = useCallback(
+    (href: string) =>
+      href === "/" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`),
+    [pathname],
+  );
 
   return (
     <>
@@ -106,14 +108,6 @@ export function NavigationBar() {
                         href={item.href}
                         target={item.external ? "_blank" : undefined}
                         rel={item.external ? "noreferrer" : undefined}
-                        onClick={
-                          item.href === "#"
-                            ? (e) => {
-                                e.preventDefault();
-                                openEarlyDevDialog();
-                              }
-                            : undefined
-                        }
                         className={`group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 ${index < navFiles.length - 1 ? "border-foreground/[0.06] border-r" : ""} transition-colors duration-150 ${
                           active
                             ? "bg-background border-b-foreground/60 border-b-2"
@@ -121,7 +115,7 @@ export function NavigationBar() {
                         }`}
                       >
                         <span
-                          className={`font-mono text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
+                          className={`text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
                             active
                               ? "text-foreground"
                               : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
@@ -161,14 +155,8 @@ export function NavigationBar() {
                     href={item.href}
                     target={item.external ? "_blank" : undefined}
                     rel={item.external ? "noreferrer" : undefined}
-                    onClick={(e) => {
-                      if (item.href === "#") {
-                        e.preventDefault();
-                        setMobileMenuOpen(false);
-                        openEarlyDevDialog();
-                      } else {
-                        setMobileMenuOpen(false);
-                      }
+                    onClick={() => {
+                      setMobileMenuOpen(false);
                     }}
                     className={`border-foreground/[0.06] flex items-center gap-2.5 border-b px-5 py-3.5 transition-colors ${
                       isActive(item.path || item.href)
@@ -177,7 +165,7 @@ export function NavigationBar() {
                     }`}
                   >
                     <span
-                      className={`font-mono text-base tracking-wider uppercase ${
+                      className={`text-base tracking-wider uppercase ${
                         isActive(item.path || item.href)
                           ? "text-foreground"
                           : "text-foreground/65 dark:text-foreground/50"

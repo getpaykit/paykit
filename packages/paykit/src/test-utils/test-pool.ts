@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import { newDb } from "pg-mem";
 
-import { postgresDatabaseAdapter } from "../database/postgres/postgres.adapter";
+import { migrateDatabase } from "../database";
 
 export function createTestPool(): Pool {
   const db = newDb();
@@ -96,6 +96,6 @@ export function createTestPool(): Pool {
 
 export async function createMigratedTestPool(): Promise<Pool> {
   const pool = createTestPool();
-  await postgresDatabaseAdapter.migrate(pool);
+  await migrateDatabase(pool);
   return pool;
 }

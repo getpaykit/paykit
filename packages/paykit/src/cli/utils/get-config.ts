@@ -5,29 +5,40 @@ import dotenv from "dotenv";
 import { createJiti } from "jiti";
 import * as ts from "typescript";
 
-import { getPayKitInternalState } from "../../core/internal";
+import { isPayKitInstance } from "../../core/create-paykit";
+import type { PayKitOptions } from "../../types/options";
 
-const payKitConfigBasePaths = [
+const CONFIG_FILENAMES = [
   "paykit.ts",
-  "paykit.js",
-  "paykit/index.ts",
-  "paykit/index.js",
+  "paykit.tsx",
   "paykit.config.ts",
+  "paykit.config.tsx",
+  "paykit/index.ts",
+  "paykit/index.tsx",
+  "paykit.js",
+  "paykit.jsx",
   "paykit.config.js",
+  "paykit.config.jsx",
+  "paykit/index.js",
+  "paykit/index.jsx",
 ];
 
-const possiblePayKitConfigPaths = [
-  ...payKitConfigBasePaths,
-  ...payKitConfigBasePaths.map((value) => `lib/server/${value}`),
-  ...payKitConfigBasePaths.map((value) => `server/paykit/${value}`),
-  ...payKitConfigBasePaths.map((value) => `server/${value}`),
-  ...payKitConfigBasePaths.map((value) => `paykit/${value}`),
-  ...payKitConfigBasePaths.map((value) => `lib/${value}`),
-  ...payKitConfigBasePaths.map((value) => `src/${value}`),
-  ...payKitConfigBasePaths.map((value) => `src/lib/${value}`),
-  ...payKitConfigBasePaths.map((value) => `src/server/${value}`),
-  ...payKitConfigBasePaths.map((value) => `app/${value}`),
+const CONFIG_DIRS = [
+  "",
+  "lib/server",
+  "server/paykit",
+  "server",
+  "paykit",
+  "lib",
+  "src",
+  "src/lib",
+  "src/server",
+  "app",
 ];
+
+const possiblePayKitConfigPaths = CONFIG_DIRS.flatMap((dir) =>
+  CONFIG_FILENAMES.map((name) => (dir ? `${dir}/${name}` : name)),
+);
 
 function resolveReferencePath(configDir: string, refPath: string): string {
   const resolvedPath = path.resolve(configDir, refPath);
@@ -111,22 +122,38 @@ function loadDotEnv(cwd: string): void {
 async function loadModule(cwd: string, configPath: string): Promise<unknown> {
   loadDotEnv(cwd);
 
-  const jiti = createJiti(import.meta.url, {
+  const jiti = createJiti(configPath, {
     alias: getPathAliases(cwd),
     interopDefault: false,
+    jsx: true,
     moduleCache: false,
   });
 
   return jiti.import(configPath);
 }
 
-function getPayKitExport(moduleValue: unknown): unknown {
-  if (!moduleValue || typeof moduleValue !== "object") {
-    return null;
-  }
+function getPayKit(moduleValue: unknown) {
+  if (!moduleValue || typeof moduleValue !== "object") return null;
 
   const moduleObject = moduleValue as Record<string, unknown>;
-  return moduleObject.paykit ?? moduleObject.default ?? null;
+  return (
+    [moduleObject.paykit, moduleObject.default].find(
+      (value): value is { options: PayKitOptions } =>
+        isPayKitInstance(value) || isPayKitLike(value),
+    ) ?? null
+  );
+}
+
+function isPayKitLike(value: unknown): value is { options: PayKitOptions } {
+  if (!value || typeof value !== "object") return false;
+
+  const paykit = value as Record<string, unknown>;
+  return (
+    typeof paykit.handler === "function" &&
+    typeof paykit.subscribe === "function" &&
+    typeof paykit.handleWebhook === "function" &&
+    "options" in paykit
+  );
 }
 
 export async function getPayKitConfig({ cwd, configPath }: { cwd: string; configPath?: string }) {
@@ -151,10 +178,8 @@ export async function getPayKitConfig({ cwd, configPath }: { cwd: string; config
 
 async function loadConfiguredPayKit(cwd: string, resolvedPath: string) {
   const loadedModule = await loadModule(cwd, resolvedPath);
-  const paykit = getPayKitExport(loadedModule);
-
-  const internalState = getPayKitInternalState(paykit);
-  if (!internalState) {
+  const paykit = getPayKit(loadedModule);
+  if (!paykit) {
     throw new Error(
       `Couldn't read your PayKit instance in ${resolvedPath}. Export your PayKit instance as \`paykit\` or default export the result of \`createPayKit(...)\`.`,
     );
@@ -162,7 +187,6 @@ async function loadConfiguredPayKit(cwd: string, resolvedPath: string) {
 
   return {
     path: resolvedPath,
-    paykit,
-    state: internalState,
+    options: paykit.options,
   };
 }

@@ -1,4 +1,52 @@
-import type { Customer, Payment, PaymentMethod, Refund } from "./models";
+export interface NormalizedPaymentMethod {
+  expiryMonth?: number;
+  expiryYear?: number;
+  isDefault?: boolean;
+  last4?: string;
+  providerMethodId: string;
+  type: string;
+}
+
+export interface NormalizedPayment {
+  amount: number;
+  createdAt: Date;
+  currency: string;
+  description?: string | null;
+  metadata?: Record<string, string>;
+  providerMethodId?: string | null;
+  providerPaymentId: string;
+  status: string;
+}
+
+export interface NormalizedSubscription {
+  cancelAtPeriodEnd: boolean;
+  canceledAt?: Date | null;
+  currentPeriodEndAt?: Date | null;
+  currentPeriodStartAt?: Date | null;
+  endedAt?: Date | null;
+  providerPriceId?: string | null;
+  providerSubscriptionId: string;
+  providerSubscriptionScheduleId?: string | null;
+  status: string;
+}
+
+export interface NormalizedInvoice {
+  currency: string;
+  hostedUrl?: string | null;
+  periodEndAt?: Date | null;
+  periodStartAt?: Date | null;
+  providerInvoiceId: string;
+  status: string | null;
+  totalAmount: number;
+}
+
+export interface CheckoutCompletedSubscription extends NormalizedSubscription {}
+export interface CheckoutCompletedInvoice extends NormalizedInvoice {}
+
+export interface PayKitEventError {
+  code?: string;
+  message: string;
+}
 
 export interface UpsertCustomerAction {
   type: "customer.upsert";
@@ -17,15 +65,6 @@ export interface DeleteCustomerAction {
   };
 }
 
-export interface NormalizedPaymentMethod {
-  expiryMonth?: number;
-  expiryYear?: number;
-  isDefault?: boolean;
-  last4?: string;
-  providerMethodId: string;
-  type: string;
-}
-
 export interface UpsertPaymentMethodAction {
   type: "payment_method.upsert";
   data: {
@@ -41,17 +80,6 @@ export interface DeletePaymentMethodAction {
   };
 }
 
-export interface NormalizedPayment {
-  amount: number;
-  createdAt: Date;
-  currency: string;
-  description?: string | null;
-  metadata?: Record<string, string>;
-  providerMethodId?: string | null;
-  providerPaymentId: string;
-  status: string;
-}
-
 export interface UpsertPaymentAction {
   type: "payment.upsert";
   data: {
@@ -60,75 +88,59 @@ export interface UpsertPaymentAction {
   };
 }
 
+export interface UpsertSubscriptionAction {
+  type: "subscription.upsert";
+  data: {
+    providerCustomerId: string;
+    subscription: NormalizedSubscription;
+  };
+}
+
+export interface DeleteSubscriptionAction {
+  type: "subscription.delete";
+  data: {
+    providerCustomerId: string;
+    providerSubscriptionId: string;
+  };
+}
+
+export interface UpsertInvoiceAction {
+  type: "invoice.upsert";
+  data: {
+    invoice: NormalizedInvoice;
+    providerCustomerId: string;
+    providerSubscriptionId?: string | null;
+  };
+}
+
 export type WebhookApplyAction =
   | UpsertCustomerAction
   | DeleteCustomerAction
   | UpsertPaymentMethodAction
   | DeletePaymentMethodAction
-  | UpsertPaymentAction;
-
-export interface PayKitEventError {
-  code?: string;
-  message: string;
-}
-
-export interface PayKitEventMap {
-  "payment.failed": {
-    customer: Customer;
-    error: PayKitEventError;
-    payment: Payment;
-  };
-  "payment.refunded": {
-    customer: Customer;
-    payment: Payment;
-    refund: Refund;
-  };
-  "payment.succeeded": {
-    customer: Customer;
-    payment: Payment;
-  };
-  "checkout.completed": {
-    checkoutSessionId: string;
-    customer: Customer;
-    paymentStatus: string | null;
-    providerId: string;
-    status: string | null;
-  };
-  "payment_method.attached": {
-    customer: Customer;
-    paymentMethod: PaymentMethod;
-  };
-  "payment_method.detached": {
-    customer: Customer;
-    paymentMethod: PaymentMethod;
-  };
-}
-
-export type PayKitEventName = keyof PayKitEventMap;
+  | UpsertPaymentAction
+  | UpsertSubscriptionAction
+  | DeleteSubscriptionAction
+  | UpsertInvoiceAction;
 
 type EventByName<TEventMap extends object, TName extends keyof TEventMap> = {
   name: TName;
   payload: TEventMap[TName];
 };
 
-export type AnyPayKitEvent = {
-  [TName in PayKitEventName]: EventByName<PayKitEventMap, TName>;
-}[PayKitEventName];
-
-export type PayKitEvent<TName extends PayKitEventName = PayKitEventName> = Extract<
-  AnyPayKitEvent,
-  { name: TName }
->;
-
-export type PayKitEventPayload<TName extends PayKitEventName> = PayKitEventMap[TName];
-
 export interface NormalizedWebhookEventMap {
   "checkout.completed": {
     checkoutSessionId: string;
+    invoice?: CheckoutCompletedInvoice;
+    metadata?: Record<string, string>;
+    mode?: "payment" | "setup" | "subscription";
+    providerInvoiceId?: string;
+    providerSubscriptionId?: string;
     paymentStatus: string | null;
     providerCustomerId: string;
     providerEventId?: string;
     status: string | null;
+    subscription?: CheckoutCompletedSubscription;
   };
   "payment_method.attached": {
     paymentMethod: NormalizedPaymentMethod;
@@ -142,6 +154,19 @@ export interface NormalizedWebhookEventMap {
     error: PayKitEventError;
     payment: NormalizedPayment;
     providerCustomerId: string;
+  };
+  "subscription.updated": {
+    providerCustomerId: string;
+    subscription: NormalizedSubscription;
+  };
+  "subscription.deleted": {
+    providerCustomerId: string;
+    providerSubscriptionId: string;
+  };
+  "invoice.updated": {
+    invoice: NormalizedInvoice;
+    providerCustomerId: string;
+    providerSubscriptionId?: string | null;
   };
   "payment_method.detached": {
     providerMethodId: string;
@@ -160,18 +185,28 @@ export type NormalizedWebhookEvent<
   TName extends NormalizedWebhookEventName = NormalizedWebhookEventName,
 > = Extract<AnyNormalizedWebhookEvent, { name: TName }>;
 
-export type PayKitNamedEventHandler<TName extends PayKitEventName> = (
-  event: PayKitEvent<TName>,
-) => Promise<void> | void;
-
-export interface PayKitCatchAllEvent<TEvent extends AnyPayKitEvent = AnyPayKitEvent> {
-  event: TEvent;
+export interface PayKitEventMap {
+  "customer.updated": {
+    customerId: string;
+    plans: readonly {
+      currentPeriodEndAt: Date | null;
+      endedAt: Date | null;
+      id: string;
+      startedAt: Date | null;
+      status: string;
+    }[];
+  };
 }
 
-export type PayKitCatchAllEventHandler = (input: PayKitCatchAllEvent) => Promise<void> | void;
+export type PayKitEventName = keyof PayKitEventMap;
 
 export type PayKitEventHandlers = {
-  [TName in PayKitEventName]?: PayKitNamedEventHandler<TName>;
+  [TName in PayKitEventName]?: (event: {
+    name: TName;
+    payload: PayKitEventMap[TName];
+  }) => Promise<void> | void;
 } & {
-  "*"?: PayKitCatchAllEventHandler;
+  "*"?: (input: {
+    event: { name: PayKitEventName; payload: PayKitEventMap[PayKitEventName] };
+  }) => Promise<void> | void;
 };

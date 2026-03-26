@@ -1,0 +1,4 @@
+{
+  "title": "Flows",
+  "pages": ["checkout", "payment-methods", "charges"]
+}

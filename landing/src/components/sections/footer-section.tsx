@@ -7,13 +7,9 @@ import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { URLs } from "@/lib/consts";
 
-import { useEarlyDevDialog } from "../landing/early-dev-dialog";
-
 const footerLinks = [{ label: "Author", href: URLs.authorX }];
 
 export function FooterSection() {
-  const { open: openEarlyDevDialog } = useEarlyDevDialog();
-
   return (
     <div className="relative mt-10 overflow-hidden pt-8 pb-0">
       <div
@@ -33,11 +29,7 @@ export function FooterSection() {
 
         <div className="mt-4 flex items-center justify-center gap-4">
           <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openEarlyDevDialog();
-            }}
+            href="/docs"
             className="bg-foreground text-background inline-flex items-center gap-1.5 px-5 py-2 font-mono text-xs tracking-wider uppercase transition-opacity hover:opacity-90"
           >
             Read Docs

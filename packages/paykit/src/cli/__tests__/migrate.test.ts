@@ -4,7 +4,8 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { createPGlitePool } from "../../test-utils/pglite-pool";
-import { migrateAction } from "../commands/migrate";
+import { getPayKitConfig } from "../utils/get-config";
+import { runPayKitMigrations } from "../utils/run-migrations";
 
 const packageRoot = path.resolve(import.meta.dirname, "../../..");
 const createPayKitPath = path.resolve(packageRoot, "src/index.ts");
@@ -41,14 +42,19 @@ describe("paykit migrate", () => {
       globalKey: "__paykit_cli_named",
     });
 
-    await migrateAction({ cwd: fixture.cwd });
+    const cfg = await getPayKitConfig({ cwd: fixture.cwd });
+    try {
+      await runPayKitMigrations(cfg);
+    } finally {
+      await cfg.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query(
       `
         select distinct table_name
         from information_schema.tables
-        where table_name in ('paykit_customer', 'paykit_payment', 'paykit_migrations')
+        where table_name in ('paykit_customer', 'paykit_payment', 'paykit_product', 'paykit_provider_product', 'paykit_migrations')
         order by table_name
       `,
     );
@@ -57,6 +63,8 @@ describe("paykit migrate", () => {
       "paykit_customer",
       "paykit_migrations",
       "paykit_payment",
+      "paykit_product",
+      "paykit_provider_product",
     ]);
     await pool.end();
   }, 15_000);
@@ -68,14 +76,16 @@ describe("paykit migrate", () => {
       globalKey: "__paykit_cli_default",
     });
 
-    await migrateAction({
-      config: fixture.filePath,
-      cwd: fixture.cwd,
-    });
+    const cfg = await getPayKitConfig({ configPath: fixture.filePath, cwd: fixture.cwd });
+    try {
+      await runPayKitMigrations(cfg);
+    } finally {
+      await cfg.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");
-    expect((result.rows[0] as { count: number }).count).toBe(1);
+    expect((result.rows[0] as { count: number }).count).toBe(2);
     await pool.end();
   }, 15_000);
 
@@ -86,12 +96,22 @@ describe("paykit migrate", () => {
       globalKey: "__paykit_cli_fallback",
     });
 
-    await migrateAction({ cwd: fixture.cwd });
-    await migrateAction({ cwd: fixture.cwd });
+    const cfg1 = await getPayKitConfig({ cwd: fixture.cwd });
+    try {
+      await runPayKitMigrations(cfg1);
+    } finally {
+      await cfg1.options.database.end();
+    }
+    const cfg2 = await getPayKitConfig({ cwd: fixture.cwd });
+    try {
+      await runPayKitMigrations(cfg2);
+    } finally {
+      await cfg2.options.database.end();
+    }
 
     const pool = createPGlitePool(fixture.databasePath);
     const result = await pool.query("select count(*)::int as count from public.paykit_migrations");
-    expect((result.rows[0] as { count: number }).count).toBe(1);
+    expect((result.rows[0] as { count: number }).count).toBe(2);
     await pool.end();
   }, 15_000);
 });
@@ -140,8 +160,8 @@ async function createFixture({
 
   const exportLine =
     exportStyle === "default"
-      ? "export default createPayKit({ database: pool, providers: [mockProvider()] });\n"
-      : "export const paykit = createPayKit({ database: pool, providers: [mockProvider()] });\n";
+      ? "export default createPayKit({ database: pool, provider: mockProvider() });\n"
+      : "export const paykit = createPayKit({ database: pool, provider: mockProvider() });\n";
 
   await fs.writeFile(
     path.join(cwd, filePath),

@@ -4,8 +4,14 @@ import type { PayKitContext } from "../core/context";
 import { PayKitError } from "../core/errors";
 import { generateId } from "../core/utils";
 import type { PayKitDatabase } from "../database";
-import { customer, providerCustomer } from "../database/postgres/schema";
+import { customer, providerCustomer } from "../database/schema";
 import type { Customer, InternalProviderCustomer } from "../types/models";
+import {
+  getActiveCustomerProductInGroup,
+  getScheduledCustomerProductsInGroup,
+  insertCustomerProductRecord,
+} from "./billing-service";
+import { getLatestProductWithPrice } from "./product-service";
 
 function anonymizedEmail(id: string): string {
   return `deleted+${id}@paykit.local`;
@@ -67,6 +73,73 @@ export async function syncCustomer(
   return row;
 }
 
+export async function ensureDefaultPlansForCustomer(
+  ctx: PayKitContext,
+  customerId: string,
+): Promise<void> {
+  const defaultPlans = ctx.plans.plans.filter((plan) => plan.isDefault);
+  if (defaultPlans.length === 0) {
+    return;
+  }
+
+  for (const defaultPlan of defaultPlans) {
+    if (!defaultPlan.group) {
+      continue;
+    }
+
+    const activeProduct = await getActiveCustomerProductInGroup(ctx.database, {
+      customerId,
+      group: defaultPlan.group,
+      providerId: ctx.provider.id,
+    });
+    if (activeProduct) {
+      continue;
+    }
+
+    const scheduledProducts = await getScheduledCustomerProductsInGroup(ctx.database, {
+      customerId,
+      group: defaultPlan.group,
+      providerId: ctx.provider.id,
+    });
+    if (scheduledProducts.length > 0) {
+      continue;
+    }
+
+    const storedPlan = await getLatestProductWithPrice(ctx.database, {
+      id: defaultPlan.id,
+      providerId: ctx.provider.id,
+    });
+    if (!storedPlan) {
+      continue;
+    }
+
+    if (storedPlan.priceId !== null) {
+      ctx.logger.warn(
+        `Skipping default plan "${defaultPlan.id}" for customer "${customerId}" because paid default plans are not auto-attached yet.`,
+      );
+      continue;
+    }
+
+    await insertCustomerProductRecord(ctx.database, {
+      customerId,
+      planFeatures: defaultPlan.includes,
+      productInternalId: storedPlan.internalId,
+      providerId: ctx.provider.id,
+      startedAt: new Date(),
+      status: "active",
+    });
+  }
+}
+
+export async function syncCustomerWithDefaults(
+  ctx: PayKitContext,
+  input: SyncCustomerInput,
+): Promise<Customer> {
+  const syncedCustomer = await syncCustomer(ctx.database, input);
+  await ensureDefaultPlansForCustomer(ctx, syncedCustomer.id);
+  return syncedCustomer;
+}
+
 export async function getCustomerById(
   database: PayKitDatabase,
   customerId: string,
@@ -118,36 +191,36 @@ export async function getProviderCustomerByProviderCustomerId(
   );
 }
 
-export async function upsertProviderCustomer<TProviderId extends string>(
-  ctx: PayKitContext<TProviderId>,
-  input: { customerId: string; providerId: TProviderId },
+export async function upsertProviderCustomer(
+  ctx: PayKitContext,
+  input: { customerId: string },
 ): Promise<InternalProviderCustomer> {
-  return ctx.database.transaction(async (tx) => {
-    const customer = await getCustomerByIdOrThrow(tx, input.customerId);
+  const providerId = ctx.provider.id;
 
-    const existing = await getProviderCustomer(tx, input);
+  return ctx.database.transaction(async (tx) => {
+    const existingCustomer = await getCustomerByIdOrThrow(tx, input.customerId);
+
+    const existing = await getProviderCustomer(tx, {
+      customerId: input.customerId,
+      providerId,
+    });
     if (existing) {
       return existing;
     }
 
-    const provider = ctx.providers.get(input.providerId);
-    if (!provider) {
-      throw new PayKitError("PROVIDER_NOT_FOUND");
-    }
-
-    const { providerCustomerId } = await provider.upsertCustomer({
-      id: customer.id,
-      email: customer.email ?? undefined,
-      name: customer.name ?? undefined,
-      metadata: customer.metadata ?? undefined,
+    const { providerCustomerId } = await ctx.stripe.upsertCustomer({
+      id: existingCustomer.id,
+      email: existingCustomer.email ?? undefined,
+      name: existingCustomer.name ?? undefined,
+      metadata: existingCustomer.metadata ?? undefined,
     });
 
     const rows = await tx
       .insert(providerCustomer)
       .values({
         id: generateId("pa"),
-        customerId: customer.id,
-        providerId: input.providerId,
+        customerId: existingCustomer.id,
+        providerId,
         providerCustomerId,
         createdAt: new Date(),
       })

@@ -7,12 +7,9 @@ import { useEffect, useState } from "react";
 
 import { URLs } from "@/lib/consts";
 
-import { useEarlyDevDialog } from "./early-dev-dialog";
-
 const rotatingWords = ["TypeScript", "modern SaaS", "Next.js apps"];
 
 export function HeroTitle() {
-  const { open: openEarlyDevDialog } = useEarlyDevDialog();
   const [wordIndex, setWordIndex] = useState(0);
 
   useEffect(() => {
@@ -60,11 +57,7 @@ export function HeroTitle() {
         {/* CTA Buttons */}
         <div className="flex flex-wrap items-center justify-center gap-2 pt-3 sm:gap-3 sm:pt-4 lg:mt-5">
           <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              openEarlyDevDialog();
-            }}
+            href="/docs"
             className="inline-flex items-center gap-1.5 bg-neutral-900 px-4 py-2 text-xs font-medium text-neutral-100 transition-colors hover:opacity-90 sm:px-5 sm:text-sm dark:bg-neutral-100 dark:text-neutral-900"
           >
             Read Docs

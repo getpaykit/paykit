@@ -1,4 +1,4 @@
-e2e-next
+/apps/test-init-app
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # Dependencies
@@ -38,3 +38,4 @@ yarn-error.log*
 .DS_Store
 *.pem
 .env*.local
+.gstack/

@@ -2,7 +2,7 @@ import type { FAQPage, Organization, SoftwareApplication, WebSite, WithContext }
 
 export const OG_IMAGE_PATH = "/og.png";
 export const SITE_NAME = "PayKit";
-export const SITE_TITLE = "PayKit — Open-source payment orchestration for TypeScript";
+export const SITE_TITLE = "PayKit – Open-source payment orchestration for TypeScript";
 export const SITE_DESCRIPTION =
   "Open-source TypeScript payment toolkit that unifies multiple payment providers behind a single, extensible API.";
 export const URLs = {
@@ -16,6 +16,8 @@ export const URLs = {
   authorGitHub: "https://github.com/maxktz",
   authorX: "https://x.com/maxk4tz",
 } as const;
+
+export const VERSION_TEXT = "v0.1 beta";
 
 export const websiteSchema: WithContext<WebSite> = {
   "@context": "https://schema.org",

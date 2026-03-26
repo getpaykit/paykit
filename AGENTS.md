@@ -7,7 +7,7 @@ It sits between your app and payment providers (Stripe, PayPal, regional PSPs),
 providing a unified API without vendor lock-in. PayKit does **not** process
 payments — it orchestrates them.
 
-Read `ob/idea.md` before making architectural decisions.
+Read `ob/spec.md` before making architectural decisions.
 
 ## Commands
 
@@ -51,6 +51,7 @@ Enforced by oxlint, oxfmt, and TypeScript config. Follow strictly.
 - 2-space indent, oxfmt handles formatting — do not add Prettier or Biome
 - while using tailwing, prefer sizes in tw units like `-5` rather than in pixels via `-[20px]`
 - prefer to co-locate component Props with a function, rather than separating them into an interface
+- while using Zod, prefer not duplicate types, just infer them from schemas
 
 ## Landing Page Conventions
 
@@ -68,3 +69,13 @@ Enforced by oxlint, oxfmt, and TypeScript config. Follow strictly.
 
 - When asked opinion questions ("Maybe do this?", "what do you think?", "should we do X?"), **only answer** — don't make code changes unless explicitly asked!!
 - Never `git commit`, `git push`, or run database migrations without explicit approval or being asked
+- while generating a db migration, always provide --name. like pnpm db:generate --name add_product_table
+- never edit past migrations, only way is generating new one
+
+## gstack
+
+Use /browse from gstack for all web browsing. Never use mcp**claude-in-chrome**\* tools.
+Available skills: /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review,
+/design-consultation, /review, /ship, /browse, /qa, /qa-only, /design-review,
+/setup-browser-cookies, /retro, /investigate, /document-release, /codex, /careful,
+/freeze, /guard, /unfreeze, /gstack-upgrade.

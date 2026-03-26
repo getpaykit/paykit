@@ -10,12 +10,15 @@ import {
   getDocsPageIcon,
   isEnabledProviderPage,
   isProviderPage,
+  isSoonPage,
 } from "@/components/docs/docs-icons";
 import { SidebarCategoryAccordion } from "@/components/docs/sidebar-category-accordion";
+import { SidebarCollapseButton } from "@/components/docs/sidebar-collapse-button";
 import { LogoLockup } from "@/components/icons/logo";
 import { ThemeSwitcher } from "@/components/theme-switcher";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { URLs } from "@/lib/consts";
+import { URLs, VERSION_TEXT } from "@/lib/consts";
 import { source } from "@/lib/source";
 
 function normalizeName(name: string): string {
@@ -90,13 +93,16 @@ function groupCategories(nodes: PageTree.Node[]): PageTree.Node[] {
             })
           : undefined;
 
-      if (nameStr && isProviderPage(nameStr) && !isEnabledProviderPage(nameStr)) {
+      if (
+        nameStr &&
+        ((isProviderPage(nameStr) && !isEnabledProviderPage(nameStr)) || isSoonPage(nameStr))
+      ) {
         mappedNode = {
           ...mappedNode,
           name: withPageLabel(
             nameStr,
             icon,
-            <span className="bg-fd-muted text-fd-muted-foreground rounded px-1.5 py-0.5 text-[10px] leading-none font-medium">
+            <span className="bg-fd-muted text-fd-muted-foreground rounded-sm px-1.5 py-0.5 text-[10px] leading-none font-medium">
               SOON
             </span>,
           ),
@@ -172,9 +178,18 @@ export default function Layout({ children }: { children: ReactNode }) {
           ),
         }}
         nav={{
+          children: <SidebarCollapseButton />,
           title: (
             <div className="flew-row flex items-center">
               <LogoLockup className="h-4.5" />
+              {VERSION_TEXT && (
+                <Badge
+                  className="text-muted-foreground mb-0.5 ml-3 rounded-xs px-1"
+                  variant={"outline"}
+                >
+                  {VERSION_TEXT}
+                </Badge>
+              )}
             </div>
           ),
           url: "/",

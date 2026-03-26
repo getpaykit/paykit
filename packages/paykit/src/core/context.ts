@@ -1,7 +1,8 @@
 import { createDatabase, type PayKitDatabase } from "../database/index";
-import type { PayKitProvider } from "../providers/provider";
-import type { PayKitEventHandlers } from "../types/events";
-import type { PayKitOptions, ProviderId } from "../types/options";
+import type { StripeProviderConfig, StripeRuntime } from "../providers/provider";
+import { createStripeRuntime } from "../providers/stripe";
+import type { PayKitLogger, PayKitOptions } from "../types/options";
+import { normalizeSchema, type NormalizedSchema } from "../types/schema";
 
 const noopLogger = {
   debug: () => {},
@@ -10,40 +11,29 @@ const noopLogger = {
   error: () => {},
 };
 
-export interface PayKitContext<
-  TProviderId extends string = string,
-  TProviders extends readonly PayKitProvider[] = readonly PayKitProvider[],
-> {
-  options: PayKitOptions<TProviders>;
+export interface PayKitContext {
+  options: PayKitOptions;
   database: PayKitDatabase;
-  providers: Map<TProviderId, PayKitProvider>;
-  logger: {
-    debug: (message: string, ...args: unknown[]) => void;
-    info: (message: string, ...args: unknown[]) => void;
-    warn: (message: string, ...args: unknown[]) => void;
-    error: (message: string, ...args: unknown[]) => void;
-  };
-  eventHandlers: PayKitEventHandlers;
+  provider: StripeProviderConfig;
+  stripe: StripeRuntime;
+  plans: NormalizedSchema;
+  logger: PayKitLogger;
 }
 
-export async function createContext<const TProviders extends readonly PayKitProvider[]>(
-  options: PayKitOptions<TProviders>,
-): Promise<PayKitContext<ProviderId<TProviders>, TProviders>> {
-  if (options.providers.length === 0) {
-    throw new Error("At least one provider is required");
-  }
-  const providers = new Map<ProviderId<TProviders>, PayKitProvider>();
-  for (const provider of options.providers) {
-    providers.set(provider.id as ProviderId<TProviders>, provider);
+export async function createContext(options: PayKitOptions): Promise<PayKitContext> {
+  if (!options.provider) {
+    throw new Error("A provider is required");
   }
 
   const database = await createDatabase(options.database);
+  const stripe = options.provider.runtime ?? createStripeRuntime(options.provider);
 
   return {
     options,
     database,
-    providers,
+    provider: options.provider,
+    stripe,
+    plans: normalizeSchema(options.plans),
     logger: options.logger ?? noopLogger,
-    eventHandlers: options.on ?? {},
   };
 }

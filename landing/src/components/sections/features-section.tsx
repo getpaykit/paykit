@@ -8,7 +8,6 @@ import type { ReactNode } from "react";
 import { CreemIcon } from "@/components/icons/creem";
 import { cn } from "@/lib/utils";
 
-import { useEarlyDevDialog } from "../landing/early-dev-dialog";
 import { featureCards, type FeatureVariant } from "./features-content";
 import { ProvidersSection } from "./providers-section";
 
@@ -45,6 +44,7 @@ function FeaturePill({
   dot,
   dashed,
   label,
+  labelMono = true,
   className,
   style,
   children,
@@ -53,6 +53,7 @@ function FeaturePill({
   dot?: boolean;
   dashed?: boolean;
   label?: string;
+  labelMono?: boolean;
   className?: string;
   style?: React.CSSProperties;
   children?: ReactNode;
@@ -71,7 +72,9 @@ function FeaturePill({
       style={style}
     >
       {dot && <span className={cn("inline-block size-1 rounded-full", c.dot)} />}
-      {label && <span className={cn("font-mono text-[10px]", c.text)}>{label}</span>}
+      {label && (
+        <span className={cn(labelMono && "font-mono", "text-[10px]", c.text)}>{label}</span>
+      )}
       {children}
     </div>
   );
@@ -186,6 +189,7 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
         <FeaturePill
           dashed
           label="+ Custom"
+          labelMono={false}
           className="h-[20px] justify-center group-hover/card:animate-[icon-bounce_0.4s_ease-out_0.3s]"
         />
       </div>
@@ -233,13 +237,13 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
   if (variant === "subscriptions") {
     return (
       <div className="relative mt-3 flex items-center gap-1.5 overflow-hidden">
-        <FeaturePill color="blue" dot label="trialing" />
+        <FeaturePill color="blue" dot label="trialing" labelMono={false} />
         <MoveRight className="text-foreground/20 shrink-0" size={10} />
-        <FeaturePill color="green" dot label="active" />
+        <FeaturePill color="green" dot label="active" labelMono={false} />
         <MoveRight className="text-foreground/20 shrink-0" size={10} />
-        <FeaturePill color="yellow" dot label="past_due" />
+        <FeaturePill color="yellow" dot label="past_due" labelMono={false} />
         <MoveRight className="text-foreground/20 shrink-0" size={10} />
-        <FeaturePill color="red" dot label="canceled" />
+        <FeaturePill color="red" dot label="canceled" labelMono={false} />
         <div className="from-background pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l to-transparent" />
       </div>
     );
@@ -248,9 +252,9 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
   if (variant === "database") {
     return (
       <div className="mt-3 flex items-center gap-1 font-mono text-[10px]">
-        <FeaturePill label="prisma" className="px-1.5 py-0.5" />
-        <FeaturePill label="drizzle" />
-        <FeaturePill dashed label="+" className="size-[22px] justify-center" />
+        <FeaturePill label="prisma" labelMono={false} className="px-1.5 py-0.5" />
+        <FeaturePill label="drizzle" labelMono={false} />
+        <FeaturePill dashed label="+" labelMono={false} className="size-[22px] justify-center" />
       </div>
     );
   }
@@ -285,13 +289,11 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
 }
 
 export function FeaturesSection() {
-  const { open: openEarlyDevDialog } = useEarlyDevDialog();
-
   return (
     <>
       <div className="my-4 flex items-center gap-3">
         <div className="border-foreground/6 flex-1 border-t" />
-        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
+        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 text-xs tracking-wider uppercase">
           Supported Providers
         </span>
       </div>
@@ -299,7 +301,7 @@ export function FeaturesSection() {
       <ProvidersSection />
 
       <div className="my-4 flex items-center gap-3">
-        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 font-mono text-xs tracking-wider uppercase">
+        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 text-xs tracking-wider uppercase">
           Features
         </span>
         <div className="border-foreground/6 flex-1 border-t" />
@@ -307,15 +309,7 @@ export function FeaturesSection() {
 
       <div className="border-foreground/10 relative mb-2 grid grid-cols-1 overflow-hidden border sm:grid-cols-2 md:grid-cols-3">
         {featureCards.map((feature, i) => (
-          <Link
-            key={feature.label}
-            href={feature.href}
-            onClick={(e) => {
-              e.preventDefault();
-              openEarlyDevDialog();
-            }}
-            className="contents"
-          >
+          <Link key={feature.label} href={feature.href} className="contents">
             <motion.div
               whileHover={{
                 y: -2,
