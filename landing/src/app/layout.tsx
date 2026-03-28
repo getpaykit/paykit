@@ -8,11 +8,9 @@ import type { ReactNode } from "react";
 
 import { Providers } from "@/components/providers";
 import { OG_IMAGE_PATH, SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, URLs } from "@/lib/consts";
+import { cn } from "@/lib/utils";
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
-});
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -57,9 +55,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={cn("font-sans", geist.variable)}>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} ${GeistPixelSquare.variable} overflow-x-hidden font-sans antialiased`}
+        className={`${geist.variable} ${fontMono.variable} ${GeistPixelSquare.variable} overflow-x-hidden font-sans antialiased`}
         suppressHydrationWarning
       >
         <Providers>{children}</Providers>

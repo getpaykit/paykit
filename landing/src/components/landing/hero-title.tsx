@@ -24,10 +24,7 @@ export function HeroTitle() {
         </div>
         <h1 className="max-w-4xl text-xl leading-tight tracking-tight text-neutral-800 sm:text-2xl md:text-3xl lg:text-[2.5rem] dark:text-neutral-200">
           The first billing framework <br className="hidden lg:block" />
-          for{" "}
-          <span className="border-foreground/20 border-b border-dashed">
-            TypeScript
-          </span>
+          for <span className="border-foreground/20 border-b border-dashed">TypeScript</span>
         </h1>
 
         <p className="text-foreground/50 max-w-md text-sm leading-relaxed sm:text-base">

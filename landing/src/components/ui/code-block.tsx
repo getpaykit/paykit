@@ -12,9 +12,18 @@ import { createContext, forwardRef, useCallback, useContext, useMemo, useRef } f
 
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn, mergeRefs } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
-import { ScrollArea, ScrollBar, ScrollViewport } from "./scroll-area";
+function mergeRefs<T>(...refs: (React.Ref<T> | undefined)[]) {
+  return (value: T | null) => {
+    for (const ref of refs) {
+      if (typeof ref === "function") ref(value);
+      else if (ref) (ref as React.MutableRefObject<T | null>).current = value;
+    }
+  };
+}
+
+import { ScrollArea, ScrollBar } from "./scroll-area";
 import { useCopyButton } from "./use-copy-button";
 
 export interface CodeBlockProps extends ComponentProps<"figure"> {
@@ -302,12 +311,9 @@ export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
           )
         )}
         <ScrollArea ref={areaRef} dir="ltr">
-          <ScrollViewport
-            {...viewportProps}
-            className={cn("max-h-[600px]", viewportProps?.className)}
-          >
+          <div {...viewportProps} className={cn("max-h-[600px]", viewportProps?.className)}>
             {props.children}
-          </ScrollViewport>
+          </div>
           <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </figure>
