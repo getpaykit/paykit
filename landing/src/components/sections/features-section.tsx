@@ -6,10 +6,10 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { CreemIcon } from "@/components/icons/creem";
+import { SectionContainer } from "@/components/layout/section-container";
 import { cn } from "@/lib/utils";
 
 import { featureCards, type FeatureVariant } from "./features-content";
-import { ProvidersSection } from "./providers-section";
 
 const pillColors = {
   neutral: {
@@ -290,21 +290,11 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
 
 export function FeaturesSection() {
   return (
-    <>
-      <div className="my-4 flex items-center gap-3">
-        <div className="border-foreground/6 flex-1 border-t" />
-        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 text-xs tracking-wider uppercase">
-          Supported Providers
-        </span>
-      </div>
-
-      <ProvidersSection />
-
-      <div className="my-4 flex items-center gap-3">
-        <span className="text-foreground/60 dark:text-foreground/40 shrink-0 text-xs tracking-wider uppercase">
+    <SectionContainer className="py-6">
+      <div className="mb-4">
+        <span className="text-foreground/60 dark:text-foreground/40 text-xs tracking-wider uppercase">
           Features
         </span>
-        <div className="border-foreground/6 flex-1 border-t" />
       </div>
 
       <div className="border-foreground/10 relative mb-2 grid grid-cols-1 overflow-hidden border sm:grid-cols-2 md:grid-cols-3">
@@ -364,6 +354,6 @@ export function FeaturesSection() {
           +
         </span>
       </div>
-    </>
+    </SectionContainer>
   );
 }

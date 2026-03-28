@@ -80,7 +80,7 @@ export function NavigationBar() {
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
           className="bg-background pointer-events-auto relative hidden w-full min-w-0 items-stretch justify-center border-b lg:flex"
         >
-          <div className="relative flex w-full max-w-[60rem] items-stretch">
+          <div className="relative flex w-full max-w-7xl items-stretch px-6 sm:px-8 lg:px-12">
             {/* Logo */}
             <Link
               href="/"

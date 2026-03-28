@@ -96,7 +96,7 @@ const vercelDark: ThemeRegistrationRaw = {
     },
     {
       scope: ["constant.numeric", "constant.numeric.decimal"],
-      settings: { foreground: "#ffffff" },
+      settings: { foreground: "#47a8ff" },
     },
     {
       scope: ["support.variable.property", "variable.other.property"],

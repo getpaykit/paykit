@@ -9,25 +9,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-.hero-dots {
-  mask-image: radial-gradient(ellipse 70% 8% at 50% 160px, black 0%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 8% at 50% 160px, black 0%, transparent 100%);
-}
-
-@media (min-width: 768px) {
-  .hero-dots {
-    mask-image: radial-gradient(ellipse 70% 10% at 50% 220px, black 0%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 10% at 50% 220px, black 0%, transparent 100%);
-  }
-}
-
-@media (min-width: 1024px) {
-  .hero-dots {
-    mask-image: radial-gradient(ellipse 70% 12% at 50% 250px, black 0%, transparent 100%);
-    -webkit-mask-image: radial-gradient(ellipse 70% 12% at 50% 250px, black 0%, transparent 100%);
-  }
-}
-
 @keyframes icon-bounce {
   0% {
     transform: translateY(0);
@@ -40,6 +21,16 @@
   }
   100% {
     transform: translateY(0);
+  }
+}
+
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 6px 2px color-mix(in srgb, var(--color-primary, currentColor) 5%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 8px 3px color-mix(in srgb, var(--color-primary, currentColor) 18%, transparent);
   }
 }
 
@@ -657,7 +648,7 @@ input[type="search"]::-webkit-search-decoration,
 input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   appearance: none;
-  display: hidden;
+  display: none;
 }
 
 /* Code blocks — flat near-black, rounded edges, no gradients */
@@ -719,23 +710,23 @@ input[type="search"]::-webkit-search-results-decoration {
   border-color: rgba(255, 255, 255, 0.06);
 }
 
-/* All code block figures — rounded corners (both themes) */
-figure:has(.shiki),
-figure.shiki,
-[data-slot="tabs"]:has(.shiki),
-.bg-fd-card:has(.shiki) {
+/* All code block figures — rounded corners (docs only) */
+#nd-page figure:has(.shiki),
+#nd-page figure.shiki,
+#nd-page [data-slot="tabs"]:has(.shiki),
+#nd-page .bg-fd-card:has(.shiki) {
   border-radius: var(--radius-lg) !important;
   overflow: hidden;
 }
 
-figure.shiki > div:first-child,
-[role="tablist"]:has(+ [role="tabpanel"] .shiki),
-[role="tablist"]:has(+ div .shiki) {
+#nd-page figure.shiki > div:first-child,
+#nd-page [role="tablist"]:has(+ [role="tabpanel"] .shiki),
+#nd-page [role="tablist"]:has(+ div .shiki) {
   border-radius: var(--radius-lg) !important;
 }
 
-[role="tabpanel"]:has(.shiki),
-[role="tabpanel"] .shiki {
+#nd-page [role="tabpanel"]:has(.shiki),
+#nd-page [role="tabpanel"] .shiki {
   border-radius: var(--radius-lg) !important;
 }
 

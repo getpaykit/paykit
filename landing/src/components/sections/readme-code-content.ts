@@ -1,91 +1,116 @@
-import type { CodeBlockProps } from "@/components/ui/code-block";
+// Hero code block — two tabs
+export const heroPaykitCode = `import { feature, plan } from "paykitjs"
 
+const messages = feature({ id: "messages", type: "metered" })
+const proModels = feature({ id: "pro_models", type: "boolean" })
+
+export const free = plan({
+  id: "free",
+  default: true,
+  includes: [
+    messages({ limit: 20, reset: "month" }),
+  ],
+})
+
+export const pro = plan({
+  id: "pro",
+  price: { amount: 19, interval: "month" },
+  includes: [
+    messages({ limit: 100, reset: "month" }),
+    proModels(),
+  ],
+})`;
+
+// Hero config tab
+export const heroConfigCode = `import { stripe } from "@paykitjs/stripe"
+import { createPayKit } from "paykitjs"
+import { free, pro } from "./plans"
+
+export const paykit = createPayKit({
+  database: env.DATABASE_URL,
+  plans: [free, pro],
+  // Connect any provider (Stripe / Polar / Creem)
+  provider: stripe({
+    secretKey: env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+  }),
+  plugins: [
+    dashboard() // custom plugins
+  ],
+  on: {
+    "plan.activated": ({ customer, plan }) => {
+      await sendEmail(customer.email, "Welcome to Pro!")
+    },
+  }
+})`;
+
+// API section tabs
 export const codeExamples: Record<string, string> = {
-  Checkout: `const checkout = await paykit.api.createCheckout({
+  Subscribe: `const { url } = await paykit.subscribe({
   customerId: "user_123",
-  amount: 9900, // $99.00
-  description: "Lifetime License",
-  successURL: "https://myapp.com/success",
-  cancelURL: "https://myapp.com/cancel",
-  attachMethod: true,
-});
+  planId: "pro",
+})
+// url = Stripe Checkout URL (redirect customer here)
 
-// redirect user to checkout.url`,
-  Subscriptions: `const subscription = await paykit.api.createSubscription({
+// Upgrade — switches immediately
+await paykit.subscribe({
   customerId: "user_123",
-  amount: 2900, // $29/mo
-  interval: "month",
-  description: "Pro Plan",
-  trialDays: 14,
-});
+  planId: "enterprise",
+})
 
-// cancel at period end
-await paykit.api.cancelSubscription({
-  id: subscription.id,
-  mode: "at_period_end",
-});`,
+// Downgrade — switches at end of cycle
+await paykit.subscribe({
+  customerId: "user_123",
+  planId: "free",
+})`,
+  Check: `const { allowed, remaining } = await paykit.check({
+  customerId: "user_123",
+  featureId: "messages",
+})
+
+if (!allowed) {
+  return { error: "Message limit reached. Upgrade to Pro." }
+}`,
+  Report: `await paykit.report({
+  customerId: "user_123",
+  featureId: "messages",
+  amount: 1,
+})`,
   Events: `const paykit = createPayKit({
   // ...
   on: {
-    "subscription.activated": async ({ subscription, customer }) => {
-      await sendEmail(customer.email, "Welcome to Pro!");
-    },
-    "payment.succeeded": async ({ payment }) => {
-      console.log("Payment received:", payment.id);
-    },
-    "invoice.payment_failed": async ({ invoice, error }) => {
-      await alertTeam(invoice.customerId, error);
+    "customer.updated": ({ customerId, plans }) => {
+      // plans = [{ id: "pro", status: "active", ... }]
     },
   },
-});`,
-  Invoices: `const invoices = await paykit.api.listInvoices({
-  customerId: "user_123",
-  status: "paid",
-  limit: 10,
-});
-
-const invoice = await paykit.api.getInvoice({ id: "inv_abc" });
-// invoice.pdfURL  → download link
-// invoice.total   → amount in cents
-// invoice.status  → "paid"`,
+})`,
 };
 
-export const serverCode = `import { createPayKit } from "paykitjs"
-import { stripe } from "@paykitjs/stripe"
-import { drizzleAdapter } from "paykitjs/adapters/drizzle"
+export const serverCode = `import { stripe } from "@paykitjs/stripe"
+import { createPayKit } from "paykitjs"
+import * as plans from "./paykit.plans"
 
 export const paykit = createPayKit({
-  database: drizzleAdapter(db),
-
-  providers: [
-    stripe({
-      secretKey: env.STRIPE_SECRET_KEY,
-      webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-    }),
-  ],
-
-  on: {
-    "subscription.activated": async ({ subscription, customer }) => {
-      await sendEmail(customer.email, "Welcome to Pro!")
-    },
-    "payment.succeeded": async ({ payment }) => {
-      console.log("Payment received", payment)
-    },
-  },
+  database: env.DATABASE_URL,
+  provider: stripe({
+    secretKey: env.STRIPE_SECRET_KEY,
+    webhookSecret: env.STRIPE_WEBHOOK_SECRET,
+  }),
+  plans,
 })`;
 
-export const handlerCode = `// app/api/paykit/[...path]/route.ts
-import { paykit } from "@/lib/paykit"
+export const handlerCode = `// app/api/paykit/[...all]/route.ts
+import { paykit } from "@/server/paykit"
+import { paykitHandler } from "paykitjs/handlers/next"
 
-// Handles webhooks and client API requests
-export const { GET, POST } = paykit.handler`;
+export const { GET, POST } = paykitHandler(paykit)`;
 
-export const sharedCodeBlockProps: CodeBlockProps = {
-  className:
-    "border-0 my-0 shadow-none bg-neutral-50 dark:bg-background [&_div]:bg-neutral-50 [&_div]:dark:bg-background",
-  keepBackground: true,
-  "data-line-numbers": true,
-  viewportProps: {
-    className: "overflow-x-auto overflow-y-visible max-h-none",
-  },
-};
+// Demo section — inline snippets for flow log
+export const demoSnippets = {
+  subscribe: `paykit.subscribe({ planId: "pro" })`,
+  check: `paykit.check({ featureId: "msgs" })`,
+  report: `paykit.report({ featureId: "msgs", amount: 1 })`,
+  portal: `paykit.customerPortal({ returnUrl: "/" })`,
+  downgrade: `paykit.subscribe({ planId: "free" })`,
+  resubscribe: `paykit.subscribe({ planId: "pro" })`,
+} as const;

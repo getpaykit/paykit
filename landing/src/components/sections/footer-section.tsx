@@ -4,6 +4,7 @@ import { Github } from "lucide-react";
 import Link from "next/link";
 
 import { Icons } from "@/components/icons";
+import { SectionContainer } from "@/components/layout/section-container";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { URLs } from "@/lib/consts";
 
@@ -11,7 +12,7 @@ const footerLinks = [{ label: "Author", href: URLs.authorX }];
 
 export function FooterSection() {
   return (
-    <div className="relative mt-10 overflow-hidden pt-8 pb-0">
+    <SectionContainer className="relative overflow-hidden py-8">
       <div
         className="pointer-events-none absolute inset-0 select-none"
         aria-hidden="true"
@@ -46,7 +47,7 @@ export function FooterSection() {
         </div>
       </div>
 
-      <div className="border-foreground/6 relative mt-10 border-t border-dashed pt-6">
+      <div className="relative mt-10 pt-6">
         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
           <div className="flex flex-wrap items-center gap-x-1 gap-y-1.5">
             {footerLinks.map((link, i) => (
@@ -100,6 +101,6 @@ export function FooterSection() {
           </div>
         </div>
       </div>
-    </div>
+    </SectionContainer>
   );
 }

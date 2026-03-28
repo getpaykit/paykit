@@ -3,6 +3,8 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
+import { SectionContainer } from "@/components/layout/section-container";
+
 export function UnifiedApiSection({
   tabs,
 }: {
@@ -15,12 +17,11 @@ export function UnifiedApiSection({
   const [activeTab, setActiveTab] = useState<string>(tabNames[0] ?? "Checkout");
 
   return (
-    <div className="my-8">
-      <div className="mb-5 flex items-center gap-3">
+    <SectionContainer className="py-8">
+      <div className="mb-5">
         <span className="text-foreground/85 dark:text-foreground/75 text-base">
           Unified <span className="text-emerald-500 dark:text-emerald-400">API</span>
         </span>
-        <div className="bg-foreground/[0.08] h-px flex-1" />
       </div>
 
       <p className="text-foreground/55 dark:text-foreground/45 mb-5 max-w-xl text-sm leading-relaxed">
@@ -28,7 +29,7 @@ export function UnifiedApiSection({
         provider you use.
       </p>
 
-      <div className="border-foreground/[0.1] dark:bg-background/40 overflow-hidden rounded-sm border bg-neutral-50/50">
+      <div className="border-foreground/[0.1] dark:bg-background/40 overflow-hidden border bg-neutral-50/50">
         <div className="border-foreground/[0.09] dark:bg-card/50 no-scrollbar flex overflow-x-auto border-b bg-neutral-100/50">
           {tabNames.map((tab) => (
             <button
@@ -57,6 +58,6 @@ export function UnifiedApiSection({
           ))}
         </div>
       </div>
-    </div>
+    </SectionContainer>
   );
 }
