@@ -292,69 +292,69 @@ export function FeaturesSection() {
   return (
     <Section label="05 Features">
       <SectionContent>
-      <div className="mb-4">
-        <span className="text-foreground/60 dark:text-foreground/40 text-xs tracking-wider uppercase">
-          Features
-        </span>
-      </div>
+        <div className="mb-4">
+          <span className="text-foreground/60 dark:text-foreground/40 text-xs tracking-wider uppercase">
+            Features
+          </span>
+        </div>
 
-      <div className="border-foreground/10 relative mb-2 grid grid-cols-1 overflow-hidden border sm:grid-cols-2 md:grid-cols-3">
-        {featureCards.map((feature, i) => (
-          <Link key={feature.label} href={feature.href} className="contents">
-            <motion.div
-              whileHover={{
-                y: -2,
-                transition: { duration: 0.2, ease: "easeOut" },
-              }}
-              className={cn(
-                "group/card border-foreground/[0.1] relative min-h-[180px] p-4 transition-all duration-200 hover:z-10 hover:bg-foreground/[0.02] hover:shadow-[inset_0_1px_0_0_rgba(128,128,128,0.1)] lg:p-5",
-                i < 5 && "border-b",
-                i >= 4 && "sm:border-b-0",
-                i < 3 ? "md:border-b" : "md:border-b-0",
-                i % 2 === 0 && i < 5 && "sm:border-r",
-                i % 3 !== 2 ? "md:border-r" : "md:border-r-0",
-              )}
-            >
-              <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-all duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="text-foreground/40 dark:text-foreground/50"
-                >
-                  <line x1="7" y1="17" x2="17" y2="7" />
-                  <polyline points="7 7 17 7 17 17" />
-                </svg>
-              </span>
-              <div className="mb-2 font-mono text-xs tracking-wider text-neutral-500 uppercase transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
-                <span className="text-foreground/35 dark:text-foreground/20 group-hover/card:text-foreground/50 dark:group-hover/card:text-foreground/30 mr-1.5 transition-colors duration-200">
-                  {String(i + 1).padStart(2, "0")}
+        <div className="border-foreground/10 relative mb-2 grid grid-cols-1 overflow-hidden border sm:grid-cols-2 md:grid-cols-3">
+          {featureCards.map((feature, i) => (
+            <Link key={feature.label} href={feature.href} className="contents">
+              <motion.div
+                whileHover={{
+                  y: -2,
+                  transition: { duration: 0.2, ease: "easeOut" },
+                }}
+                className={cn(
+                  "group/card border-foreground/[0.1] relative min-h-[180px] p-4 transition-all duration-200 hover:z-10 hover:bg-foreground/[0.02] hover:shadow-[inset_0_1px_0_0_rgba(128,128,128,0.1)] lg:p-5",
+                  i < 5 && "border-b",
+                  i >= 4 && "sm:border-b-0",
+                  i < 3 ? "md:border-b" : "md:border-b-0",
+                  i % 2 === 0 && i < 5 && "sm:border-r",
+                  i % 3 !== 2 ? "md:border-r" : "md:border-r-0",
+                )}
+              >
+                <span className="absolute top-3 right-3 -translate-y-0.5 opacity-0 transition-all duration-200 group-hover/card:translate-y-0 group-hover/card:opacity-100 lg:top-4 lg:right-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-foreground/40 dark:text-foreground/50"
+                  >
+                    <line x1="7" y1="17" x2="17" y2="7" />
+                    <polyline points="7 7 17 7 17 17" />
+                  </svg>
                 </span>
-                {feature.label}
-              </div>
-              <div className="mb-1.5 text-sm leading-snug font-semibold text-neutral-800 transition-colors duration-200 group-hover/card:text-neutral-900 dark:text-neutral-200 dark:group-hover/card:text-neutral-100">
-                {feature.headline}
-              </div>
-              <div className="text-xs leading-relaxed text-neutral-500 transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
-                {feature.desc}
-              </div>
-              <FeatureVariantContent variant={feature.variant} />
-            </motion.div>
-          </Link>
-        ))}
-        <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-1/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
-          +
-        </span>
-        <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-2/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
-          +
-        </span>
-      </div>
+                <div className="mb-2 font-mono text-xs tracking-wider text-neutral-500 uppercase transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                  <span className="text-foreground/35 dark:text-foreground/20 group-hover/card:text-foreground/50 dark:group-hover/card:text-foreground/30 mr-1.5 transition-colors duration-200">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  {feature.label}
+                </div>
+                <div className="mb-1.5 text-sm leading-snug font-semibold text-neutral-800 transition-colors duration-200 group-hover/card:text-neutral-900 dark:text-neutral-200 dark:group-hover/card:text-neutral-100">
+                  {feature.headline}
+                </div>
+                <div className="text-xs leading-relaxed text-neutral-500 transition-colors duration-200 group-hover/card:text-neutral-400 dark:group-hover/card:text-neutral-400">
+                  {feature.desc}
+                </div>
+                <FeatureVariantContent variant={feature.variant} />
+              </motion.div>
+            </Link>
+          ))}
+          <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-1/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
+            +
+          </span>
+          <span className="text-foreground/35 dark:text-foreground/20 absolute top-1/2 left-2/3 z-10 -mt-[1px] -ml-[.5px] hidden -translate-x-1/2 -translate-y-1/2 font-mono text-xs select-none md:block">
+            +
+          </span>
+        </div>
       </SectionContent>
     </Section>
   );
