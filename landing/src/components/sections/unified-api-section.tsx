@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 
 export function UnifiedApiSection({
   tabs,
@@ -17,7 +17,8 @@ export function UnifiedApiSection({
   const [activeTab, setActiveTab] = useState<string>(tabNames[0] ?? "Checkout");
 
   return (
-    <SectionContainer className="py-8">
+    <Section label="06 API">
+      <SectionContent>
       <div className="mb-5">
         <span className="text-foreground/85 dark:text-foreground/75 text-base">
           Unified <span className="text-emerald-500 dark:text-emerald-400">API</span>
@@ -58,6 +59,7 @@ export function UnifiedApiSection({
           ))}
         </div>
       </div>
-    </SectionContainer>
+      </SectionContent>
+    </Section>
   );
 }

@@ -6,7 +6,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { CreemIcon } from "@/components/icons/creem";
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
 import { featureCards, type FeatureVariant } from "./features-content";
@@ -290,7 +290,8 @@ function FeatureVariantContent({ variant }: { variant: FeatureVariant }) {
 
 export function FeaturesSection() {
   return (
-    <SectionContainer className="py-6">
+    <Section label="05 Features">
+      <SectionContent>
       <div className="mb-4">
         <span className="text-foreground/60 dark:text-foreground/40 text-xs tracking-wider uppercase">
           Features
@@ -354,6 +355,7 @@ export function FeaturesSection() {
           +
         </span>
       </div>
-    </SectionContainer>
+      </SectionContent>
+    </Section>
   );
 }

@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 
 import { CreemLogo, PolarLogo, StripeLogo } from "@/components/landing/provider-logos";
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
 // ─── Step wrapper with vertical connector ────────────────────────────
@@ -375,7 +375,7 @@ export function HowItWorksSection({
   checkReportCodeBlock: ReactNode;
 }) {
   return (
-    <SectionContainer className="py-12 lg:py-20">
+    <Section className="py-12 lg:py-20">
       <div className="mb-10 lg:mb-14">
         <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
           How it works
@@ -406,6 +406,6 @@ export function HowItWorksSection({
       >
         <CheckReportStep codeBlock={checkReportCodeBlock} />
       </Step>
-    </SectionContainer>
+    </Section>
   );
 }

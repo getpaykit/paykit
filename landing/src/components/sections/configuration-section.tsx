@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { CodeTabs } from "@/components/ui/code-tabs";
 
 export function ConfigurationSection({
@@ -11,7 +11,8 @@ export function ConfigurationSection({
   serverCodeBlock: ReactNode;
 }) {
   return (
-    <SectionContainer className="py-6">
+    <Section label="04 Config">
+      <SectionContent>
       <div className="mb-5">
         <span className="text-foreground/60 dark:text-foreground/40 text-xs tracking-wider uppercase">
           Configuration
@@ -27,6 +28,7 @@ export function ConfigurationSection({
           ]}
         />
       </div>
-    </SectionContainer>
+      </SectionContent>
+    </Section>
   );
 }

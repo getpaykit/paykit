@@ -1,8 +1,8 @@
 // Hero code block — two tabs
 export const heroPaykitCode = `import { feature, plan } from "paykitjs"
 
-const messages = feature({ id: "messages", type: "metered" })
-const proModels = feature({ id: "pro_models", type: "boolean" })
+const messages = feature({ id: "msgs", type: "metered" })
+const proModels = feature({ id: "pros", type: "boolean" })
 
 export const free = plan({
   id: "free",
@@ -27,22 +27,22 @@ import { createPayKit } from "paykitjs"
 import { free, pro } from "./plans"
 
 export const paykit = createPayKit({
-  database: env.DATABASE_URL,
-  plans: [free, pro],
-  // Connect any provider (Stripe / Polar / Creem)
-  provider: stripe({
+  provider: stripe({ // Or Polar.sh / Creem.io / Custom
     secretKey: env.STRIPE_SECRET_KEY,
     webhookSecret: env.STRIPE_WEBHOOK_SECRET,
   }),
-  plugins: [
-    dashboard() // custom plugins
-  ],
+  plans: [free, pro],
+  database: env.DATABASE_URL,
   on: {
     "plan.activated": ({ customer, plan }) => {
       await sendEmail(customer.email, "Welcome to Pro!")
     },
-  }
-})`;
+  },
+  plugins: [
+    dashboard() // custom plugins
+  ]
+})
+`;
 
 // API section tabs
 export const codeExamples: Record<string, string> = {

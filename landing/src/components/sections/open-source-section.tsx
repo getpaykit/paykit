@@ -1,11 +1,12 @@
 import { Github } from "lucide-react";
 
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { URLs } from "@/lib/consts";
 
 export function OpenSourceSection() {
   return (
-    <SectionContainer className="py-12 lg:py-16">
+    <Section label="03 Open Source">
+      <SectionContent>
       <div className="flex flex-col items-center gap-5 text-center">
         <h2 className="text-lg font-semibold tracking-tight text-neutral-800 sm:text-xl dark:text-neutral-200">
           Fully open source
@@ -24,6 +25,7 @@ export function OpenSourceSection() {
           View on GitHub
         </a>
       </div>
-    </SectionContainer>
+      </SectionContent>
+    </Section>
   );
 }

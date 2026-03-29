@@ -21,7 +21,7 @@ import {
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent, SectionSeparator } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -118,7 +118,7 @@ function FlowLog({
 }) {
   return (
     <div
-      className="relative flex h-full flex-col-reverse overflow-hidden p-3"
+      className="relative flex h-full flex-col-reverse overflow-hidden p-2"
       style={{
         maskImage: "linear-gradient(to bottom, transparent 0%, black 8%)",
         WebkitMaskImage: "linear-gradient(to bottom, transparent 0%, black 8%)",
@@ -639,298 +639,305 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
   }, [runAutoPlay]);
 
   return (
-    <SectionContainer className="py-16 lg:py-24">
-      <div className="mb-10 max-w-lg space-y-2 lg:mb-14">
-        <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
-          See it in action
-        </h2>
-        <p className="text-foreground/45 text-sm leading-relaxed sm:text-base">
-          Click around the app below. Every interaction shows the PayKit code that runs and the
-          steps it orchestrates, in real time.
-        </p>
-      </div>
+    <Section label="02 Demo">
+      <SectionContent>
+        <div className="max-w-lg space-y-2">
+          <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
+            See it in action
+          </h2>
+          <p className="text-foreground/45 text-sm leading-relaxed sm:text-base">
+            Click around the app below. Every interaction shows the PayKit code that runs and the
+            steps it orchestrates, in real time.
+          </p>
+        </div>
 
-      {/* Side by side — 65/35 */}
-      <div ref={sectionRef} className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-4">
-        {/* Browser window — the app (65%) */}
-        <WindowChrome
-          label={
-            <div className="bg-foreground/[0.04] text-foreground/30 flex-1 rounded-md px-3 py-1 text-center font-mono text-[10px]">
-              localhost:3000
-            </div>
-          }
-          className={cn("lg:w-[73%]", WINDOW_HEIGHT)}
-        >
-          <div className="flex flex-1 flex-col overflow-hidden">
-            {/* Shared top bar */}
-            <div className="border-foreground/[0.06] flex shrink-0 items-center justify-between border-b px-4 py-2.5">
-              <div className="flex items-center gap-2">
-                <span
-                  className={cn(
-                    "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider transition-colors",
-                    plan === "pro"
-                      ? "bg-emerald-500/10 text-emerald-500"
-                      : "bg-foreground/[0.06] text-foreground/40",
-                  )}
-                >
-                  {plan === "pro" ? "Pro" : "Free"}
-                </span>
-                {plan === "pro" && (
-                  <span className="text-foreground/25 text-[10px]">
-                    {downgradeScheduled ? "Ends" : "Renews"} Apr 28, 2026
-                  </span>
-                )}
-              </div>
-              <span className="text-foreground/60 text-xs font-medium">AI Chat</span>
-            </div>
-
-            {/* Content — sidebar + chat */}
-            <div className="flex min-h-0 flex-1">
-              {/* Sidebar — billing */}
-              <div className="border-foreground/[0.06] flex w-[200px] shrink-0 flex-col border-r">
-                {/* Plan cards — stacked */}
-                <div className="flex flex-col gap-2 px-3 py-3">
-                  <div
-                    className={cn(
-                      "flex flex-col rounded-md border p-3 transition-all",
-                      plan === "free"
-                        ? "border-foreground/[0.12] bg-foreground/[0.02]"
-                        : "border-foreground/[0.06]",
-                    )}
-                  >
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-foreground/80 text-xs font-semibold">Free</span>
-                      <span className="text-foreground/40 text-[10px]">$0</span>
-                    </div>
-                    <span className="text-foreground/30 mt-0.5 text-[10px]">
-                      {FREE_LIMIT} msg/mo
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      disabled={plan === "free" || downgradeScheduled || !!busy}
-                      onClick={() => void handleDowngrade()}
-                      className="mt-2 w-full text-[10px]"
-                    >
-                      {busy === "downgrade" ? (
-                        <>
-                          <Loader2 className="size-2.5 animate-spin" />
-                          Downgrading...
-                        </>
-                      ) : plan === "free" ? (
-                        "Current plan"
-                      ) : downgradeScheduled ? (
-                        "Scheduled"
-                      ) : (
-                        "Downgrade"
-                      )}
-                    </Button>
-                  </div>
-
-                  <div
-                    className={cn(
-                      "flex flex-col rounded-md border p-3 transition-all",
-                      plan === "pro"
-                        ? "border-emerald-500/20 bg-emerald-500/[0.03]"
-                        : "border-foreground/[0.06]",
-                    )}
-                  >
-                    <div className="flex items-baseline justify-between">
-                      <span className="text-foreground/80 text-xs font-semibold">Pro</span>
-                      <span className="text-foreground/40 text-[10px]">$19/mo</span>
-                    </div>
-                    <span className="text-foreground/30 mt-0.5 text-[10px]">
-                      {PRO_LIMIT} msg/mo
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="xs"
-                      disabled={(plan === "pro" && !downgradeScheduled) || !!busy}
-                      onClick={() => {
-                        if (downgradeScheduled) {
-                          void handleResubscribe();
-                        } else {
-                          void handleUpgrade();
-                        }
-                      }}
+        {/* Podium */}
+        <div className="border-foreground/[0.08] rounded-xl border p-1 mt-12">
+          <div
+            ref={sectionRef}
+            className="flex flex-col gap-4 lg:flex-row lg:items-stretch lg:gap-2"
+          >
+            {/* Browser window — the app (65%) */}
+            <WindowChrome
+              label={
+                <div className="bg-foreground/[0.04] text-foreground/30 flex-1 rounded-md px-3 py-1 text-center font-mono text-[10px]">
+                  localhost:3000
+                </div>
+              }
+              className={cn("lg:w-[73%]", WINDOW_HEIGHT)}
+            >
+              <div className="flex flex-1 flex-col overflow-hidden">
+                {/* Shared top bar */}
+                <div className="border-foreground/[0.06] flex shrink-0 items-center justify-between border-b px-4 py-2.5">
+                  <div className="flex items-center gap-2">
+                    <span
                       className={cn(
-                        "mt-2 w-full text-[10px]",
-                        blocked &&
-                          plan === "free" &&
-                          "animate-[glow-pulse_2s_ease-in-out_infinite]",
+                        "rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider transition-colors",
+                        plan === "pro"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : "bg-foreground/[0.06] text-foreground/40",
                       )}
                     >
-                      {busy === "upgrade" ? (
-                        <>
-                          <Loader2 className="size-2.5 animate-spin" />
-                          Upgrading...
-                        </>
-                      ) : busy === "resubscribe" ? (
-                        <>
-                          <Loader2 className="size-2.5 animate-spin" />
-                          Resubscribing...
-                        </>
-                      ) : plan === "pro" && downgradeScheduled ? (
-                        "Resubscribe"
-                      ) : plan === "pro" ? (
-                        "Current plan"
-                      ) : (
-                        "Upgrade to Pro"
-                      )}
-                    </Button>
+                      {plan === "pro" ? "Pro" : "Free"}
+                    </span>
+                    {plan === "pro" && (
+                      <span className="text-foreground/25 text-[10px]">
+                        {downgradeScheduled ? "Ends" : "Renews"} Apr 28, 2026
+                      </span>
+                    )}
                   </div>
+                  <span className="text-foreground/60 text-xs font-medium">AI Chat</span>
                 </div>
 
-                {/* Manage billing — pushed to bottom */}
-                <div className="mt-auto px-3 py-3">
-                  <Button
-                    variant="outline"
-                    size="xs"
-                    onClick={() => void handlePortal()}
-                    className="text-foreground/70 w-full text-[10px]"
-                  >
-                    Manage billing
-                  </Button>
-                </div>
-              </div>
-
-              {/* Main — chat */}
-              <div className="flex min-w-0 flex-1 flex-col">
-                {/* Messages */}
-                <div ref={chatRef} className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
-                  <div className="mt-auto" />
-                  {messages.map((msg, i) => (
-                    <div
-                      key={i}
-                      className={cn(
-                        "max-w-[80%] rounded-md px-3 py-2 text-xs leading-relaxed",
-                        msg.role === "user"
-                          ? "bg-foreground/[0.06] text-foreground/65 self-end"
-                          : "bg-foreground/[0.03] text-foreground/50 self-start",
-                      )}
-                    >
-                      {msg.text}
-                    </div>
-                  ))}
-                  {aiState !== "idle" && (
-                    <div className="bg-foreground/[0.03] text-foreground/50 max-w-[80%] self-start rounded-md px-3 py-2 text-xs leading-relaxed">
-                      {aiState === "thinking" ? (
-                        <span className="inline-flex items-center gap-1">
-                          <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:0ms]" />
-                          <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:150ms]" />
-                          <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:300ms]" />
+                {/* Content — sidebar + chat */}
+                <div className="flex min-h-0 flex-1">
+                  {/* Sidebar — billing */}
+                  <div className="border-foreground/[0.06] flex w-[200px] shrink-0 flex-col border-r">
+                    {/* Plan cards — stacked */}
+                    <div className="flex flex-col gap-2 px-3 py-3">
+                      <div
+                        className={cn(
+                          "flex flex-col rounded-md border p-3 transition-all",
+                          plan === "free"
+                            ? "border-foreground/[0.12] bg-foreground/[0.02]"
+                            : "border-foreground/[0.06]",
+                        )}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-foreground/80 text-xs font-semibold">Free</span>
+                          <span className="text-foreground/40 text-[10px]">$0</span>
+                        </div>
+                        <span className="text-foreground/30 mt-0.5 text-[10px]">
+                          {FREE_LIMIT} msg/mo
                         </span>
-                      ) : (
-                        <>
-                          {streamingText}
-                          <span className="bg-foreground/40 ml-0.5 inline-block h-3 w-px animate-pulse" />
-                        </>
-                      )}
-                    </div>
-                  )}
-                  <AnimatePresence mode="wait">
-                    {blocked && !upgradeBanner && (
-                      <motion.div
-                        key="blocked"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-2 self-center rounded-md border border-red-500/15 bg-red-500/[0.04] px-4 py-2 text-center text-xs text-red-400"
-                      >
-                        {plan === "free"
-                          ? "Message limit reached. Upgrade to Pro."
-                          : "Monthly limit reached."}
-                      </motion.div>
-                    )}
-                    {upgradeBanner && (
-                      <motion.div
-                        key="upgraded"
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.4 }}
-                        className="mt-2 self-center rounded-md border border-emerald-500/15 bg-emerald-500/[0.04] px-4 py-2 text-center text-xs text-emerald-500"
-                      >
-                        Upgraded to Pro! You can keep chatting.
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          disabled={plan === "free" || downgradeScheduled || !!busy}
+                          onClick={() => void handleDowngrade()}
+                          className="mt-2 w-full text-[10px]"
+                        >
+                          {busy === "downgrade" ? (
+                            <>
+                              <Loader2 className="size-2.5 animate-spin" />
+                              Downgrading...
+                            </>
+                          ) : plan === "free" ? (
+                            "Current plan"
+                          ) : downgradeScheduled ? (
+                            "Scheduled"
+                          ) : (
+                            "Downgrade"
+                          )}
+                        </Button>
+                      </div>
 
-                {/* Input */}
-                <div className="border-foreground/[0.06] flex shrink-0 items-center gap-2.5 border-t px-4 py-3">
-                  <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleSend();
-                    }}
-                    disabled={blocked || aiState !== "idle"}
-                    placeholder={blocked ? "Upgrade to continue..." : "Type a message..."}
-                    className="text-foreground placeholder:text-foreground/25 min-w-0 flex-1 bg-transparent text-xs outline-none disabled:opacity-40"
-                  />
-                  {/* Ring chart + counter */}
-                  <div className="flex shrink-0 items-center gap-1.5">
-                    <svg className="size-4 -rotate-90" viewBox="0 0 20 20">
-                      <circle
-                        cx="10"
-                        cy="10"
-                        r="8"
-                        fill="none"
-                        strokeWidth="2"
-                        className="stroke-foreground/[0.06]"
-                      />
-                      <circle
-                        cx="10"
-                        cy="10"
-                        r="8"
-                        fill="none"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        className={cn("transition-all duration-300", "stroke-foreground/25")}
-                        style={{
-                          strokeDasharray: `${2 * Math.PI * 8}`,
-                          strokeDashoffset: `${2 * Math.PI * 8 * (1 - Math.min(1, limit > 0 ? used / limit : 0))}`,
-                        }}
-                      />
-                    </svg>
-                    <span className={cn("font-mono text-[10px]", "text-foreground/25")}>
-                      {Math.max(0, remaining)}/{limit}
-                    </span>
+                      <div
+                        className={cn(
+                          "flex flex-col rounded-md border p-3 transition-all",
+                          plan === "pro"
+                            ? "border-emerald-500/20 bg-emerald-500/[0.03]"
+                            : "border-foreground/[0.06]",
+                        )}
+                      >
+                        <div className="flex items-baseline justify-between">
+                          <span className="text-foreground/80 text-xs font-semibold">Pro</span>
+                          <span className="text-foreground/40 text-[10px]">$19/mo</span>
+                        </div>
+                        <span className="text-foreground/30 mt-0.5 text-[10px]">
+                          {PRO_LIMIT} msg/mo
+                        </span>
+                        <Button
+                          variant="outline"
+                          size="xs"
+                          disabled={(plan === "pro" && !downgradeScheduled) || !!busy}
+                          onClick={() => {
+                            if (downgradeScheduled) {
+                              void handleResubscribe();
+                            } else {
+                              void handleUpgrade();
+                            }
+                          }}
+                          className={cn(
+                            "mt-2 w-full text-[10px]",
+                            blocked &&
+                              plan === "free" &&
+                              "animate-[glow-pulse_2s_ease-in-out_infinite]",
+                          )}
+                        >
+                          {busy === "upgrade" ? (
+                            <>
+                              <Loader2 className="size-2.5 animate-spin" />
+                              Upgrading...
+                            </>
+                          ) : busy === "resubscribe" ? (
+                            <>
+                              <Loader2 className="size-2.5 animate-spin" />
+                              Resubscribing...
+                            </>
+                          ) : plan === "pro" && downgradeScheduled ? (
+                            "Resubscribe"
+                          ) : plan === "pro" ? (
+                            "Current plan"
+                          ) : (
+                            "Upgrade to Pro"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* Manage billing — pushed to bottom */}
+                    <div className="mt-auto px-3 py-3">
+                      <Button
+                        variant="outline"
+                        size="xs"
+                        onClick={() => void handlePortal()}
+                        className="text-foreground/70 w-full text-[10px]"
+                      >
+                        Manage billing
+                      </Button>
+                    </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleSend}
-                    disabled={blocked || aiState !== "idle" || !input.trim()}
-                    className="text-foreground/35 hover:text-foreground/60 disabled:opacity-20"
-                  >
-                    <Send className="size-3.5" />
-                  </button>
+
+                  {/* Main — chat */}
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    {/* Messages */}
+                    <div ref={chatRef} className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+                      <div className="mt-auto" />
+                      {messages.map((msg, i) => (
+                        <div
+                          key={i}
+                          className={cn(
+                            "max-w-[80%] rounded-md px-3 py-2 text-xs leading-relaxed",
+                            msg.role === "user"
+                              ? "bg-foreground/[0.06] text-foreground/65 self-end"
+                              : "bg-foreground/[0.03] text-foreground/50 self-start",
+                          )}
+                        >
+                          {msg.text}
+                        </div>
+                      ))}
+                      {aiState !== "idle" && (
+                        <div className="bg-foreground/[0.03] text-foreground/50 max-w-[80%] self-start rounded-md px-3 py-2 text-xs leading-relaxed">
+                          {aiState === "thinking" ? (
+                            <span className="inline-flex items-center gap-1">
+                              <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:0ms]" />
+                              <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:150ms]" />
+                              <span className="bg-foreground/30 size-1 animate-bounce rounded-full [animation-delay:300ms]" />
+                            </span>
+                          ) : (
+                            <>
+                              {streamingText}
+                              <span className="bg-foreground/40 ml-0.5 inline-block h-3 w-px animate-pulse" />
+                            </>
+                          )}
+                        </div>
+                      )}
+                      <AnimatePresence mode="wait">
+                        {blocked && !upgradeBanner && (
+                          <motion.div
+                            key="blocked"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.3 }}
+                            className="mt-2 self-center rounded-md border border-red-500/15 bg-red-500/[0.04] px-4 py-2 text-center text-xs text-red-400"
+                          >
+                            {plan === "free"
+                              ? "Message limit reached. Upgrade to Pro."
+                              : "Monthly limit reached."}
+                          </motion.div>
+                        )}
+                        {upgradeBanner && (
+                          <motion.div
+                            key="upgraded"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ duration: 0.4 }}
+                            className="mt-2 self-center rounded-md border border-emerald-500/15 bg-emerald-500/[0.04] px-4 py-2 text-center text-xs text-emerald-500"
+                          >
+                            Upgraded to Pro! You can keep chatting.
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                    {/* Input */}
+                    <div className="border-foreground/[0.06] flex shrink-0 items-center gap-2.5 border-t px-4 py-3">
+                      <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handleSend();
+                        }}
+                        disabled={blocked || aiState !== "idle"}
+                        placeholder={blocked ? "Upgrade to continue..." : "Type a message..."}
+                        className="text-foreground placeholder:text-foreground/25 min-w-0 flex-1 bg-transparent text-xs outline-none disabled:opacity-40"
+                      />
+                      {/* Ring chart + counter */}
+                      <div className="flex shrink-0 items-center gap-1.5">
+                        <svg className="size-4 -rotate-90" viewBox="0 0 20 20">
+                          <circle
+                            cx="10"
+                            cy="10"
+                            r="8"
+                            fill="none"
+                            strokeWidth="2"
+                            className="stroke-foreground/[0.06]"
+                          />
+                          <circle
+                            cx="10"
+                            cy="10"
+                            r="8"
+                            fill="none"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            className={cn("transition-all duration-300", "stroke-foreground/25")}
+                            style={{
+                              strokeDasharray: `${2 * Math.PI * 8}`,
+                              strokeDashoffset: `${2 * Math.PI * 8 * (1 - Math.min(1, limit > 0 ? used / limit : 0))}`,
+                            }}
+                          />
+                        </svg>
+                        <span className={cn("font-mono text-[10px]", "text-foreground/25")}>
+                          {Math.max(0, remaining)}/{limit}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleSend}
+                        disabled={blocked || aiState !== "idle" || !input.trim()}
+                        className="text-foreground/35 hover:text-foreground/60 disabled:opacity-20"
+                      >
+                        <Send className="size-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </WindowChrome>
+            </WindowChrome>
 
-        {/* Flow log — dashed border panel (35%) */}
-        <div
-          className={cn(
-            "border-foreground/[0.12] bg-card flex flex-col overflow-hidden rounded-lg border border-dashed lg:w-[37%]",
-            WINDOW_HEIGHT,
-          )}
-        >
-          <div className="border-foreground/[0.08] flex h-10 shrink-0 items-center border-b border-dashed px-4">
-            <span className="text-foreground/30 font-mono text-[10px] tracking-wider uppercase">
-              BACK-END
-            </span>
-          </div>
-          <div className="min-h-0 flex-1">
-            <FlowLog cards={cards} snippets={snippets} />
+            {/* Flow log — dashed border panel (35%) */}
+            <div
+              className={cn(
+                "border-foreground/[0.12] bg-card flex flex-col overflow-hidden rounded-lg border border-dashed lg:w-[37%]",
+                WINDOW_HEIGHT,
+              )}
+            >
+              <div className="border-foreground/[0.08] flex h-10 shrink-0 items-center border-b border-dashed px-4">
+                <span className="text-foreground/30 font-mono text-[10px] tracking-wider uppercase">
+                  PAYKIT BACK-END
+                </span>
+              </div>
+              <div className="min-h-0 flex-1">
+                <FlowLog cards={cards} snippets={snippets} />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </SectionContainer>
+      </SectionContent>
+    </Section>
   );
 }

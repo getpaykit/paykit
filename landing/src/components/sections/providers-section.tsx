@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useState } from "react";
 
 import { CreemLogo, PolarLogo, StripeLogo } from "@/components/landing/provider-logos";
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
 const providers = [
@@ -19,7 +19,7 @@ export function ProvidersSection({ codeBlocks }: { codeBlocks: Record<ProviderId
   const [active, setActive] = useState<ProviderId>("stripe");
 
   return (
-    <SectionContainer className="py-12 lg:py-16">
+    <Section className="py-12 lg:py-16">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-16">
         {/* Left — narrative + provider cards */}
         <div className="flex shrink-0 flex-col gap-6 lg:w-[340px]">
@@ -65,6 +65,6 @@ export function ProvidersSection({ codeBlocks }: { codeBlocks: Record<ProviderId
           ))}
         </div>
       </div>
-    </SectionContainer>
+    </Section>
   );
 }

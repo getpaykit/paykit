@@ -3,7 +3,7 @@
 import { Check, Loader2 } from "lucide-react";
 import { useCallback, useState } from "react";
 
-import { SectionContainer } from "@/components/layout/section-container";
+import { Section, SectionContent } from "@/components/layout/section";
 import { cn } from "@/lib/utils";
 
 const plans = [
@@ -42,7 +42,7 @@ export function SubscribeSection({ codeBlock }: { codeBlock: React.ReactNode }) 
   );
 
   return (
-    <SectionContainer className="py-12 lg:py-16">
+    <Section className="py-12 lg:py-16">
       <div className="flex flex-col gap-10 lg:flex-row lg:items-start lg:gap-16">
         {/* Left — code */}
         <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -131,6 +131,6 @@ export function SubscribeSection({ codeBlock }: { codeBlock: React.ReactNode }) 
           })}
         </div>
       </div>
-    </SectionContainer>
+    </Section>
   );
 }

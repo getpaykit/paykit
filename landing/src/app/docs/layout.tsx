@@ -167,6 +167,7 @@ export default function Layout({ children }: { children: ReactNode }) {
                     aria-label="GitHub repository"
                   />
                 }
+                nativeButton={false}
                 variant="ghost"
                 size="icon"
                 className="docs-sidebar-github-button text-fd-muted-foreground hover:text-fd-accent-foreground"

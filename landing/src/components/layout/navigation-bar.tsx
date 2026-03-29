@@ -1,33 +1,85 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, ExternalLink, Github, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 
 import { LogoLockup } from "@/components/icons/logo";
+import { DashedLine } from "@/components/layout/section";
+import { Button } from "@/components/ui/button";
 import { URLs } from "@/lib/consts";
 
-interface NavFileItem {
+// ─── Shared nav link ─────────────────────────────────────────────────
+
+interface NavItem {
   name: string;
   href: string;
   path?: string;
   external?: boolean;
 }
 
-const navFiles: NavFileItem[] = [
+function NavLink({
+  item,
+  className,
+  children,
+  onClick,
+}: {
+  item: NavItem;
+  className?: string;
+  children: React.ReactNode;
+  onClick?: () => void;
+}) {
+  return (
+    <Link
+      href={item.href}
+      target={item.external ? "_blank" : undefined}
+      rel={item.external ? "noopener noreferrer" : undefined}
+      className={className}
+      onClick={onClick}
+    >
+      {children}
+    </Link>
+  );
+}
+
+// ─── Data ────────────────────────────────────────────────────────────
+
+const navTabs: NavItem[] = [
   { name: "readme", href: "/" },
   { name: "docs", href: "/docs", path: "/docs" },
-  {
-    name: "github",
-    href: URLs.githubRepo,
-    external: true,
-  },
+  { name: "enterprise", href: "/enterprise", path: "/enterprise" },
 ];
 
-export function NavigationBar() {
+const dropdownLinks: NavItem[] = [
+  { name: "Discord", href: URLs.discord, external: true },
+  { name: "Twitter / X", href: URLs.x, external: true },
+  { name: "LinkedIn", href: URLs.linkedin, external: true },
+];
+
+const mobileLinks: NavItem[] = [
+  ...navTabs,
+  ...dropdownLinks.map((l) => ({ ...l, name: l.name.toLowerCase() })),
+];
+
+// ─── Tab styles ──────────────────────────────────────────────────────
+
+const tabBase =
+  "group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 transition-colors duration-150";
+const tabActive = "bg-background border-b-foreground/60 border-b-2";
+const tabInactive =
+  "hover:bg-foreground/[0.03] bg-transparent text-foreground/60 dark:text-foreground/40 hover:text-foreground/70";
+const labelBase =
+  "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
+
+// ─── Component ───────────────────────────────────────────────────────
+
+export function NavigationBar({ stars }: { stars: number | null }) {
   const pathname = usePathname() || "/";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [linksOpen, setLinksOpen] = useState(false);
+  const closeTimeout = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const isActive = useCallback(
     (href: string) =>
@@ -35,105 +87,149 @@ export function NavigationBar() {
     [pathname],
   );
 
+  const openLinks = useCallback(() => {
+    if (closeTimeout.current) clearTimeout(closeTimeout.current);
+    setLinksOpen(true);
+  }, []);
+
+  const closeLinks = useCallback(() => {
+    closeTimeout.current = setTimeout(() => setLinksOpen(false), 150);
+  }, []);
+
   return (
     <>
       <div className="pointer-events-none fixed top-0 right-0 left-0 z-[99] flex items-start">
-        {/* Mobile — Logo + hamburger */}
+        {/* Mobile */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="bg-background border-foreground/[0.06] pointer-events-auto flex w-full items-center justify-between border-b lg:hidden"
         >
-          <Link
-            href="/"
-            className="flex items-center gap-1 px-4 py-3 transition-colors duration-150"
-          >
+          <Link href="/" className="flex items-center gap-1 px-4 py-3">
             <LogoLockup className="h-4" />
           </Link>
-          <div className="flex items-center">
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 flex items-center justify-center px-4 py-3 transition-colors"
-            >
-              {mobileMenuOpen ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path
-                    fill="currentColor"
-                    d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"
-                  />
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
-                  <path fill="currentColor" d="M3 18h18v-2H3zm0-5h18v-2H3zm0-7v2h18V6z" />
-                </svg>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen((prev) => !prev)}
+            className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-4 py-3 transition-colors"
+          >
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </motion.div>
 
-        {/* Right — Nav tabs (desktop) */}
+        {/* Desktop */}
         <motion.div
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
-          className="bg-background pointer-events-auto relative hidden w-full min-w-0 items-stretch justify-center border-b lg:flex"
+          className="bg-background pointer-events-auto relative hidden w-full items-stretch justify-center border-b lg:flex"
         >
-          <div className="relative flex w-full max-w-7xl items-stretch px-6 sm:px-8 lg:px-12">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="relative z-10 flex shrink-0 items-center gap-1 px-4 py-3.5 transition-colors duration-150 lg:px-5"
-            >
-              <LogoLockup className="h-5" />
-            </Link>
-            {/* File tabs — centered within container */}
-            <div className="pointer-events-none absolute inset-0 flex items-stretch justify-center">
-              <div className="pointer-events-auto flex items-stretch">
-                {navFiles.map((item, index) => {
-                  const active = isActive(item.path || item.href);
-                  return (
-                    <motion.div
-                      key={item.name}
-                      initial={{ opacity: 0, y: -4 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        duration: 0.2,
-                        delay: 0.05 + index * 0.03,
-                        ease: "easeOut",
-                      }}
-                    >
-                      <Link
-                        href={item.href}
-                        target={item.external ? "_blank" : undefined}
-                        rel={item.external ? "noreferrer" : undefined}
-                        className={`group/tab relative flex h-full items-center justify-center gap-1.5 px-3.5 py-3.5 xl:px-5.5 ${index < navFiles.length - 1 ? "border-foreground/[0.06] border-r" : ""} transition-colors duration-150 ${
-                          active
-                            ? "bg-background border-b-foreground/60 border-b-2"
-                            : "hover:bg-foreground/[0.03] bg-transparent"
-                        }`}
+          <div className="relative mx-auto w-full max-w-[76rem]">
+            <DashedLine orientation="vertical" />
+            <div className="absolute top-0 right-0 h-full">
+              <DashedLine orientation="vertical" />
+            </div>
+            <div className="flex items-stretch justify-between px-12">
+              {/* Logo */}
+              <Link href="/" className="relative z-10 flex shrink-0 items-center py-3.5">
+                <LogoLockup className="h-5" />
+              </Link>
+
+              {/* Center tabs */}
+              <div className="absolute inset-0 flex items-stretch justify-center">
+                <div className="flex items-stretch">
+                  {navTabs.map((item, i) => {
+                    const active = isActive(item.path || item.href);
+                    return (
+                      <motion.div
+                        key={item.name}
+                        initial={{ opacity: 0, y: -4 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2, delay: 0.05 + i * 0.03, ease: "easeOut" }}
                       >
-                        <span
-                          className={`text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150 ${
-                            active
-                              ? "text-foreground"
-                              : "text-foreground/60 dark:text-foreground/40 group-hover/tab:text-foreground/70"
-                          }`}
+                        <NavLink
+                          item={item}
+                          className={`${tabBase} border-foreground/[0.06] border-r ${active ? tabActive : tabInactive}`}
                         >
-                          {item.name}
-                        </span>
-                      </Link>
-                    </motion.div>
-                  );
-                })}
+                          <span className={`${labelBase} ${active ? "text-foreground" : ""}`}>
+                            {item.name}
+                          </span>
+                        </NavLink>
+                      </motion.div>
+                    );
+                  })}
+
+                  {/* Links dropdown */}
+                  <motion.div
+                    initial={{ opacity: 0, y: -4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.2,
+                      delay: 0.05 + navTabs.length * 0.03,
+                      ease: "easeOut",
+                    }}
+                    className="relative"
+                    onMouseEnter={openLinks}
+                    onMouseLeave={closeLinks}
+                  >
+                    <button
+                      type="button"
+                      className={`${tabBase} gap-1 ${linksOpen ? "text-foreground/70" : tabInactive}`}
+                    >
+                      <span className={`${labelBase}`}>links</span>
+                      <ChevronDown
+                        className={`size-3 transition-transform duration-150 ${linksOpen ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    <AnimatePresence>
+                      {linksOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 4 }}
+                          transition={{ duration: 0.15 }}
+                          className="bg-background border-foreground/[0.08] absolute top-full left-1/2 z-50 mt-px min-w-[180px] -translate-x-1/2 border py-1 shadow-lg"
+                        >
+                          {dropdownLinks.map((link) => (
+                            <NavLink
+                              key={link.name}
+                              item={link}
+                              className="text-foreground/60 hover:text-foreground hover:bg-foreground/[0.03] flex items-center justify-between px-4 py-2 text-sm transition-colors"
+                              onClick={() => setLinksOpen(false)}
+                            >
+                              {link.name}
+                              {link.external && (
+                                <ExternalLink className="text-foreground/20 size-3" />
+                              )}
+                            </NavLink>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </div>
+              </div>
+
+              {/* Right */}
+              <div className="relative z-10 flex items-center gap-2">
+                <Button
+                  render={<Link href={URLs.githubRepo} target="_blank" rel="noopener noreferrer" />}
+                  nativeButton={false}
+                  variant={"outline"}
+                  size="sm"
+                >
+                  <Github className="size-3.5" />
+                  {stars !== null && <span>Star on GitHub!</span>}
+                </Button>
               </div>
             </div>
           </div>
         </motion.div>
       </div>
 
-      {/* Mobile menu overlay */}
+      {/* Mobile overlay */}
       <AnimatePresence>
         {mobileMenuOpen && (
           <motion.div
@@ -144,25 +240,21 @@ export function NavigationBar() {
             className="bg-background/95 pointer-events-auto fixed inset-0 z-[98] backdrop-blur-sm lg:hidden"
           >
             <div className="flex h-full flex-col overflow-y-auto pt-[52px]">
-              {navFiles.map((item, i) => (
+              {mobileLinks.map((item, i) => (
                 <motion.div
                   key={item.name}
                   initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.15, delay: i * 0.03 }}
                 >
-                  <Link
-                    href={item.href}
-                    target={item.external ? "_blank" : undefined}
-                    rel={item.external ? "noreferrer" : undefined}
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                    }}
+                  <NavLink
+                    item={item}
                     className={`border-foreground/[0.06] flex items-center gap-2.5 border-b px-5 py-3.5 transition-colors ${
                       isActive(item.path || item.href)
                         ? "bg-foreground/[0.04]"
                         : "hover:bg-foreground/[0.03]"
                     }`}
+                    onClick={() => setMobileMenuOpen(false)}
                   >
                     <span
                       className={`text-base tracking-wider uppercase ${
@@ -174,15 +266,9 @@ export function NavigationBar() {
                       {item.name}
                     </span>
                     {item.external && (
-                      <svg
-                        className="text-foreground/35 dark:text-foreground/20 ml-auto h-2.5 w-2.5"
-                        viewBox="0 0 10 10"
-                        fill="none"
-                      >
-                        <path d="M1 9L9 1M9 1H3M9 1V7" stroke="currentColor" strokeWidth="1.2" />
-                      </svg>
+                      <ExternalLink className="text-foreground/35 dark:text-foreground/20 ml-auto size-3" />
                     )}
-                  </Link>
+                  </NavLink>
                 </motion.div>
               ))}
             </div>
