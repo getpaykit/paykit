@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Loader2, Play, RotateCcw } from "lucide-react";
+import { Check, DollarSign, Loader2, Play, RotateCcw, SparklesIcon, Terminal } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 type View = "code" | "terminal";
@@ -118,35 +119,26 @@ export function HeroCodeBlock({
               <span className="text-foreground/50 px-4 py-2 font-mono text-[13px]">Terminal</span>
             )}
           </div>
-
-          {/* Push / back button */}
-          <div className="pr-2">
-            {view === "code" ? (
-              <button
-                type="button"
-                onClick={() => void runPush()}
-                disabled={pushing}
-                className="text-foreground/40 hover:text-foreground/70 hover:bg-foreground/[0.05] flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[11px] transition-all"
-              >
-                <Play className="size-3" />
-                Push to Stripe
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={backToCode}
-                disabled={pushing}
-                className="text-foreground/40 hover:text-foreground/70 hover:bg-foreground/[0.05] flex items-center gap-1.5 rounded-md px-2.5 py-1.5 font-mono text-[11px] transition-all disabled:opacity-40"
-              >
-                <RotateCcw className="size-3" />
-                Back to code
-              </button>
-            )}
-          </div>
         </div>
 
         {/* Content — fixed height */}
-        <div className="h-[27.5rem] overflow-y-auto">
+        <div className="relative h-[27.5rem] overflow-y-auto">
+          {/* Push / back button */}
+          <div className="absolute right-2 bottom-2 z-10">
+            <Button
+              variant="outline"
+              size={"sm"}
+              onClick={view === "code" ? () => void runPush() : backToCode}
+              disabled={pushing}
+            >
+              {view === "code" ? (
+                <Terminal className="size-3.5" />
+              ) : (
+                <RotateCcw className="size-3.5" />
+              )}
+              {view === "code" ? "Terminal" : "Back to code"}
+            </Button>
+          </div>
           {view === "code" ? (
             <>
               <div className={activeTab === "plans" ? "block" : "hidden"}>{plansCodeBlock}</div>

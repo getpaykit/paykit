@@ -219,7 +219,6 @@ export function NavigationBar({ stars }: { stars: number | null }) {
                   nativeButton={false}
                   variant={"outline"}
                   size="sm"
-                  className="text-foreground/80"
                 >
                   <Github className="size-3.5" />
                   {stars !== null && <span>GitHub</span>}

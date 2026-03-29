@@ -189,12 +189,7 @@ export function DemoAppWindow({
             </div>
 
             <div className="mt-auto px-3 py-3">
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={onPortal}
-                className="text-foreground/70 w-full text-[10px]"
-              >
+              <Button variant="outline" size="xs" onClick={onPortal} className="w-full text-[10px]">
                 Manage billing
               </Button>
             </div>

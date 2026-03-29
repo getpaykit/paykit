@@ -27,12 +27,12 @@ import { createPayKit } from "paykitjs"
 import { free, pro } from "./plans"
 
 export const paykit = createPayKit({
-  provider: stripe({ // Or Polar.sh / Creem.io / Custom
+  provider: stripe({
     secretKey: env.STRIPE_SECRET_KEY,
     webhookSecret: env.STRIPE_WEBHOOK_SECRET,
   }),
-  plans: [free, pro],
   database: env.DATABASE_URL,
+  plans: [free, pro],
   on: {
     "plan.activated": ({ customer, plan }) => {
       await sendEmail(customer.email, "Welcome to Pro!")
