@@ -1,6 +1,6 @@
 import { Pool } from "pg";
 
-import { createDatabase, type PayKitDatabase } from "../database/index";
+import { createDatabase, isDrizzleAdapter, type PayKitDatabase } from "../database/index";
 import type { StripeProviderConfig, StripeRuntime } from "../providers/provider";
 import { createStripeRuntime } from "../providers/stripe";
 import type { PayKitOptions } from "../types/options";
@@ -30,11 +30,16 @@ export async function createContext(options: PayKitOptions): Promise<PayKitConte
     );
   }
 
-  const pool =
-    typeof options.database === "string"
-      ? new Pool({ connectionString: options.database })
-      : options.database;
-  const database = await createDatabase(pool);
+  let database: PayKitDatabase;
+  if (isDrizzleAdapter(options.database)) {
+    database = options.database.db;
+  } else {
+    const pool =
+      typeof options.database === "string"
+        ? new Pool({ connectionString: options.database })
+        : options.database;
+    database = await createDatabase(pool);
+  }
   const stripe = options.provider.runtime ?? createStripeRuntime(options.provider);
 
   return {

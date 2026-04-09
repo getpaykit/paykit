@@ -1,6 +1,7 @@
 import type { Pool } from "pg";
 import type { LevelWithSilent, Logger } from "pino";
 
+import type { DrizzleAdapterInstance } from "../database/index";
 import type { StripeProviderConfig } from "../providers/provider";
 import type { PayKitEventHandlers } from "./events";
 import type { PayKitPlugin } from "./plugin";
@@ -16,7 +17,7 @@ export interface PayKitTestingOptions {
 }
 
 export interface PayKitOptions {
-  database: Pool | string;
+  database: Pool | string | DrizzleAdapterInstance;
   provider: StripeProviderConfig;
   plans?: PayKitPlansModule;
   basePath?: string;

@@ -1,0 +1,43 @@
+{
+  "name": "@paykitjs/drizzle",
+  "version": "0.0.1",
+  "description": "DrizzleORM adapter for PayKit",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/getpaykit/paykit.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "publishConfig": {
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
+  },
+  "scripts": {
+    "build": "tsdown --config tsdown.config.ts",
+    "typecheck": "tsc --build"
+  },
+  "dependencies": {
+    "paykitjs": "workspace:*"
+  },
+  "devDependencies": {
+    "drizzle-orm": "^0.45.1",
+    "tsdown": "^0.21.1",
+    "typescript": "^5.9.2",
+    "vitest": "^4.0.18"
+  },
+  "peerDependencies": {
+    "drizzle-orm": ">=0.40.0"
+  }
+}

@@ -1,5 +1,4 @@
 import { asc, desc, eq } from "drizzle-orm";
-import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { getPayKitConfig } from "../../packages/paykit/src/cli/utils/get-config";
@@ -7,6 +6,7 @@ import { createContext } from "../../packages/paykit/src/core/context";
 import {
   getPendingMigrationCount,
   migrateDatabase,
+  resolvePool,
 } from "../../packages/paykit/src/database/index";
 import { product } from "../../packages/paykit/src/database/schema";
 import {
@@ -15,9 +15,7 @@ import {
 } from "../../packages/paykit/src/product/product-sync.service";
 import { createCliFixture, type CliTestFixture } from "./setup";
 
-function resolveDatabase(database: Pool | string): Pool {
-  return typeof database === "string" ? new Pool({ connectionString: database }) : database;
-}
+const resolveDatabase = resolvePool;
 
 describe("paykitjs push", () => {
   let fixture: CliTestFixture;

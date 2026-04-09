@@ -71,6 +71,7 @@ export type {
 } from "./types/events";
 
 export type { PayKitPlugin } from "./types/plugin";
+export type { DrizzleAdapterInstance } from "./database/index";
 
 export { PayKitError, PAYKIT_ERROR_CODES } from "./core/errors";
 export type { PayKitErrorCode } from "./core/errors";

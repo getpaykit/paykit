@@ -1,17 +1,12 @@
-import { Pool } from "pg";
-
-import { migrateDatabase } from "../../database";
+import { migrateDatabase, resolvePool } from "../../database";
 import type { PayKitOptions } from "../../types/options";
 
 export async function runPayKitMigrations(config: { options: PayKitOptions }): Promise<void> {
-  const database =
-    typeof config.options.database === "string"
-      ? new Pool({ connectionString: config.options.database })
-      : config.options.database;
+  const pool = resolvePool(config.options.database);
 
   try {
-    await migrateDatabase(database);
+    await migrateDatabase(pool);
   } finally {
-    await database.end();
+    await pool.end();
   }
 }
