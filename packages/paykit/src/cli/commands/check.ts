@@ -2,12 +2,11 @@ import path from "node:path";
 
 import * as p from "@clack/prompts";
 import { Command } from "commander";
-import { Pool } from "pg";
 import picocolors from "picocolors";
 import StripeSdk from "stripe";
 
 import { createContext } from "../../core/context";
-import { getPendingMigrationCount } from "../../database/index";
+import { getPendingMigrationCount, resolvePool } from "../../database/index";
 import { dryRunSyncProducts } from "../../product/product-sync.service";
 import {
   formatPlanLine,
@@ -48,10 +47,7 @@ async function checkAction(options: { config?: string; cwd: string }): Promise<v
     process.exit(1);
   }
 
-  const database =
-    typeof config.options.database === "string"
-      ? new Pool({ connectionString: config.options.database })
-      : config.options.database;
+  const database = resolvePool(config.options.database);
   const connStr = getConnectionString(database as never);
   let pendingMigrations = 0;
 

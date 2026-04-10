@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("../../database/index", () => ({
   createDatabase: mocks.createDatabase,
+  isDrizzleAdapter: () => false,
 }));
 
 vi.mock("../logger", () => ({

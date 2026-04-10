@@ -30,7 +30,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./handlers/next": "./src/handlers/next.ts",
-    "./client": "./src/client/index.ts"
+    "./client": "./src/client/index.ts",
+    "./schema": "./src/database/schema.ts"
   },
   "publishConfig": {
     "exports": {
@@ -45,6 +46,10 @@
       "./client": {
         "types": "./dist/client/index.d.ts",
         "default": "./dist/client/index.js"
+      },
+      "./schema": {
+        "types": "./dist/schema.d.ts",
+        "default": "./dist/schema.js"
       }
     },
     "main": "./dist/index.js",

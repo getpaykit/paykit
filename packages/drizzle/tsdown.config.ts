@@ -2,12 +2,6 @@ import { defineConfig } from "tsdown";
 
 export default defineConfig({
   clean: true,
-  copy: [
-    {
-      flatten: false,
-      from: "src/database/migrations/**/*",
-    },
-  ],
   deps: {
     onlyAllowBundle: false,
     skipNodeModulesBundle: true,
@@ -15,10 +9,6 @@ export default defineConfig({
   dts: true,
   entry: {
     index: "src/index.ts",
-    "cli/index": "src/cli/index.ts",
-    "handlers/next": "src/handlers/next.ts",
-    "client/index": "src/client/index.ts",
-    schema: "src/database/schema.ts",
   },
   fixedExtension: false,
   format: "esm",

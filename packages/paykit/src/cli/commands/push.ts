@@ -2,11 +2,10 @@ import path from "node:path";
 
 import * as p from "@clack/prompts";
 import { Command } from "commander";
-import { Pool } from "pg";
 import picocolors from "picocolors";
 
 import { createContext } from "../../core/context";
-import { getPendingMigrationCount, migrateDatabase } from "../../database/index";
+import { getPendingMigrationCount, migrateDatabase, resolvePool } from "../../database/index";
 import { dryRunSyncProducts, syncProducts } from "../../product/product-sync.service";
 import {
   formatPlanLine,
@@ -23,10 +22,7 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
   p.intro("paykit push");
 
   const config = await getPayKitConfig({ configPath: options.config, cwd });
-  const database =
-    typeof config.options.database === "string"
-      ? new Pool({ connectionString: config.options.database })
-      : config.options.database;
+  const database = resolvePool(config.options.database);
 
   try {
     const connStr = getConnectionString(database as never);
