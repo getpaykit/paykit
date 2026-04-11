@@ -95,13 +95,33 @@ To handle webhooks and client API requests, you need to set up a request handler
 
 Create a new file or route in your framework's designated catch-all route handler. This route should handle requests for the path /paykit/* (unless you've configured a different base path).
 
-<Tabs items={["Next.js", "Other"]}>
+<Tabs items={["Next.js", "Express", "Fastify", "Other"]}>
   <Tab value="Next.js">
     ```ts title="src/app/paykit/[[...slug]]/route.ts"
     import { paykitHandler } from "paykitjs/handlers/next";
     import { paykit } from "@/lib/paykit";
 
     export const { GET, POST } = paykitHandler(paykit);
+    ```
+  </Tab>
+  <Tab value="Express">
+    ```ts title="server.ts"
+    import express from "express";
+    import { paykitHandler } from "paykitjs/handlers/express";
+    import { paykit } from "./paykit";
+
+    const app = express();
+    app.all("/paykit/*", paykitHandler(paykit));
+    ```
+  </Tab>
+  <Tab value="Fastify">
+    ```ts title="server.ts"
+    import Fastify from "fastify";
+    import { paykitHandler } from "paykitjs/handlers/fastify";
+    import { paykit } from "./paykit";
+
+    const app = Fastify();
+    app.all("/paykit/*", paykitHandler(paykit));
     ```
   </Tab>
   <Tab value="Other">
