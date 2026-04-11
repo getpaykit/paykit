@@ -10,14 +10,12 @@ export function useCopyButton(
 
   const onClick: MouseEventHandler = useEffectEvent(() => {
     if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-    const res = Promise.resolve(onCopy());
+    void Promise.resolve(onCopy());
 
-    void res.then(() => {
-      setChecked(true);
-      timeoutRef.current = window.setTimeout(() => {
-        setChecked(false);
-      }, 1500);
-    });
+    setChecked(true);
+    timeoutRef.current = window.setTimeout(() => {
+      setChecked(false);
+    }, 1500);
   });
 
   // Avoid updates after being unmounted
