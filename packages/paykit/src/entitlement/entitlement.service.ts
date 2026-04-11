@@ -192,7 +192,9 @@ export async function checkEntitlement(
   return { allowed: balance.remaining >= required, balance };
 }
 
-// report — lazy reset + atomic decrement
+// report — lazy reset + transactional multi-row decrement
+
+const MAX_REPORT_RETRIES = 3;
 
 export async function reportEntitlement(
   database: PayKitDatabase,
@@ -200,48 +202,71 @@ export async function reportEntitlement(
 ): Promise<ReportResult> {
   const amount = input.amount ?? 1;
 
+  for (let attempt = 0; attempt < MAX_REPORT_RETRIES; attempt++) {
+    const rows = await getActiveEntitlements(database, input.customerId, input.featureId);
+    await resetStaleEntitlements(database, rows, input.now ?? new Date());
+
+    if (rows.length === 0) {
+      return { balance: null, success: false };
+    }
+
+    const hasUnlimited = rows.some((row) => row.originalLimit === null);
+    if (hasUnlimited) {
+      return { balance: aggregateBalance(rows), success: true };
+    }
+
+    const totalBalance = rows.reduce((sum, row) => sum + row.balance, 0);
+    if (totalBalance < amount) {
+      return { balance: aggregateBalance(rows), success: false };
+    }
+
+    const result = await deductAcrossRows(database, rows, amount);
+    if (result) return result;
+  }
+
+  // All retries exhausted due to concurrent modifications
   const rows = await getActiveEntitlements(database, input.customerId, input.featureId);
-  await resetStaleEntitlements(database, rows, input.now ?? new Date());
-
-  if (rows.length === 0) {
-    return { balance: null, success: false };
-  }
-
-  const hasUnlimited = rows.some((row) => row.originalLimit === null);
-  if (hasUnlimited) {
-    return { balance: aggregateBalance(rows), success: true };
-  }
-
-  const totalBalance = rows.reduce((sum, row) => sum + row.balance, 0);
-  if (totalBalance < amount) {
-    return { balance: aggregateBalance(rows), success: false };
-  }
-
-  let remainingAmount = amount;
-  for (const row of sortRowsForConsumption(rows)) {
-    if (remainingAmount === 0) {
-      break;
-    }
-
-    if (row.originalLimit === null || row.balance <= 0) continue;
-
-    const deduction = Math.min(row.balance, remainingAmount);
-    const result = await database
-      .update(entitlement)
-      .set({
-        balance: sql`${entitlement.balance} - ${deduction}`,
-        updatedAt: new Date(),
-      })
-      .where(and(eq(entitlement.id, row.id), sql`${entitlement.balance} >= ${deduction}`))
-      .returning({ balance: entitlement.balance });
-
-    if (result.length === 0) {
-      return reportEntitlement(database, input);
-    }
-
-    row.balance = result[0]!.balance!;
-    remainingAmount -= deduction;
-  }
-
-  return { balance: aggregateBalance(rows), success: remainingAmount === 0 };
+  return { balance: aggregateBalance(rows), success: false };
 }
+
+/** Deduct amount across sorted rows in a transaction. Returns null on conflict to signal retry. */
+async function deductAcrossRows(
+  database: PayKitDatabase,
+  rows: ActiveEntitlementRow[],
+  amount: number,
+): Promise<ReportResult | null> {
+  try {
+    await database.transaction(async (tx) => {
+      let remaining = amount;
+
+      for (const row of sortRowsForConsumption(rows)) {
+        if (remaining === 0) break;
+        if (row.originalLimit === null || row.balance <= 0) continue;
+
+        const deduction = Math.min(row.balance, remaining);
+        const result = await tx
+          .update(entitlement)
+          .set({
+            balance: sql`${entitlement.balance} - ${deduction}`,
+            updatedAt: new Date(),
+          })
+          .where(and(eq(entitlement.id, row.id), sql`${entitlement.balance} >= ${deduction}`))
+          .returning({ balance: entitlement.balance });
+
+        if (result.length === 0) {
+          throw new ConflictError();
+        }
+
+        row.balance = result[0]!.balance!;
+        remaining -= deduction;
+      }
+    });
+  } catch (error) {
+    if (error instanceof ConflictError) return null;
+    throw error;
+  }
+
+  return { balance: aggregateBalance(rows), success: true };
+}
+
+class ConflictError extends Error {}

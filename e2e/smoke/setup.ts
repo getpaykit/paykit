@@ -66,11 +66,20 @@ export const ultraPlan = plan({
   price: { amount: 200, interval: "month" },
 });
 
+export const extraMessagesPlan = plan({
+  group: "addons",
+  id: "extra_messages",
+  name: "Extra Messages",
+  includes: [messagesFeature({ limit: 200, reset: "month" })],
+  price: { amount: 5, interval: "month" },
+});
+
 type SmokePlans = {
   free: typeof freePlan;
   pro: typeof proPlan;
   premium: typeof premiumPlan;
   ultra: typeof ultraPlan;
+  extra_messages: typeof extraMessagesPlan;
 };
 
 type SmokePayKit = ReturnType<
@@ -135,7 +144,13 @@ export async function createTestPayKit(): Promise<TestPayKit> {
   const stripeProvider = stripe({ secretKey, webhookSecret });
   const paykit = createPayKit({
     database: pool,
-    plans: { free: freePlan, pro: proPlan, premium: premiumPlan, ultra: ultraPlan },
+    plans: {
+      free: freePlan,
+      pro: proPlan,
+      premium: premiumPlan,
+      ultra: ultraPlan,
+      extra_messages: extraMessagesPlan,
+    },
     provider: stripeProvider,
     testing: { enabled: true },
   });
