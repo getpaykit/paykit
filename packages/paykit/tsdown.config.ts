@@ -17,6 +17,8 @@ export default defineConfig({
     index: "src/index.ts",
     "cli/index": "src/cli/index.ts",
     "handlers/next": "src/handlers/next.ts",
+    "handlers/express": "src/handlers/express.ts",
+    "handlers/fastify": "src/handlers/fastify.ts",
     "client/index": "src/client/index.ts",
   },
   fixedExtension: false,

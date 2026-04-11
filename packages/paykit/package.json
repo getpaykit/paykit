@@ -30,6 +30,8 @@
   "exports": {
     ".": "./src/index.ts",
     "./handlers/next": "./src/handlers/next.ts",
+    "./handlers/express": "./src/handlers/express.ts",
+    "./handlers/fastify": "./src/handlers/fastify.ts",
     "./client": "./src/client/index.ts"
   },
   "publishConfig": {
@@ -41,6 +43,14 @@
       "./handlers/next": {
         "types": "./dist/handlers/next.d.ts",
         "default": "./dist/handlers/next.js"
+      },
+      "./handlers/express": {
+        "types": "./dist/handlers/express.d.ts",
+        "default": "./dist/handlers/express.js"
+      },
+      "./handlers/fastify": {
+        "types": "./dist/handlers/fastify.d.ts",
+        "default": "./dist/handlers/fastify.js"
       },
       "./client": {
         "types": "./dist/client/index.d.ts",
