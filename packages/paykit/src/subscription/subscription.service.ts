@@ -25,6 +25,7 @@ import type {
   UpsertSubscriptionAction,
 } from "../types/events";
 import type { StoredSubscription } from "../types/models";
+import type { BeforeSubscribeHookCtx, PayKitPlugin } from "../types/plugin";
 import type { NormalizedPlanFeature } from "../types/schema";
 import type {
   SubscribeInput,
@@ -42,6 +43,31 @@ export async function subscribeToPlan(
     ctx.logger.info({ planId: input.planId, customerId: input.customerId }, "subscribe started");
 
     const subCtx = await loadSubscribeContext(ctx, input);
+
+    const hookCtx: BeforeSubscribeHookCtx = {
+      customerId: subCtx.customerId,
+      plan: subCtx.normalizedPlan,
+    };
+
+    // 1. Define a Timeout (Safety First)
+    const TIMEOUT_MS = 5000;
+    const timeout = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Plugin execution timed out")), TIMEOUT_MS),
+    );
+
+    // 2. Wrap plugins in a Try-Catch
+    try {
+      const plugins = ctx.options.plugins ?? [];
+      const hooks = plugins
+        .filter((p): p is Required<PayKitPlugin> => !!p.onBeforeSubscribe)
+        .map((p) => p.onBeforeSubscribe(hookCtx));
+
+      await Promise.race([Promise.all(hooks), timeout]);
+    } catch (error) {
+      console.error("[PayKit Plugin Error]:", error instanceof Error ? error.message : error);
+
+      throw error;
+    }
 
     let result: SubscribeResult;
     if (isSamePlan(subCtx)) {

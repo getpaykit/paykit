@@ -1,8 +1,12 @@
+import type { NormalizedPlan } from "./schema";
+
 export interface BeforeSubscribeHookCtx {
   readonly customerId: string;
-  readonly planId: string;
+  readonly plan: NormalizedPlan;
+  /** Optional client metadata.
+   * Note: IP is currently not passed by the core service.
+   */
   readonly ip?: string;
-  readonly metadata?: Readonly<Record<string, unknown>>;
 }
 
 export interface PayKitPlugin {
