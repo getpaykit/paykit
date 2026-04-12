@@ -14,14 +14,16 @@
   },
   "scripts": {
     "build": "tsdown",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "paykitjs": "workspace:*",
-    "tsdown": "^0.21.1"
+    "tsdown": "^0.21.1",
+    "vitest": "^4.0.18"
   },
   "peerDependencies": {
     "paykitjs": "workspace:*"
