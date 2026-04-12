@@ -2,6 +2,7 @@ import type { Pool } from "pg";
 import type { LevelWithSilent, Logger } from "pino";
 
 import type { StripeProviderConfig } from "../providers/provider";
+import type { PayKitSecondaryStorage } from "../secondary-storage/options";
 import type { PayKitEventHandlers } from "./events";
 import type { PayKitPlugin } from "./plugin";
 import type { PayKitPlansModule } from "./schema";
@@ -27,6 +28,7 @@ export interface PayKitOptions {
   } | null>;
   on?: PayKitEventHandlers;
   plugins?: PayKitPlugin[];
+  secondaryStorage?: PayKitSecondaryStorage;
   logging?: PayKitLoggingOptions;
   testing?: PayKitTestingOptions;
 }
