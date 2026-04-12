@@ -7,6 +7,7 @@ import {
   findCustomerByProviderCustomerId,
   upsertProviderCustomer,
 } from "../customer/customer.service";
+import { getCustomerById } from "../customer/customer.service";
 import type { PayKitDatabase } from "../database";
 import { entitlement, product, subscription } from "../database/schema";
 import { upsertInvoiceRecord } from "../invoice/invoice.service";
@@ -44,9 +45,12 @@ export async function subscribeToPlan(
 
     const subCtx = await loadSubscribeContext(ctx, input);
 
+    const customer = await getCustomerById(ctx.database, subCtx.customerId);
+
     const hookCtx: BeforeSubscribeHookCtx = {
       customerId: subCtx.customerId,
       plan: subCtx.normalizedPlan,
+      customerEmail: customer?.email ?? undefined,
     };
 
     // 1. Define a Timeout (Safety First)

@@ -3,6 +3,7 @@ import type { NormalizedPlan } from "./schema";
 export interface BeforeSubscribeHookCtx {
   readonly customerId: string;
   readonly plan: NormalizedPlan;
+  readonly customerEmail?: string;
   /** Optional client metadata.
    * Note: IP is currently not passed by the core service.
    */
