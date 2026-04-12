@@ -24,6 +24,7 @@ import type {
   NormalizedWebhookEvent,
   UpsertSubscriptionAction,
 } from "../types/events";
+import { addInterval } from "../types/interval";
 import type { StoredSubscription } from "../types/models";
 import type { NormalizedPlanFeature } from "../types/schema";
 import type {
@@ -1143,23 +1144,6 @@ async function deleteScheduledSubscriptionsInGroupIfNeeded(
   });
 }
 
-function addResetInterval(date: Date, resetInterval: string): Date {
-  const next = new Date(date);
-  if (resetInterval === "day") next.setUTCDate(next.getUTCDate() + 1);
-  if (resetInterval === "week") next.setUTCDate(next.getUTCDate() + 7);
-  if (resetInterval === "month") {
-    const day = next.getUTCDate();
-    next.setUTCMonth(next.getUTCMonth() + 1);
-    if (next.getUTCDate() !== day) next.setUTCDate(0);
-  }
-  if (resetInterval === "year") {
-    const day = next.getUTCDate();
-    next.setUTCFullYear(next.getUTCFullYear() + 1);
-    if (next.getUTCDate() !== day) next.setUTCDate(0);
-  }
-  return next;
-}
-
 type ProviderProductMap = Record<string, { productId: string; priceId: string | null }>;
 
 export async function warnOnDuplicateActiveSubscriptionGroups(
@@ -1371,9 +1355,7 @@ export async function insertSubscriptionRecord(
         featureId: planFeature.id,
         id: generateId("ent"),
         limit: isBoolean ? null : (planFeature.limit ?? null),
-        nextResetAt: planFeature.resetInterval
-          ? addResetInterval(now, planFeature.resetInterval)
-          : null,
+        nextResetAt: planFeature.resetInterval ? addInterval(now, planFeature.resetInterval) : null,
         subscriptionId: row.id,
       });
     }

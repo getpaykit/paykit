@@ -2,6 +2,7 @@ import { type SQL, and, eq, inArray, isNull, lte, or, sql } from "drizzle-orm";
 
 import type { PayKitDatabase } from "../database";
 import { entitlement, productFeature, subscription } from "../database/schema";
+import { addInterval, getSecondInterval } from "../types/interval";
 
 export interface EntitlementBalance {
   limit: number;
@@ -28,29 +29,18 @@ interface ActiveEntitlementRow {
   resetInterval: string | null;
 }
 
-function addResetInterval(date: Date, resetInterval: string): Date {
-  const next = new Date(date);
-  if (resetInterval === "day") next.setUTCDate(next.getUTCDate() + 1);
-  if (resetInterval === "week") next.setUTCDate(next.getUTCDate() + 7);
-  if (resetInterval === "month") {
-    const day = next.getUTCDate();
-    next.setUTCMonth(next.getUTCMonth() + 1);
-    // Clamp: if day overflowed (e.g. Jan 31 → Mar 3), go to last day of target month
-    if (next.getUTCDate() !== day) next.setUTCDate(0);
-  }
-  if (resetInterval === "year") {
-    const day = next.getUTCDate();
-    next.setUTCFullYear(next.getUTCFullYear() + 1);
-    if (next.getUTCDate() !== day) next.setUTCDate(0);
-  }
-  return next;
-}
-
 function getNextResetAt(currentResetAt: Date, now: Date, resetInterval: string): Date {
+  const secondInterval = getSecondInterval(resetInterval);
+  if (secondInterval !== null) {
+    const elapsedMs = now.getTime() - currentResetAt.getTime();
+    const missedIntervals = Math.max(0, Math.ceil(elapsedMs / (secondInterval * 1000)));
+    return addInterval(currentResetAt, missedIntervals * secondInterval);
+  }
+
   let nextResetAt = new Date(currentResetAt);
 
   while (nextResetAt <= now) {
-    nextResetAt = addResetInterval(nextResetAt, resetInterval);
+    nextResetAt = addInterval(nextResetAt, resetInterval);
   }
 
   return nextResetAt;

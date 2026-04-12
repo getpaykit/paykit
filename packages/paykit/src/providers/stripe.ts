@@ -2,6 +2,7 @@ import StripeSdk from "stripe";
 
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { NormalizedWebhookEvent } from "../types/events";
+import { getStripeRecurringInterval, type PlanInterval } from "../types/interval";
 import type { ProviderTestClock, StripeProviderConfig, StripeRuntime } from "./provider";
 
 type StripeInvoiceWithExtras = StripeSdk.Invoice & {
@@ -835,8 +836,10 @@ export function createStripeProvider(
         unit_amount: data.priceAmount,
       };
       if (data.priceInterval) {
+        const recurring = getStripeRecurringInterval(data.priceInterval as PlanInterval);
         priceParams.recurring = {
-          interval: data.priceInterval as "month" | "year",
+          interval: recurring.interval,
+          interval_count: recurring.count,
         };
       }
       const stripePrice = await client.prices.create(priceParams);

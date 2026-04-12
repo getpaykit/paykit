@@ -65,7 +65,12 @@ If the customer doesn't have sufficient balance, `success` is `false` and the ba
 
 Metered balances reset lazily. PayKit doesn't run a scheduled job to reset balances at midnight. Instead, when a `check()` or `report()` happens after the reset time, PayKit detects the period has passed and resets the balance automatically.
 
-Reset intervals are set per feature grant in your plan definition: `day`, `week`, `month`, or `year`.
+Reset intervals are set per feature grant in your plan definition. You can use named cadences like `day`, `week`, `biweek`, `month`, `quarterly`, `biyear`, and `year`, or pass a positive integer number of seconds for custom windows.
+
+```ts
+messages({ limit: 100, reset: "quarterly" })
+messages({ limit: 100, reset: 3_600 })
+```
 
 <Callout type="info">
   Lazy resets mean a customer who doesn't use the app won't have their balance reset until they do. The reset time is still calculated from the period boundary, not from when the reset was detected.

@@ -4,6 +4,7 @@ import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import { generateId } from "../core/utils";
 import type { PayKitDatabase } from "../database";
 import { feature, product, productFeature } from "../database/schema";
+import { serializeMeteredResetInterval } from "../types/interval";
 import type { StoredFeature, StoredProduct, StoredProductFeature } from "../types/models";
 import type { NormalizedFeature, NormalizedPlanFeature } from "../types/schema";
 
@@ -198,7 +199,9 @@ export async function replaceProductFeatures(
       featureId: planFeature.id,
       limit: planFeature.limit,
       productInternalId: input.productInternalId,
-      resetInterval: planFeature.resetInterval,
+      resetInterval: planFeature.resetInterval
+        ? serializeMeteredResetInterval(planFeature.resetInterval)
+        : null,
       updatedAt: now,
     });
   }

@@ -172,9 +172,7 @@ export const free = plan({
   name: "Free",
   group: "base",
   default: true,
-  includes: [
-    messages({ limit: 100, reset: "month" })
-  ],
+  includes: [messages({ limit: 100, reset: "month" })],
 });
 
 export const pro = plan({
@@ -182,12 +180,11 @@ export const pro = plan({
   name: "Pro",
   group: "base",
   price: { amount: 19, interval: "month" },
-  includes: [
-    messages({ limit: 2000, reset: "month" }), 
-    proModels()
-  ],
+  includes: [messages({ limit: 2_000, reset: "month" }), proModels()],
 });
 ```
+
+Plan pricing supports `day`, `week`, `month`, `quarterly`, `biyear`, and `year`. Metered feature resets support those common named cadences plus `biweek`, and can also use any positive integer number of seconds for custom reset windows.
 
 Then pass your plans to the main options:
 

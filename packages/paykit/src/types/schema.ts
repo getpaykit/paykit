@@ -2,6 +2,9 @@ import { createHash } from "node:crypto";
 
 import * as z from "zod";
 
+import { meteredResetIntervalSchema, planIntervalSchema } from "./interval";
+import type { MeteredResetInterval, PlanInterval } from "./interval";
+
 const payKitFeatureSymbol = Symbol.for("paykit.feature");
 const payKitFeatureIncludeSymbol = Symbol.for("paykit.feature_include");
 const payKitPlanSymbol = Symbol.for("paykit.plan");
@@ -19,12 +22,12 @@ const priceSchema = z.object({
     .number()
     .positive("Price amount must be positive")
     .max(999_999.99, "Price amount must not exceed $999,999.99"),
-  interval: z.enum(["month", "year"]),
+  interval: planIntervalSchema,
 });
 
 const meteredFeatureConfigSchema = z.object({
   limit: z.number().int().positive("Feature limit must be a positive integer"),
-  reset: z.enum(["day", "week", "month", "year"]),
+  reset: meteredResetIntervalSchema,
 });
 
 function formatValidationError(
@@ -46,10 +49,10 @@ function deriveNameFromId(id: string): string {
 }
 
 export type FeatureType = "boolean" | "metered";
-export type PriceInterval = z.infer<typeof priceSchema>["interval"];
-export type MeteredResetInterval = z.infer<typeof meteredFeatureConfigSchema>["reset"];
+export type PriceInterval = PlanInterval;
 export type PlanPrice = z.infer<typeof priceSchema>;
 export type MeteredFeatureConfig = z.infer<typeof meteredFeatureConfigSchema>;
+export type { MeteredResetInterval };
 
 export interface PayKitFeatureDefinition<
   TId extends string = string,

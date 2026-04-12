@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+import { planIntervalSchema } from "./interval";
+
 const productIdSchema = z
   .string()
   .min(1, "Product id must not be empty")
@@ -11,7 +13,7 @@ const priceSchema = z.object({
     .number()
     .positive("Price amount must be positive")
     .max(999_999.99, "Price amount must not exceed $999,999.99"),
-  interval: z.enum(["month", "year"]).optional(),
+  interval: planIntervalSchema.optional(),
 });
 
 const productConfigSchema = z.object({

@@ -35,20 +35,28 @@ This guide walks through a complete subscription billing flow: defining plans, s
         proModels(),
       ],
     });
+
+    export const team = plan({
+      id: "team",
+      name: "Team",
+      group: "base",
+      price: { amount: 49, interval: "quarterly" },
+      includes: [messages({ limit: 10_000, reset: "quarterly" }), proModels()],
+    });
     ```
 
     Pass your plans to `createPayKit`:
 
     ```ts title="paykit.ts"
-    import { free, pro } from "./plans";
+    import { free, pro, team } from "./plans";
 
     export const paykit = createPayKit({
       // ...
-      plans: [free, pro],
+      plans: [free, pro, team],
     });
     ```
 
-    For the full reference on plan groups, feature types, and pricing options, see [Plans & Features](/docs/concepts/plans-and-features).
+    Plan billing intervals support `day`, `week`, `month`, `quarterly`, `biyear`, and `year`. For the full reference on plan groups, feature types, and pricing options, see [Plans & Features](/docs/concepts/plans-and-features).
   </Step>
 
   <Step>

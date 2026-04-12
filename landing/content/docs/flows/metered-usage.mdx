@@ -47,9 +47,17 @@ export const pro = plan({
     messages({ limit: 2_000, reset: "month" }),
   ],
 });
+
+export const burst = plan({
+  id: "burst",
+  name: "Burst",
+  group: "addons",
+  price: { amount: 5, interval: "week" },
+  includes: [messages({ limit: 500, reset: 3_600 })], // reset every hour (3600 seconds)
+});
 ```
 
-Free customers get 100 messages per month; Pro customers get 2,000.
+Free customers get 100 messages per month; Pro customers get 2,000. Custom second-based resets are useful for short-lived buckets like hourly quotas, while named resets cover common billing cadences such as `biweek` or `quarterly`.
 
 </Step>
 
@@ -111,6 +119,8 @@ Pass `amount` matching however many units the action consumed. For most cases th
 PayKit uses lazy resets. When the reset period passes, it doesn't reset balances proactively. Instead, the next `check` or `report` call detects that the period has expired and resets the balance automatically before returning.
 
 This means you don't need any cron jobs or scheduled tasks. Resets happen on-demand, exactly when needed.
+
+Named reset values are `day`, `week`, `biweek`, `month`, `quarterly`, `biyear`, and `year`. For anything custom, pass a positive integer number of seconds.
 
 </Step>
 

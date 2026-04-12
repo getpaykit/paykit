@@ -42,7 +42,15 @@ For **metered features**, pass a `limit` and a `reset` interval:
 messages({ limit: 100, reset: "month" })
 ```
 
-The `reset` interval can be `day`, `week`, `month`, or `year`.
+The `reset` interval can be:
+
+- a named cadence: `day`, `week`, `biweek`, `month`, `quarterly`, `biyear`, or `year`
+- a positive integer number of seconds for custom periods such as `60`, `3_600`, or `86_400`
+
+```ts
+messages({ limit: 100, reset: "biweek" })
+messages({ limit: 100, reset: 3_600 })
+```
 
 ## Defining plans
 
@@ -122,8 +130,18 @@ Plans without a `price` are free. Paid plans take an `amount` in dollars and an 
 price: { amount: 19, interval: "month" }
 ```
 
-- `interval` can be `month` or `year`
+- `interval` can be `day`, `week`, `month`, `quarterly`, `biyear`, or `year`
 - `amount` is in dollars, max $999,999.99
+
+```ts
+price: { amount: 19, interval: "week" }
+price: { amount: 49, interval: "quarterly" }
+price: { amount: 99, interval: "biyear" }
+```
+
+<Callout type="info">
+  Billing intervals are provider-safe presets. Meter resets can also use arbitrary second values, but plan pricing cannot.
+</Callout>
 
 ## Passing plans to PayKit
 

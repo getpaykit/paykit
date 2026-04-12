@@ -1,5 +1,6 @@
 import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
+import { serializeMeteredResetInterval } from "../types/interval";
 import type { StoredProductFeature } from "../types/models";
 import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
 import {
@@ -39,7 +40,10 @@ function featuresChanged(
     return (
       storedFeature.featureId !== nextFeature.id ||
       storedFeature.limit !== nextFeature.limit ||
-      storedFeature.resetInterval !== nextFeature.resetInterval ||
+      storedFeature.resetInterval !==
+        (nextFeature.resetInterval
+          ? serializeMeteredResetInterval(nextFeature.resetInterval)
+          : null) ||
       serializeFeatureConfig(storedFeature.config) !== serializeFeatureConfig(nextFeature.config)
     );
   });

@@ -37,8 +37,20 @@ export function formatPrice(amountCents: number, interval: string | null): strin
   if (!interval) {
     return formatted;
   }
+  if (interval === "day") {
+    return `${formatted}/day`;
+  }
+  if (interval === "week") {
+    return `${formatted}/wk`;
+  }
   if (interval === "month") {
     return `${formatted}/mo`;
+  }
+  if (interval === "quarterly") {
+    return `${formatted}/3 mo`;
+  }
+  if (interval === "biyear") {
+    return `${formatted}/6 mo`;
   }
   if (interval === "year") {
     return `${formatted}/yr`;
