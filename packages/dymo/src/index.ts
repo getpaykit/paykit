@@ -1,3 +1,2 @@
 export { DymoPlugin } from "./plugin";
-export type { DymoConfig } from "./schema";
-export type { DymoResponse } from "./client";
+export type { DymoConfig, DymoResponse } from "./schema";

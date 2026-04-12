@@ -1,11 +1,4 @@
-import { type DymoConfig } from "./schema";
-
-export interface DymoResponse {
-  allow: boolean;
-  reasons: string[];
-  email?: string;
-  ip?: string;
-}
+import { dymoResponseSchema, type DymoConfig, type DymoResponse } from "./schema";
 
 export const createDymoClient = (config: DymoConfig) => {
   const baseUrl = "https://api.dymo.ai/v1";
@@ -40,7 +33,8 @@ export const createDymoClient = (config: DymoConfig) => {
         throw new Error(`Dymo API Error: ${response.status} ${response.statusText}`);
       }
 
-      return (await response.json()) as DymoResponse;
+      const payload = await response.json();
+      return dymoResponseSchema.parse(payload);
     } finally {
       clearTimeout(timeoutId);
     }
