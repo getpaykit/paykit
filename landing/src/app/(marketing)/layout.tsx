@@ -11,8 +11,8 @@ export default async function MarketingLayout({ children }: { children: ReactNod
   return (
     <CommandMenuProvider>
       <div className="dark bg-background text-foreground relative h-dvh overflow-x-hidden">
-        <NavigationBar stars={null} />
         <div className="absolute inset-0 overflow-x-hidden overflow-y-auto">
+          <NavigationBar stars={null} />
           <PageTransition>{children}</PageTransition>
         </div>
       </div>
