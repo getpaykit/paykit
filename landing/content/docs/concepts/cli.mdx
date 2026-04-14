@@ -32,6 +32,8 @@ Run it on initial setup and again whenever you change your plan configuration.
 
 When you change a plan and push, PayKit creates a new version of that plan. Old versions are never modified or deleted. This means running instances of your app keep working on their matching version while new code picks up the new one.
 
+When you remove a plan from your config and push, PayKit archives the product locally instead of deleting it. Existing subscriptions and webhooks can still resolve the historical product. For Stripe, the provider product is marked inactive.
+
 ### Production usage
 
 Run `push` before your app starts or builds, as part of your deploy pipeline. This way the updated product versions are ready in the database by the time your new code goes live.
