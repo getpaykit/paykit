@@ -69,8 +69,11 @@ export function createPool(deps: Pick<CliDeps, "Pool">, database: Pool | string)
 }
 
 export interface ProductDiff {
-  action: "created" | "updated" | "unchanged";
+  action: "archived" | "created" | "updated" | "unchanged";
   id: string;
+  name: string;
+  priceAmount: number | null;
+  priceInterval: string | null;
 }
 
 export function formatProductDiffs(
@@ -81,7 +84,9 @@ export function formatProductDiffs(
   const plansById = new Map(plans.map((pl) => [pl.id, pl]));
   return diffs.map((diff) => {
     const plan = plansById.get(diff.id);
-    const price = plan ? deps.formatPrice(plan.priceAmount ?? 0, plan.priceInterval) : "$0";
+    const amount = plan?.priceAmount ?? diff.priceAmount ?? 0;
+    const interval = plan?.priceInterval ?? diff.priceInterval;
+    const price = deps.formatPrice(amount, interval);
     return deps.formatPlanLine(diff.action, diff.id, price);
   });
 }

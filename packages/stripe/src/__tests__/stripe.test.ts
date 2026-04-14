@@ -129,6 +129,50 @@ describe("providers/stripe", () => {
     });
   });
 
+  /** @see https://github.com/getpaykit/paykit/issues/123 */
+  it("archives Stripe products by marking them inactive", async () => {
+    const updateProduct = vi.fn().mockResolvedValue({ id: "prod_123" });
+    const runtime = createStripeProvider(
+      {
+        products: { update: updateProduct },
+      } as never,
+      {
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
+      },
+    );
+
+    await runtime.archiveProduct({ providerProductId: "prod_123" });
+
+    expect(updateProduct).toHaveBeenCalledWith("prod_123", { active: false });
+  });
+
+  /** @see https://github.com/getpaykit/paykit/issues/123 */
+  it("reactivates existing Stripe products during product sync", async () => {
+    const updateProduct = vi.fn().mockResolvedValue({ id: "prod_123" });
+    const runtime = createStripeProvider(
+      {
+        products: { update: updateProduct },
+      } as never,
+      {
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
+      },
+    );
+
+    const result = await runtime.syncProduct({
+      existingProviderPriceId: "price_123",
+      existingProviderProductId: "prod_123",
+      id: "pro",
+      name: "Pro",
+      priceAmount: 2_000,
+      priceInterval: "month",
+    });
+
+    expect(updateProduct).toHaveBeenCalledWith("prod_123", { active: true, name: "Pro" });
+    expect(result).toEqual({ providerPriceId: "price_123", providerProductId: "prod_123" });
+  });
+
   /** @see https://github.com/getpaykit/paykit/issues/109 */
   describe("managed payments", () => {
     function createCheckoutRuntime(

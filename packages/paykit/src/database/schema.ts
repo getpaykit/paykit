@@ -79,12 +79,14 @@ export const product = pgTable(
     priceInterval: text("price_interval"),
     hash: text("hash"),
     provider: jsonb("provider").$type<ProviderProductMap>().notNull().default({}),
+    archivedAt: timestamp("archived_at"),
     createdAt,
     updatedAt,
   },
   (table) => [
     uniqueIndex("paykit_product_id_version_unique").on(table.id, table.version),
     index("paykit_product_default_idx").on(table.isDefault),
+    index("paykit_product_archived_at_idx").on(table.archivedAt),
   ],
 );
 

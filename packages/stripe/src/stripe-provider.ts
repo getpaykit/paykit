@@ -838,6 +838,10 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       await client.paymentMethods.detach(data.providerMethodId);
     },
 
+    async archiveProduct(data) {
+      await client.products.update(data.providerProductId, { active: false });
+    },
+
     async syncProduct(data) {
       let providerProductId = data.existingProviderProductId;
       if (!providerProductId) {
@@ -847,7 +851,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         });
         providerProductId = stripeProduct.id;
       } else {
-        await client.products.update(providerProductId, { name: data.name });
+        await client.products.update(providerProductId, { active: true, name: data.name });
       }
 
       if (data.existingProviderPriceId) {

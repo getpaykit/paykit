@@ -63,6 +63,7 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(syncedCustomer);
     const stripe = {
       advanceTestClock: vi.fn(),
+      archiveProduct: vi.fn(),
       attachPaymentMethod: vi.fn(),
       cancelSubscription: vi.fn(),
       createInvoice: vi.fn(),
@@ -160,6 +161,7 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(syncedCustomer);
     const stripe = {
       advanceTestClock: vi.fn(),
+      archiveProduct: vi.fn(),
       attachPaymentMethod: vi.fn(),
       cancelSubscription: vi.fn(),
       createInvoice: vi.fn(),

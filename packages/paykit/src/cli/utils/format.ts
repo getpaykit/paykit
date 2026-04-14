@@ -50,11 +50,13 @@ export function getConnectionString(pool: {
 }
 
 export function formatPlanLine(
-  action: "created" | "updated" | "unchanged",
+  action: "archived" | "created" | "updated" | "unchanged",
   name: string,
   price: string,
 ): string {
   switch (action) {
+    case "archived":
+      return picocolors.red(`  - ${name} (${price})  archived`);
     case "created":
       return picocolors.green(`  + ${name} (${price})  new`);
     case "updated":
