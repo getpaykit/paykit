@@ -7,6 +7,7 @@ import {
   findCustomerByProviderCustomerId,
   upsertProviderCustomer,
 } from "../customer/customer.service";
+import { getCustomerById } from "../customer/customer.service";
 import type { PayKitDatabase } from "../database";
 import { entitlement, feature, product, subscription } from "../database/schema";
 import { upsertInvoiceRecord } from "../invoice/invoice.service";
@@ -27,6 +28,7 @@ import type {
   UpsertSubscriptionAction,
 } from "../types/events";
 import type { StoredSubscription } from "../types/models";
+import type { BeforeSubscribeHookCtx, PayKitPlugin } from "../types/plugin";
 import type { NormalizedPlanFeature } from "../types/schema";
 import type {
   SubscribeInput,
@@ -44,6 +46,48 @@ export async function subscribeToPlan(
     ctx.logger.info({ planId: input.planId, customerId: input.customerId }, "subscribe started");
 
     const subCtx = await loadSubscribeContext(ctx, input);
+
+    const customer = await getCustomerById(ctx.database, subCtx.customerId);
+
+    const hookCtx: BeforeSubscribeHookCtx = {
+      customerId: subCtx.customerId,
+      plan: subCtx.normalizedPlan,
+      customerEmail: customer?.email ?? undefined,
+    };
+
+    // 1. Define a Timeout (Safety First)
+    const TIMEOUT_MS = 5000;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeout = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error("Plugin execution timed out")), TIMEOUT_MS);
+    });
+
+    // 2. Wrap plugins in a Try-Catch
+    try {
+      const plugins = ctx.options.plugins ?? [];
+      const hooks = plugins
+        .filter(
+          (
+            p,
+          ): p is PayKitPlugin & {
+            onBeforeSubscribe: NonNullable<PayKitPlugin["onBeforeSubscribe"]>;
+          } => !!p.onBeforeSubscribe,
+        )
+        .map((p) => p.onBeforeSubscribe(hookCtx));
+
+      await Promise.race([Promise.all(hooks), timeout]);
+    } catch (error) {
+      ctx.logger.error(
+        { error: error instanceof Error ? error.message : error },
+        "[PayKit Plugin Error]",
+      );
+
+      throw error;
+    } finally {
+      if (timeoutId !== undefined) {
+        clearTimeout(timeoutId);
+      }
+    }
 
     let result: SubscribeResult;
     if (isSamePlan(subCtx)) {

@@ -1,0 +1,31 @@
+{
+  "name": "@paykitjs/dymo",
+  "version": "0.0.1",
+  "description": "Dymo AI fraud protection for PayKit",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "paykitjs": "workspace:*",
+    "tsdown": "^0.21.1",
+    "vitest": "^4.0.18"
+  },
+  "peerDependencies": {
+    "paykitjs": "workspace:*"
+  }
+}

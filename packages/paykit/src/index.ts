@@ -69,7 +69,7 @@ export type {
   WebhookApplyAction,
 } from "./types/events";
 
-export type { PayKitPlugin } from "./types/plugin";
+export type { BeforeSubscribeHookCtx, PayKitPlugin } from "./types/plugin";
 
 export { PayKitError, PAYKIT_ERROR_CODES } from "./core/errors";
 export type { PayKitErrorCode } from "./core/errors";
