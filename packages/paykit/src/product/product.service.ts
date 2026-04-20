@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNull, sql } from "drizzle-orm";
 
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import { generateId } from "../core/utils";
@@ -81,13 +81,34 @@ export async function upsertFeature(
 export async function getLatestProduct(
   database: PayKitDatabase,
   id: string,
+  options: { includeArchived?: boolean } = {},
 ): Promise<StoredProduct | null> {
   const result = await database.query.product.findFirst({
-    where: eq(product.id, id),
+    where: options.includeArchived
+      ? eq(product.id, id)
+      : and(eq(product.id, id), isNull(product.archivedAt)),
     orderBy: (p, { desc }) => [desc(p.version)],
   });
 
   return result ?? null;
+}
+
+export async function listLatestActiveProducts(
+  database: PayKitDatabase,
+): Promise<readonly StoredProduct[]> {
+  const rows = await database.query.product.findMany({
+    where: isNull(product.archivedAt),
+    orderBy: (p, { desc }) => [desc(p.version)],
+  });
+  const productsById = new Map<string, StoredProduct>();
+
+  for (const row of rows) {
+    if (!productsById.has(row.id)) {
+      productsById.set(row.id, row);
+    }
+  }
+
+  return [...productsById.values()];
 }
 
 export async function getProductByHash(
@@ -96,7 +117,7 @@ export async function getProductByHash(
   hash: string,
 ): Promise<StoredProduct | null> {
   const result = await database.query.product.findFirst({
-    where: and(eq(product.id, id), eq(product.hash, hash)),
+    where: and(eq(product.id, id), eq(product.hash, hash), isNull(product.archivedAt)),
     orderBy: (p, { desc }) => [desc(p.version)],
   });
 
@@ -117,8 +138,9 @@ export async function getProductByInternalId(
 export async function getLatestProductSnapshot(
   database: PayKitDatabase,
   id: string,
+  options: { includeArchived?: boolean } = {},
 ): Promise<StoredProductSnapshot | null> {
-  const storedProduct = await getLatestProduct(database, id);
+  const storedProduct = await getLatestProduct(database, id, options);
   if (!storedProduct) {
     return null;
   }
@@ -156,11 +178,13 @@ export async function insertProductVersion(
     name: input.name,
     priceAmount: input.priceAmount,
     priceInterval: input.priceInterval,
+    archivedAt: null,
     updatedAt: now,
     version: input.version,
   });
 
   return {
+    archivedAt: null,
     createdAt: now,
     group: input.group,
     hash: input.hash,
@@ -185,6 +209,37 @@ export async function updateProductName(
     .update(product)
     .set({ name, updatedAt: new Date() })
     .where(eq(product.internalId, internalId));
+}
+
+export async function restoreProduct(
+  database: PayKitDatabase,
+  internalId: string,
+): Promise<StoredProduct | null> {
+  const rows = await database
+    .update(product)
+    .set({ archivedAt: null, updatedAt: new Date() })
+    .where(eq(product.internalId, internalId))
+    .returning();
+
+  return rows[0] ?? null;
+}
+
+export async function archiveProductsByIds(
+  database: PayKitDatabase,
+  ids: readonly string[],
+): Promise<readonly StoredProduct[]> {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const now = new Date();
+  const rows = await database
+    .update(product)
+    .set({ archivedAt: now, updatedAt: now })
+    .where(and(inArray(product.id, ids), isNull(product.archivedAt)))
+    .returning();
+
+  return rows;
 }
 
 export async function getProductFeatures(
@@ -276,7 +331,7 @@ export async function getDefaultProductInGroup(
   group: string,
 ): Promise<StoredProduct | null> {
   const row = await database.query.product.findFirst({
-    where: and(eq(product.group, group), eq(product.isDefault, true)),
+    where: and(eq(product.group, group), eq(product.isDefault, true), isNull(product.archivedAt)),
     orderBy: [desc(product.version)],
   });
 
@@ -288,7 +343,10 @@ export async function getProductByProviderPriceId(
   input: { providerId: string; providerPriceId: string },
 ): Promise<StoredProduct | null> {
   const row = await database.query.product.findFirst({
-    where: sql`${product.provider}->${input.providerId}->>'priceId' = ${input.providerPriceId}`,
+    where: and(
+      sql`${product.provider}->${input.providerId}->>'priceId' = ${input.providerPriceId}`,
+      isNull(product.archivedAt),
+    ),
   });
 
   return row ?? null;

@@ -140,6 +140,8 @@ export interface PaymentProvider {
 
   detachPaymentMethod(data: { providerMethodId: string }): Promise<void>;
 
+  archiveProduct(data: { providerProductId: string }): Promise<void>;
+
   syncProduct(data: {
     id: string;
     name: string;

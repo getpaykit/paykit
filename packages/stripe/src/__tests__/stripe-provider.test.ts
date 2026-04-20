@@ -25,6 +25,7 @@ describe("@paykitjs/stripe", () => {
     expect(adapter.name).toBe("Stripe");
     expect(typeof adapter.createCustomer).toBe("function");
     expect(typeof adapter.updateCustomer).toBe("function");
+    expect(typeof adapter.archiveProduct).toBe("function");
     expect(typeof adapter.handleWebhook).toBe("function");
   });
 });

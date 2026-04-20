@@ -60,3 +60,4 @@ PayKit keeps two sources of truth in sync:
 **From webhooks** (provider to database): Subscriptions, invoices, payment methods, and customer-provider ID mappings are synced automatically when provider events arrive.
 
 **From your config** (code to database): Plans, products, and features are synced from your `createPayKit` configuration when you run `paykitjs push`. Each time you change a plan and push, a new version is created. Previous versions are kept so running instances can continue serving existing subscriptions.
+When you remove a plan from your config, `push` archives the product instead of deleting it. Archived products stay in the database for historical subscriptions and provider webhooks, and Stripe products are marked inactive.

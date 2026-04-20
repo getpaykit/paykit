@@ -118,4 +118,47 @@ describe("paykitjs push", () => {
       await database.end();
     }
   });
+
+  /** @see https://github.com/getpaykit/paykit/issues/123 */
+  it("should archive products removed from config", async () => {
+    await fixture.writeConfig({ includePro: false });
+
+    const config = await getPayKitConfig({ cwd: fixture.cwd });
+    const database = resolveDatabase(config.options.database);
+    try {
+      const ctx = await createContext({ ...config.options, database });
+      const diffs = await dryRunSyncProducts(ctx);
+      expect(diffs).toContainEqual(expect.objectContaining({ action: "archived", id: "pro" }));
+
+      const providerRows = await ctx.database
+        .select({ provider: product.provider })
+        .from(product)
+        .where(eq(product.id, "pro"))
+        .orderBy(desc(product.version))
+        .limit(1);
+      const proProduct = providerRows[0] as
+        | { provider: Record<string, { productId: string }> }
+        | undefined;
+      const stripeInfo = proProduct?.provider.stripe;
+      if (!stripeInfo) {
+        throw new Error("Missing Stripe product metadata for synced plan");
+      }
+
+      const results = await syncProducts(ctx);
+      expect(results).toContainEqual(expect.objectContaining({ action: "archived", id: "pro" }));
+
+      const archivedRows = await ctx.database
+        .select({ archivedAt: product.archivedAt })
+        .from(product)
+        .where(eq(product.id, "pro"))
+        .orderBy(desc(product.version))
+        .limit(1);
+      expect(archivedRows[0]?.archivedAt).toBeInstanceOf(Date);
+
+      const stripeProduct = await fixture.stripeClient.products.retrieve(stripeInfo.productId);
+      expect(stripeProduct.active).toBe(false);
+    } finally {
+      await database.end();
+    }
+  });
 });

@@ -21,6 +21,7 @@ export interface CliTestFixture {
   dbName: string;
   dbUrl: string;
   stripeClient: Stripe;
+  writeConfig: (options: { includePro: boolean }) => Promise<void>;
   cleanup: () => Promise<void>;
 }
 
@@ -55,9 +56,8 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
     return relativePath.startsWith(".") ? relativePath : `./${relativePath}`;
   };
 
-  await fs.writeFile(
-    path.join(cwd, "paykit.ts"),
-    [
+  const writeConfig = async (options: { includePro: boolean }) => {
+    const lines = [
       `import { createPayKit, feature, plan } from ${JSON.stringify(toImportPath(createPayKitPath))};`,
       `import { stripe } from ${JSON.stringify(toImportPath(stripePath))};`,
       `import pg from "pg";`,
@@ -88,10 +88,14 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
       `    secretKey: ${JSON.stringify(secretKey)},`,
       `    webhookSecret: ${JSON.stringify(webhookSecret)},`,
       `  }),`,
-      `  plans: { free, pro },`,
+      `  plans: { free${options.includePro ? ", pro" : ""} },`,
       `});`,
-    ].join("\n"),
-  );
+    ];
+
+    await fs.writeFile(path.join(cwd, "paykit.ts"), lines.join("\n"));
+  };
+
+  await writeConfig({ includePro: true });
 
   const cleanup = async () => {
     // Clean up Stripe products created by push
@@ -123,5 +127,5 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
     await fs.rm(cwd, { force: true, recursive: true });
   };
 
-  return { cwd, dbName, dbUrl, stripeClient, cleanup };
+  return { cleanup, cwd, dbName, dbUrl, stripeClient, writeConfig };
 }

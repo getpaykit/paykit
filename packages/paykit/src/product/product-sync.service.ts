@@ -3,19 +3,25 @@ import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { StoredProductFeature } from "../types/models";
 import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
 import {
+  archiveProductsByIds,
   getLatestProductSnapshot,
   getProviderProduct,
   insertProductVersion,
+  listLatestActiveProducts,
   replaceProductFeatures,
+  restoreProduct,
   updateProductName,
   upsertFeature,
   upsertProviderProduct,
 } from "./product.service";
 
 export interface SyncProductResult {
+  action: "archived" | "created" | "updated" | "unchanged";
   id: string;
+  name: string;
+  priceAmount: number | null;
+  priceInterval: string | null;
   version: number;
-  action: "created" | "updated" | "unchanged";
 }
 
 function serializeFeatureConfig(config: Record<string, unknown> | null): string {
@@ -64,15 +70,20 @@ function planChanged(
 
 export async function dryRunSyncProducts(ctx: PayKitContext): Promise<SyncProductResult[]> {
   const results: SyncProductResult[] = [];
+  const planIds = new Set(ctx.plans.plans.map((plan) => plan.id));
 
   for (const plan of ctx.plans.plans) {
-    const existing = await getLatestProductSnapshot(ctx.database, plan.id);
+    const existing = await getLatestProductSnapshot(ctx.database, plan.id, {
+      includeArchived: true,
+    });
     let action: SyncProductResult["action"] = "unchanged";
 
     if (!existing) {
       action = "created";
     } else if (planChanged(existing, plan)) {
       action = "created";
+    } else if (existing.product.archivedAt) {
+      action = "updated";
     } else if (existing.product.name !== plan.name) {
       action = "updated";
     }
@@ -80,7 +91,26 @@ export async function dryRunSyncProducts(ctx: PayKitContext): Promise<SyncProduc
     results.push({
       action,
       id: plan.id,
+      name: plan.name,
+      priceAmount: plan.priceAmount,
+      priceInterval: plan.priceInterval,
       version: existing ? existing.product.version : 1,
+    });
+  }
+
+  const activeProducts = await listLatestActiveProducts(ctx.database);
+  for (const storedProduct of activeProducts) {
+    if (planIds.has(storedProduct.id)) {
+      continue;
+    }
+
+    results.push({
+      action: "archived",
+      id: storedProduct.id,
+      name: storedProduct.name,
+      priceAmount: storedProduct.priceAmount,
+      priceInterval: storedProduct.priceInterval,
+      version: storedProduct.version,
     });
   }
 
@@ -96,7 +126,9 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
   }
 
   for (const plan of ctx.plans.plans) {
-    const existing = await getLatestProductSnapshot(ctx.database, plan.id);
+    const existing = await getLatestProductSnapshot(ctx.database, plan.id, {
+      includeArchived: true,
+    });
     const existingProviderProduct = existing
       ? await getProviderProduct(ctx.database, existing.product.internalId, providerId)
       : null;
@@ -136,9 +168,13 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         productInternalId: storedProduct.internalId,
       });
       action = "created";
-    } else if (existing.product.name !== plan.name) {
-      await updateProductName(ctx.database, existing.product.internalId, plan.name);
-      storedProduct = { ...existing.product, name: plan.name };
+    } else if (existing.product.name !== plan.name || existing.product.archivedAt) {
+      if (existing.product.name !== plan.name) {
+        await updateProductName(ctx.database, existing.product.internalId, plan.name);
+      }
+      storedProduct = existing.product.archivedAt
+        ? await restoreProduct(ctx.database, existing.product.internalId)
+        : { ...existing.product, name: plan.name };
       action = "updated";
     }
 
@@ -175,6 +211,44 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
     results.push({
       action,
       id: plan.id,
+      name: plan.name,
+      priceAmount: storedProduct.priceAmount,
+      priceInterval: storedProduct.priceInterval,
+      version: storedProduct.version,
+    });
+  }
+
+  const planIds = new Set(ctx.plans.plans.map((plan) => plan.id));
+  const activeProducts = await listLatestActiveProducts(ctx.database);
+  const productsToArchive = activeProducts.filter(
+    (storedProduct) => !planIds.has(storedProduct.id),
+  );
+  const productIdsToArchive = productsToArchive.map((storedProduct) => storedProduct.id);
+  const archivedProducts = await archiveProductsByIds(ctx.database, productIdsToArchive);
+  const archivedProviderProductIds = new Set<string>();
+
+  for (const storedProduct of archivedProducts) {
+    const providerMap = (storedProduct.provider ?? {}) as Record<
+      string,
+      { priceId: string | null; productId: string }
+    >;
+    const providerProductId = providerMap[providerId]?.productId;
+    if (providerProductId) {
+      archivedProviderProductIds.add(providerProductId);
+    }
+  }
+
+  for (const providerProductId of archivedProviderProductIds) {
+    await ctx.provider.archiveProduct({ providerProductId });
+  }
+
+  for (const storedProduct of archivedProducts) {
+    results.push({
+      action: "archived",
+      id: storedProduct.id,
+      name: storedProduct.name,
+      priceAmount: storedProduct.priceAmount,
+      priceInterval: storedProduct.priceInterval,
       version: storedProduct.version,
     });
   }
