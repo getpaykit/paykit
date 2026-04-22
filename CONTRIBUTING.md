@@ -38,7 +38,7 @@ packages/
   paykit/       # Core orchestration package
   stripe/       # Stripe provider
   dash/         # Dashboard
-  better-auth/  # Better Auth plugin
+  polar/  # Polar provider
 apps/
   demo/         # Demo app
 landing/        # Next.js marketing site
