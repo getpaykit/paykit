@@ -116,14 +116,14 @@ export const free = plan({
 
 ## Pricing
 
-Plans without a `price` are free. Paid plans take an `amount` in dollars and an `interval`.
+Plans without a `price` are free. Paid plans take an `amount` in major currency units and an `interval`.
 
 ```ts
 price: { amount: 19, interval: "month" }
 ```
 
 - `interval` can be `month` or `year`
-- `amount` is in dollars, max $999,999.99
+- `amount` is in the provider's default currency, with the maximum being the provider's maximum for that currency, usually $999,999.99.
 
 ## Passing plans to PayKit
 

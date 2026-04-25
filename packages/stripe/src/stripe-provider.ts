@@ -22,6 +22,12 @@ export interface StripeOptions {
   apiVersion?: string;
   /** Enable Stripe Managed Payments (requires a preview API version). */
   managedPayments?: boolean;
+  /**
+   * The currency to use when creating prices and invoices. Default is USD ($).
+   *
+   * See {@link https://docs.stripe.com/currencies | Stripe documentation}.
+   */
+  currency?: string;
 }
 
 type StripeInvoiceWithExtras = StripeSdk.Invoice & {
@@ -517,7 +523,7 @@ function createDetachedPaymentMethodEvents(event: StripeSdk.Event): NormalizedWe
 }
 
 export function createStripeProvider(client: StripeSdk, options: StripeOptions): PaymentProvider {
-  const currency = "usd";
+  const currency = options.currency?.trim().toLowerCase() || "usd";
 
   return {
     id: "stripe",

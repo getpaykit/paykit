@@ -4,6 +4,107 @@ import { describe, expect, it, vi } from "vitest";
 import { createStripeProvider, stripe } from "../stripe-provider";
 
 describe("providers/stripe", () => {
+  it("uses usd by default when syncing Stripe prices", async () => {
+    const createProduct = vi.fn().mockResolvedValue({ id: "prod_123" });
+    const createPrice = vi.fn().mockResolvedValue({ id: "price_123" });
+    const runtime = createStripeProvider(
+      {
+        prices: { create: createPrice },
+        products: {
+          create: createProduct,
+          update: vi.fn(),
+        },
+      } as never,
+      {
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
+      },
+    );
+
+    await runtime.syncProduct({
+      id: "pro",
+      name: "Pro",
+      priceAmount: 1_900,
+      priceInterval: "month",
+    });
+
+    expect(createPrice).toHaveBeenCalledWith({
+      currency: "usd",
+      product: "prod_123",
+      recurring: { interval: "month" },
+      unit_amount: 1_900,
+    });
+  });
+
+  it("uses the configured currency for Stripe prices and invoices", async () => {
+    const createProduct = vi.fn().mockResolvedValue({ id: "prod_123" });
+    const createPrice = vi.fn().mockResolvedValue({ id: "price_123" });
+    const createInvoice = vi.fn().mockResolvedValue({ id: "in_123" });
+    const addLines = vi.fn().mockResolvedValue(undefined);
+    const finalizeInvoice = vi.fn().mockResolvedValue({
+      currency: "eur",
+      hosted_invoice_url: "https://example.com/invoices/in_123",
+      id: "in_123",
+      period_end: 1_700_000_000,
+      period_start: 1_699_913_600,
+      status: "open",
+      total: 500,
+    });
+    const runtime = createStripeProvider(
+      {
+        invoices: {
+          addLines,
+          create: createInvoice,
+          finalizeInvoice,
+        },
+        prices: { create: createPrice },
+        products: {
+          create: createProduct,
+          update: vi.fn(),
+        },
+      } as never,
+      {
+        currency: "EUR",
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
+      },
+    );
+
+    await runtime.syncProduct({
+      id: "pro",
+      name: "Pro",
+      priceAmount: 1_900,
+      priceInterval: "month",
+    });
+
+    const invoice = await runtime.createInvoice({
+      lines: [{ amount: 500, description: "Setup fee" }],
+      providerCustomerId: "cus_123",
+    });
+
+    expect(createPrice).toHaveBeenCalledWith({
+      currency: "eur",
+      product: "prod_123",
+      recurring: { interval: "month" },
+      unit_amount: 1_900,
+    });
+    expect(createInvoice).toHaveBeenCalledWith({
+      auto_advance: true,
+      collection_method: "charge_automatically",
+      currency: "eur",
+      customer: "cus_123",
+    });
+    expect(invoice).toEqual({
+      currency: "eur",
+      hostedUrl: "https://example.com/invoices/in_123",
+      periodEndAt: new Date(1_700_000_000 * 1000),
+      periodStartAt: new Date(1_699_913_600 * 1000),
+      providerInvoiceId: "in_123",
+      status: "open",
+      totalAmount: 500,
+    });
+  });
+
   it("creates a test clock and stores its id on the provider customer", async () => {
     const createClock = vi.fn().mockResolvedValue({
       frozen_time: 1_700_000_000,

@@ -22,9 +22,12 @@ export const paykit = createPayKit({
   provider: stripe({
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+    currency: "gbp",
   }),
 });
 ```
+
+`currency` sets the default Stripe currency for synced prices and generated invoices. It defaults to `"usd"`.
 
 ## Environment variables
 

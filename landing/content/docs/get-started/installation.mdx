@@ -10,8 +10,6 @@ description: Install PayKit, configure your billing instance, and mount the rout
 
 Let's start by adding PayKit to your project:
 
-
-
 <PackageInstall package="paykitjs" />
 
 <Callout type="info">
@@ -24,7 +22,7 @@ Let's start by adding PayKit to your project:
 <Step>
 ## Create the PayKit instance
 
-Create a file named `paykit.ts` anywhere in your app. 
+Create a file named `paykit.ts` anywhere in your app.
 
 Usually you would put it somewhere in `src/`, `src/lib/`.
 
@@ -58,6 +56,7 @@ export const paykit = createPayKit({
   provider: stripe({ // [!code highlight]
     secretKey: process.env.STRIPE_SECRET_KEY!, // [!code highlight]
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,// [!code highlight]
+    currency: "gbp", // optional, defaults to "usd" // [!code highlight]
   }),// [!code highlight]
 });
 ```
@@ -175,10 +174,11 @@ export const paykit = createPayKit({
 <Step>
 ## Define your products
 
-Optionally. PayKit provides a code-first way to create your plans, and a very useful usage billing with `track()` and `report()` out of the box. 
+Optionally. PayKit provides a code-first way to create your plans, and a very useful usage billing with `track()` and `report()` out of the box.
 
 By defining you products in code don't have to touch Stripe's dashboard at all. It automatically syncs your pricing with your provider, and you unlock a full type-safety with inferred ID types!
 
+`price.amount` is in major currency units for your provider's default currency. With Stripe that defaults to `usd`, and you can override it with `provider: stripe({ currency: "gbp" })`.
 
 ```ts title="plans.ts"
 import { feature, plan } from "paykitjs";
@@ -218,7 +218,6 @@ export const paykit = createPayKit({
   plans: [free, pro],
 });
 ```
-
 
 <Callout type="info">
   This is an example setup for AI chat app. Read further on how to build your own billing config.
