@@ -13,6 +13,7 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
+import { cn } from "@/lib/utils";
 
 type BrandAsset = "Logo" | "Wordmark";
 
@@ -21,7 +22,15 @@ const brandAssets = {
   Wordmark: WORDMARK_SVG,
 };
 
-export function BrandMenu() {
+export function BrandMenu({
+  className,
+  linkClassName,
+  wordmarkClassName,
+}: {
+  className?: string;
+  linkClassName?: string;
+  wordmarkClassName?: string;
+}) {
   const logoRef = useRef<HTMLAnchorElement>(null);
 
   async function copyAsSvg(asset: BrandAsset) {
@@ -36,7 +45,7 @@ export function BrandMenu() {
   }
 
   return (
-    <div className="z-10 flex items-center">
+    <div className={cn("z-10 flex items-center", className)}>
       <ContextMenu>
         <ContextMenuTrigger
           className="flex items-center"
@@ -45,9 +54,9 @@ export function BrandMenu() {
               ref={logoRef}
               href="/"
               aria-label="PayKit home"
-              className="flex items-center py-1.5"
+              className={cn("flex items-center py-1.5", linkClassName)}
             >
-              <Wordmark title={null} className="h-4 origin-left" />
+              <Wordmark title={null} className={cn("h-4 origin-left", wordmarkClassName)} />
             </Link>
           }
         />

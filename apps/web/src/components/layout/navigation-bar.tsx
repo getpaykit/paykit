@@ -112,9 +112,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           className="bg-background border-border pointer-events-auto w-full border-b lg:hidden"
         >
           <SectionShell className="flex items-center justify-between">
-            <Link href="/" aria-label="PayKit home" className="flex items-center gap-1 px-5 py-3">
-              <Wordmark title={null} className="h-4 origin-left scale-95" />
-            </Link>
+            <BrandMenu linkClassName="gap-1 px-5 py-3" wordmarkClassName="scale-95" />
             <button
               type="button"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
