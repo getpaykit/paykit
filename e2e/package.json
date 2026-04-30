@@ -7,11 +7,14 @@
     "test:stripe:watch": "PROVIDER=stripe vitest --project=core",
     "test:polar": "PROVIDER=polar vitest run --project=core",
     "test:polar:watch": "PROVIDER=polar vitest --project=core",
+    "test:dodopayments": "PROVIDER=dodopayments vitest run --project=core",
+    "test:dodopayments:watch": "PROVIDER=dodopayments vitest --project=core",
     "test:cli": "vitest run --project=cli",
     "test:cli:watch": "vitest --project=cli",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
+    "@paykitjs/dodopayments": "workspace:*",
     "@paykitjs/polar": "workspace:*",
     "@paykitjs/stripe": "workspace:*",
     "@t3-oss/env-core": "^0.12.0",

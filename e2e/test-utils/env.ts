@@ -13,7 +13,7 @@ config({
 
 export const env = createEnv({
   server: {
-    PROVIDER: z.enum(["stripe", "polar"]).default("stripe"),
+    PROVIDER: z.enum(["stripe", "polar", "dodopayments"]).default("stripe"),
     TEST_DATABASE_URL: z.string().default("postgresql://localhost:5432/postgres"),
 
     // Stripe
@@ -23,6 +23,10 @@ export const env = createEnv({
     // Polar
     E2E_POLAR_ACCESS_TOKEN: z.string().optional(),
     E2E_POLAR_WHSEC: z.string().optional(),
+
+    // DodoPayments
+    E2E_DODO_BEARER_TOKEN: z.string().optional(),
+    E2E_DODO_WEBHOOK_SECRET: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
