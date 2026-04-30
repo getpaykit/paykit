@@ -1,5 +1,6 @@
 import DodoPayments, { ConflictError } from "dodopayments";
-import type { WebhookEventType } from "dodopayments/resources/webhook-events.mjs";
+import type { Payment as DodoPayment } from "dodopayments/resources/payments.mjs";
+import type { Subscription as DodoSubscription } from "dodopayments/resources/subscriptions.mjs";
 import {
   PAYKIT_ERROR_CODES,
   PayKitError,
@@ -12,6 +13,7 @@ export interface DodopaymentsOptions {
   bearerToken: string;
   webhookSecret: string;
   environment?: "live_mode" | "test_mode";
+  taxCategory?: "digital_products" | "saas" | "e_book" | "edtech";
 }
 
 function notSupported(method: string): never {
@@ -20,6 +22,145 @@ function notSupported(method: string): never {
     PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
     `${method} is not supported by the DodoPayments provider`,
   );
+}
+
+function normalizeDodoSubscription(sub: DodoSubscription) {
+  return {
+    cancelAtPeriodEnd: sub.cancel_at_next_billing_date,
+    canceledAt: sub.cancelled_at ? new Date(sub.cancelled_at) : null,
+    currentPeriodEndAt: sub.next_billing_date ? new Date(sub.next_billing_date) : null,
+    currentPeriodStartAt: sub.previous_billing_date ? new Date(sub.previous_billing_date) : null,
+    endedAt: sub.status === "expired" || sub.status === "cancelled" ? new Date() : null,
+    providerProduct: { productId: sub.product_id },
+    providerSubscriptionId: sub.subscription_id,
+    providerSubscriptionScheduleId: null,
+    status: sub.status,
+  };
+}
+
+// TESTING NEEDED HERE
+function createSubscriptionEvents(
+  event: { type?: string; data: DodoSubscription },
+  webhookId: string,
+): NormalizedWebhookEvent[] {
+  const sub = event.data;
+  const normalized = normalizeDodoSubscription(sub);
+  const customerId = sub.customer.customer_id;
+
+  // Handle terminal states as delete
+  if (event.type === "subscription.expired" || event.type === "subscription.cancelled") {
+    return [
+      {
+        actions: [
+          {
+            data: {
+              providerCustomerId: customerId,
+              providerSubscriptionId: sub.subscription_id,
+            },
+            type: "subscription.delete",
+          },
+        ],
+        name: "subscription.deleted",
+        payload: {
+          providerCustomerId: customerId,
+          providerEventId: webhookId,
+          providerSubscriptionId: sub.subscription_id,
+        },
+      },
+    ];
+  }
+
+  // All other subscription events are upserts
+  return [
+    {
+      actions: [
+        {
+          data: {
+            providerCustomerId: customerId,
+            subscription: normalized,
+          },
+          type: "subscription.upsert",
+        },
+      ],
+      name: "subscription.updated",
+      payload: {
+        providerCustomerId: customerId,
+        providerEventId: webhookId,
+        subscription: normalized,
+      },
+    },
+  ];
+}
+
+function createCheckoutEvents(
+  event: { type?: string; data: DodoPayment },
+  webhookId: string,
+): NormalizedWebhookEvent[] {
+  const payment = event.data;
+  if (payment.status !== "succeeded") return [];
+
+  const providerCustomerId = payment.customer.customer_id;
+  const subscriptionId = payment.subscription_id;
+
+  return [
+    {
+      name: "checkout.completed",
+      payload: {
+        checkoutSessionId: payment.payment_id,
+        mode: subscriptionId ? "subscription" : "payment",
+        paymentStatus: payment.status,
+        providerCustomerId,
+        providerEventId: webhookId,
+        providerSubscriptionId: subscriptionId ?? undefined,
+        status: payment.status,
+      },
+    },
+  ];
+}
+
+function buildDodoPrice(
+  priceAmount: number,
+  priceInterval: string | null,
+):
+  | {
+      currency: "USD";
+      discount: number;
+      price: number;
+      purchasing_power_parity: false;
+      type: "one_time_price";
+    }
+  | {
+      currency: "USD";
+      discount: number;
+      payment_frequency_count: 1;
+      payment_frequency_interval: "Month" | "Year";
+      price: number;
+      purchasing_power_parity: false;
+      subscription_period_count: 1;
+      subscription_period_interval: "Month" | "Year";
+      type: "recurring_price";
+    } {
+  if (priceInterval) {
+    const interval = priceInterval === "year" ? "Year" : "Month";
+    return {
+      type: "recurring_price",
+      currency: "USD",
+      price: priceAmount,
+      discount: 0,
+      purchasing_power_parity: false,
+      payment_frequency_count: 1,
+      payment_frequency_interval: interval,
+      subscription_period_count: 1,
+      subscription_period_interval: interval,
+    };
+  }
+  return {
+    type: "one_time_price",
+    currency: "USD",
+    price: priceAmount,
+    discount: 0,
+    purchasing_power_parity: false,
+  };
 }
 
 export function createDodopaymentsProvider(
@@ -135,8 +276,16 @@ export function createDodopaymentsProvider(
       return notSupported("createSubscription (use checkout instead)");
     },
 
-    // NEED TO FIGURE THIS ONE OUT
+    // NEEDS TESTING
     async updateSubscription(data) {
+      const current = await client.subscriptions.retrieve(data.providerSubscriptionId);
+
+      if (current.cancel_at_next_billing_date) {
+        await client.subscriptions.update(data.providerSubscriptionId, {
+          cancel_at_next_billing_date: false,
+        });
+      }
+
       await client.subscriptions.changePlan(data.providerSubscriptionId, {
         product_id: data.providerProduct.productId!,
         proration_billing_mode: "prorated_immediately",
@@ -173,11 +322,15 @@ export function createDodopaymentsProvider(
         });
       }
 
+      if (current.scheduled_change) {
+        await client.subscriptions.cancelChangePlan(data.providerSubscriptionId);
+      }
+
       await client.subscriptions.changePlan(data.providerSubscriptionId, {
         product_id: data.providerProduct!.productId!,
         effective_at: "next_billing_date",
         quantity: 1,
-        proration_billing_mode: "do_not_bill",
+        proration_billing_mode: "full_immediately",
       });
 
       if (wasCanceled) {
@@ -245,20 +398,14 @@ export function createDodopaymentsProvider(
 
       // Clear scheduled plan change (if any)
       if (current.scheduled_change) {
-        await client.subscriptions.changePlan(data.providerSubscriptionId, {
-          product_id: current.product_id,
-          effective_at: "immediately",
-          proration_billing_mode: "do_not_bill",
-          quantity: current.quantity ?? 1,
-        });
-
+        await client.subscriptions.cancelChangePlan(data.providerSubscriptionId);
         sub = await client.subscriptions.retrieve(data.providerSubscriptionId);
       }
 
       return {
         paymentUrl: null,
         subscription: {
-          cancelAtPeriodEnd: sub.cancel_at_next_billing_date,
+          cancelAtPeriodEnd: false, // Force false, we just resumed subscription
           currentPeriodEndAt: sub.next_billing_date ? new Date(sub.next_billing_date) : null,
           currentPeriodStartAt: sub.previous_billing_date
             ? new Date(sub.previous_billing_date)
@@ -273,12 +420,72 @@ export function createDodopaymentsProvider(
       return notSupported("detachPaymentMethod");
     },
 
-    // TODO
+    // NEEDS TESTING
     async syncProducts(data) {
-      return { results: [] };
+      const allDodoProducts = await client.products.list({ archived: false });
+      const dodoProductsMap = new Map((allDodoProducts.items ?? []).map((p) => [p.product_id, p]));
+
+      const activeProductIds = new Set<string>();
+
+      const results = await Promise.all(
+        data.products.map(async (product) => {
+          const existingProductId = product.existingProviderProduct?.productId ?? null;
+          const existingDodoProduct = existingProductId
+            ? dodoProductsMap.get(existingProductId)
+            : null;
+
+          const desiredInterval = product.priceInterval ?? null;
+          const existingPrice = existingDodoProduct?.price_detail;
+
+          const intervalMatches =
+            (desiredInterval === null && existingPrice?.type === "one_time_price") ||
+            (desiredInterval !== null &&
+              existingPrice?.type === "recurring_price" &&
+              existingPrice.payment_frequency_interval.toLowerCase() === desiredInterval);
+
+          if (existingDodoProduct && intervalMatches) {
+            await client.products.update(existingDodoProduct.product_id, {
+              name: product.name,
+              price: buildDodoPrice(product.priceAmount, desiredInterval),
+            });
+            activeProductIds.add(existingDodoProduct.product_id);
+            return {
+              id: product.id,
+              providerProduct: { productId: existingDodoProduct.product_id },
+            };
+          }
+
+          // Interval changed or no existing product — archive old, create new
+          if (existingDodoProduct) {
+            await client.products.archive(existingDodoProduct.product_id).catch(() => {});
+            activeProductIds.delete(existingDodoProduct.product_id);
+          }
+
+          const created = await client.products.create({
+            name: product.name,
+            price: buildDodoPrice(product.priceAmount, desiredInterval),
+            tax_category: options.taxCategory ?? "saas",
+            metadata: { paykit_product_id: product.id },
+          });
+
+          activeProductIds.add(created.product_id);
+          return { id: product.id, providerProduct: { productId: created.product_id } };
+        }),
+      );
+
+      // Archive orphans (ignore errors for already-deleted products)
+      const cleanup: Promise<unknown>[] = [];
+      for (const [dodoId] of dodoProductsMap) {
+        if (!activeProductIds.has(dodoId)) {
+          cleanup.push(client.products.archive(dodoId).catch(() => {}));
+        }
+      }
+      await Promise.all(cleanup);
+
+      return { results };
     },
 
-    // TODO
+    // NEEDS TESTING
     async handleWebhook(data): Promise<NormalizedWebhookEvent[]> {
       const headers = data.headers;
 
@@ -291,19 +498,16 @@ export function createDodopaymentsProvider(
       const webhookSignature = getHeader("webhook-signature");
       const webhookTimestamp = getHeader("webhook-timestamp");
 
-      let event: WebhookEventType;
-
       const webhookHeaders = {
-        "webhook-id": webhookId as string,
-        "webhook-signature": webhookSignature as string,
-        "webhook-timestamp": webhookTimestamp as string,
+        "webhook-id": webhookId,
+        "webhook-signature": webhookSignature ?? "",
+        "webhook-timestamp": webhookTimestamp ?? "",
       };
 
+      let event: ReturnType<typeof client.webhooks.unwrap>;
       try {
-        const wh = client.webhooks.unwrap(data.body.toString(), { headers: webhookHeaders });
-        event = wh.type;
-      } catch (error) {
-        // HANDLE OTHER ERRORS HERE
+        event = client.webhooks.unwrap(data.body, { headers: webhookHeaders });
+      } catch {
         throw PayKitError.from(
           "BAD_REQUEST",
           PAYKIT_ERROR_CODES.PROVIDER_SIGNATURE_MISSING,
@@ -311,10 +515,16 @@ export function createDodopaymentsProvider(
         );
       }
 
-      switch (event) {
+      switch (event.type) {
         case "subscription.active":
         case "subscription.renewed":
-
+        case "subscription.updated":
+        case "subscription.plan_changed":
+        case "subscription.cancelled":
+        case "subscription.expired":
+          return createSubscriptionEvents(event, webhookId);
+        case "payment.succeeded":
+          return createCheckoutEvents(event, webhookId);
         default:
           return [];
       }
@@ -365,6 +575,7 @@ export function dodopayments(dodopaymentsOptions: DodopaymentsOptions): PayKitPr
       const client = new DodoPayments({
         bearerToken: dodopaymentsOptions.bearerToken,
         environment: dodopaymentsOptions.environment ?? "live_mode",
+        webhookKey: dodopaymentsOptions.webhookSecret,
       });
 
       return createDodopaymentsProvider(client, dodopaymentsOptions);

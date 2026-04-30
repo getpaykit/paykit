@@ -33,6 +33,21 @@ function extractStripeCustomerId(body: string): string | null {
   }
 }
 
+/**
+ * Extract the provider customer ID from a DodoPayments event body.
+ * Dodo format: { data: { customer: { customer_id: string } } }
+ */
+function extractDodoCustomerId(body: string): string | null {
+  try {
+    const parsed = JSON.parse(body) as {
+      data?: { customer?: { customer_id?: string } };
+    };
+    return parsed.data?.customer?.customer_id ?? null;
+  } catch {
+    return null;
+  }
+}
+
 async function forwardEvent(workerUrl: string, event: BufferedEvent): Promise<Response> {
   const url = new URL(event.path, workerUrl);
   return fetch(url, { method: "POST", headers: event.headers, body: event.body });
@@ -86,8 +101,8 @@ export function startHub(): Promise<Server> {
       return;
     }
 
-    // Otherwise: route webhook by customer ID
-    const customerId = extractStripeCustomerId(body);
+    // Otherwise: route webhook by customer ID (try Stripe then DodoPayments format)
+    const customerId = extractStripeCustomerId(body) ?? extractDodoCustomerId(body);
     if (!customerId) {
       // No customer → setup artifacts (product.created, price.created). Drop.
       res.writeHead(204);
