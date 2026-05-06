@@ -1,4 +1,5 @@
 import { Polar } from "@polar-sh/sdk";
+import { HTTPValidationError } from "@polar-sh/sdk/models/errors/httpvalidationerror";
 import { SDKValidationError } from "@polar-sh/sdk/models/errors/sdkvalidationerror";
 import { validateEvent, WebhookVerificationError } from "@polar-sh/sdk/webhooks";
 import { PayKitError, PAYKIT_ERROR_CODES } from "paykitjs";
@@ -17,13 +18,30 @@ export type PolarProviderConfig = PayKitProviderConfig & {
 type PolarWebhookEvent = ReturnType<typeof validateEvent>;
 type PolarSubscriptionEvent = Extract<PolarWebhookEvent, { type?: `subscription.${string}` }>;
 type PolarCheckoutEvent = Extract<PolarWebhookEvent, { type?: `checkout.${string}` }>;
+type PolarCustomer = Awaited<ReturnType<Polar["customers"]["list"]>>["result"]["items"][number];
+type PolarProduct = Awaited<ReturnType<Polar["products"]["list"]>>["result"]["items"][number];
+type PolarSubscription = Awaited<ReturnType<Polar["subscriptions"]["get"]>>;
+type PolarSubscriptionLike = Pick<
+  PolarSubscription,
+  | "cancelAtPeriodEnd"
+  | "canceledAt"
+  | "currentPeriodEnd"
+  | "currentPeriodStart"
+  | "endedAt"
+  | "id"
+  | "productId"
+  | "status"
+>;
+
+const PAYKIT_CUSTOMER_METADATA_KEY = "paykitCustomerId";
+const PAYKIT_PRODUCT_METADATA_KEY = "paykitProductId";
 
 function toDate(value: Date | string | null | undefined): Date | null {
   if (!value) return null;
   return value instanceof Date ? value : new Date(value);
 }
 
-function normalizePolarSubscription(sub: PolarSubscriptionEvent["data"]) {
+function normalizePolarSubscription(sub: PolarSubscriptionLike) {
   return {
     cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
     canceledAt: toDate(sub.canceledAt),
@@ -34,6 +52,32 @@ function normalizePolarSubscription(sub: PolarSubscriptionEvent["data"]) {
     providerSubscriptionId: sub.id,
     providerSubscriptionScheduleId: null,
     status: sub.status,
+  };
+}
+
+async function findExistingCustomer(
+  client: Polar,
+  data: { email: string; id: string },
+): Promise<PolarCustomer | null> {
+  const byEmail = await client.customers.list({ email: data.email, limit: 1 });
+  const emailMatch = byEmail.result.items.find((customer) => customer.email === data.email);
+  if (emailMatch) return emailMatch;
+
+  const byExternalId = await client.customers.list({ query: data.id, limit: 100 });
+  return byExternalId.result.items.find((customer) => customer.externalId === data.id) ?? null;
+}
+
+function isPotentialDuplicateCustomerError(error: unknown): error is HTTPValidationError {
+  return error instanceof HTTPValidationError && error.statusCode === 422;
+}
+
+function normalizeMetadata(
+  metadata: Record<string, string> | undefined,
+  paykitCustomerId: string,
+): Record<string, string> {
+  return {
+    ...metadata,
+    [PAYKIT_CUSTOMER_METADATA_KEY]: paykitCustomerId,
   };
 }
 
@@ -89,15 +133,20 @@ function createSubscriptionEvents(
   ];
 }
 
-function createCheckoutEvents(
+async function createCheckoutEvents(
+  client: Polar,
   event: { type?: string; data: PolarCheckoutEvent["data"] },
   webhookId: string,
-): NormalizedWebhookEvent[] {
+): Promise<NormalizedWebhookEvent[]> {
   const checkout = event.data;
   if (checkout.status !== "succeeded") return [];
 
   const providerCustomerId = checkout.customerId;
   if (!providerCustomerId) return [];
+
+  const subscription = checkout.subscriptionId
+    ? normalizePolarSubscription(await client.subscriptions.get({ id: checkout.subscriptionId }))
+    : undefined;
 
   return [
     {
@@ -110,6 +159,7 @@ function createCheckoutEvents(
         providerEventId: webhookId,
         providerSubscriptionId: checkout.subscriptionId ?? undefined,
         status: checkout.status,
+        subscription,
         metadata: checkout.metadata
           ? Object.fromEntries(Object.entries(checkout.metadata).map(([k, v]) => [k, String(v)]))
           : undefined,
@@ -124,6 +174,25 @@ function notSupported(method: string): never {
     PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
     `${method} is not supported by the Polar provider`,
   );
+}
+
+async function listActiveProducts(client: Polar): Promise<PolarProduct[]> {
+  const products: PolarProduct[] = [];
+  const firstPage = await client.products.list({ isArchived: false, limit: 100 });
+
+  for await (const page of firstPage) {
+    products.push(...(page.result.items ?? []));
+  }
+
+  return products;
+}
+
+function isPayKitManagedProduct(product: PolarProduct): boolean {
+  return typeof product.metadata[PAYKIT_PRODUCT_METADATA_KEY] === "string";
+}
+
+function productMetadata(productId: string): Record<string, string> {
+  return { [PAYKIT_PRODUCT_METADATA_KEY]: productId };
 }
 
 export function createPolarProvider(client: Polar, options: PolarOptions): PaymentProvider {
@@ -141,14 +210,12 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
         );
       }
 
-      const customerMetadata = {
-        ...data.metadata,
-        paykitCustomerId: data.id,
-      };
+      const customerMetadata = normalizeMetadata(data.metadata, data.id);
 
       try {
         const customer = await client.customers.create({
           email: data.email,
+          externalId: data.id,
           name: data.name,
           metadata: customerMetadata,
         });
@@ -157,25 +224,22 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
           providerCustomer: { id: customer.id },
         };
       } catch (error) {
-        if (!(error instanceof SDKValidationError)) throw error;
+        if (!isPotentialDuplicateCustomerError(error)) throw error;
 
-        // Duplicate email — find and re-link the existing customer.
-        const list = await client.customers.list({ query: data.email, limit: 1 });
-        const existing = list.result.items[0];
+        const existing = await findExistingCustomer(client, { email: data.email, id: data.id });
 
         if (!existing) {
-          throw PayKitError.from(
-            "INTERNAL_SERVER_ERROR",
-            PAYKIT_ERROR_CODES.PROVIDER_CUSTOMER_NOT_FOUND,
-            "Failed to create or find customer on Polar",
-          );
+          throw error;
         }
 
         await client.customers.update({
           id: existing.id,
           customerUpdate: {
             name: data.name,
-            metadata: customerMetadata,
+            metadata: {
+              ...existing.metadata,
+              ...customerMetadata,
+            },
           },
         });
 
@@ -186,12 +250,17 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
     },
 
     async updateCustomer(data) {
+      const existing = await client.customers.get({ id: data.providerCustomerId });
+
       await client.customers.update({
         id: data.providerCustomerId,
         customerUpdate: {
           email: data.email,
           name: data.name,
-          metadata: data.metadata ?? {},
+          metadata: {
+            ...existing.metadata,
+            ...data.metadata,
+          },
         },
       });
     },
@@ -368,12 +437,12 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
 
     async syncProducts(data) {
       const [allPolarProducts, orgs] = await Promise.all([
-        client.products.list({ isArchived: false, limit: 100 }),
+        listActiveProducts(client),
         client.organizations.list({ limit: 1 }),
       ]);
 
       const org = orgs.result.items?.[0];
-      const polarProductMap = new Map((allPolarProducts.result.items ?? []).map((p) => [p.id, p]));
+      const polarProductMap = new Map(allPolarProducts.map((p) => [p.id, p]));
 
       const activeProductIds = new Set<string>();
 
@@ -393,6 +462,7 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
                 id: existingPolarProduct.id,
                 productUpdate: {
                   name: product.name,
+                  metadata: productMetadata(product.id),
                   visibility: "private",
                   prices: [
                     {
@@ -416,6 +486,7 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
 
           const created = await client.products.create({
             name: product.name,
+            metadata: productMetadata(product.id),
             visibility: "private",
             recurringInterval: (product.priceInterval as "month" | "year") ?? null,
             prices: [
@@ -434,8 +505,8 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
       // Archive orphans + configure org settings in parallel
       const cleanup: Promise<unknown>[] = [];
 
-      for (const [polarId] of polarProductMap) {
-        if (!activeProductIds.has(polarId)) {
+      for (const [polarId, polarProduct] of polarProductMap) {
+        if (isPayKitManagedProduct(polarProduct) && !activeProductIds.has(polarId)) {
           cleanup.push(
             client.products.update({
               id: polarId,
@@ -504,7 +575,7 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
           return createSubscriptionEvents(event, webhookId);
         case "checkout.created":
         case "checkout.updated":
-          return createCheckoutEvents(event, webhookId);
+          return createCheckoutEvents(client, event, webhookId);
         default:
           return [];
       }
