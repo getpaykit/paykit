@@ -12,7 +12,18 @@ export const subscribeBodySchema = z.object({
 
 export type SubscribeBody = z.infer<typeof subscribeBodySchema>;
 
+export const cancelSubscriptionBodySchema = z.object({
+  planId: z.string(),
+});
+
+export type CancelSubscriptionBody = z.infer<typeof cancelSubscriptionBodySchema>;
+
 export type SubscribeInput = SubscribeBody & {
+  customerId: string;
+  productInternalId?: string;
+};
+
+export type CancelSubscriptionInput = CancelSubscriptionBody & {
   customerId: string;
   productInternalId?: string;
 };

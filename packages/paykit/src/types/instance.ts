@@ -59,13 +59,20 @@ type RefineServerMethodInput<
         successUrl: string;
       }
     : TInput
-  : TKey extends "check" | "report"
-    ? TInput extends { featureId: string }
-      ? Omit<TInput, "featureId"> & {
-          featureId: FeatureIdFromOptions<TOptions>;
+  : TKey extends "cancelSubscription"
+    ? TInput extends { planId: string }
+      ? Omit<TInput, "planId"> & {
+          customerId: string;
+          planId: PlanIdFromOptions<TOptions>;
         }
       : TInput
-    : TInput;
+    : TKey extends "check" | "report"
+      ? TInput extends { featureId: string }
+        ? Omit<TInput, "featureId"> & {
+            featureId: FeatureIdFromOptions<TOptions>;
+          }
+        : TInput
+      : TInput;
 
 type RefineClientMethodInput<
   TOptions extends PayKitOptions,
@@ -81,11 +88,17 @@ type RefineClientMethodInput<
         planId: PlanIdFromOptions<TOptions>;
       }
     : OmitCustomerId<TInput>
-  : TKey extends "customerPortal"
-    ? OmitCustomerId<TInput> extends { returnUrl: string }
-      ? Omit<OmitCustomerId<TInput>, "returnUrl"> & { returnUrl?: string }
+  : TKey extends "cancelSubscription"
+    ? OmitCustomerId<TInput> extends { planId: string }
+      ? Omit<OmitCustomerId<TInput>, "planId"> & {
+          planId: PlanIdFromOptions<TOptions>;
+        }
       : OmitCustomerId<TInput>
-    : OmitCustomerId<TInput>;
+    : TKey extends "customerPortal"
+      ? OmitCustomerId<TInput> extends { returnUrl: string }
+        ? Omit<OmitCustomerId<TInput>, "returnUrl"> & { returnUrl?: string }
+        : OmitCustomerId<TInput>
+      : OmitCustomerId<TInput>;
 
 export type PayKitClientSubscribeInput<TOptions extends PayKitOptions = PayKitOptions> =
   RefineClientMethodInput<TOptions, "subscribe", InferMethodInput<RegisteredMethods["subscribe"]>>;
@@ -94,6 +107,24 @@ export type PayKitSubscribeInput<TOptions extends PayKitOptions = PayKitOptions>
   RefineServerMethodInput<TOptions, "subscribe", InferMethodInput<RegisteredMethods["subscribe"]>>;
 
 export type PayKitSubscribeResult = InferMethodResult<RegisteredMethods["subscribe"]>;
+
+export type PayKitClientCancelSubscriptionInput<TOptions extends PayKitOptions = PayKitOptions> =
+  RefineClientMethodInput<
+    TOptions,
+    "cancelSubscription",
+    InferMethodInput<RegisteredMethods["cancelSubscription"]>
+  >;
+
+export type PayKitCancelSubscriptionInput<TOptions extends PayKitOptions = PayKitOptions> =
+  RefineServerMethodInput<
+    TOptions,
+    "cancelSubscription",
+    InferMethodInput<RegisteredMethods["cancelSubscription"]>
+  >;
+
+export type PayKitCancelSubscriptionResult = InferMethodResult<
+  RegisteredMethods["cancelSubscription"]
+>;
 
 export type PayKitCustomerInput = InferMethodInput<RegisteredMethods["upsertCustomer"]>;
 
