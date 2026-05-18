@@ -4,6 +4,7 @@ import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import { generateId } from "../core/utils";
 import {
+  getCustomerByIdOrThrow,
   findCustomerByProviderCustomerId,
   upsertProviderCustomer,
 } from "../customer/customer.service";
@@ -124,8 +125,10 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
 
   await warnOnDuplicateActiveSubscriptionGroups(ctx, input.customerId);
 
+  const customer = await getCustomerByIdOrThrow(ctx.database, input.customerId);
   const { providerCustomerId } = await upsertProviderCustomer(ctx, {
     customerId: input.customerId,
+    customerRow: customer,
   });
   const hasDefaultPaymentMethod =
     (await getDefaultPaymentMethod(ctx.database, {
@@ -160,6 +163,10 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
   return {
     activeSubscription,
     cancelUrl: input.cancelUrl,
+    customer: {
+      email: customer.email ?? undefined,
+      name: customer.name ?? undefined,
+    },
     customerId: input.customerId,
     isFreeTarget,
     isPaidTarget,
@@ -1068,6 +1075,7 @@ async function createCheckoutSubscribe(
 ): Promise<SubscribeResult> {
   const checkoutResult = await ctx.provider.createSubscriptionCheckout({
     cancelUrl: subCtx.cancelUrl,
+    customer: subCtx.customer,
     metadata: {
       paykit_customer_id: subCtx.customerId,
       paykit_intent: "subscribe",
