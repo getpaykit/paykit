@@ -184,6 +184,29 @@ describe("providers/stripe", () => {
       expect(params.managed_payments).toBeUndefined();
     });
 
+    it("passes customer email to subscription checkout when available", async () => {
+      const createSession = vi
+        .fn()
+        .mockResolvedValue({ id: "cs_123", url: "https://checkout.stripe.com/x" });
+      const runtime = createCheckoutRuntime(createSession, false);
+
+      await runtime.createSubscriptionCheckout({
+        cancelUrl: "https://example.com/cancel",
+        customer: {
+          email: "billing@example.com",
+          name: "Billing User",
+        },
+        metadata: {},
+        providerCustomerId: "cus_123",
+        providerProduct: { priceId: "price_123" },
+        successUrl: "https://example.com/success",
+      });
+
+      expect(createSession).toHaveBeenCalledWith(
+        expect.objectContaining({ customer_email: "billing@example.com" }),
+      );
+    });
+
     it("throws when managedPayments is enabled without the preview apiVersion", () => {
       expect(() =>
         stripe({
