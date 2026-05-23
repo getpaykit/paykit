@@ -9,7 +9,7 @@
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
     "deploy:sandbox": "bun scripts/deploy-sandbox.ts",
-    "dev": "next dev",
+    "dev": "portless run next dev",
     "dev:tunnel": "concurrently -k -n next,tunnel -c blue,magenta \"bun dev\" \"bun tunnel\"",
     "env:push:sandbox": "bun scripts/push-sandbox-env.ts",
     "preview": "next build && next start",
@@ -75,6 +75,7 @@
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.5",
     "drizzle-orm": "^0.45.1",
+    "portless": "^0.13.0",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.15",
     "typescript": "^5.8.2"
