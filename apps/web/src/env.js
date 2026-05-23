@@ -7,6 +7,7 @@ export const env = createEnv({
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.string().email().default("contact@paykit.sh"),
     RESEND_TO_EMAIL: z.string().email().default("contact@paykit.sh"),
+    GITHUB_TOKEN: z.string().min(1).optional(),
   },
   client: {},
   runtimeEnv: {
@@ -14,6 +15,7 @@ export const env = createEnv({
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     RESEND_FROM_EMAIL: process.env.RESEND_FROM_EMAIL,
     RESEND_TO_EMAIL: process.env.RESEND_TO_EMAIL,
+    GITHUB_TOKEN: process.env.GITHUB_TOKEN,
   },
   skipValidation: !!process.env.SKIP_ENV_VALIDATION,
   emptyStringAsUndefined: true,

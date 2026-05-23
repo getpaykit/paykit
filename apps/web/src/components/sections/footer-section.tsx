@@ -11,6 +11,7 @@ const navLinks = [
   { label: "Docs", href: "/docs" },
   { label: "Contact", href: "/contact" },
   { label: "Author", href: URLs.authorX, external: true },
+  { label: "Changelog", href: "/changelog" },
 ];
 
 const socialLinks = [

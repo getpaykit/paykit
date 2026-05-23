@@ -21,6 +21,7 @@ export const URLs = {
   discord: "https://discord.gg/nzy9NPpFNU",
   authorGitHub: "https://github.com/maxktz",
   authorX: "https://x.com/maxktz",
+  changelog: "https://paykit.sh/changelog",
 } as const;
 
 export const VERSION_TEXT = "v0.1 beta";
