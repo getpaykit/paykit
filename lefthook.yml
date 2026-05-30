@@ -1,0 +1,15 @@
+output:
+  - success
+  - failure
+
+pre-commit:
+  parallel: true
+  commands:
+    oxlint:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: pnpm exec oxlint --fix -- {staged_files}
+      stage_fixed: true
+    oxfmt:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: pnpm exec oxfmt --write -- {staged_files}
+      stage_fixed: true
