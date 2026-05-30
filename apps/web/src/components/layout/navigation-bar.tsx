@@ -57,6 +57,7 @@ const dropdownLinks: NavItem[] = [
   { name: "Discord", href: URLs.discord, external: true },
   { name: "Twitter / X", href: URLs.x, external: true },
   { name: "LinkedIn", href: URLs.linkedin, external: true },
+  {name: "Donate", href: "/donate", external: true},
   { name: "llms.txt", href: "/llms.txt", external: true },
 ];
 
