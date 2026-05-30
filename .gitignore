@@ -42,3 +42,4 @@ yarn-error.log*
 .dev.vars
 .wrangler/
 .gstack/
+.infisical.json
