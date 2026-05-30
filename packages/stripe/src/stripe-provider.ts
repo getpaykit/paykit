@@ -661,6 +661,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         cancel_url: data.cancelUrl ?? data.successUrl,
         client_reference_id: data.providerCustomerId,
         customer: data.providerCustomerId,
+        customer_email: data.customer?.email,
         line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
         metadata: data.metadata,
         mode: "subscription",

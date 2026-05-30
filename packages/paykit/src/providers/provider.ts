@@ -60,6 +60,11 @@ export interface ProviderRequiredAction {
   type: string;
 }
 
+export interface ProviderCheckoutCustomer {
+  email?: string;
+  name?: string;
+}
+
 export interface ProviderSubscription {
   cancelAtPeriodEnd: boolean;
   canceledAt?: Date | null;
@@ -111,6 +116,7 @@ export interface PaymentProvider {
   }): Promise<{ url: string }>;
 
   createSubscriptionCheckout(data: {
+    customer?: ProviderCheckoutCustomer;
     providerCustomerId: string;
     providerProduct: Record<string, string>;
     successUrl: string;

@@ -214,8 +214,10 @@ export function createPolarProvider(client: Polar, options: PolarOptions): Payme
 
     async createSubscriptionCheckout(data) {
       const checkout = await client.checkouts.create({
+        customerEmail: data.customer?.email,
         products: [data.providerProduct.productId!],
         customerId: data.providerCustomerId,
+        customerName: data.customer?.name,
         metadata: data.metadata,
         successUrl: data.successUrl,
       });
