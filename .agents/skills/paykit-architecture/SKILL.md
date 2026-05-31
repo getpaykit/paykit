@@ -1,6 +1,6 @@
 ---
 name: paykit-architecture
-description: Use before architectural, API design, provider integration, billing lifecycle, database model, or product-scope decisions in PayKit.
+description: Not use automatically.
 ---
 
 # PayKit Architecture
