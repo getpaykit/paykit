@@ -5,6 +5,7 @@ import {
   getProviderCustomer,
   setProviderCustomer,
 } from "../customer/customer.service";
+import { assertProviderHasCapability } from "../providers/capabilities";
 import type { Customer } from "../types/models";
 
 function assertTestingEnabled(ctx: PayKitContext): void {
@@ -15,10 +16,13 @@ function assertTestingEnabled(ctx: PayKitContext): void {
   if (!ctx.provider.capabilities.testClocks) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.TESTING_NOT_ENABLED);
   }
+
+  assertProviderHasCapability(ctx.provider, "testClocks");
 }
 
 export async function getCustomerTestClock(ctx: PayKitContext, customerId: string) {
   assertTestingEnabled(ctx);
+  assertProviderHasCapability(ctx.provider, "testClocks");
   const customer = await getCustomerByIdOrThrow(ctx.database, customerId);
   const providerCustomer = getProviderCustomer(customer, ctx.provider.id);
   if (!providerCustomer) {
@@ -29,7 +33,9 @@ export async function getCustomerTestClock(ctx: PayKitContext, customerId: strin
     throw PayKitError.from("NOT_FOUND", PAYKIT_ERROR_CODES.TEST_CLOCK_NOT_FOUND);
   }
 
-  const testClock = await ctx.provider.getTestClock({ testClockId: providerCustomer.testClockId });
+  const testClock = await ctx.provider.getTestClock({
+    testClockId: providerCustomer.testClockId,
+  });
   await setProviderCustomer(ctx.database, {
     customerId,
     providerCustomer: {
@@ -59,6 +65,7 @@ export async function advanceCustomerTestClock(
   input: { customerId: string; frozenTime: Date },
 ) {
   assertTestingEnabled(ctx);
+  assertProviderHasCapability(ctx.provider, "testClocks");
   const customer = await getCustomerByIdOrThrow(ctx.database, input.customerId);
   const providerCustomer = getProviderCustomer(customer, ctx.provider.id);
   if (!providerCustomer) {

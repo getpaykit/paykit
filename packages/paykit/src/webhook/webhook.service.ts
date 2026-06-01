@@ -132,6 +132,80 @@ async function applyAction(ctx: PayKitContext, action: WebhookApplyAction): Prom
   }
 }
 
+function getWebhookApplyActions(event: AnyNormalizedWebhookEvent): WebhookApplyAction[] {
+  switch (event.name) {
+    case "checkout.completed": {
+      return [];
+    }
+    case "payment_method.attached": {
+      return [
+        {
+          data: {
+            paymentMethod: event.payload.paymentMethod,
+            providerCustomerId: event.payload.providerCustomerId,
+          },
+          type: "payment_method.upsert",
+        },
+      ];
+    }
+    case "payment_method.detached": {
+      return [
+        {
+          data: {
+            providerMethodId: event.payload.providerMethodId,
+          },
+          type: "payment_method.delete",
+        },
+      ];
+    }
+    case "payment.succeeded": {
+      return [
+        {
+          data: {
+            payment: event.payload.payment,
+            providerCustomerId: event.payload.providerCustomerId,
+          },
+          type: "payment.upsert",
+        },
+      ];
+    }
+    case "subscription.updated": {
+      return [
+        {
+          data: {
+            providerCustomerId: event.payload.providerCustomerId,
+            subscription: event.payload.subscription,
+          },
+          type: "subscription.upsert",
+        },
+      ];
+    }
+    case "subscription.deleted": {
+      return [
+        {
+          data: {
+            providerCustomerId: event.payload.providerCustomerId,
+            providerSubscriptionId: event.payload.providerSubscriptionId,
+          },
+          type: "subscription.delete",
+        },
+      ];
+    }
+    case "invoice.updated": {
+      return [
+        {
+          data: {
+            invoice: event.payload.invoice,
+            providerCustomerId: event.payload.providerCustomerId,
+            providerSubscriptionId: event.payload.providerSubscriptionId,
+          },
+          type: "invoice.upsert",
+        },
+      ];
+    }
+  }
+}
+
 async function processWebhookEvent(
   ctx: PayKitContext,
   event: AnyNormalizedWebhookEvent,
@@ -166,7 +240,7 @@ async function processWebhookEvent(
         }
       }
 
-      for (const action of event.actions ?? []) {
+      for (const action of getWebhookApplyActions(event)) {
         ctx.logger.info({ actionType: action.type }, "applying action");
         const customerId = await applyAction(txCtx, action);
         if (customerId) {
@@ -205,7 +279,7 @@ export async function handleWebhook(
   input: HandleWebhookInput,
 ): Promise<{ received: true }> {
   return ctx.logger.trace.run("wh", async () => {
-    const events = await ctx.provider.handleWebhook({
+    const events = await ctx.provider.parseWebhook({
       allowStaleSignatures: input.allowStaleSignatures,
       body: input.body,
       headers: input.headers,

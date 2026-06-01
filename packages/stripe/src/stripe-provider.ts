@@ -1,10 +1,5 @@
-import { PayKitError, PAYKIT_ERROR_CODES } from "paykitjs";
-import type {
-  NormalizedWebhookEvent,
-  PayKitProviderConfig,
-  PaymentProvider,
-  ProviderTestClock,
-} from "paykitjs";
+import { PayKitError, PAYKIT_ERROR_CODES, unsupportedProviderCapability } from "paykitjs";
+import type { NormalizedWebhookEvent, PayKitProvider, ProviderTestClock } from "paykitjs";
 import StripeSdk from "stripe";
 
 /**
@@ -27,6 +22,24 @@ const STRIPE_WEBHOOK_EVENTS: StripeSdk.WebhookEndpointCreateParams.EnabledEvent[
   "payment_method.detached",
 ];
 
+const stripeCapabilities = {
+  subscriptionProducts: true,
+  subscriptionCheckout: true,
+  customerPortal: true,
+  createInvoices: true,
+  detachPaymentMethods: true,
+  setupPaymentMethods: true,
+  cancelSubscriptionsAtPeriodEnd: true,
+  createSubscriptions: true,
+  changeSubscriptionProducts: true,
+  listActiveSubscriptions: true,
+  pendingSubscriptionProductChanges: false,
+  resumeSubscriptionsAtPeriodEnd: true,
+  subscriptionSchedules: true,
+  testClocks: true,
+  manageWebhookEndpoints: true,
+} as const satisfies PayKitProvider["capabilities"];
+
 export interface StripeOptions {
   secretKey: string;
   webhookSecret: string;
@@ -36,9 +49,7 @@ export interface StripeOptions {
   managedPayments?: boolean;
 }
 
-export type StripeProviderConfig = PayKitProviderConfig & {
-  capabilities: { testClocks: true };
-};
+export type StripeProvider = PayKitProvider<typeof stripeCapabilities>;
 
 type StripeInvoiceWithExtras = StripeSdk.Invoice & {
   payment_intent?: StripeSdk.PaymentIntent | string | null;
@@ -370,15 +381,6 @@ async function createCheckoutCompletedEvents(
       isDefault: session.mode === "subscription",
     };
     events.push({
-      actions: [
-        {
-          data: {
-            paymentMethod: normalizedPaymentMethod,
-            providerCustomerId,
-          },
-          type: "payment_method.upsert",
-        },
-      ],
       name: "payment_method.attached",
       payload: {
         paymentMethod: normalizedPaymentMethod,
@@ -390,15 +392,6 @@ async function createCheckoutCompletedEvents(
   if (session.mode === "payment" && paymentIntent?.status === "succeeded") {
     const normalizedPayment = normalizeStripePaymentIntent(paymentIntent);
     events.push({
-      actions: [
-        {
-          data: {
-            payment: normalizedPayment,
-            providerCustomerId,
-          },
-          type: "payment.upsert",
-        },
-      ],
       name: "payment.succeeded",
       payload: {
         payment: normalizedPayment,
@@ -454,15 +447,6 @@ async function createSubscriptionEvents(event: StripeSdk.Event): Promise<Normali
   if (event.type === "customer.subscription.deleted") {
     return [
       {
-        actions: [
-          {
-            data: {
-              providerCustomerId,
-              providerSubscriptionId: subscription.id,
-            },
-            type: "subscription.delete",
-          },
-        ],
         name: "subscription.deleted",
         payload: {
           providerCustomerId,
@@ -475,15 +459,6 @@ async function createSubscriptionEvents(event: StripeSdk.Event): Promise<Normali
 
   const normalizedSubscription = normalizeStripeSubscription(subscription);
   const normalizedEvent: NormalizedWebhookEvent<"subscription.updated"> = {
-    actions: [
-      {
-        data: {
-          providerCustomerId,
-          subscription: normalizedSubscription,
-        },
-        type: "subscription.upsert",
-      },
-    ],
     name: "subscription.updated",
     payload: {
       providerCustomerId,
@@ -518,16 +493,6 @@ function createInvoiceEvents(event: StripeSdk.Event): NormalizedWebhookEvent[] {
 
   const normalizedInvoice = normalizeStripeInvoice(invoice);
   const normalizedEvent: NormalizedWebhookEvent<"invoice.updated"> = {
-    actions: [
-      {
-        data: {
-          invoice: normalizedInvoice,
-          providerCustomerId,
-          providerSubscriptionId,
-        },
-        type: "invoice.upsert",
-      },
-    ],
     name: "invoice.updated",
     payload: {
       invoice: normalizedInvoice,
@@ -548,14 +513,6 @@ function createDetachedPaymentMethodEvents(event: StripeSdk.Event): NormalizedWe
 
   return [
     {
-      actions: [
-        {
-          data: {
-            providerMethodId: paymentMethod.id,
-          },
-          type: "payment_method.delete",
-        },
-      ],
       name: "payment_method.detached",
       payload: {
         providerEventId: event.id,
@@ -565,26 +522,76 @@ function createDetachedPaymentMethodEvents(event: StripeSdk.Event): NormalizedWe
   ];
 }
 
-export function createStripeProvider(client: StripeSdk, options: StripeOptions): PaymentProvider {
+export function stripe(options: StripeOptions): StripeProvider {
+  const apiVersion = options.apiVersion ?? PAYKIT_STRIPE_API_VERSION;
+  if (options.managedPayments) {
+    if (!apiVersion.endsWith(".preview") || apiVersion < STRIPE_MANAGED_PAYMENTS_MIN_VERSION) {
+      throw PayKitError.from(
+        "BAD_REQUEST",
+        PAYKIT_ERROR_CODES.PROVIDER_INVALID_CONFIG,
+        `managedPayments requires apiVersion >= ${STRIPE_MANAGED_PAYMENTS_MIN_VERSION} (got "${apiVersion}")`,
+      );
+    }
+  }
+
+  let client: StripeSdk | null = null;
+  const getStripe = () => {
+    client ??= new StripeSdk(options.secretKey, {
+      apiVersion: apiVersion as StripeSdk.LatestApiVersion,
+      maxNetworkRetries: 3,
+    });
+    return client;
+  };
+
   const currency = "usd";
 
   return {
     id: "stripe",
     name: "Stripe",
-    capabilities: { testClocks: true },
+    capabilities: stripeCapabilities,
+
+    async upsertSubscriptionProduct(product) {
+      let productId = product.existingProviderProduct?.productId ?? null;
+      if (!productId) {
+        const stripeProduct = await getStripe().products.create({
+          metadata: { paykit_product_id: product.id },
+          name: product.name,
+        });
+        productId = stripeProduct.id;
+      } else {
+        await getStripe().products.update(productId, { name: product.name });
+      }
+
+      const existingPriceId = product.existingProviderProduct?.priceId ?? null;
+      if (existingPriceId) {
+        return { providerProduct: { productId, priceId: existingPriceId } };
+      }
+
+      const priceParams: StripeSdk.PriceCreateParams = {
+        currency,
+        product: productId,
+        unit_amount: product.priceAmount,
+      };
+      if (product.priceInterval) {
+        priceParams.recurring = { interval: product.priceInterval as "month" | "year" };
+      }
+      const stripePrice = await getStripe().prices.create(priceParams);
+
+      return { providerProduct: { productId, priceId: stripePrice.id } };
+    },
 
     async createCustomer(data) {
       let testClock: ProviderTestClock | undefined;
       if (data.createTestClock) {
         assertStripeTestKey(options);
-        const clock = await client.testHelpers.testClocks.create({
+        const clock = await getStripe().testHelpers.testClocks.create({
           frozen_time: Math.floor(Date.now() / 1000),
           name: data.id,
         });
         testClock = normalizeStripeTestClock(clock);
       }
 
-      const customer = await client.customers.create({
+      const customer = await getStripe().customers.create({
         email: data.email,
         metadata: {
           customerId: data.id,
@@ -603,43 +610,42 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
+    async deleteCustomer(data) {
+      await getStripe().customers.del(data.providerCustomerId);
+    },
+
     async updateCustomer(data) {
-      await client.customers.update(data.providerCustomerId, {
+      await getStripe().customers.update(data.providerCustomerId, {
         email: data.email,
         metadata: data.metadata,
         name: data.name,
       });
     },
 
-    async deleteCustomer(data) {
-      await client.customers.del(data.providerCustomerId);
-    },
-
-    async getTestClock(data) {
-      const clock = await client.testHelpers.testClocks.retrieve(data.testClockId);
-      return normalizeStripeTestClock(clock);
-    },
-
-    async advanceTestClock(data) {
-      assertStripeTestKey(options);
-
-      await client.testHelpers.testClocks.advance(data.testClockId, {
-        frozen_time: Math.floor(data.frozenTime.getTime() / 1000),
+    async createInvoice(data) {
+      const stripeInvoice = await getStripe().invoices.create({
+        auto_advance: data.autoAdvance ?? true,
+        collection_method: "charge_automatically",
+        customer: data.providerCustomerId,
+        currency,
       });
 
-      for (let i = 0; i < 60; i++) {
-        const clock = await client.testHelpers.testClocks.retrieve(data.testClockId);
-        if (clock.status === "ready") {
-          return normalizeStripeTestClock(clock);
-        }
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+      if (data.lines.length > 0) {
+        await getStripe().invoices.addLines(stripeInvoice.id, {
+          lines: data.lines.map((line) => ({
+            amount: line.amount,
+            description: line.description,
+          })),
+        });
       }
 
-      throw new Error(`Test clock ${data.testClockId} did not reach 'ready' status`);
+      const finalizedInvoice = await getStripe().invoices.finalizeInvoice(stripeInvoice.id);
+
+      return normalizeStripeInvoice(finalizedInvoice);
     },
 
-    async attachPaymentMethod(data) {
-      const session = await client.checkout.sessions.create({
+    async createPaymentMethodSetupSession(data) {
+      const session = await getStripe().checkout.sessions.create({
         cancel_url: data.returnURL,
         client_reference_id: data.providerCustomerId,
         customer: data.providerCustomerId,
@@ -654,30 +660,47 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       return { url: session.url };
     },
 
-    async createSubscriptionCheckout(data) {
-      const sessionParams: StripeSdk.Checkout.SessionCreateParams & {
-        managed_payments?: { enabled: boolean };
-      } = {
-        cancel_url: data.cancelUrl ?? data.successUrl,
-        client_reference_id: data.providerCustomerId,
-        customer: data.providerCustomerId,
-        line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
-        metadata: data.metadata,
-        mode: "subscription",
-        success_url: data.successUrl,
-      };
-      if (options.managedPayments) {
-        sessionParams.managed_payments = { enabled: true };
-      }
-      const session = await client.checkout.sessions.create(sessionParams);
+    async detachPaymentMethod(data) {
+      await getStripe().paymentMethods.detach(data.providerMethodId);
+    },
 
-      if (!session.url) {
-        throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SESSION_INVALID);
+    async createCustomerPortalSession(data) {
+      const session = await getStripe().billingPortal.sessions.create({
+        customer: data.providerCustomerId,
+        return_url: data.returnUrl,
+      });
+      return { url: session.url };
+    },
+
+    async cancelSubscriptionAtPeriodEnd(data) {
+      let scheduleId = data.providerSubscriptionScheduleId ?? null;
+      if (!scheduleId) {
+        const currentSubscription = (await getStripe().subscriptions.retrieve(
+          data.providerSubscriptionId,
+        )) as StripeSubscriptionWithExtras;
+        scheduleId =
+          typeof currentSubscription.schedule === "string"
+            ? currentSubscription.schedule
+            : (currentSubscription.schedule?.id ?? null);
       }
+      if (scheduleId) {
+        const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId);
+        if (schedule.status !== "released" && schedule.status !== "canceled") {
+          await getStripe().subscriptionSchedules.release(scheduleId);
+        }
+      }
+
+      const updatedSubscription = (await getStripe().subscriptions.update(
+        data.providerSubscriptionId,
+        {
+          cancel_at_period_end: true,
+        },
+      )) as StripeSubscriptionWithExtras;
 
       return {
-        paymentUrl: session.url,
-        providerCheckoutSessionId: session.id,
+        paymentUrl: null,
+        requiredAction: null,
+        subscription: normalizeStripeSubscription(updatedSubscription),
       };
     },
 
@@ -688,7 +711,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         payment_behavior: "default_incomplete",
         expand: ["latest_invoice.payment_intent"],
       };
-      const createdSubscription = (await client.subscriptions.create(
+      const createdSubscription = (await getStripe().subscriptions.create(
         createParams,
       )) as StripeSubscriptionWithExtras;
 
@@ -710,9 +733,36 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
-    async updateSubscription(data) {
+    async createSubscriptionCheckout(data) {
+      const sessionParams: StripeSdk.Checkout.SessionCreateParams & {
+        managed_payments?: { enabled: boolean };
+      } = {
+        cancel_url: data.cancelUrl ?? data.successUrl,
+        client_reference_id: data.providerCustomerId,
+        customer: data.providerCustomerId,
+        line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+        metadata: data.metadata,
+        mode: "subscription",
+        success_url: data.successUrl,
+      };
+      if (options.managedPayments) {
+        sessionParams.managed_payments = { enabled: true };
+      }
+      const session = await getStripe().checkout.sessions.create(sessionParams);
+
+      if (!session.url) {
+        throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SESSION_INVALID);
+      }
+
+      return {
+        paymentUrl: session.url,
+        providerCheckoutSessionId: session.id,
+      };
+    },
+
+    async changeSubscriptionProduct(data) {
       const currentSubscription = await retrieveExpandedSubscription(
-        client,
+        getStripe(),
         data.providerSubscriptionId,
       );
       const currentItem = currentSubscription.items.data[0];
@@ -723,17 +773,20 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         );
       }
 
-      const updatedSubscription = (await client.subscriptions.update(data.providerSubscriptionId, {
-        items: [
-          {
-            id: currentItem.id,
-            price: data.providerProduct.priceId,
-          },
-        ],
-        payment_behavior: "pending_if_incomplete",
-        proration_behavior: "always_invoice",
-        expand: ["latest_invoice.payment_intent"],
-      })) as StripeSubscriptionWithExtras;
+      const updatedSubscription = (await getStripe().subscriptions.update(
+        data.providerSubscriptionId,
+        {
+          items: [
+            {
+              id: currentItem.id,
+              price: data.providerProduct.priceId,
+            },
+          ],
+          payment_behavior: "pending_if_incomplete",
+          proration_behavior: "always_invoice",
+          expand: ["latest_invoice.payment_intent"],
+        },
+      )) as StripeSubscriptionWithExtras;
 
       const latestInvoice = updatedSubscription.latest_invoice;
       const invoice =
@@ -753,105 +806,21 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
-    async scheduleSubscriptionChange(data) {
-      if (!data.providerProduct?.priceId) {
-        throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_PRICE_REQUIRED);
-      }
-
-      const currentSub = (await client.subscriptions.retrieve(data.providerSubscriptionId, {
-        expand: ["items"],
-      })) as StripeSubscriptionWithExtras;
-      const periodEndSeconds = getLatestPeriodEnd(currentSub);
-      if (typeof periodEndSeconds !== "number") {
-        throw PayKitError.from(
-          "BAD_REQUEST",
-          PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_MISSING_PERIOD,
-        );
-      }
-
-      const currentItems = currentSub.items.data.map((item: { price: { id: string } }) => ({
-        price: item.price.id,
-        quantity: 1,
-      }));
-
-      let schedule: StripeSdk.SubscriptionSchedule;
-      if (data.providerSubscriptionScheduleId) {
-        schedule = await client.subscriptionSchedules.retrieve(data.providerSubscriptionScheduleId);
-      } else {
-        const existingScheduleId =
-          typeof currentSub.schedule === "string"
-            ? currentSub.schedule
-            : (currentSub.schedule?.id ?? null);
-        schedule = existingScheduleId
-          ? await client.subscriptionSchedules.retrieve(existingScheduleId)
-          : await client.subscriptionSchedules.create({
-              from_subscription: data.providerSubscriptionId,
-            });
-      }
-      const scheduleId = schedule.id;
-
-      const currentPhase = schedule.phases[0];
-      const currentPhaseStart = currentPhase?.start_date ?? Math.floor(Date.now() / 1000);
-
-      await client.subscriptionSchedules.update(scheduleId, {
-        end_behavior: "release",
-        phases: [
-          {
-            items: currentItems,
-            start_date: currentPhaseStart,
-            end_date: periodEndSeconds,
-          },
-          {
-            items: [{ price: data.providerProduct.priceId, quantity: 1 }],
-            start_date: periodEndSeconds,
-          },
-        ],
-      });
-
-      const updatedSubscription = await retrieveExpandedSubscription(
-        client,
-        data.providerSubscriptionId,
+    async changeSubscriptionProductAtPeriodEnd() {
+      throw unsupportedProviderCapability(
+        { id: "stripe", name: "Stripe" },
+        "subscriptions.pendingProductChange",
       );
-
-      return {
-        paymentUrl: null,
-        requiredAction: null,
-        subscription: normalizeStripeSubscription(updatedSubscription),
-      };
     },
 
-    async cancelSubscription(data) {
-      const currentSubscription = (await client.subscriptions.retrieve(
-        data.providerSubscriptionId,
-      )) as StripeSubscriptionWithExtras;
-
-      let scheduleId = data.providerSubscriptionScheduleId ?? null;
-      if (!scheduleId) {
-        scheduleId =
-          typeof currentSubscription.schedule === "string"
-            ? currentSubscription.schedule
-            : (currentSubscription.schedule?.id ?? null);
-      }
-      if (scheduleId) {
-        const schedule = await client.subscriptionSchedules.retrieve(scheduleId);
-        if (schedule.status !== "released" && schedule.status !== "canceled") {
-          await client.subscriptionSchedules.release(scheduleId);
-        }
-      }
-
-      const updatedSubscription = (await client.subscriptions.update(data.providerSubscriptionId, {
-        cancel_at_period_end: true,
-      })) as StripeSubscriptionWithExtras;
-
-      return {
-        paymentUrl: null,
-        requiredAction: null,
-        subscription: normalizeStripeSubscription(updatedSubscription),
-      };
+    async getSubscription(data) {
+      return normalizeStripeSubscription(
+        await retrieveExpandedSubscription(getStripe(), data.providerSubscriptionId),
+      );
     },
 
     async listActiveSubscriptions(data) {
-      const subscriptions = await client.subscriptions.list({
+      const subscriptions = await getStripe().subscriptions.list({
         customer: data.providerCustomerId,
         status: "active",
       });
@@ -860,22 +829,25 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       }));
     },
 
-    async resumeSubscription(data) {
+    async resumeSubscriptionAtPeriodEnd(data) {
       let scheduleId = data.providerSubscriptionScheduleId ?? null;
       if (!scheduleId) {
-        const sub = await client.subscriptions.retrieve(data.providerSubscriptionId);
+        const sub = await getStripe().subscriptions.retrieve(data.providerSubscriptionId);
         scheduleId = typeof sub.schedule === "string" ? sub.schedule : (sub.schedule?.id ?? null);
       }
       if (scheduleId) {
-        const schedule = await client.subscriptionSchedules.retrieve(scheduleId);
+        const schedule = await getStripe().subscriptionSchedules.retrieve(scheduleId);
         if (schedule.status !== "released" && schedule.status !== "canceled") {
-          await client.subscriptionSchedules.release(scheduleId);
+          await getStripe().subscriptionSchedules.release(scheduleId);
         }
       }
 
-      const updatedSubscription = (await client.subscriptions.update(data.providerSubscriptionId, {
-        cancel_at_period_end: false,
-      })) as StripeSubscriptionWithExtras;
+      const updatedSubscription = (await getStripe().subscriptions.update(
+        data.providerSubscriptionId,
+        {
+          cancel_at_period_end: false,
+        },
+      )) as StripeSubscriptionWithExtras;
 
       return {
         paymentUrl: null,
@@ -884,71 +856,64 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
-    async detachPaymentMethod(data) {
-      await client.paymentMethods.detach(data.providerMethodId);
+    async getOrCreateSubscriptionSchedule(data) {
+      const currentSub = (await getStripe().subscriptions.retrieve(data.providerSubscriptionId, {
+        expand: ["items", "schedule"],
+      })) as StripeSubscriptionWithExtras;
+      const existingScheduleId =
+        data.providerSubscriptionScheduleId ??
+        (typeof currentSub.schedule === "string"
+          ? currentSub.schedule
+          : (currentSub.schedule?.id ?? null));
+      const schedule = existingScheduleId
+        ? await getStripe().subscriptionSchedules.retrieve(existingScheduleId)
+        : await getStripe().subscriptionSchedules.create({
+            from_subscription: data.providerSubscriptionId,
+          });
+      const currentPhase = schedule.phases[0];
+      return {
+        currentPhaseStartAt: new Date(
+          (currentPhase?.start_date ?? Math.floor(Date.now() / 1000)) * 1000,
+        ),
+        id: schedule.id,
+      };
     },
 
-    async syncProducts(data) {
-      const results = await Promise.all(
-        data.products.map(async (product) => {
-          let productId = product.existingProviderProduct?.productId ?? null;
-          if (!productId) {
-            const stripeProduct = await client.products.create({
-              metadata: { paykit_product_id: product.id },
-              name: product.name,
-            });
-            productId = stripeProduct.id;
-          } else {
-            await client.products.update(productId, { name: product.name });
-          }
-
-          const existingPriceId = product.existingProviderProduct?.priceId ?? null;
-          if (existingPriceId) {
-            return { id: product.id, providerProduct: { productId, priceId: existingPriceId } };
-          }
-
-          const priceParams: StripeSdk.PriceCreateParams = {
-            currency,
-            product: productId,
-            unit_amount: product.priceAmount,
-          };
-          if (product.priceInterval) {
-            priceParams.recurring = {
-              interval: product.priceInterval as "month" | "year",
-            };
-          }
-          const stripePrice = await client.prices.create(priceParams);
-
-          return { id: product.id, providerProduct: { productId, priceId: stripePrice.id } };
-        }),
-      );
-
-      return { results };
+    async updateSubscriptionSchedulePhases(data) {
+      await getStripe().subscriptionSchedules.update(data.providerSubscriptionScheduleId, {
+        end_behavior: "release",
+        phases: data.phases.map((phase) => ({
+          items: [{ price: phase.providerProduct.priceId, quantity: 1 }],
+          start_date: Math.floor(phase.startAt.getTime() / 1000),
+          ...(phase.endAt ? { end_date: Math.floor(phase.endAt.getTime() / 1000) } : {}),
+        })),
+      });
     },
 
-    async createInvoice(data) {
-      const stripeInvoice = await client.invoices.create({
-        auto_advance: data.autoAdvance ?? true,
-        collection_method: "charge_automatically",
-        customer: data.providerCustomerId,
-        currency,
+    async advanceTestClock(data) {
+      assertStripeTestKey(options);
+
+      await getStripe().testHelpers.testClocks.advance(data.testClockId, {
+        frozen_time: Math.floor(data.frozenTime.getTime() / 1000),
       });
 
-      if (data.lines.length > 0) {
-        await client.invoices.addLines(stripeInvoice.id, {
-          lines: data.lines.map((line) => ({
-            amount: line.amount,
-            description: line.description,
-          })),
-        });
+      for (let i = 0; i < 60; i++) {
+        const clock = await getStripe().testHelpers.testClocks.retrieve(data.testClockId);
+        if (clock.status === "ready") {
+          return normalizeStripeTestClock(clock);
+        }
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
-      const finalizedInvoice = await client.invoices.finalizeInvoice(stripeInvoice.id);
-
-      return normalizeStripeInvoice(finalizedInvoice);
+      throw new Error(`Test clock ${data.testClockId} did not reach 'ready' status`);
     },
 
-    async handleWebhook(data) {
+    async getTestClock(data) {
+      const clock = await getStripe().testHelpers.testClocks.retrieve(data.testClockId);
+      return normalizeStripeTestClock(clock);
+    },
+
+    async parseWebhook(data) {
       const headerKey = Object.keys(data.headers).find(
         (k) => k.toLowerCase() === "stripe-signature",
       );
@@ -958,22 +923,22 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       }
 
       const tolerance = data.allowStaleSignatures ? Number.POSITIVE_INFINITY : undefined;
-      const event = await client.webhooks.constructEventAsync(
+      const event = await getStripe().webhooks.constructEventAsync(
         data.body,
         signature,
         options.webhookSecret,
         tolerance,
       );
       return [
-        ...(await createCheckoutCompletedEvents(client, event)),
+        ...(await createCheckoutCompletedEvents(getStripe(), event)),
         ...(await createSubscriptionEvents(event)),
         ...createInvoiceEvents(event),
         ...createDetachedPaymentMethodEvents(event),
       ];
     },
 
-    async getTunnelAccount() {
-      const account = await client.accounts.retrieve();
+    async getWebhookEndpointAccount() {
+      const account = await getStripe().accounts.retrieve();
       const displayName = getStripeDisplayName(account);
       return {
         displayName,
@@ -983,10 +948,10 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
-    async ensureTunnelWebhook(data) {
+    async ensureWebhookEndpoint(data) {
       if (data.existingEndpointId) {
         try {
-          const endpoint = await client.webhookEndpoints.update(data.existingEndpointId, {
+          const endpoint = await getStripe().webhookEndpoints.update(data.existingEndpointId, {
             enabled_events: STRIPE_WEBHOOK_EVENTS,
             url: data.url,
           });
@@ -1004,7 +969,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         }
       }
 
-      const endpoint = await client.webhookEndpoints.create({
+      const endpoint = await getStripe().webhookEndpoints.create({
         enabled_events: STRIPE_WEBHOOK_EVENTS,
         url: data.url,
       });
@@ -1016,27 +981,19 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       };
     },
 
-    async disableTunnelWebhook(data) {
-      await client.webhookEndpoints.del(data.endpointId);
-    },
-
-    async createPortalSession(data) {
-      const session = await client.billingPortal.sessions.create({
-        customer: data.providerCustomerId,
-        return_url: data.returnUrl,
-      });
-      return { url: session.url };
+    async deleteWebhookEndpoint(data) {
+      await getStripe().webhookEndpoints.del(data.endpointId);
     },
 
     async check() {
       const mode = getStripeEnvironment(options.secretKey) === "test" ? "test mode" : "live mode";
       try {
-        const account = await client.accounts.retrieve();
+        const account = await getStripe().accounts.retrieve();
         const displayName = getStripeDisplayName(account);
 
         let webhookEndpoints: Array<{ url: string; status: string }> = [];
         try {
-          const endpoints = await client.webhookEndpoints.list({ limit: 100 });
+          const endpoints = await getStripe().webhookEndpoints.list({ limit: 100 });
           webhookEndpoints = endpoints.data
             .filter((ep) => ep.status === "enabled")
             .map((ep) => ({ url: ep.url, status: ep.status }));
@@ -1049,32 +1006,6 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         const message = error instanceof Error ? error.message : String(error);
         return { ok: false, displayName: "unknown", mode, error: message };
       }
-    },
-  };
-}
-
-export function stripe(options: StripeOptions): StripeProviderConfig {
-  const apiVersion = options.apiVersion ?? PAYKIT_STRIPE_API_VERSION;
-  if (options.managedPayments) {
-    if (!apiVersion.endsWith(".preview") || apiVersion < STRIPE_MANAGED_PAYMENTS_MIN_VERSION) {
-      throw PayKitError.from(
-        "BAD_REQUEST",
-        PAYKIT_ERROR_CODES.PROVIDER_INVALID_CONFIG,
-        `managedPayments requires apiVersion >= ${STRIPE_MANAGED_PAYMENTS_MIN_VERSION} (got "${apiVersion}")`,
-      );
-    }
-  }
-  const client = new StripeSdk(options.secretKey, {
-    apiVersion: apiVersion as StripeSdk.LatestApiVersion,
-    maxNetworkRetries: 3,
-  });
-
-  return {
-    id: "stripe",
-    name: "Stripe",
-    capabilities: { testClocks: true },
-    createAdapter(): PaymentProvider {
-      return createStripeProvider(client, options);
     },
   };
 }

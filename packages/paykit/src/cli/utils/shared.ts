@@ -3,7 +3,7 @@ import type { Pool } from "pg";
 import type { createContext, PayKitContext } from "../../core/context";
 import type { getPendingMigrationCount, migrateDatabase } from "../../database/index";
 import type { dryRunSyncProducts, syncProducts } from "../../product/product-sync.service";
-import type { PayKitProviderConfig } from "../../providers/provider";
+import type { PayKitProvider } from "../../providers/provider";
 import type { PayKitOptions } from "../../types/options";
 import type { NormalizedPlan } from "../../types/schema";
 import type { detectPackageManager, getInstallCommand, getRunCommand } from "./detect";
@@ -108,16 +108,13 @@ export interface ProviderCheckResult {
   webhookEndpoints: Array<{ url: string; status: string }> | null;
 }
 
-export async function checkProvider(
-  providerConfig: PayKitProviderConfig,
-): Promise<ProviderCheckResult> {
+export async function checkProvider(provider: PayKitProvider): Promise<ProviderCheckResult> {
   try {
-    const adapter = providerConfig.createAdapter();
-    const result = await adapter.check?.();
+    const result = await provider.check?.();
 
     if (!result) {
       return {
-        account: { ok: true, displayName: providerConfig.name, mode: "unknown" },
+        account: { ok: true, displayName: provider.name, mode: "unknown" },
         customerSample: [],
         errors: [],
         webhookEndpoints: null,

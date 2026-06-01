@@ -1,17 +1,20 @@
-import type { PayKitProviderConfig } from "paykitjs";
+import type { PayKitProvider } from "paykitjs";
 
 import type { PayKitContext } from "../../../packages/paykit/src/core/context";
 
 export interface ProviderCapabilities {
   testClocks: boolean;
   directSubscription: boolean;
+  invoiceWebhooks: boolean;
+  /** Hosted checkout can be used repeatedly inside provider-agnostic billing tests. */
+  repeatedHostedCheckout: boolean;
 }
 
 export interface ProviderHarness {
   id: string;
   capabilities: ProviderCapabilities;
 
-  createProviderConfig(): PayKitProviderConfig;
+  createProvider(): PayKitProvider;
 
   /**
    * Apply testing-only overrides to the PayKit provider (e.g., Stripe's

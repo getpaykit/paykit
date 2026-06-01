@@ -1,5 +1,6 @@
 import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
+import { assertProviderHasCapability } from "../providers/capabilities";
 import type { StoredProductFeature } from "../types/models";
 import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
 import {
@@ -178,46 +179,27 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
   }
 
   if (paidPlansToSync.length > 0) {
-    const providerResults = await ctx.provider.syncProducts({
-      products: paidPlansToSync.map((p) => ({
-        existingProviderProduct: p.existingProviderProduct,
-        id: p.id,
-        name: p.name,
-        priceAmount: p.priceAmount,
-        priceInterval: p.priceInterval,
-      })),
-    });
-
-    const requestedIds = new Set(paidPlansToSync.map((p) => p.id));
-    const resultById = new Map<string, (typeof providerResults.results)[number]>();
-    for (const r of providerResults.results) {
-      if (resultById.has(r.id)) {
-        throw PayKitError.from(
-          "INTERNAL_SERVER_ERROR",
-          PAYKIT_ERROR_CODES.PLAN_SYNC_FAILED,
-          `Provider syncProducts returned duplicate mapping for id: ${r.id}`,
-        );
+    assertProviderHasCapability(ctx.provider, "subscriptionProducts");
+    const activeProviderProductIds: string[] = [];
+    for (const plan of paidPlansToSync) {
+      const providerResult = await ctx.provider.upsertSubscriptionProduct({
+        existingProviderProduct: plan.existingProviderProduct,
+        id: plan.id,
+        name: plan.name,
+        priceAmount: plan.priceAmount,
+        priceInterval: plan.priceInterval,
+      });
+      const providerProductId = providerResult.providerProduct.productId;
+      if (providerProductId) {
+        activeProviderProductIds.push(providerProductId);
       }
-      resultById.set(r.id, r);
-    }
-    const missingIds = [...requestedIds].filter((id) => !resultById.has(id));
-    if (missingIds.length > 0 || resultById.size !== requestedIds.size) {
-      throw PayKitError.from(
-        "INTERNAL_SERVER_ERROR",
-        PAYKIT_ERROR_CODES.PLAN_SYNC_FAILED,
-        `Provider syncProducts returned invalid mapping: missing=[${missingIds.join(", ")}], expected=${String(requestedIds.size)}, got=${String(resultById.size)}`,
-      );
-    }
-
-    for (const [, providerResult] of resultById) {
-      const plan = paidPlansToSync.find((p) => p.id === providerResult.id);
-      if (!plan) continue;
       await upsertProviderProduct(ctx.database, {
         productInternalId: plan.storedProductInternalId,
         providerId,
         providerProduct: providerResult.providerProduct,
       });
     }
+    await ctx.provider.cleanupSubscriptionProducts?.({ activeProviderProductIds });
   }
 
   return results;

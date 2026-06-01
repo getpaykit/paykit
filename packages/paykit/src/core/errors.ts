@@ -20,6 +20,7 @@ export const PAYKIT_ERROR_CODES = defineErrorCodes({
 
   PROVIDER_REQUIRED: "A provider is required",
   PROVIDER_INVALID_CONFIG: "Provider config is invalid",
+  PROVIDER_CAPABILITY_UNSUPPORTED: "Provider capability is not supported",
   PROVIDER_CUSTOMER_NOT_FOUND: "Customer not found in provider",
   PROVIDER_SESSION_INVALID: "Provider session did not include a URL",
   PROVIDER_SIGNATURE_MISSING: "Missing provider webhook signature",

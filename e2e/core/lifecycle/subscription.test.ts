@@ -16,11 +16,11 @@ import {
   expectNoScheduledPlanInGroup,
   expectSingleActivePlanInGroup,
   expectSingleScheduledPlanInGroup,
+  harness,
   type TestPayKit,
-  waitForWebhook,
 } from "../../test-utils";
 
-describe("subscription lifecycle", () => {
+describe.skipIf(!harness.capabilities.repeatedHostedCheckout)("subscription lifecycle", () => {
   let t: TestPayKit;
   let customerId: string;
 
@@ -171,11 +171,7 @@ describe("subscription lifecycle", () => {
 
       await t.harness.completeCheckout(result.paymentUrl!);
 
-      await waitForWebhook({
-        database: t.database,
-        eventType: "checkout.completed",
-        timeout: 120_000,
-      });
+      await waitForSubscriptionActive({ customerId, planId: "pro", timeout: 120_000 });
 
       const products = await getCustomerProducts();
       const pro = products.find((p) => p.plan_id === "pro" && p.status === "active");
@@ -302,6 +298,10 @@ describe("subscription lifecycle", () => {
       });
     });
 
+    if (!harness.capabilities.testClocks) {
+      return;
+    }
+
     // ─── Step 6: Downgrade Ultra → Free + advance clock ───
     await step("downgrade ultra → free + advance clock", async () => {
       await t.paykit.subscribe({
@@ -373,8 +373,6 @@ describe("subscription lifecycle", () => {
     await t.database.delete(paymentMethod).where(eq(paymentMethod.customerId, customerId));
 
     await step("upgrade free → pro", async () => {
-      const beforeCheckout = new Date();
-
       const result = await t.paykit.subscribe({
         customerId,
         planId: "pro",
@@ -385,12 +383,7 @@ describe("subscription lifecycle", () => {
       // Customer must go through checkout again.
       expect(result.paymentUrl).not.toBeNull();
       await t.harness.completeCheckout(result.paymentUrl!);
-      await waitForWebhook({
-        database: t.database,
-        eventType: "checkout.completed",
-        after: beforeCheckout,
-        timeout: 120_000,
-      });
+      await waitForSubscriptionActive({ customerId, planId: "pro", timeout: 120_000 });
 
       const products = await getCustomerProducts();
       const activePro = products.find((p) => p.plan_id === "pro" && p.status === "active");

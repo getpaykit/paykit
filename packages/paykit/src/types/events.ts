@@ -153,9 +153,7 @@ export interface NormalizedWebhookEventMap {
 export type NormalizedWebhookEventName = keyof NormalizedWebhookEventMap;
 
 export type AnyNormalizedWebhookEvent = {
-  [TName in NormalizedWebhookEventName]: EventByName<NormalizedWebhookEventMap, TName> & {
-    actions?: WebhookApplyAction[];
-  };
+  [TName in NormalizedWebhookEventName]: EventByName<NormalizedWebhookEventMap, TName>;
 }[NormalizedWebhookEventName];
 
 export type NormalizedWebhookEvent<

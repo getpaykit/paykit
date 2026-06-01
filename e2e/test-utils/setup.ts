@@ -30,7 +30,7 @@ type TestPayKitInstance = ReturnType<
   typeof createPayKit<{
     database: Pool;
     products: typeof allProducts;
-    provider: ReturnType<typeof harness.createProviderConfig>;
+    provider: ReturnType<typeof harness.createProvider>;
     testing: { enabled: true };
   }>
 >;
@@ -86,11 +86,11 @@ export async function createTestPayKit(): Promise<TestPayKit> {
   await migrateDatabase(pool);
 
   // 3. Create PayKit instance with the active provider
-  const providerConfig = harness.createProviderConfig();
+  const provider = harness.createProvider();
   const paykit = createPayKit({
     database: pool,
     products: allProducts,
-    provider: providerConfig,
+    provider,
     testing: { enabled: true },
   });
 
@@ -236,8 +236,6 @@ export async function subscribeCustomer(input: {
   customerId: string;
   planId: Parameters<TestPayKitInstance["subscribe"]>[0]["planId"];
 }): Promise<void> {
-  const beforeSubscribe = new Date();
-
   const result = await input.t.paykit.subscribe({
     customerId: input.customerId,
     planId: input.planId,
@@ -247,15 +245,71 @@ export async function subscribeCustomer(input: {
   if (result.paymentUrl) {
     // Checkout-based flow — automate checkout completion
     await input.t.harness.completeCheckout(result.paymentUrl);
-
-    // Wait for the subscription to become active via webhook
-    await waitForWebhook({
-      database: input.t.database,
-      eventType: "subscription.updated",
-      after: beforeSubscribe,
-      timeout: 60_000,
-    });
   }
+
+  await waitForPlanPresent({
+    database: input.t.database,
+    customerId: input.customerId,
+    planId: input.planId,
+    timeout: result.paymentUrl ? 120_000 : 30_000,
+  });
+}
+
+/** Waits until the requested plan has materialized in PayKit's DB. */
+export async function waitForPlanPresent(input: {
+  database: PayKitDatabase;
+  customerId: string;
+  planId: string;
+  timeout?: number;
+}): Promise<void> {
+  const timeout = input.timeout ?? 30_000;
+  const start = Date.now();
+
+  while (Date.now() - start < timeout) {
+    const rows = await input.database
+      .select({ status: subscription.status })
+      .from(subscription)
+      .innerJoin(product, eq(product.internalId, subscription.productInternalId))
+      .where(
+        and(
+          eq(subscription.customerId, input.customerId),
+          eq(product.id, input.planId),
+          inArray(subscription.status, [...presentSubscriptionStatuses]),
+        ),
+      )
+      .limit(1);
+
+    if (rows.length > 0) return;
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw new Error(
+    `Timed out waiting for plan "${input.planId}" for customer "${input.customerId}"`,
+  );
+}
+
+/** Waits until a specific plan is the single active plan in its group. */
+export async function waitForSingleActivePlanInGroup(input: {
+  database: PayKitDatabase;
+  customerId: string;
+  group: string;
+  planId: string;
+  timeout?: number;
+}): Promise<void> {
+  const timeout = input.timeout ?? 30_000;
+  const start = Date.now();
+
+  while (Date.now() - start < timeout) {
+    try {
+      await expectSingleActivePlanInGroup(input);
+      return;
+    } catch {
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+  }
+
+  await expectSingleActivePlanInGroup(input);
 }
 
 export async function expectProduct(input: {
@@ -642,8 +696,12 @@ export async function waitForForwardedWebhookRequest(input: {
 
       try {
         const payload = JSON.parse(request.body) as { id?: string; type?: string };
+        const webhookIdHeader = Object.entries(request.headers).find(
+          ([key]) => key.toLowerCase() === "webhook-id",
+        )?.[1];
         const matchesProviderEventId =
-          input.providerEventId !== undefined && payload.id === input.providerEventId;
+          input.providerEventId !== undefined &&
+          (payload.id === input.providerEventId || webhookIdHeader === input.providerEventId);
         const matchesEventType = input.eventType !== undefined && payload.type === input.eventType;
         if (matchesProviderEventId || matchesEventType) {
           return request;

@@ -22,6 +22,7 @@ export const env = createEnv({
 
     // Polar
     E2E_POLAR_ACCESS_TOKEN: z.string().optional(),
+    E2E_POLAR_CHECKOUT_MODE: z.enum(["auto", "direct", "manual"]).default("auto"),
     E2E_POLAR_WHSEC: z.string().optional(),
   },
   runtimeEnv: process.env,

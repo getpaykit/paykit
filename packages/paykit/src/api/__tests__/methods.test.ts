@@ -31,16 +31,15 @@ function createTestContext() {
         },
       ],
       provider: {
-        createAdapter: vi.fn(),
         id: "stripe",
         name: "Stripe",
       },
     },
     products: { plans: [] },
     provider: {
-      handleWebhook,
       id: "stripe",
       name: "Stripe",
+      parseWebhook: handleWebhook,
     },
   } as unknown as PayKitContext;
 

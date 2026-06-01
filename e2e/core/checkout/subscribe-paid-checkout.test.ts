@@ -1,3 +1,5 @@
+import { eq } from "drizzle-orm";
+import { product, subscription } from "paykitjs/database";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
 import {
@@ -8,7 +10,6 @@ import {
   expectSingleActivePlanInGroup,
   expectSubscription,
   type TestPayKit,
-  waitForWebhook,
 } from "../../test-utils";
 
 describe("subscribe-paid-checkout: free → pro via checkout", () => {
@@ -50,12 +51,7 @@ describe("subscribe-paid-checkout: free → pro via checkout", () => {
 
       await t.harness.completeCheckout(result.paymentUrl);
 
-      await waitForWebhook({
-        database: t.database,
-        eventType: "checkout.completed",
-        after: beforeCheckout,
-        timeout: 120_000,
-      });
+      await waitForActiveSubscription(t, customerId, 120_000, beforeCheckout, "pro");
 
       // Pro is active
       await expectProduct({
@@ -91,3 +87,44 @@ describe("subscribe-paid-checkout: free → pro via checkout", () => {
     }
   });
 });
+
+async function waitForActiveSubscription(
+  t: TestPayKit,
+  customerId: string,
+  timeout: number,
+  after: Date,
+  planId: string,
+): Promise<void> {
+  const start = Date.now();
+
+  while (Date.now() - start < timeout) {
+    const rows = await t.database
+      .select({
+        currentPeriodEndAt: subscription.currentPeriodEndAt,
+        planId: product.id,
+        providerData: subscription.providerData,
+        startedAt: subscription.startedAt,
+        status: subscription.status,
+      })
+      .from(subscription)
+      .innerJoin(product, eq(product.internalId, subscription.productInternalId))
+      .where(eq(subscription.customerId, customerId));
+
+    if (
+      rows.some(
+        (row) =>
+          row.status === "active" &&
+          row.planId === planId &&
+          row.currentPeriodEndAt !== null &&
+          row.startedAt > after &&
+          row.providerData !== null,
+      )
+    ) {
+      return;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw new Error("Timed out waiting for active checkout subscription");
+}

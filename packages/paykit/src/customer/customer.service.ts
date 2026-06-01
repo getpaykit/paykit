@@ -12,6 +12,7 @@ import {
   subscription,
 } from "../database/schema";
 import { getProductByHash } from "../product/product.service";
+import { assertProviderHasCapability } from "../providers/capabilities";
 import type { ProviderCustomer, ProviderCustomerMap } from "../providers/provider";
 import {
   getActiveSubscriptionInGroup,
@@ -457,11 +458,13 @@ export async function hardDeleteCustomer(ctx: PayKitContext, customerId: string)
   const providerCustomerId = getProviderCustomerId(existingCustomer, ctx.provider.id);
   if (providerCustomerId) {
     try {
+      assertProviderHasCapability(ctx.provider, "listActiveSubscriptions");
+      assertProviderHasCapability(ctx.provider, "cancelSubscriptionsAtPeriodEnd");
       const activeSubscriptions = await ctx.provider.listActiveSubscriptions({
         providerCustomerId,
       });
       for (const sub of activeSubscriptions) {
-        await ctx.provider.cancelSubscription({
+        await ctx.provider.cancelSubscriptionAtPeriodEnd({
           providerSubscriptionId: sub.providerSubscriptionId,
         });
       }

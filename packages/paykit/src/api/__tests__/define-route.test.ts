@@ -9,9 +9,6 @@ function createTestContext(trustedOrigins?: string[]) {
     options: {
       database: "postgres://paykit:test@localhost:5432/paykit",
       provider: {
-        createAdapter: () => {
-          throw new Error("not used in test");
-        },
         id: "stripe",
         name: "Stripe",
       },

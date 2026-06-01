@@ -36,7 +36,7 @@ POLAR_ACCESS_TOKEN=polar_oat_...
 POLAR_WEBHOOK_SECRET=...
 ```
 
-- `POLAR_ACCESS_TOKEN`: create one in [Polar Settings](https://polar.sh/settings) under **Access Tokens**. The token needs the following scopes: `products:read`, `products:write`, `customers:read`, `customers:write`, `customer_sessions:write`, `subscriptions:read`, `subscriptions:write`, `checkouts:write`, `organizations:read`, `organizations:write`.
+- `POLAR_ACCESS_TOKEN`: create one in [Polar Settings](https://polar.sh/settings) under **Access Tokens**. The token needs the following scopes: `products:read`, `products:write`, `customers:read`, `customers:write`, `customer_sessions:write`, `subscriptions:read`, `subscriptions:write`, `checkouts:write`, `organizations:read`, `organizations:write`, `webhooks:read`, `webhooks:write`.
 - `POLAR_WEBHOOK_SECRET`: generated when you create a webhook endpoint. See the section below.
 
 ## Webhook setup
@@ -60,16 +60,16 @@ You can also select all events. PayKit silently ignores any events it doesn't ne
 
 ## Local development
 
-Use the Polar CLI to forward webhook events to your local server:
+Use the PayKit CLI to create or update the Polar webhook endpoint and forward events to your local server:
 
 ```bash
-polar listen http://localhost:3000/paykit/webhook
+paykitjs listen --forward-to http://localhost:3000
 ```
 
-The CLI prints a webhook signing secret at startup. Use that as `POLAR_WEBHOOK_SECRET` in your local `.env`.
+The CLI prints the provider webhook URL and webhook signing secret at startup. Use that signing secret as `POLAR_WEBHOOK_SECRET` in your local `.env`.
 
 <Callout type="info">
-  Install the Polar CLI with `curl -fsSL https://polar.sh/install.sh | bash`. You'll need to run `polar login` once to authenticate.
+  `paykitjs listen` uses your configured `POLAR_ACCESS_TOKEN`, so the token must include `webhooks:read` and `webhooks:write` in addition to the normal PayKit provider scopes.
 </Callout>
 
 ## Product syncing

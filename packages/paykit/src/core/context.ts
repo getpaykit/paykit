@@ -1,7 +1,7 @@
 import { Pool } from "pg";
 
 import { createDatabase, type PayKitDatabase } from "../database/index";
-import type { PaymentProvider } from "../providers/provider";
+import type { PayKitProvider } from "../providers/provider";
 import type { PayKitOptions } from "../types/options";
 import { normalizeSchema, type NormalizedSchema } from "../types/schema";
 import { PayKitError, PAYKIT_ERROR_CODES } from "./errors";
@@ -11,7 +11,7 @@ export interface PayKitContext {
   options: PayKitOptions;
   basePath: string;
   database: PayKitDatabase;
-  provider: PaymentProvider;
+  provider: PayKitProvider;
   products: NormalizedSchema;
   logger: PayKitInternalLogger;
 }
@@ -34,14 +34,13 @@ export async function createContext(options: PayKitOptions): Promise<PayKitConte
       ? new Pool({ connectionString: options.database })
       : options.database;
   const database = await createDatabase(pool);
-  const provider = options.provider.createAdapter();
   const basePath = options.basePath ?? "/paykit";
 
   return {
     options,
     basePath,
     database,
-    provider,
+    provider: options.provider,
     products: normalizeSchema(options.products),
     logger: createPayKitLogger(options.logging),
   };

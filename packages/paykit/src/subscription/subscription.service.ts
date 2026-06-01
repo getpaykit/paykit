@@ -19,7 +19,12 @@ import {
   getProductFeatures,
   withProviderInfo,
 } from "../product/product.service";
-import type { ProviderRequiredAction, ProviderSubscription } from "../providers/provider";
+import { assertProviderCapability, assertProviderHasCapability } from "../providers/capabilities";
+import type {
+  ProviderRequiredAction,
+  ProviderSubscription,
+  ProviderSubscriptionResult,
+} from "../providers/provider";
 import type {
   DeleteSubscriptionAction,
   NormalizedSubscription,
@@ -243,8 +248,8 @@ async function cancelExistingProviderSubscriptionForCheckout(
     );
   }
 
-  await ctx.provider.cancelSubscription({
-    currentPeriodEndAt: completion.subCtx.activeSubscription.currentPeriodEndAt,
+  assertProviderHasCapability(ctx.provider, "cancelSubscriptionsAtPeriodEnd");
+  await ctx.provider.cancelSubscriptionAtPeriodEnd({
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
   });
@@ -744,6 +749,92 @@ function getProviderSubscriptionRef(subscription: ActiveSubscription): {
   };
 }
 
+async function scheduleProviderProductChange(
+  ctx: PayKitContext,
+  input: {
+    currentPeriodEndAt: Date | null;
+    currentPeriodStartAt: Date | null;
+    providerProduct: Record<string, string>;
+    providerSubscriptionId: string;
+    providerSubscriptionScheduleId: string | null;
+  },
+): Promise<ProviderSubscriptionResult> {
+  if (ctx.provider.capabilities.subscriptionSchedules) {
+    return scheduleWithProviderSchedule(ctx, input);
+  }
+
+  if (ctx.provider.capabilities.pendingSubscriptionProductChanges) {
+    return scheduleWithPendingProductChange(ctx, input);
+  }
+
+  assertProviderCapability(ctx.provider, "scheduledSubscriptionProductChange", false);
+  throw new Error("unreachable");
+}
+
+async function scheduleWithProviderSchedule(
+  ctx: PayKitContext,
+  input: Parameters<typeof scheduleProviderProductChange>[1],
+): Promise<ProviderSubscriptionResult> {
+  assertProviderCapability(
+    ctx.provider,
+    "subscriptionSchedules",
+    ctx.provider.capabilities.subscriptionSchedules &&
+      ctx.provider.getOrCreateSubscriptionSchedule != null &&
+      ctx.provider.updateSubscriptionSchedulePhases != null,
+  );
+  assertProviderHasCapability(ctx.provider, "subscriptionSchedules");
+  const getOrCreateSchedule = ctx.provider.getOrCreateSubscriptionSchedule!;
+  const updateSchedulePhases = ctx.provider.updateSubscriptionSchedulePhases!;
+  const currentSubscription = await ctx.provider.getSubscription({
+    providerSubscriptionId: input.providerSubscriptionId,
+  });
+  const currentProviderProduct = currentSubscription.providerProduct;
+  const periodStartAt = input.currentPeriodStartAt ?? currentSubscription.currentPeriodStartAt;
+  const periodEndAt = input.currentPeriodEndAt ?? currentSubscription.currentPeriodEndAt;
+  if (!currentProviderProduct || !periodStartAt || !periodEndAt) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_MISSING_PERIOD);
+  }
+
+  const schedule = await getOrCreateSchedule({
+    providerSubscriptionId: input.providerSubscriptionId,
+    providerSubscriptionScheduleId: input.providerSubscriptionScheduleId,
+  });
+  await updateSchedulePhases({
+    providerSubscriptionScheduleId: schedule.id,
+    phases: [
+      {
+        endAt: periodEndAt,
+        providerProduct: currentProviderProduct,
+        startAt: schedule.currentPhaseStartAt ?? periodStartAt,
+      },
+      {
+        providerProduct: input.providerProduct,
+        startAt: periodEndAt,
+      },
+    ],
+  });
+  const subscription = await ctx.provider.getSubscription({
+    providerSubscriptionId: input.providerSubscriptionId,
+  });
+  return { paymentUrl: null, requiredAction: null, subscription };
+}
+
+async function scheduleWithPendingProductChange(
+  ctx: PayKitContext,
+  input: Parameters<typeof scheduleProviderProductChange>[1],
+): Promise<ProviderSubscriptionResult> {
+  assertProviderCapability(
+    ctx.provider,
+    "pendingSubscriptionProductChanges",
+    ctx.provider.capabilities.pendingSubscriptionProductChanges,
+  );
+  assertProviderHasCapability(ctx.provider, "pendingSubscriptionProductChanges");
+  return ctx.provider.changeSubscriptionProductAtPeriodEnd({
+    providerProduct: input.providerProduct,
+    providerSubscriptionId: input.providerSubscriptionId,
+  });
+}
+
 /** Returns a noop or resumes the current provider subscription. */
 async function handleSamePlanSubscribe(
   ctx: PayKitContext,
@@ -760,7 +851,8 @@ async function handleSamePlanSubscribe(
   }
 
   const activeSubscriptionRef = getProviderSubscriptionRef(activeSubscription);
-  const providerResult = await ctx.provider.resumeSubscription({
+  assertProviderHasCapability(ctx.provider, "resumeSubscriptionsAtPeriodEnd");
+  const providerResult = await ctx.provider.resumeSubscriptionAtPeriodEnd({
     providerSubscriptionId: activeSubscriptionRef.subscriptionId!,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
   });
@@ -822,6 +914,7 @@ async function handleInitialSubscribe(
     return createCheckoutSubscribe(ctx, subCtx);
   }
 
+  assertProviderHasCapability(ctx.provider, "createSubscriptions");
   const providerResult = await ctx.provider.createSubscription({
     providerCustomerId: subCtx.providerCustomerId,
     providerProduct: subCtx.storedPlan.providerProduct!,
@@ -879,6 +972,7 @@ async function handleLocalPlanSwitch(
     return buildSubscribeResult({ paymentUrl: null });
   }
 
+  assertProviderHasCapability(ctx.provider, "createSubscriptions");
   const providerResult = await ctx.provider.createSubscription({
     providerCustomerId: subCtx.providerCustomerId,
     providerProduct: subCtx.storedPlan.providerProduct!,
@@ -921,8 +1015,8 @@ async function handleCancelToFree(
     throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
   }
 
-  const providerResult = await ctx.provider.cancelSubscription({
-    currentPeriodEndAt: activeSubscription.currentPeriodEndAt,
+  assertProviderHasCapability(ctx.provider, "cancelSubscriptionsAtPeriodEnd");
+  const providerResult = await ctx.provider.cancelSubscriptionAtPeriodEnd({
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
   });
@@ -975,7 +1069,9 @@ async function handleScheduledDowngrade(
     throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
   }
 
-  const providerResult = await ctx.provider.scheduleSubscriptionChange({
+  const providerResult = await scheduleProviderProductChange(ctx, {
+    currentPeriodEndAt: activeSubscription.currentPeriodEndAt,
+    currentPeriodStartAt: activeSubscription.currentPeriodStartAt,
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
@@ -1029,7 +1125,8 @@ async function handleUpgrade(
     throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
   }
 
-  const providerResult = await ctx.provider.updateSubscription({
+  assertProviderHasCapability(ctx.provider, "changeSubscriptionProducts");
+  const providerResult = await ctx.provider.changeSubscriptionProduct({
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
   });
@@ -1066,6 +1163,7 @@ async function createCheckoutSubscribe(
   ctx: PayKitContext,
   subCtx: SubscribeContext,
 ): Promise<SubscribeResult> {
+  assertProviderHasCapability(ctx.provider, "subscriptionCheckout");
   const checkoutResult = await ctx.provider.createSubscriptionCheckout({
     cancelUrl: subCtx.cancelUrl,
     metadata: {

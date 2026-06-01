@@ -1,6 +1,7 @@
 import * as z from "zod";
 
 import { definePayKitMethod, returnUrl } from "../api/define-route";
+import { assertProviderHasCapability } from "../providers/capabilities";
 import {
   getCustomerWithDetails,
   hardDeleteCustomer,
@@ -60,11 +61,12 @@ export const customerPortal = definePayKitMethod(
     },
   },
   async (ctx) => {
+    assertProviderHasCapability(ctx.paykit.provider, "customerPortal");
     const { providerCustomerId } = await upsertProviderCustomer(ctx.paykit, {
       customerId: ctx.customer.id,
     });
 
-    const { url } = await ctx.paykit.provider.createPortalSession({
+    const { url } = await ctx.paykit.provider.createCustomerPortalSession({
       providerCustomerId,
       returnUrl: ctx.input.returnUrl,
     });

@@ -1,9 +1,34 @@
 import { PAYKIT_ERROR_CODES } from "paykitjs";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createStripeProvider, stripe } from "../stripe-provider";
+const stripeSdkMock = vi.hoisted(() => ({
+  client: null as unknown,
+  Stripe: vi.fn(function Stripe() {
+    return stripeSdkMock.client;
+  }),
+}));
+
+vi.mock("stripe", () => ({
+  default: stripeSdkMock.Stripe,
+}));
+
+import { stripe, type StripeOptions } from "../stripe-provider";
+
+function createRuntime(client: unknown, options: Partial<StripeOptions> = {}) {
+  stripeSdkMock.client = client;
+  return stripe({
+    secretKey: "sk_test_123",
+    webhookSecret: "whsec_123",
+    ...options,
+  });
+}
 
 describe("providers/stripe", () => {
+  beforeEach(() => {
+    stripeSdkMock.Stripe.mockClear();
+    stripeSdkMock.client = null;
+  });
+
   it("creates a test clock and stores its id on the provider customer", async () => {
     const createClock = vi.fn().mockResolvedValue({
       frozen_time: 1_700_000_000,
@@ -12,22 +37,16 @@ describe("providers/stripe", () => {
       status: "ready",
     });
     const createCustomer = vi.fn().mockResolvedValue({ id: "cus_123" });
-    const runtime = createStripeProvider(
-      {
-        customers: { create: createCustomer },
-        testHelpers: {
-          testClocks: {
-            advance: vi.fn(),
-            create: createClock,
-            retrieve: vi.fn(),
-          },
+    const runtime = createRuntime({
+      customers: { create: createCustomer },
+      testHelpers: {
+        testClocks: {
+          advance: vi.fn(),
+          create: createClock,
+          retrieve: vi.fn(),
         },
-      } as never,
-      {
-        secretKey: "sk_test_123",
-        webhookSecret: "whsec_123",
       },
-    );
+    });
 
     const result = await runtime.createCustomer({
       createTestClock: true,
@@ -60,7 +79,7 @@ describe("providers/stripe", () => {
   });
 
   it("throws a clear error when testing mode uses a live Stripe key", async () => {
-    const runtime = createStripeProvider(
+    const runtime = createRuntime(
       {
         customers: { create: vi.fn() },
         testHelpers: {
@@ -70,10 +89,9 @@ describe("providers/stripe", () => {
             retrieve: vi.fn(),
           },
         },
-      } as never,
+      },
       {
         secretKey: "sk_live_123",
-        webhookSecret: "whsec_123",
       },
     );
 
@@ -95,22 +113,16 @@ describe("providers/stripe", () => {
       name: "customer_123",
       status: "ready",
     });
-    const runtime = createStripeProvider(
-      {
-        customers: { create: vi.fn() },
-        testHelpers: {
-          testClocks: {
-            advance: advanceClock,
-            create: vi.fn(),
-            retrieve: retrieveClock,
-          },
+    const runtime = createRuntime({
+      customers: { create: vi.fn() },
+      testHelpers: {
+        testClocks: {
+          advance: advanceClock,
+          create: vi.fn(),
+          retrieve: retrieveClock,
         },
-      } as never,
-      {
-        secretKey: "sk_test_123",
-        webhookSecret: "whsec_123",
       },
-    );
+    });
     const frozenTime = new Date("2024-01-02T00:00:00.000Z");
 
     const result = await runtime.advanceTestClock({
@@ -135,14 +147,13 @@ describe("providers/stripe", () => {
       createSession: ReturnType<typeof vi.fn>,
       managedPayments: boolean,
     ) {
-      return createStripeProvider(
+      return createRuntime(
         {
           checkout: { sessions: { create: createSession } },
-        } as never,
+        },
         {
+          apiVersion: managedPayments ? "2026-03-04.preview" : undefined,
           managedPayments,
-          secretKey: "sk_test_123",
-          webhookSecret: "whsec_123",
         },
       );
     }

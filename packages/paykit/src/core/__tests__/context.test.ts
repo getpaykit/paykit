@@ -1,7 +1,25 @@
 import type { Pool } from "pg";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { PayKitProviderConfig, PaymentProvider } from "../../providers/provider";
+import type { PayKitProvider } from "../../providers/provider";
+
+const testCapabilities: PayKitProvider["capabilities"] = {
+  subscriptionProducts: true,
+  subscriptionCheckout: true,
+  customerPortal: true,
+  createInvoices: true,
+  detachPaymentMethods: true,
+  setupPaymentMethods: true,
+  cancelSubscriptionsAtPeriodEnd: true,
+  createSubscriptions: true,
+  changeSubscriptionProducts: true,
+  listActiveSubscriptions: true,
+  pendingSubscriptionProductChanges: false,
+  resumeSubscriptionsAtPeriodEnd: true,
+  subscriptionSchedules: false,
+  testClocks: false,
+  manageWebhookEndpoints: false,
+};
 
 const mocks = vi.hoisted(() => ({
   createDatabase: vi.fn(),
@@ -31,13 +49,11 @@ describe("core/context", () => {
       level: "debug",
     } as const;
     const database = {} as Pool;
-    const adapter = { id: "test", name: "Test" } as unknown as PaymentProvider;
-    const provider: PayKitProviderConfig = {
-      capabilities: { testClocks: false },
+    const provider = {
+      capabilities: testCapabilities,
       id: "test",
       name: "Test",
-      createAdapter: () => adapter,
-    };
+    } as unknown as PayKitProvider;
 
     const context = await createContext({
       database,
@@ -48,6 +64,6 @@ describe("core/context", () => {
     expect(mocks.createDatabase).toHaveBeenCalledWith(database);
     expect(mocks.createPayKitLogger).toHaveBeenCalledWith(logging);
     expect(context.logger).toEqual({ kind: "logger" });
-    expect(context.provider).toBe(adapter);
+    expect(context.provider).toBe(provider);
   });
 });

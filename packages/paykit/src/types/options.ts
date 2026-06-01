@@ -1,7 +1,7 @@
 import type { Pool } from "pg";
 import type { LevelWithSilent, Logger } from "pino";
 
-import type { PayKitProviderConfig } from "../providers/provider";
+import type { PayKitProvider } from "../providers/provider";
 import type { PayKitEventHandlers } from "./events";
 import type { PayKitPlugin } from "./plugin";
 import type { PayKitProductsModule } from "./schema";
@@ -17,7 +17,7 @@ export interface PayKitTestingOptions {
 
 export interface PayKitOptions {
   database: Pool | string;
-  provider: PayKitProviderConfig;
+  provider: PayKitProvider;
   products?: PayKitProductsModule;
   /**
    * PayKit root path, e.g. `/paykit` or `/billing`.

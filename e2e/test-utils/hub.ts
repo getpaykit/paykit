@@ -15,14 +15,30 @@ interface BufferedEvent {
 }
 
 /**
- * Extract the provider customer ID from a Stripe event body.
+ * Extract the provider customer ID from provider webhook bodies.
  * Returns null for events that aren't keyed by customer (e.g. product.created).
  */
-function extractStripeCustomerId(body: string): string | null {
+function extractProviderCustomerId(body: string): string | null {
   try {
     const parsed = JSON.parse(body) as {
-      data?: { object?: { id?: string; customer?: string | null; object?: string } };
+      data?: {
+        customer?: { id?: string | null } | null;
+        customerId?: string | null;
+        customer_id?: string | null;
+        object?: { id?: string; customer?: string | null; object?: string };
+      };
     };
+
+    if (typeof parsed.data?.customerId === "string") {
+      return parsed.data.customerId;
+    }
+    if (typeof parsed.data?.customer_id === "string") {
+      return parsed.data.customer_id;
+    }
+    if (typeof parsed.data?.customer?.id === "string") {
+      return parsed.data.customer.id;
+    }
+
     const obj = parsed.data?.object;
     if (!obj) return null;
     if (obj.object === "customer" && typeof obj.id === "string") return obj.id;
@@ -87,7 +103,7 @@ export function startHub(): Promise<Server> {
     }
 
     // Otherwise: route webhook by customer ID
-    const customerId = extractStripeCustomerId(body);
+    const customerId = extractProviderCustomerId(body);
     if (!customerId) {
       // No customer → setup artifacts (product.created, price.created). Drop.
       res.writeHead(204);

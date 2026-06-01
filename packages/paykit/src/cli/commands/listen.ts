@@ -35,14 +35,14 @@ interface DeliveryResponse {
   receivedAt: string;
 }
 
-interface TunnelCapableProvider extends PaymentProvider {
-  disableTunnelWebhook(data: { endpointId: string }): Promise<void>;
-  ensureTunnelWebhook(data: { existingEndpointId?: string | null; url: string }): Promise<{
+interface WebhookEndpointCapableProvider extends PaymentProvider {
+  deleteWebhookEndpoint(data: { endpointId: string }): Promise<void>;
+  ensureWebhookEndpoint(data: { existingEndpointId?: string | null; url: string }): Promise<{
     created: boolean;
     endpointId: string;
     webhookSecret?: string;
   }>;
-  getTunnelAccount(): Promise<{
+  getWebhookEndpointAccount(): Promise<{
     displayName?: string;
     environment: string;
     providerAccountId: string;
@@ -80,7 +80,7 @@ interface RelayRuntimeContext {
   account: TunnelAccountSummary;
   config: Awaited<ReturnType<typeof getPayKitConfig>>;
   deviceToken: string;
-  provider: TunnelCapableProvider;
+  provider: WebhookEndpointCapableProvider;
 }
 
 function sleep(ms: number): Promise<void> {
@@ -230,16 +230,16 @@ function printRetrySummary(
   devLogger.print(`Retried ${label} ${picocolors.dim(id)}.`);
 }
 
-function assertTunnelProvider(provider: PaymentProvider): TunnelCapableProvider {
+function assertWebhookEndpointProvider(provider: PaymentProvider): WebhookEndpointCapableProvider {
   if (
-    typeof provider.getTunnelAccount !== "function" ||
-    typeof provider.ensureTunnelWebhook !== "function" ||
-    typeof provider.disableTunnelWebhook !== "function"
+    typeof provider.getWebhookEndpointAccount !== "function" ||
+    typeof provider.ensureWebhookEndpoint !== "function" ||
+    typeof provider.deleteWebhookEndpoint !== "function"
   ) {
     throw new Error(`Provider "${provider.name}" does not support paykitjs listen yet.`);
   }
 
-  return provider as TunnelCapableProvider;
+  return provider as WebhookEndpointCapableProvider;
 }
 
 function sanitizeReplayHeaders(headers: Record<string, string>): Headers {
@@ -614,10 +614,10 @@ async function deliverWebhook(params: {
 
 async function syncProviderWebhook(params: {
   deviceToken: string;
-  provider: TunnelCapableProvider;
+  provider: WebhookEndpointCapableProvider;
   tunnel: TunnelResponse;
 }): Promise<{ webhookSecret?: string }> {
-  const providerWebhook = await params.provider.ensureTunnelWebhook({
+  const providerWebhook = await params.provider.ensureWebhookEndpoint({
     existingEndpointId: params.tunnel.providerWebhookEndpointId,
     url: params.tunnel.webhookUrl,
   });
@@ -648,11 +648,11 @@ async function loadRelayRuntimeContext(params: {
 }): Promise<RelayRuntimeContext> {
   params.devLogger.start("Loading PayKit config");
   const config = await getPayKitConfig({ configPath: params.configPath, cwd: params.cwd });
-  const provider = assertTunnelProvider(config.options.provider.createAdapter());
+  const provider = assertWebhookEndpointProvider(config.options.provider);
   const deviceToken = getOrCreateDeviceToken();
 
   params.devLogger.update("Connecting to Stripe");
-  const account = await provider.getTunnelAccount();
+  const account = await provider.getWebhookEndpointAccount();
   params.devLogger.update("Connecting to PayKit");
 
   return {
@@ -827,7 +827,7 @@ async function disableAction(options: { config?: string; cwd: string }): Promise
 
   if (tunnel.providerWebhookEndpointId) {
     try {
-      await provider.disableTunnelWebhook({ endpointId: tunnel.providerWebhookEndpointId });
+      await provider.deleteWebhookEndpoint({ endpointId: tunnel.providerWebhookEndpointId });
     } catch (error) {
       if (!isMissingWebhookEndpointError(error)) {
         const message = error instanceof Error ? error.message : String(error);

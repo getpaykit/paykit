@@ -26,12 +26,20 @@ export type {
   ReportResult,
 } from "./entitlement/entitlement.service";
 export type {
-  PayKitProviderConfig,
+  PayKitProvider,
   PaymentProvider,
   ProviderCustomer,
   ProviderCustomerMap,
-  ProviderTunnelAccount,
-  ProviderTunnelWebhook,
+  ProviderHealthResult,
+  ProviderWebhookEndpointAccount,
+  ProviderWebhookEndpointResult,
+  ProviderInvoice,
+  ProviderProductInput,
+  ProviderProductResult,
+  ProviderSubscription,
+  ProviderSubscriptionResult,
+  ProviderSubscriptionSchedule,
+  ProviderSubscriptionSchedulePhase,
   ProviderTestClock,
 } from "./providers/provider";
 export type {
@@ -78,5 +86,11 @@ export { PayKitError, PAYKIT_ERROR_CODES } from "./core/errors";
 export type { PayKitErrorCode } from "./core/errors";
 export { defineErrorCodes } from "./core/error-codes";
 export type { RawError } from "./core/error-codes";
+export { defineProvider } from "./providers/provider";
+export {
+  assertProviderCapability,
+  assertProviderHasCapability,
+  unsupportedProviderCapability,
+} from "./providers/capabilities";
 export { feature, plan } from "./types/schema";
 export { createPayKitEndpoint, definePayKitMethod, returnUrl } from "./api/define-route";

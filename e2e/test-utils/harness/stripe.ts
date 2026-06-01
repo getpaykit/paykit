@@ -1,5 +1,5 @@
 import { stripe } from "@paykitjs/stripe";
-import { chromium } from "playwright";
+import { chromium, type Locator, type Page } from "playwright";
 import { default as Stripe } from "stripe";
 
 import type { PaymentProvider } from "../../../packages/paykit/src/providers/provider";
@@ -18,14 +18,16 @@ export function createStripeHarness(): ProviderHarness {
     capabilities: {
       testClocks: true,
       directSubscription: true,
+      invoiceWebhooks: true,
+      repeatedHostedCheckout: true,
     },
 
-    createProviderConfig() {
+    createProvider() {
       return stripe({ secretKey, webhookSecret });
     },
 
     applyTestingOverrides(ctx) {
-      // Stripe's real createSubscription uses payment_behavior: "default_incomplete",
+      // Stripe's real subscription create uses payment_behavior: "default_incomplete",
       // which requires client-side confirmation via Stripe.js. In tests we want the
       // subscription to activate straight away from the server after a PM is attached.
       const provider = ctx.provider as PaymentProvider;
@@ -88,31 +90,23 @@ export function createStripeHarness(): ProviderHarness {
 
     async completeCheckout(url: string) {
       const browser = await chromium.launch({ headless: true });
+      const page = await browser.newPage();
 
       try {
-        const page = await browser.newPage();
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
         // Stripe's hosted checkout uses custom inputs that require per-key events;
         // fill() does not dispatch them correctly, so use pressSequentially.
-        const cardNumber = page.locator("#cardNumber");
-        await cardNumber.waitFor({ timeout: 60_000 });
-        await cardNumber.pressSequentially("4242424242424242");
+        await pressIfVisible(page.locator("#cardNumber"), "4242424242424242", 60_000);
+        await pressIfVisible(page.locator("#cardExpiry"), "1234");
+        await pressIfVisible(page.locator("#cardCvc"), "123");
+        await pressIfVisible(page.locator("#billingName"), "Test Customer");
+        await pressIfVisible(page.locator("#email"), `checkout-${Date.now()}@e2e.paykit.sh`);
+        await pressIfVisible(page.locator("#billingPostalCode"), "10001");
 
-        const cardExpiry = page.locator("#cardExpiry");
-        await cardExpiry.waitFor({ timeout: 30_000 });
-        await cardExpiry.pressSequentially("1234");
-
-        const cardCvc = page.locator("#cardCvc");
-        await cardCvc.waitFor({ timeout: 30_000 });
-        await cardCvc.pressSequentially("123");
-
-        const billingName = page.locator("#billingName");
-        if (await billingName.isVisible().catch(() => false)) {
-          await billingName.pressSequentially("Test Customer");
-        }
-
-        const submitBtn = page.locator(".SubmitButton-TextContainer").first();
+        const submitBtn = page.locator('button[type="submit"]').first();
+        await submitBtn.waitFor({ state: "visible", timeout: 30_000 });
+        await submitBtn.scrollIntoViewIfNeeded();
         await submitBtn.click();
 
         // Wait for Stripe to navigate away from the checkout page (success redirect
@@ -123,6 +117,9 @@ export function createStripeHarness(): ProviderHarness {
             timeout: 60_000,
           })
           .catch(() => {});
+      } catch (error) {
+        await captureCheckoutFailure(page);
+        throw error;
       } finally {
         await browser.close();
       }
@@ -148,6 +145,18 @@ export function createStripeHarness(): ProviderHarness {
       validateStripeEnv();
     },
   };
+}
+
+async function pressIfVisible(locator: Locator, value: string, timeout = 5_000): Promise<void> {
+  await locator.waitFor({ state: "visible", timeout }).catch(() => undefined);
+  if (await locator.isVisible().catch(() => false)) {
+    await locator.pressSequentially(value);
+  }
+}
+
+async function captureCheckoutFailure(page: Page): Promise<void> {
+  const path = `test-results/stripe-checkout-${Date.now()}.png`;
+  await page.screenshot({ path, fullPage: true }).catch(() => undefined);
 }
 
 function validateStripeEnv(): void {

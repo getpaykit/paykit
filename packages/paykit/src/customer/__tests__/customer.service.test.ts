@@ -1,9 +1,57 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PayKitContext } from "../../core/context";
+import type { PaymentProvider } from "../../providers/provider";
 import type { Customer } from "../../types/models";
 import type { NormalizedSchema } from "../../types/schema";
 import { getCustomerWithDetails, listCustomers, upsertCustomer } from "../customer.service";
+
+const testCapabilities: PaymentProvider["capabilities"] = {
+  subscriptionProducts: true,
+  subscriptionCheckout: true,
+  customerPortal: true,
+  createInvoices: true,
+  detachPaymentMethods: true,
+  setupPaymentMethods: true,
+  cancelSubscriptionsAtPeriodEnd: true,
+  createSubscriptions: true,
+  changeSubscriptionProducts: true,
+  listActiveSubscriptions: true,
+  pendingSubscriptionProductChanges: false,
+  resumeSubscriptionsAtPeriodEnd: true,
+  subscriptionSchedules: false,
+  testClocks: true,
+  manageWebhookEndpoints: false,
+};
+
+function createProviderMock(overrides: Partial<PaymentProvider> = {}) {
+  return {
+    capabilities: testCapabilities,
+    upsertSubscriptionProduct: vi.fn(),
+    check: vi.fn(),
+    createCustomer: vi.fn(),
+    deleteCustomer: vi.fn(),
+    updateCustomer: vi.fn(),
+    id: "stripe",
+    createInvoice: vi.fn(),
+    name: "Stripe",
+    createPaymentMethodSetupSession: vi.fn(),
+    detachPaymentMethod: vi.fn(),
+    createCustomerPortalSession: vi.fn(),
+    cancelSubscriptionAtPeriodEnd: vi.fn(),
+    changeSubscriptionProduct: vi.fn(),
+    changeSubscriptionProductAtPeriodEnd: vi.fn(),
+    createSubscription: vi.fn(),
+    createSubscriptionCheckout: vi.fn(),
+    getSubscription: vi.fn(),
+    listActiveSubscriptions: vi.fn(),
+    resumeSubscriptionAtPeriodEnd: vi.fn(),
+    advanceTestClock: vi.fn(),
+    getTestClock: vi.fn(),
+    parseWebhook: vi.fn(),
+    ...overrides,
+  } as PaymentProvider;
+}
 
 const emptyProducts: NormalizedSchema = {
   features: [],
@@ -68,32 +116,16 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(createCustomerRow())
       .mockResolvedValueOnce(syncedCustomer)
       .mockResolvedValueOnce(syncedCustomer);
-    const stripe = {
-      advanceTestClock: vi.fn(),
-      attachPaymentMethod: vi.fn(),
-      cancelSubscription: vi.fn(),
-      createInvoice: vi.fn(),
-      createPortalSession: vi.fn(),
-      createSubscription: vi.fn(),
-      createSubscriptionCheckout: vi.fn(),
-      deleteCustomer: vi.fn(),
-      detachPaymentMethod: vi.fn(),
-      getTestClock: vi.fn(),
-      handleWebhook: vi.fn(),
-      listActiveSubscriptions: vi.fn(),
-      resumeSubscription: vi.fn(),
-      scheduleSubscriptionChange: vi.fn(),
-      syncProducts: vi.fn(),
-      updateSubscription: vi.fn(),
-      createCustomer: vi.fn().mockResolvedValue({
-        providerCustomer: {
-          frozenTime: "2024-01-01T00:00:00.000Z",
-          id: "cus_123",
-          testClockId: "clock_123",
-        },
-      }),
-      updateCustomer: vi.fn(),
-    };
+    const createCustomer = vi.fn().mockResolvedValue({
+      providerCustomer: {
+        frozenTime: "2024-01-01T00:00:00.000Z",
+        id: "cus_123",
+        testClockId: "clock_123",
+      },
+    });
+    const provider = createProviderMock({
+      createCustomer,
+    });
     const ctx = {
       database: {
         query: {
@@ -113,17 +145,11 @@ describe("customer/service", () => {
         provider: {
           id: "stripe",
           name: "Stripe",
-          createAdapter: vi.fn(),
         },
         testing: { enabled: true },
       },
       products: emptyProducts,
-      provider: {
-        capabilities: { testClocks: true },
-        id: "stripe",
-        name: "Stripe",
-        ...stripe,
-      },
+      provider,
     } as unknown as PayKitContext;
 
     const customer = await upsertCustomer(ctx, {
@@ -133,7 +159,7 @@ describe("customer/service", () => {
     });
 
     expect(customer).toEqual(syncedCustomer);
-    expect(stripe.createCustomer).toHaveBeenCalledWith({
+    expect(createCustomer).toHaveBeenCalledWith({
       createTestClock: true,
       email: "test@example.com",
       id: "customer_123",
@@ -167,30 +193,14 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(createCustomerRow())
       .mockResolvedValueOnce(syncedCustomer)
       .mockResolvedValueOnce(syncedCustomer);
-    const stripe = {
-      advanceTestClock: vi.fn(),
-      attachPaymentMethod: vi.fn(),
-      cancelSubscription: vi.fn(),
-      createInvoice: vi.fn(),
-      createPortalSession: vi.fn(),
-      createSubscription: vi.fn(),
-      createSubscriptionCheckout: vi.fn(),
-      deleteCustomer: vi.fn(),
-      detachPaymentMethod: vi.fn(),
-      getTestClock: vi.fn(),
-      handleWebhook: vi.fn(),
-      listActiveSubscriptions: vi.fn(),
-      resumeSubscription: vi.fn(),
-      scheduleSubscriptionChange: vi.fn(),
-      syncProducts: vi.fn(),
-      updateSubscription: vi.fn(),
-      createCustomer: vi.fn().mockResolvedValue({
-        providerCustomer: {
-          id: "cus_456",
-        },
-      }),
-      updateCustomer: vi.fn(),
-    };
+    const createCustomer = vi.fn().mockResolvedValue({
+      providerCustomer: {
+        id: "cus_456",
+      },
+    });
+    const provider = createProviderMock({
+      createCustomer,
+    });
     const ctx = {
       database: {
         query: {
@@ -210,16 +220,10 @@ describe("customer/service", () => {
         provider: {
           id: "stripe",
           name: "Stripe",
-          createAdapter: vi.fn(),
         },
       },
       products: emptyProducts,
-      provider: {
-        capabilities: { testClocks: true },
-        id: "stripe",
-        name: "Stripe",
-        ...stripe,
-      },
+      provider,
     } as unknown as PayKitContext;
 
     await upsertCustomer(ctx, {
@@ -228,7 +232,7 @@ describe("customer/service", () => {
       upsertProviderCustomer: true,
     });
 
-    expect(stripe.createCustomer).toHaveBeenCalledWith({
+    expect(createCustomer).toHaveBeenCalledWith({
       createTestClock: false,
       email: "prod@example.com",
       id: "customer_123",
@@ -374,12 +378,12 @@ describe("customer/service", () => {
       .fn()
       .mockResolvedValueOnce(existingCustomer)
       .mockResolvedValueOnce(existingCustomer);
-    const providerMock = {
-      id: "stripe",
-      name: "Stripe",
-      createCustomer: vi.fn(),
-      updateCustomer: vi.fn(),
-    };
+    const createCustomer = vi.fn();
+    const updateCustomer = vi.fn();
+    const providerMock = createProviderMock({
+      createCustomer,
+      updateCustomer,
+    });
     const ctx = {
       database: {
         query: { customer: { findFirst } },
@@ -387,7 +391,7 @@ describe("customer/service", () => {
       },
       logger: { warn: vi.fn() },
       options: {
-        provider: { id: "stripe", name: "Stripe", createAdapter: vi.fn() },
+        provider: { id: "stripe", name: "Stripe" },
       },
       products: emptyProducts,
       provider: providerMock,
@@ -399,8 +403,8 @@ describe("customer/service", () => {
       upsertProviderCustomer: true,
     });
 
-    expect(providerMock.createCustomer).not.toHaveBeenCalled();
-    expect(providerMock.updateCustomer).not.toHaveBeenCalled();
+    expect(createCustomer).not.toHaveBeenCalled();
+    expect(updateCustomer).not.toHaveBeenCalled();
     expect(result.provider).toEqual(existingCustomer.provider);
   });
 
@@ -424,12 +428,10 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(createCustomerRow({ email: "old@example.com" }))
       .mockResolvedValueOnce(existingCustomer)
       .mockResolvedValueOnce(existingCustomer);
-    const providerMock = {
-      id: "stripe",
-      name: "Stripe",
-      createCustomer: vi.fn(),
-      updateCustomer: vi.fn(),
-    };
+    const updateCustomer = vi.fn();
+    const providerMock = createProviderMock({
+      updateCustomer,
+    });
     const ctx = {
       database: {
         query: { customer: { findFirst } },
@@ -440,7 +442,7 @@ describe("customer/service", () => {
       },
       logger: { warn: vi.fn() },
       options: {
-        provider: { id: "stripe", name: "Stripe", createAdapter: vi.fn() },
+        provider: { id: "stripe", name: "Stripe" },
       },
       products: emptyProducts,
       provider: providerMock,
@@ -452,7 +454,7 @@ describe("customer/service", () => {
       upsertProviderCustomer: true,
     });
 
-    expect(providerMock.updateCustomer).toHaveBeenCalledWith(
+    expect(updateCustomer).toHaveBeenCalledWith(
       expect.objectContaining({ providerCustomerId: "cus_existing", email: "new@example.com" }),
     );
   });
@@ -471,12 +473,10 @@ describe("customer/service", () => {
       .mockResolvedValueOnce(createCustomerRow())
       .mockResolvedValueOnce(existingCustomer)
       .mockResolvedValueOnce(existingCustomer);
-    const providerMock = {
-      id: "stripe",
-      name: "Stripe",
-      createCustomer: vi.fn(),
-      updateCustomer: vi.fn(),
-    };
+    const updateCustomer = vi.fn();
+    const providerMock = createProviderMock({
+      updateCustomer,
+    });
     const ctx = {
       database: {
         query: { customer: { findFirst } },
@@ -487,7 +487,7 @@ describe("customer/service", () => {
       },
       logger: { warn: vi.fn() },
       options: {
-        provider: { id: "stripe", name: "Stripe", createAdapter: vi.fn() },
+        provider: { id: "stripe", name: "Stripe" },
       },
       products: emptyProducts,
       provider: providerMock,
@@ -499,7 +499,7 @@ describe("customer/service", () => {
       upsertProviderCustomer: true,
     });
 
-    expect(providerMock.updateCustomer).toHaveBeenCalled();
+    expect(updateCustomer).toHaveBeenCalled();
     expect(providerUpdate.set).toHaveBeenCalledWith(
       expect.objectContaining({
         provider: expect.objectContaining({

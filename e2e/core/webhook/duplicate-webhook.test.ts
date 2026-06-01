@@ -9,11 +9,12 @@ import {
   expectExactMeteredBalance,
   expectNoScheduledPlanInGroup,
   expectProduct,
-  expectSingleActivePlanInGroup,
+  harness,
   replayWebhookRequest,
   subscribeCustomer,
   type TestPayKit,
   waitForForwardedWebhookRequest,
+  waitForSingleActivePlanInGroup,
   waitForWebhook,
 } from "../../test-utils";
 
@@ -56,11 +57,13 @@ describe("duplicate-webhook: same event delivered twice", () => {
         requests: t.webhookRequests,
       });
 
-      await waitForWebhook({
-        after: beforeSubscribe,
-        database: t.database,
-        eventType: "invoice.updated",
-      });
+      if (harness.capabilities.invoiceWebhooks) {
+        await waitForWebhook({
+          after: beforeSubscribe,
+          database: t.database,
+          eventType: "invoice.updated",
+        });
+      }
 
       const webhookCountBeforeRows = await t.database
         .select({ count: count() })
@@ -83,7 +86,7 @@ describe("duplicate-webhook: same event delivered twice", () => {
         planId: "pro",
         expected: { status: "active" },
       });
-      await expectSingleActivePlanInGroup({
+      await waitForSingleActivePlanInGroup({
         database: t.database,
         customerId,
         group: "base",
