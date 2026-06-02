@@ -1,6 +1,6 @@
 export const shikiThemes = {
   light: "github-light",
-  dark: "one-dark-pro",
+  dark: "github-dark",
 } as const;
 
 export const shikiHighlightOptions = {

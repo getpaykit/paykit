@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const defaultThemes = {
   themes: {
     light: "github-light" satisfies BundledTheme,
-    dark: "one-dark-pro" satisfies BundledTheme,
+    dark: "github-dark" satisfies BundledTheme,
   },
   defaultColor: false as const,
 };
@@ -42,7 +42,7 @@ export async function InlineCode({ lang, code }: { lang: string; code: string })
   const { codeToTokens } = await import("shiki");
   const { tokens } = await codeToTokens(code, {
     lang: lang as BundledLanguage,
-    theme: "one-dark-pro",
+    theme: "github-dark",
   });
 
   return (

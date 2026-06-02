@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 const defaultThemes = {
   themes: {
     light: "github-light" satisfies BundledTheme,
-    dark: "one-dark-pro" satisfies BundledTheme,
+    dark: "github-dark" satisfies BundledTheme,
   },
   defaultColor: false as const,
 };
