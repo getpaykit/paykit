@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
@@ -20,15 +20,9 @@ export async function upsertInvoiceRecord(
   },
 ): Promise<StoredInvoice> {
   const now = new Date();
-  const providerData = {
-    invoiceId: input.invoice.providerInvoiceId,
-  };
 
   const existing = await database.query.invoice.findFirst({
-    where: and(
-      eq(invoice.providerId, input.providerId),
-      sql`${invoice.providerData}->>'invoiceId' = ${input.invoice.providerInvoiceId}`,
-    ),
+    where: eq(invoice.stripeInvoiceId, input.invoice.providerInvoiceId),
   });
 
   const values = {
@@ -39,8 +33,7 @@ export async function upsertInvoiceRecord(
     hostedUrl: input.invoice.hostedUrl ?? null,
     periodEndAt: input.invoice.periodEndAt ?? null,
     periodStartAt: input.invoice.periodStartAt ?? null,
-    providerData,
-    providerId: input.providerId,
+    stripeInvoiceId: input.invoice.providerInvoiceId,
     status: input.invoice.status ?? "open",
     subscriptionId: input.subscriptionId ?? null,
     type: "subscription" as string,
@@ -88,10 +81,7 @@ export async function applyInvoiceWebhookAction(
 
   const subscriptionRecord = action.data.providerSubscriptionId
     ? await ctx.database.query.subscription.findFirst({
-        where: and(
-          eq(subscription.providerId, ctx.provider.id),
-          sql`${subscription.providerData}->>'subscriptionId' = ${action.data.providerSubscriptionId}`,
-        ),
+        where: eq(subscription.stripeSubscriptionId, action.data.providerSubscriptionId),
       })
     : null;
 

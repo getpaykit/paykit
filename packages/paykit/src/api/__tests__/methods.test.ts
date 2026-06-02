@@ -30,10 +30,9 @@ function createTestContext() {
           },
         },
       ],
-      provider: {
-        createAdapter: vi.fn(),
-        id: "stripe",
-        name: "Stripe",
+      stripe: {
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
       },
     },
     products: { plans: [] },
@@ -83,7 +82,7 @@ describe("api/methods router", () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ received: true });
     expect(handleWebhook).toHaveBeenCalledWith({
-      allowStaleSignatures: false,
+      allowUnsignedPayload: false,
       body: '{"ok":true}',
       headers: {
         "content-type": "text/plain;charset=UTF-8",

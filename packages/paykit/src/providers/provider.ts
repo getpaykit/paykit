@@ -27,10 +27,6 @@ export interface ProviderPaymentMethod {
   isDefault?: boolean;
 }
 
-export interface PayKitProviderCapabilities {
-  testClocks: boolean;
-}
-
 export interface ProviderTunnelAccount {
   displayName?: string;
   environment: string;
@@ -82,7 +78,6 @@ export interface ProviderSubscriptionResult {
 export interface PaymentProvider {
   readonly id: string;
   readonly name: string;
-  readonly capabilities: PayKitProviderCapabilities;
 
   createCustomer(data: {
     createTestClock?: boolean;
@@ -173,7 +168,7 @@ export interface PaymentProvider {
   }>;
 
   handleWebhook(data: {
-    allowStaleSignatures?: boolean;
+    allowUnsignedPayload?: boolean;
     body: string;
     headers: Record<string, string>;
   }): Promise<NormalizedWebhookEvent[]>;
@@ -201,11 +196,4 @@ export interface PaymentProvider {
     customerSample?: Array<{ providerEmail: string; paykitCustomerId: string | null }>;
     error?: string;
   }>;
-}
-
-export interface PayKitProviderConfig {
-  id: string;
-  name: string;
-  capabilities: PayKitProviderCapabilities;
-  createAdapter(): PaymentProvider;
 }

@@ -158,14 +158,7 @@ type TestingEnabled<TOptions extends PayKitOptions> = TOptions["testing"] extend
   ? true
   : false;
 
-type TestClocksSupported<TOptions extends PayKitOptions> = TOptions["provider"] extends {
-  capabilities: { testClocks: true };
-}
-  ? true
-  : false;
-
-type TestingAvailable<TOptions extends PayKitOptions> =
-  TestingEnabled<TOptions> extends true ? TestClocksSupported<TOptions> : false;
+type TestingAvailable<TOptions extends PayKitOptions> = TestingEnabled<TOptions>;
 
 type EnabledMethodKeys<TOptions extends PayKitOptions> =
   TestingAvailable<TOptions> extends true

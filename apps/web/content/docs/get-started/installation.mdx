@@ -42,23 +42,17 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-## Configure provider
+## Configure Stripe
 
-PayKit can operate with different payment providers. Here's an example with Stripe, but you can easily configure another one, like Polar, Creem, and custom!
-
-Install the provider adapter and plug it into your instance.
-
-<PackageInstall package="@paykitjs/stripe" />
+PayKit uses Stripe for billing. Pass your Stripe keys directly to the PayKit instance.
 
 ```ts title="paykit.ts"
-import { stripe } from "@paykitjs/stripe";
-
 export const paykit = createPayKit({
   // ...
-  provider: stripe({ // [!code highlight]
+  stripe: { // [!code highlight]
     secretKey: process.env.STRIPE_SECRET_KEY!, // [!code highlight]
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,// [!code highlight]
-  }),// [!code highlight]
+  },// [!code highlight]
 });
 ```
 

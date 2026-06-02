@@ -1,14 +1,9 @@
 import { createPayKitClient } from "paykitjs/client";
 
-import type { PaykitPolarInstance } from "@/lib/paykit/polar";
-import type { PaykitStripeInstance } from "@/lib/paykit/stripe";
+import type { PayKitInstance } from "@/lib/paykit";
 
-type ClientInstance<T> = T & { options: { identify: (...args: never[]) => unknown } };
+type ClientInstance<T> = T & { options: T extends { options: infer TOptions } ? TOptions : never };
 
-export const paykitPolarClient = createPayKitClient<ClientInstance<PaykitPolarInstance>>({
-  baseURL: "/paykit-polar",
-});
-
-export const paykitStripeClient = createPayKitClient<ClientInstance<PaykitStripeInstance>>({
-  baseURL: "/paykit-stripe",
+export const paykitClient = createPayKitClient<ClientInstance<PayKitInstance>>({
+  baseURL: "/paykit",
 });

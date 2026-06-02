@@ -43,7 +43,7 @@ describe("paykitjs status", () => {
     try {
       const planCount = config.options.products ? Object.values(config.options.products).length : 0;
       expect(planCount).toBe(2);
-      expect(config.options.provider).toBeTruthy();
+      expect(config.options.stripe).toBeTruthy();
     } finally {
       await database.end();
     }

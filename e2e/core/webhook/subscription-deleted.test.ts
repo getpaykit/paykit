@@ -40,18 +40,18 @@ describe.skipIf(harness.id !== "stripe")(
       // Setup: subscribe to Pro
       await subscribeCustomer({ t, customerId, planId: "pro" });
 
-      // Get provider subscription ID from provider_data JSONB
+      // Get Stripe subscription ID from the stored subscription row.
       const subRows = await t.database
-        .select({ providerData: subscription.providerData })
+        .select({ stripeSubscriptionId: subscription.stripeSubscriptionId })
         .from(subscription)
         .where(eq(subscription.customerId, customerId))
         .orderBy(desc(subscription.updatedAt))
         .limit(1);
-      const providerData = subRows[0]?.providerData as { subscriptionId: string } | null;
-      if (!providerData?.subscriptionId) {
-        throw new Error("Expected providerData with subscriptionId on subscription row");
+      const stripeSubscriptionId = subRows[0]?.stripeSubscriptionId;
+      if (!stripeSubscriptionId) {
+        throw new Error("Expected stripeSubscriptionId on subscription row");
       }
-      providerSubscriptionId = providerData.subscriptionId;
+      providerSubscriptionId = stripeSubscriptionId;
     });
 
     afterAll(async () => {

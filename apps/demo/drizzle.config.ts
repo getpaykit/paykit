@@ -4,8 +4,9 @@ import "dotenv/config";
 export default defineConfig({
   dialect: "postgresql",
   schema: "../../packages/paykit/src/database/schema.ts",
+  out: "../../packages/paykit/src/database/migrations",
   dbCredentials: {
-    url: process.env.POLAR_DATABASE_URL!,
+    url: process.env.PAYKIT_DATABASE_URL!,
   },
   migrations: {
     schema: "public",

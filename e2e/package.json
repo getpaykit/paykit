@@ -5,15 +5,11 @@
   "scripts": {
     "test:stripe": "PROVIDER=stripe vitest run --project=core",
     "test:stripe:watch": "PROVIDER=stripe vitest --project=core",
-    "test:polar": "PROVIDER=polar vitest run --project=core",
-    "test:polar:watch": "PROVIDER=polar vitest --project=core",
     "test:cli": "vitest run --project=cli",
     "test:cli:watch": "vitest --project=cli",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
-    "@paykitjs/polar": "workspace:*",
-    "@paykitjs/stripe": "workspace:*",
     "@t3-oss/env-core": "^0.12.0",
     "@types/pg": "^8.18.0",
     "dotenv": "^17.3.1",

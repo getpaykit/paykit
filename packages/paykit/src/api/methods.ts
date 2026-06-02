@@ -140,20 +140,20 @@ function isTestingEnabled(options: Pick<PayKitOptions, "testing">): boolean {
   return options.testing?.enabled === true;
 }
 
-function isTestingAvailable(options: Pick<PayKitOptions, "provider" | "testing">): boolean {
-  return isTestingEnabled(options) && options.provider.capabilities.testClocks;
+function isTestingAvailable(options: Pick<PayKitOptions, "testing">): boolean {
+  return isTestingEnabled(options);
 }
 
 export function getClientApi(
   ctx: PayKitContext | Promise<PayKitContext>,
-  options: Pick<PayKitOptions, "provider" | "testing">,
+  options: Pick<PayKitOptions, "testing">,
 ) {
   return wrapMethods(isTestingAvailable(options) ? allClientMethods : baseClientMethods, ctx);
 }
 
 export function getApi(
   ctx: PayKitContext | Promise<PayKitContext>,
-  options: Pick<PayKitOptions, "provider" | "testing">,
+  options: Pick<PayKitOptions, "testing">,
 ) {
   return wrapMethods(
     isTestingAvailable(options)

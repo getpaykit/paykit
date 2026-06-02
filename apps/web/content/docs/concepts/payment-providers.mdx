@@ -1,33 +1,31 @@
 ---
 title: Payment Providers
-description: How PayKit abstracts provider integration and keeps provider-native IDs internal.
+description: How PayKit keeps Stripe-native IDs internal.
 ---
 
-PayKit uses a provider abstraction to communicate with payment processors. Your app works with plans, customers, and subscriptions. PayKit translates those into provider-native operations behind the scenes.
+PayKit uses Stripe for billing. Your app works with plans, customers, and subscriptions. PayKit translates those into Stripe-native operations behind the scenes.
 
 ## How it works
 
-You install a provider adapter package and pass it to `createPayKit({ provider })`. The adapter handles all provider-specific API calls, webhook normalization, and product syncing. Your app code doesn't change if you swap providers.
+Pass your Stripe keys to `createPayKit({ stripe })`. PayKit handles Stripe API calls, webhook processing, and product syncing.
 
 ```ts title="paykit.ts"
-import { stripe } from "@paykitjs/stripe";
-
 export const paykit = createPayKit({
   // ...
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  }),
+  },
 });
 ```
 
 ## Stripe
 
-Stripe is currently the primary supported provider. It covers subscriptions, usage-based billing, webhooks, and product syncing out of the box.
+Stripe covers subscriptions, usage-based billing, webhooks, and product syncing out of the box.
 
 See the [Stripe provider page](/docs/providers/stripe) for full setup instructions, webhook configuration, and available options.
 
-## Provider-native IDs stay internal
+## Stripe IDs stay internal
 
 Your app identifies customers and plans with its own IDs. PayKit maps them to Stripe customer IDs, product IDs, and price IDs internally. You never store or reference Stripe IDs in your app code.
 
@@ -39,11 +37,5 @@ await paykit.subscribe({ customerId: "user_123", planId: "pro" });
 ```
 
 <Callout type="info">
-  This mapping means you can migrate to a different provider without changing any of your application code.
-</Callout>
-
-## Future providers
-
-<Callout type="info">
-  Support for additional providers including PayPal and regional PSPs is planned. The adapter interface is stable, so community-built providers will work with the same API.
+  This mapping keeps Stripe details out of your application code.
 </Callout>

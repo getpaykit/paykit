@@ -3,26 +3,21 @@ title: Stripe
 description: Configure Stripe for PayKit, set up webhooks, sync products, and use the customer portal.
 ---
 
-Stripe is PayKit's primary payment provider. The `@paykitjs/stripe` adapter handles all Stripe API interactions, webhook processing, and product syncing.
-
-## Installation
-
-<PackageInstall package="@paykitjs/stripe" />
+Stripe is built into PayKit. PayKit handles Stripe API interactions, webhook processing, and product syncing.
 
 ## Configuration
 
-Pass the `stripe()` adapter to `createPayKit` with your secret key and webhook secret.
+Pass Stripe config to `createPayKit` with your secret key and webhook secret.
 
 ```ts title="paykit.ts"
-import { stripe } from "@paykitjs/stripe";
 import { createPayKit } from "paykitjs";
 
 export const paykit = createPayKit({
   // ...
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  }),
+  },
 });
 ```
 
@@ -141,11 +136,11 @@ PayKit pins the Stripe SDK to a known-good API version so upstream changes don't
 ```ts title="paykit.ts"
 export const paykit = createPayKit({
   // ...
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
     apiVersion: "2026-03-04.preview",
-  }),
+  },
 });
 ```
 
@@ -158,12 +153,12 @@ Stripe Managed Payments is a preview feature where Stripe takes over tax calcula
 ```ts title="paykit.ts"
 export const paykit = createPayKit({
   // ...
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
     apiVersion: "2026-03-04.preview",
     managedPayments: true,
-  }),
+  },
 });
 ```
 

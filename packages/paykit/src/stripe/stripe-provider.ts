@@ -1,15 +1,12 @@
-import { PayKitError, PAYKIT_ERROR_CODES } from "paykitjs";
-import type {
-  NormalizedWebhookEvent,
-  PayKitProviderConfig,
-  PaymentProvider,
-  ProviderTestClock,
-} from "paykitjs";
 import StripeSdk from "stripe";
+
+import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
+import type { PaymentProvider, ProviderTestClock } from "../providers/provider";
+import type { NormalizedWebhookEvent } from "../types/events";
 
 /**
  * Stripe API version PayKit is tested against. Users can override via
- * `stripe({ apiVersion })`, e.g. to opt into preview features.
+ * `createPayKit({ stripe: { apiVersion } })`, e.g. to opt into preview features.
  */
 export const PAYKIT_STRIPE_API_VERSION = "2025-10-29.clover";
 
@@ -36,8 +33,8 @@ export interface StripeOptions {
   managedPayments?: boolean;
 }
 
-export type StripeProviderConfig = PayKitProviderConfig & {
-  capabilities: { testClocks: true };
+type StripeAdapterOptions = Omit<StripeOptions, "webhookSecret"> & {
+  webhookSecret?: string;
 };
 
 type StripeInvoiceWithExtras = StripeSdk.Invoice & {
@@ -571,7 +568,6 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
   return {
     id: "stripe",
     name: "Stripe",
-    capabilities: { testClocks: true },
 
     async createCustomer(data) {
       let testClock: ProviderTestClock | undefined;
@@ -953,17 +949,15 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
         (k) => k.toLowerCase() === "stripe-signature",
       );
       const signature = headerKey ? data.headers[headerKey] : undefined;
-      if (!signature) {
-        throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SIGNATURE_MISSING);
-      }
 
-      const tolerance = data.allowStaleSignatures ? Number.POSITIVE_INFINITY : undefined;
-      const event = await client.webhooks.constructEventAsync(
-        data.body,
-        signature,
-        options.webhookSecret,
-        tolerance,
-      );
+      const event = data.allowUnsignedPayload
+        ? (JSON.parse(data.body) as StripeSdk.Event)
+        : await (async () => {
+            if (!signature) {
+              throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SIGNATURE_MISSING);
+            }
+            return client.webhooks.constructEventAsync(data.body, signature, options.webhookSecret);
+          })();
       return [
         ...(await createCheckoutCompletedEvents(client, event)),
         ...(await createSubscriptionEvents(event)),
@@ -993,7 +987,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
           return {
             created: false,
             endpointId: endpoint.id,
-            webhookSecret: options.webhookSecret,
+            webhookSecret: options.webhookSecret || undefined,
           };
         } catch (error) {
           if (!isStripeResourceMissingError(error)) {
@@ -1053,7 +1047,7 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
   };
 }
 
-export function stripe(options: StripeOptions): StripeProviderConfig {
+export function createStripeAdapter(options: StripeAdapterOptions): PaymentProvider {
   const apiVersion = options.apiVersion ?? PAYKIT_STRIPE_API_VERSION;
   if (options.managedPayments) {
     if (!apiVersion.endsWith(".preview") || apiVersion < STRIPE_MANAGED_PAYMENTS_MIN_VERSION) {
@@ -1069,12 +1063,5 @@ export function stripe(options: StripeOptions): StripeProviderConfig {
     maxNetworkRetries: 3,
   });
 
-  return {
-    id: "stripe",
-    name: "Stripe",
-    capabilities: { testClocks: true },
-    createAdapter(): PaymentProvider {
-      return createStripeProvider(client, options);
-    },
-  };
+  return createStripeProvider(client, { ...options, webhookSecret: options.webhookSecret ?? "" });
 }

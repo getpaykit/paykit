@@ -21,7 +21,12 @@ function createCustomerRow(overrides: Partial<Customer> = {}): Customer {
     id: "customer_123",
     metadata: null,
     name: null,
-    provider: {},
+    stripeCustomerId: null,
+    stripeFrozenTime: null,
+    stripeSyncedEmail: null,
+    stripeSyncedMetadata: null,
+    stripeSyncedName: null,
+    stripeTestClockId: null,
     updatedAt: now,
     ...overrides,
   };
@@ -110,16 +115,11 @@ describe("customer/service", () => {
         warn: vi.fn(),
       },
       options: {
-        provider: {
-          id: "stripe",
-          name: "Stripe",
-          createAdapter: vi.fn(),
-        },
+        stripe: { secretKey: "sk_test_123", webhookSecret: "whsec_123" },
         testing: { enabled: true },
       },
       products: emptyProducts,
       provider: {
-        capabilities: { testClocks: true },
         id: "stripe",
         name: "Stripe",
         ...stripe,
@@ -141,16 +141,12 @@ describe("customer/service", () => {
       name: undefined,
     });
     expect(providerUpdate.set).toHaveBeenCalledWith({
-      provider: {
-        stripe: {
-          frozenTime: expect.any(String),
-          id: "cus_123",
-          testClockId: "clock_123",
-          syncedEmail: "test@example.com",
-          syncedName: null,
-          syncedMetadata: null,
-        },
-      },
+      stripeCustomerId: "cus_123",
+      stripeFrozenTime: expect.any(Date),
+      stripeSyncedEmail: "test@example.com",
+      stripeSyncedMetadata: null,
+      stripeSyncedName: null,
+      stripeTestClockId: "clock_123",
       updatedAt: expect.any(Date),
     });
   });
@@ -207,15 +203,10 @@ describe("customer/service", () => {
         warn: vi.fn(),
       },
       options: {
-        provider: {
-          id: "stripe",
-          name: "Stripe",
-          createAdapter: vi.fn(),
-        },
+        stripe: { secretKey: "sk_test_123", webhookSecret: "whsec_123" },
       },
       products: emptyProducts,
       provider: {
-        capabilities: { testClocks: true },
         id: "stripe",
         name: "Stripe",
         ...stripe,
@@ -360,14 +351,10 @@ describe("customer/service", () => {
     const existingCustomer = createCustomerRow({
       email: "same@example.com",
       name: "Same",
-      provider: {
-        stripe: {
-          id: "cus_existing",
-          syncedEmail: "same@example.com",
-          syncedName: "Same",
-          syncedMetadata: null,
-        },
-      },
+      stripeCustomerId: "cus_existing",
+      stripeSyncedEmail: "same@example.com",
+      stripeSyncedMetadata: null,
+      stripeSyncedName: "Same",
     });
     const syncUpdate = createUpdateChain([existingCustomer]);
     const findFirst = vi
@@ -401,21 +388,17 @@ describe("customer/service", () => {
 
     expect(providerMock.createCustomer).not.toHaveBeenCalled();
     expect(providerMock.updateCustomer).not.toHaveBeenCalled();
-    expect(result.provider).toEqual(existingCustomer.provider);
+    expect(result.stripeCustomerId).toBe("cus_existing");
   });
 
   it("calls provider when email changes from snapshot", async () => {
     const existingCustomer = createCustomerRow({
       email: "new@example.com",
       name: "Same",
-      provider: {
-        stripe: {
-          id: "cus_existing",
-          syncedEmail: "old@example.com",
-          syncedName: "Same",
-          syncedMetadata: null,
-        },
-      },
+      stripeCustomerId: "cus_existing",
+      stripeSyncedEmail: "old@example.com",
+      stripeSyncedMetadata: null,
+      stripeSyncedName: "Same",
     });
     const syncUpdate = createUpdateChain([existingCustomer]);
     const providerUpdate = createUpdateChain(undefined);
@@ -460,9 +443,7 @@ describe("customer/service", () => {
   it("calls provider when no snapshot exists (first sync)", async () => {
     const existingCustomer = createCustomerRow({
       email: "test@example.com",
-      provider: {
-        stripe: { id: "cus_existing" },
-      },
+      stripeCustomerId: "cus_existing",
     });
     const syncUpdate = createUpdateChain([existingCustomer]);
     const providerUpdate = createUpdateChain(undefined);
@@ -502,11 +483,8 @@ describe("customer/service", () => {
     expect(providerMock.updateCustomer).toHaveBeenCalled();
     expect(providerUpdate.set).toHaveBeenCalledWith(
       expect.objectContaining({
-        provider: expect.objectContaining({
-          stripe: expect.objectContaining({
-            syncedEmail: "test@example.com",
-          }),
-        }),
+        stripeCustomerId: "cus_existing",
+        stripeSyncedEmail: "test@example.com",
       }),
     );
   });

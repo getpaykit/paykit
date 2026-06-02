@@ -10,11 +10,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { planCatalog, type PlanId } from "@/lib/demo-catalog";
-import { paykitPolarClient, paykitStripeClient } from "@/lib/paykit-client";
-import type { PayKitScenario } from "@/lib/paykit-scenarios";
+import { paykitClient } from "@/lib/paykit-client";
 import { api, type RouterOutputs } from "@/trpc/react";
 
-type CurrentPlan = RouterOutputs["paykitPolar"]["currentPlans"][number];
+type CurrentPlan = RouterOutputs["paykit"]["currentPlans"][number];
 
 const stripeTestClockQueryKey = ["paykit", "stripe", "test-clock"] as const;
 
@@ -85,63 +84,17 @@ function getPlanAction(
   return { disabled: false, label: "Switch" };
 }
 
-function TestClockUnsupportedPanel() {
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          Test clock
-          <Badge variant="secondary">Not supported</Badge>
-        </CardTitle>
-        <CardDescription>
-          This provider does not support test clocks, so billing time cannot be advanced in the
-          demo.
-        </CardDescription>
-      </CardHeader>
-    </Card>
-  );
-}
-
-function TestClockLoadingPanel() {
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>Test clock</CardTitle>
-        <CardDescription>Checking provider support.</CardDescription>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-3">
-        <Skeleton className="h-5 w-40" />
-        <Skeleton className="h-9 w-full" />
-      </CardContent>
-    </Card>
-  );
-}
-
-function TestClockErrorPanel({ message }: { message: string }) {
-  return (
-    <Card size="sm">
-      <CardHeader>
-        <CardTitle>Test clock</CardTitle>
-        <CardDescription>Failed to determine test clock support.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <p className="text-destructive text-sm">{message}</p>
-      </CardContent>
-    </Card>
-  );
-}
-
 function StripeTestClockPanel() {
   const utils = api.useUtils();
   const queryClient = useQueryClient();
   const testClock = useQuery({
-    queryFn: async () => paykitStripeClient.getTestClock({}),
+    queryFn: async () => paykitClient.getTestClock({}),
     queryKey: stripeTestClockQueryKey,
   });
 
   const advanceClock = useMutation({
     mutationFn: async (frozenTime: Date) => {
-      const result = await paykitStripeClient.advanceTestClock({ frozenTime });
+      const result = await paykitClient.advanceTestClock({ frozenTime });
       return result;
     },
     onError: (error) => {
@@ -151,8 +104,8 @@ function StripeTestClockPanel() {
       toast.success("Advanced test clock");
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: stripeTestClockQueryKey }),
-        utils.paykitStripe.currentPlans.invalidate(),
-        utils.paykitStripe.checkFeature.invalidate(),
+        utils.paykit.currentPlans.invalidate(),
+        utils.paykit.checkFeature.invalidate(),
       ]);
     },
   });
@@ -231,12 +184,10 @@ function StripeTestClockPanel() {
   );
 }
 
-export function SubscribePanel({ scenario }: { scenario: PayKitScenario }) {
+export function SubscribePanel() {
   const utils = api.useUtils();
-  const paykitApi = scenario === "polar" ? api.paykitPolar : api.paykitStripe;
-  const paykitUtils = scenario === "polar" ? utils.paykitPolar : utils.paykitStripe;
-  const paykitClient = scenario === "polar" ? paykitPolarClient : paykitStripeClient;
-  const capabilities = paykitApi.capabilities.useQuery();
+  const paykitApi = api.paykit;
+  const paykitUtils = utils.paykit;
   const { data: currentPlans, isLoading: isLoadingPlans } = paykitApi.currentPlans.useQuery();
   const activePlan =
     currentPlans?.find((plan) => ["active", "trialing", "past_due"].includes(plan.status)) ?? null;
@@ -258,8 +209,8 @@ export function SubscribePanel({ scenario }: { scenario: PayKitScenario }) {
     mutationFn: async ({ planId }: { planId: PlanId }) => {
       const result = await paykitClient.subscribe({
         planId,
-        successUrl: `/?tab=paykit-${scenario}&checkout=success`,
-        cancelUrl: `/?tab=paykit-${scenario}&checkout=canceled`,
+        successUrl: "/?tab=paykit&checkout=success",
+        cancelUrl: "/?tab=paykit&checkout=canceled",
       });
       return { planId, result };
     },
@@ -332,21 +283,7 @@ export function SubscribePanel({ scenario }: { scenario: PayKitScenario }) {
         )}
       </section>
 
-      {capabilities.isLoading ? (
-        <TestClockLoadingPanel />
-      ) : capabilities.isError ? (
-        <TestClockErrorPanel
-          message={
-            capabilities.error instanceof Error
-              ? capabilities.error.message
-              : "Failed to load provider capabilities"
-          }
-        />
-      ) : capabilities.data?.testClocks && scenario === "stripe" ? (
-        <StripeTestClockPanel />
-      ) : (
-        <TestClockUnsupportedPanel />
-      )}
+      <StripeTestClockPanel />
 
       <Separator />
 

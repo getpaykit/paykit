@@ -6,7 +6,6 @@ import picocolors from "picocolors";
 
 import { assertValidPayKitOptions } from "../../core/validate-options";
 import {
-  checkActiveSubscriptionsOnOtherProvider,
   checkProvider,
   checkProviderCustomers,
   createPool,
@@ -33,22 +32,22 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
   const database = createPool(deps, config.options.database);
 
   try {
-    if (!config.options.provider) {
+    if (!config.options.stripe) {
       s.stop("");
-      p.log.error(`Config\n  ${picocolors.red("✖")} No provider configured`);
+      p.log.error(`Config\n  ${picocolors.red("✖")} No Stripe config found`);
       p.cancel("Push failed");
       process.exit(1);
     }
 
     const connStr = deps.getConnectionString(database as never);
     const [providerResult, pendingMigrations] = await Promise.all([
-      checkProvider(config.options.provider),
+      checkProvider(config.options.stripe),
       deps.getPendingMigrationCount(database),
     ]);
 
     if (!providerResult.account.ok) {
       s.stop("");
-      p.log.error(`Provider\n  ${picocolors.red("✖")} ${providerResult.account.message}`);
+      p.log.error(`Stripe\n  ${picocolors.red("✖")} ${providerResult.account.message}`);
       p.cancel("Push failed");
       process.exit(1);
     }
@@ -66,12 +65,8 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
 
     // Preflight checks
     s.message("Running preflight checks");
-    const providerId = config.options.provider.id;
-    const [subscriptionErrors, customerErrors] = await Promise.all([
-      checkActiveSubscriptionsOnOtherProvider(ctx, providerId),
-      checkProviderCustomers(ctx, providerResult.customerSample),
-    ]);
-    const allErrors = [...providerResult.errors, ...subscriptionErrors, ...customerErrors];
+    const customerErrors = await checkProviderCustomers(ctx, providerResult.customerSample);
+    const allErrors = [...providerResult.errors, ...customerErrors];
 
     if (allErrors.length > 0) {
       s.stop("");
@@ -93,7 +88,7 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
     p.log.info(`Database\n  ${picocolors.green("✔")} ${connStr}\n  ${migrationStatus}`);
 
     p.log.info(
-      `Provider\n  ${picocolors.green("✔")} ${providerResult.account.displayName} (${providerResult.account.mode})`,
+      `Stripe\n  ${picocolors.green("✔")} ${providerResult.account.displayName} (${providerResult.account.mode})`,
     );
 
     if (diffs.length > 0) {
@@ -144,7 +139,7 @@ async function pushAction(options: { config?: string; cwd: string; yes?: boolean
 }
 
 export const pushCommand = new Command("push")
-  .description("Apply migrations and sync products to database and payment provider")
+  .description("Apply migrations and sync products to database and Stripe")
   .option(
     "-c, --cwd <cwd>",
     "the working directory. defaults to the current directory.",

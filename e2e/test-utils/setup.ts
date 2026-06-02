@@ -30,7 +30,7 @@ type TestPayKitInstance = ReturnType<
   typeof createPayKit<{
     database: Pool;
     products: typeof allProducts;
-    provider: ReturnType<typeof harness.createProviderConfig>;
+    stripe: ReturnType<typeof harness.createStripeOptions>;
     testing: { enabled: true };
   }>
 >;
@@ -86,11 +86,11 @@ export async function createTestPayKit(): Promise<TestPayKit> {
   await migrateDatabase(pool);
 
   // 3. Create PayKit instance with the active provider
-  const providerConfig = harness.createProviderConfig();
+  const stripeOptions = harness.createStripeOptions();
   const paykit = createPayKit({
     database: pool,
     products: allProducts,
-    provider: providerConfig,
+    stripe: stripeOptions,
     testing: { enabled: true },
   });
 
@@ -122,9 +122,7 @@ export async function createTestPayKit(): Promise<TestPayKit> {
       const customerRows = await ctx.database.query.customer.findMany();
       const idSet = new Set<string>();
       for (const row of customerRows) {
-        const providerMap = (row.provider ?? {}) as Record<string, { id: string }>;
-        const entry = providerMap[harness.id];
-        if (entry?.id) idSet.add(entry.id);
+        if (row.stripeCustomerId) idSet.add(row.stripeCustomerId);
       }
 
       await harness.cleanup({ providerCustomerIds: [...idSet] });
@@ -169,8 +167,7 @@ export async function createTestCustomer(input: {
   const row = await input.t.database.query.customer.findFirst({
     where: eq(customer.id, uniqueId),
   });
-  const providerMap = (row?.provider ?? {}) as Record<string, { id: string }>;
-  const providerCustomerId = providerMap[input.t.harness.id]?.id;
+  const providerCustomerId = row?.stripeCustomerId;
 
   if (!providerCustomerId) {
     throw new Error(
@@ -229,7 +226,7 @@ export async function createTestCustomerWithPM(input: {
 /**
  * Subscribe a customer to a plan, handling checkout flow if the provider requires it.
  * For providers with direct subscription (Stripe with PM): returns immediately.
- * For providers requiring checkout (Polar): completes checkout via Playwright and waits for webhook.
+ * For checkout flows: completes Stripe Checkout via Playwright and waits for webhook.
  */
 export async function subscribeCustomer(input: {
   t: TestPayKit;
@@ -711,7 +708,8 @@ export async function dumpStateOnFailure(database: PayKitDatabase, dbPath: strin
         scheduledProductId: subscription.scheduledProductId,
         cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
         canceledAt: subscription.canceledAt,
-        providerData: subscription.providerData,
+        stripeSubscriptionId: subscription.stripeSubscriptionId,
+        stripeSubscriptionScheduleId: subscription.stripeSubscriptionScheduleId,
       })
       .from(subscription)
       .orderBy(desc(subscription.updatedAt));

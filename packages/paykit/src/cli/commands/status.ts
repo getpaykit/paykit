@@ -5,7 +5,6 @@ import { Command } from "commander";
 import picocolors from "picocolors";
 
 import {
-  checkActiveSubscriptionsOnOtherProvider,
   checkDatabase,
   checkProvider,
   checkProviderCustomers,
@@ -46,15 +45,15 @@ async function statusAction(options: {
   }
 
   const planCount = config.options.products ? Object.values(config.options.products).length : 0;
-  const hasProvider = Boolean(config.options.provider);
+  const hasStripe = Boolean(config.options.stripe);
 
-  if (!hasProvider) {
+  if (!hasStripe) {
     s.stop("");
     p.log.error(
       `Config\n` +
         `  ${picocolors.green("✔")} ${picocolors.dim(config.path)}\n` +
         `  ${picocolors.green("✔")} ${String(planCount)} plan${planCount === 1 ? "" : "s"} defined\n` +
-        `  ${picocolors.red("✖")} No provider configured`,
+        `  ${picocolors.red("✖")} No Stripe config found`,
     );
     p.outro("Fix config issues before continuing");
     process.exit(1);
@@ -66,7 +65,7 @@ async function statusAction(options: {
 
   const [dbResult, providerResult] = await Promise.all([
     checkDatabase(database, deps),
-    checkProvider(config.options.provider),
+    checkProvider(config.options.stripe),
   ]);
 
   if (!dbResult.ok) {
@@ -79,8 +78,8 @@ async function statusAction(options: {
 
   if (!providerResult.account.ok) {
     s.stop("");
-    p.log.error(`Provider\n  ${picocolors.red("✖")} ${providerResult.account.message}`);
-    p.outro("Fix provider issues before continuing");
+    p.log.error(`Stripe\n  ${picocolors.red("✖")} ${providerResult.account.message}`);
+    p.outro("Fix Stripe issues before continuing");
     await database.end();
     process.exit(1);
   }
@@ -111,12 +110,8 @@ async function statusAction(options: {
   } else {
     const { ctx, diffs } = await loadProductDiffs(config, deps);
 
-    const providerId = config.options.provider.id;
-    const [subscriptionErrors, customerErrors] = await Promise.all([
-      checkActiveSubscriptionsOnOtherProvider(ctx, providerId),
-      checkProviderCustomers(ctx, providerResult.customerSample),
-    ]);
-    preflightErrors = [...preflightErrors, ...subscriptionErrors, ...customerErrors];
+    const customerErrors = await checkProviderCustomers(ctx, providerResult.customerSample);
+    preflightErrors = [...preflightErrors, ...customerErrors];
 
     if (diffs.length === 0) {
       productsBlock = `Products\n  ${picocolors.dim("No products defined")}`;
@@ -147,13 +142,13 @@ async function statusAction(options: {
     `Config\n` +
       `  ${picocolors.green("✔")} ${picocolors.dim(config.path)}\n` +
       `  ${picocolors.green("✔")} ${String(planCount)} plan${planCount === 1 ? "" : "s"} defined\n` +
-      `  ${picocolors.green("✔")} Provider configured`,
+      `  ${picocolors.green("✔")} Stripe configured`,
   );
 
   p.log.info(`Database\n  ${picocolors.green("✔")} ${connStr}\n  ${migrationStatus}`);
 
   p.log.info(
-    `Provider\n` +
+    `Stripe\n` +
       `  ${picocolors.green("✔")} ${providerResult.account.displayName} (${providerResult.account.mode})\n` +
       `  ${webhookStatus}`,
   );

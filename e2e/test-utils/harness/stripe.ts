@@ -1,4 +1,3 @@
-import { stripe } from "@paykitjs/stripe";
 import { chromium } from "playwright";
 import { default as Stripe } from "stripe";
 
@@ -15,13 +14,9 @@ export function createStripeHarness(): ProviderHarness {
 
   return {
     id: "stripe",
-    capabilities: {
-      testClocks: true,
-      directSubscription: true,
-    },
 
-    createProviderConfig() {
-      return stripe({ secretKey, webhookSecret });
+    createStripeOptions() {
+      return { secretKey, webhookSecret };
     },
 
     applyTestingOverrides(ctx) {
@@ -93,6 +88,12 @@ export function createStripeHarness(): ProviderHarness {
         const page = await browser.newPage();
         await page.goto(url, { waitUntil: "domcontentloaded" });
 
+        const cardPaymentButton = page.locator('[data-testid="card-accordion-item-button"]');
+        if ((await cardPaymentButton.count()) > 0) {
+          await cardPaymentButton.first().waitFor({ state: "visible" });
+          await cardPaymentButton.first().click();
+        }
+
         // Stripe's hosted checkout uses custom inputs that require per-key events;
         // fill() does not dispatch them correctly, so use pressSequentially.
         const cardNumber = page.locator("#cardNumber");
@@ -108,12 +109,40 @@ export function createStripeHarness(): ProviderHarness {
         await cardCvc.pressSequentially("123");
 
         const billingName = page.locator("#billingName");
-        if (await billingName.isVisible().catch(() => false)) {
+        if ((await billingName.count()) > 0) {
+          await billingName.waitFor({ timeout: 30_000 });
           await billingName.pressSequentially("Test Customer");
         }
 
-        const submitBtn = page.locator(".SubmitButton-TextContainer").first();
-        await submitBtn.click();
+        const email = page.locator("#email");
+        if ((await email.count()) > 0) {
+          await email.pressSequentially("checkout@example.com");
+        }
+
+        const country = page.locator("#billingCountry");
+        if ((await country.count()) > 0) {
+          await country.selectOption("US").catch(() => {});
+        }
+
+        const postalCode = page.locator("#billingPostalCode");
+        if ((await postalCode.count()) > 0) {
+          await postalCode.pressSequentially("10001");
+        }
+
+        await page.waitForSelector(".SubmitButton-TextContainer", {
+          state: "attached",
+          timeout: 30_000,
+        });
+        await page.evaluate(() => {
+          const button =
+            document.querySelector("button.SubmitButton") ??
+            document.querySelector('button[type="submit"]') ??
+            document.querySelector(".SubmitButton-TextContainer")?.closest("button");
+          if (!(button instanceof HTMLElement)) {
+            throw new Error("Stripe Checkout submit button not found");
+          }
+          button.click();
+        });
 
         // Wait for Stripe to navigate away from the checkout page (success redirect
         // or embedded confirmation). Don't fail the test if this times out — the

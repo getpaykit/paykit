@@ -1,9 +1,11 @@
 import path from "node:path";
 
 import { Command } from "commander";
+import dotenv from "dotenv";
 import picocolors from "picocolors";
 
 import type { PaymentProvider } from "../../providers/provider";
+import { createStripeAdapter } from "../../stripe/stripe-provider";
 import { createDevLogger } from "../utils/dev-logger";
 import { getOrCreateDeviceToken } from "../utils/device-token";
 import { getPayKitConfig } from "../utils/get-config";
@@ -78,9 +80,33 @@ type TunnelServerMessage =
 
 interface RelayRuntimeContext {
   account: TunnelAccountSummary;
-  config: Awaited<ReturnType<typeof getPayKitConfig>>;
+  basePath: string;
+  config?: Awaited<ReturnType<typeof getPayKitConfig>>;
   deviceToken: string;
   provider: TunnelCapableProvider;
+}
+
+function loadDotEnv(cwd: string): void {
+  dotenv.config({ path: path.join(cwd, ".env"), quiet: true });
+  dotenv.config({ override: true, path: path.join(cwd, ".env.local"), quiet: true });
+}
+
+function getEnvStripeOptions(): { secretKey: string; webhookSecret?: string } {
+  const secretKey = process.env.E2E_STRIPE_SK ?? process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error(
+      "No PayKit config found and no Stripe secret key found in env. Set E2E_STRIPE_SK or STRIPE_SECRET_KEY, or pass --config.",
+    );
+  }
+
+  return {
+    secretKey,
+    webhookSecret: process.env.E2E_STRIPE_WHSEC ?? process.env.STRIPE_WEBHOOK_SECRET,
+  };
+}
+
+function isConfigNotFound(error: unknown): boolean {
+  return error instanceof Error && error.message.startsWith("No PayKit configuration file found.");
 }
 
 function sleep(ms: number): Promise<void> {
@@ -374,7 +400,7 @@ async function connectTunnelSocket(params: {
 }
 
 async function consumeTunnelSocket(params: {
-  config: Awaited<ReturnType<typeof getPayKitConfig>>;
+  config?: Awaited<ReturnType<typeof getPayKitConfig>>;
   devLogger: ReturnType<typeof createDevLogger>;
   forwardTo?: string;
   onReplayComplete: () => void;
@@ -586,7 +612,7 @@ async function applyDeliveryDirectly(params: {
 }): Promise<ReplayResult> {
   try {
     await params.config.paykit.handleWebhook({
-      allowStaleSignatures: true,
+      allowUnsignedPayload: true,
       body: params.delivery.body,
       headers: params.delivery.headers,
     });
@@ -597,7 +623,7 @@ async function applyDeliveryDirectly(params: {
 }
 
 async function deliverWebhook(params: {
-  config: Awaited<ReturnType<typeof getPayKitConfig>>;
+  config?: Awaited<ReturnType<typeof getPayKitConfig>>;
   delivery: DeliveryResponse;
   forwardTo?: string;
 }): Promise<ReplayResult> {
@@ -607,6 +633,10 @@ async function deliverWebhook(params: {
       localWebhookUrl: params.forwardTo,
       timeoutMs: FORWARD_REPLAY_TIMEOUT_MS,
     });
+  }
+
+  if (!params.config) {
+    return { error: "No PayKit config loaded for direct webhook delivery", ok: false };
   }
 
   return applyDeliveryDirectly({ config: params.config, delivery: params.delivery });
@@ -645,10 +675,26 @@ async function loadRelayRuntimeContext(params: {
   configPath?: string;
   cwd: string;
   devLogger: ReturnType<typeof createDevLogger>;
+  requireConfig?: boolean;
 }): Promise<RelayRuntimeContext> {
   params.devLogger.start("Loading PayKit config");
-  const config = await getPayKitConfig({ configPath: params.configPath, cwd: params.cwd });
-  const provider = assertTunnelProvider(config.options.provider.createAdapter());
+  let config: Awaited<ReturnType<typeof getPayKitConfig>> | undefined;
+  let basePath = "/paykit";
+  let stripeOptions;
+
+  try {
+    config = await getPayKitConfig({ configPath: params.configPath, cwd: params.cwd });
+    basePath = config.options.basePath ?? basePath;
+    stripeOptions = config.options.stripe;
+  } catch (error) {
+    if (params.configPath || params.requireConfig || !isConfigNotFound(error)) {
+      throw error;
+    }
+    loadDotEnv(params.cwd);
+    stripeOptions = getEnvStripeOptions();
+  }
+
+  const provider = assertTunnelProvider(createStripeAdapter(stripeOptions));
   const deviceToken = getOrCreateDeviceToken();
 
   params.devLogger.update("Connecting to Stripe");
@@ -657,6 +703,7 @@ async function loadRelayRuntimeContext(params: {
 
   return {
     account,
+    basePath,
     config,
     deviceToken,
     provider,
@@ -675,10 +722,11 @@ async function listenAction(options: {
   const retryWindowMs = parseRetryWindowMs(options.retry);
   const relayStartedAt = Date.now();
 
-  const { account, config, deviceToken, provider } = await loadRelayRuntimeContext({
+  const { account, basePath, config, deviceToken, provider } = await loadRelayRuntimeContext({
     configPath: options.config,
     cwd,
     devLogger,
+    requireConfig: !options.forwardTo,
   });
   const tunnel = await ensureTunnel({
     account,
@@ -697,10 +745,7 @@ async function listenAction(options: {
   const { webhookSecret } = await syncProviderWebhook({ deviceToken, provider, tunnel });
 
   const localWebhookUrl = options.forwardTo
-    ? buildLocalWebhookUrl(
-        normalizeLocalOrigin(options.forwardTo),
-        config.options.basePath ?? "/paykit",
-      )
+    ? buildLocalWebhookUrl(normalizeLocalOrigin(options.forwardTo), basePath)
     : undefined;
   devLogger.stop();
   printReadyBlock(devLogger, {
@@ -778,6 +823,7 @@ async function enableAction(options: { config?: string; cwd: string }): Promise<
     configPath: options.config,
     cwd,
     devLogger,
+    requireConfig: true,
   });
   const tunnel = await ensureTunnel({
     account,
@@ -811,6 +857,7 @@ async function disableAction(options: { config?: string; cwd: string }): Promise
     configPath: options.config,
     cwd,
     devLogger,
+    requireConfig: true,
   });
   const tunnel = await ensureTunnel({
     account,
@@ -851,16 +898,14 @@ async function retryAction(options: {
   capture("cli_command", { command: "listen_retry" });
   const devLogger = createDevLogger();
 
-  const { config, deviceToken } = await loadRelayRuntimeContext({
+  const { basePath, config, deviceToken } = await loadRelayRuntimeContext({
     configPath: options.config,
     cwd,
     devLogger,
+    requireConfig: !options.forwardTo,
   });
   const forwardTo = options.forwardTo
-    ? buildLocalWebhookUrl(
-        normalizeLocalOrigin(options.forwardTo),
-        config.options.basePath ?? "/paykit",
-      )
+    ? buildLocalWebhookUrl(normalizeLocalOrigin(options.forwardTo), basePath)
     : undefined;
   const delivery = await getDelivery({ deliveryId: options.deliveryId, deviceToken });
   devLogger.stop();

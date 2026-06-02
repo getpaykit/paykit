@@ -1,5 +1,4 @@
-import { getPaykitPolar } from "@/lib/paykit/polar";
-import { getPaykitStripe } from "@/lib/paykit/stripe";
+import { paykit } from "@/lib/paykit";
 import { getConfiguredScenarios } from "@/lib/scenario-config";
 import { autumnRouter } from "@/server/api/routers/autumn";
 import { createPaykitRouter } from "@/server/api/routers/paykit-route";
@@ -13,8 +12,7 @@ import { createCallerFactory, createTRPCRouter, publicProcedure } from "@/server
  */
 export const appRouter = createTRPCRouter({
   autumn: autumnRouter,
-  paykitPolar: createPaykitRouter(getPaykitPolar),
-  paykitStripe: createPaykitRouter(getPaykitStripe),
+  paykit: createPaykitRouter(() => paykit),
   post: postRouter,
   scenarios: createTRPCRouter({
     list: publicProcedure.query(() => getConfiguredScenarios()),

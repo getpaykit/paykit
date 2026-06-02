@@ -2,6 +2,7 @@ import { Pool } from "pg";
 
 import { createDatabase, type PayKitDatabase } from "../database/index";
 import type { PaymentProvider } from "../providers/provider";
+import { createStripeAdapter } from "../stripe/stripe-provider";
 import type { PayKitOptions } from "../types/options";
 import { normalizeSchema, type NormalizedSchema } from "../types/schema";
 import { PayKitError, PAYKIT_ERROR_CODES } from "./errors";
@@ -17,7 +18,7 @@ export interface PayKitContext {
 }
 
 export async function createContext(options: PayKitOptions): Promise<PayKitContext> {
-  if (!options.provider) {
+  if (!options.stripe) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_REQUIRED);
   }
 
@@ -34,7 +35,7 @@ export async function createContext(options: PayKitOptions): Promise<PayKitConte
       ? new Pool({ connectionString: options.database })
       : options.database;
   const database = await createDatabase(pool);
-  const provider = options.provider.createAdapter();
+  const provider = createStripeAdapter(options.stripe);
   const basePath = options.basePath ?? "/paykit";
 
   return {

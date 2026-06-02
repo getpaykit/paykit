@@ -1,4 +1,4 @@
 {
   "title": "Providers",
-  "pages": ["stripe", "polar", "paypal", "creem", "paddle"]
+  "pages": ["stripe"]
 }

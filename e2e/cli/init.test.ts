@@ -39,16 +39,15 @@ describe("paykitjs init", () => {
     const envPath = ".env";
 
     // Write config file
-    const configContent = `import { stripe } from "@paykitjs/stripe";
-import { createPayKit } from "paykitjs";
+    const configContent = `import { createPayKit } from "paykitjs";
 import { free, pro } from "./paykit-products";
 
 export const paykit = createPayKit({
   database: process.env.DATABASE_URL!,
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  }),
+  },
   products: [free, pro],
   identify: async (request) => {
     return null;
@@ -62,7 +61,7 @@ export const paykit = createPayKit({
 
     const written = await fs.readFile(configFullPath, "utf-8");
     expect(written).toContain("createPayKit");
-    expect(written).toContain("@paykitjs/stripe");
+    expect(written).toContain("stripe:");
     expect(written).toContain("paykit-products");
     expect(written).toContain("products: [free, pro]");
 

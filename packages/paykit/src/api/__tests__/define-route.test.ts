@@ -8,12 +8,9 @@ function createTestContext(trustedOrigins?: string[]) {
   return {
     options: {
       database: "postgres://paykit:test@localhost:5432/paykit",
-      provider: {
-        createAdapter: () => {
-          throw new Error("not used in test");
-        },
-        id: "stripe",
-        name: "Stripe",
+      stripe: {
+        secretKey: "sk_test_123",
+        webhookSecret: "whsec_123",
       },
       trustedOrigins,
     },

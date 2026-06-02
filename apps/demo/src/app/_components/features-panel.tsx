@@ -7,11 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { featureCatalog } from "@/lib/demo-catalog";
-import type { PayKitScenario } from "@/lib/paykit-scenarios";
 import { api } from "@/trpc/react";
 
 function MeteredFeatureRow({
-  scenario,
   featureId,
   name,
   description,
@@ -19,11 +17,10 @@ function MeteredFeatureRow({
   description: string;
   featureId: string;
   name: string;
-  scenario: PayKitScenario;
 }) {
   const utils = api.useUtils();
-  const paykitApi = scenario === "polar" ? api.paykitPolar : api.paykitStripe;
-  const paykitUtils = scenario === "polar" ? utils.paykitPolar : utils.paykitStripe;
+  const paykitApi = api.paykit;
+  const paykitUtils = utils.paykit;
   const { data, isLoading } = paykitApi.checkFeature.useQuery({
     featureId,
   });
@@ -78,7 +75,6 @@ function MeteredFeatureRow({
 }
 
 function BooleanFeatureRow({
-  scenario,
   featureId,
   name,
   description,
@@ -86,9 +82,8 @@ function BooleanFeatureRow({
   description: string;
   featureId: string;
   name: string;
-  scenario: PayKitScenario;
 }) {
-  const paykitApi = scenario === "polar" ? api.paykitPolar : api.paykitStripe;
+  const paykitApi = api.paykit;
   const { data, isLoading } = paykitApi.checkFeature.useQuery({
     featureId,
   });
@@ -110,14 +105,13 @@ function BooleanFeatureRow({
   );
 }
 
-export function FeaturesPanel({ scenario }: { scenario: PayKitScenario }) {
+export function FeaturesPanel() {
   return (
     <div className="flex flex-col gap-4">
       {featureCatalog.map((feat) =>
         feat.type === "metered" ? (
           <MeteredFeatureRow
             key={feat.id}
-            scenario={scenario}
             featureId={feat.id}
             name={feat.name}
             description={feat.description}
@@ -125,7 +119,6 @@ export function FeaturesPanel({ scenario }: { scenario: PayKitScenario }) {
         ) : (
           <BooleanFeatureRow
             key={feat.id}
-            scenario={scenario}
             featureId={feat.id}
             name={feat.name}
             description={feat.description}

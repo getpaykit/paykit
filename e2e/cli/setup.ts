@@ -11,7 +11,6 @@ process.env.PAYKIT_CLI = "1";
 
 const packageRoot = path.resolve(import.meta.dirname, "../../packages/paykit");
 const createPayKitPath = path.resolve(packageRoot, "src/index.ts");
-const stripePath = path.resolve(import.meta.dirname, "../../packages/stripe/src/index.ts");
 
 export interface CliTestFixture {
   cwd: string;
@@ -56,7 +55,6 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
     path.join(cwd, "paykit.ts"),
     [
       `import { createPayKit, feature, plan } from ${JSON.stringify(toImportPath(createPayKitPath))};`,
-      `import { stripe } from ${JSON.stringify(toImportPath(stripePath))};`,
       `import pg from "pg";`,
       "",
       `const pool = new pg.Pool({ connectionString: ${JSON.stringify(dbUrl)} });`,
@@ -81,10 +79,10 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
       "",
       `export const paykit = createPayKit({`,
       `  database: pool,`,
-      `  provider: stripe({`,
+      `  stripe: {`,
       `    secretKey: ${JSON.stringify(secretKey)},`,
       `    webhookSecret: ${JSON.stringify(webhookSecret)},`,
-      `  }),`,
+      `  },`,
       `  products: [free, pro],`,
       `});`,
     ].join("\n"),

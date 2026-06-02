@@ -3,7 +3,7 @@ import type { Pool } from "pg";
 import type { createContext, PayKitContext } from "../../core/context";
 import type { getPendingMigrationCount, migrateDatabase } from "../../database/index";
 import type { dryRunSyncProducts, syncProducts } from "../../product/product-sync.service";
-import type { PayKitProviderConfig } from "../../providers/provider";
+import { createStripeAdapter, type StripeOptions } from "../../stripe/stripe-provider";
 import type { PayKitOptions } from "../../types/options";
 import type { NormalizedPlan } from "../../types/schema";
 import type { detectPackageManager, getInstallCommand, getRunCommand } from "./detect";
@@ -108,16 +108,14 @@ export interface ProviderCheckResult {
   webhookEndpoints: Array<{ url: string; status: string }> | null;
 }
 
-export async function checkProvider(
-  providerConfig: PayKitProviderConfig,
-): Promise<ProviderCheckResult> {
+export async function checkProvider(stripeOptions: StripeOptions): Promise<ProviderCheckResult> {
   try {
-    const adapter = providerConfig.createAdapter();
+    const adapter = createStripeAdapter(stripeOptions);
     const result = await adapter.check?.();
 
     if (!result) {
       return {
-        account: { ok: true, displayName: providerConfig.name, mode: "unknown" },
+        account: { ok: true, displayName: "Stripe", mode: "unknown" },
         customerSample: [],
         errors: [],
         webhookEndpoints: null,
@@ -178,34 +176,6 @@ export async function checkProviderCustomers(
   }
 
   return [];
-}
-
-export async function checkActiveSubscriptionsOnOtherProvider(
-  ctx: PayKitContext,
-  currentProviderId: string,
-): Promise<string[]> {
-  const errors: string[] = [];
-  const { subscription } = await import("../../database/schema");
-  const { and, ne, isNotNull, inArray, count } = await import("drizzle-orm");
-  const rows = await ctx.database
-    .select({ count: count(), providerId: subscription.providerId })
-    .from(subscription)
-    .where(
-      and(
-        inArray(subscription.status, ["active", "trialing", "past_due"]),
-        isNotNull(subscription.providerId),
-        ne(subscription.providerId, currentProviderId),
-      ),
-    )
-    .groupBy(subscription.providerId);
-  for (const row of rows) {
-    if (row.count > 0 && row.providerId) {
-      errors.push(
-        `Found ${String(row.count)} subscription${row.count === 1 ? "" : "s"} (active, trialing, or past_due) linked to "${row.providerId}" but current provider is "${currentProviderId}". Existing subscriptions must be canceled before switching providers.`,
-      );
-    }
-  }
-  return errors;
 }
 
 export async function loadProductDiffs(

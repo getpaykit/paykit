@@ -1,4 +1,4 @@
-import { and, eq, isNull, sql } from "drizzle-orm";
+import { and, eq, isNull } from "drizzle-orm";
 
 import type { PayKitContext } from "../core/context";
 import { generateId } from "../core/utils";
@@ -23,7 +23,6 @@ export async function getDefaultPaymentMethod(
       where: and(
         eq(paymentMethod.customerId, input.customerId),
         eq(paymentMethod.isDefault, true),
-        eq(paymentMethod.providerId, input.providerId),
         isNull(paymentMethod.deletedAt),
       ),
     })) ?? null
@@ -47,32 +46,15 @@ export async function syncPaymentMethodByProviderCustomer(
   }
 
   const now = new Date();
-  const providerData = {
-    methodId: input.paymentMethod.providerMethodId,
-    type: input.paymentMethod.type,
-    last4: input.paymentMethod.last4 ?? null,
-    expiryMonth: input.paymentMethod.expiryMonth ?? null,
-    expiryYear: input.paymentMethod.expiryYear ?? null,
-  };
-
   const existingRow = await database.query.paymentMethod.findFirst({
-    where: and(
-      eq(paymentMethod.providerId, input.providerId),
-      sql`${paymentMethod.providerData}->>'methodId' = ${input.paymentMethod.providerMethodId}`,
-      isNull(paymentMethod.deletedAt),
-    ),
+    where: eq(paymentMethod.stripePaymentMethodId, input.paymentMethod.providerMethodId),
   });
 
   if (input.paymentMethod.isDefault) {
     await database
       .update(paymentMethod)
       .set({ isDefault: false, updatedAt: now })
-      .where(
-        and(
-          eq(paymentMethod.customerId, customerRow.id),
-          eq(paymentMethod.providerId, input.providerId),
-        ),
-      );
+      .where(eq(paymentMethod.customerId, customerRow.id));
   }
 
   if (existingRow) {
@@ -81,8 +63,12 @@ export async function syncPaymentMethodByProviderCustomer(
       .set({
         customerId: customerRow.id,
         deletedAt: null,
+        expiryMonth: input.paymentMethod.expiryMonth ?? null,
+        expiryYear: input.paymentMethod.expiryYear ?? null,
         isDefault: input.paymentMethod.isDefault ?? existingRow.isDefault,
-        providerData,
+        last4: input.paymentMethod.last4 ?? null,
+        stripePaymentMethodId: input.paymentMethod.providerMethodId,
+        type: input.paymentMethod.type,
         updatedAt: now,
       })
       .where(eq(paymentMethod.id, existingRow.id));
@@ -92,10 +78,13 @@ export async function syncPaymentMethodByProviderCustomer(
   await database.insert(paymentMethod).values({
     customerId: customerRow.id,
     deletedAt: null,
+    expiryMonth: input.paymentMethod.expiryMonth ?? null,
+    expiryYear: input.paymentMethod.expiryYear ?? null,
     id: generateId("pm"),
     isDefault: input.paymentMethod.isDefault ?? false,
-    providerId: input.providerId,
-    providerData,
+    last4: input.paymentMethod.last4 ?? null,
+    stripePaymentMethodId: input.paymentMethod.providerMethodId,
+    type: input.paymentMethod.type,
   });
 }
 
@@ -113,12 +102,7 @@ export async function deletePaymentMethodByProviderId(
       isDefault: false,
       updatedAt: new Date(),
     })
-    .where(
-      and(
-        eq(paymentMethod.providerId, input.providerId),
-        sql`${paymentMethod.providerData}->>'methodId' = ${input.providerMethodId}`,
-      ),
-    );
+    .where(eq(paymentMethod.stripePaymentMethodId, input.providerMethodId));
 }
 
 export async function applyPaymentMethodWebhookAction(

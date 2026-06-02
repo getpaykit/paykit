@@ -11,10 +11,6 @@ function assertTestingEnabled(ctx: PayKitContext): void {
   if (ctx.options.testing?.enabled !== true) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.TESTING_NOT_ENABLED);
   }
-
-  if (!ctx.provider.capabilities.testClocks) {
-    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.TESTING_NOT_ENABLED);
-  }
 }
 
 export async function getCustomerTestClock(ctx: PayKitContext, customerId: string) {

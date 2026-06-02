@@ -13,16 +13,12 @@ config({
 
 export const env = createEnv({
   server: {
-    PROVIDER: z.enum(["stripe", "polar"]).default("stripe"),
+    PROVIDER: z.enum(["stripe"]).default("stripe"),
     TEST_DATABASE_URL: z.string().default("postgresql://localhost:5432/postgres"),
 
     // Stripe
     E2E_STRIPE_SK: z.string().optional(),
     E2E_STRIPE_WHSEC: z.string().optional(),
-
-    // Polar
-    E2E_POLAR_ACCESS_TOKEN: z.string().optional(),
-    E2E_POLAR_WHSEC: z.string().optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

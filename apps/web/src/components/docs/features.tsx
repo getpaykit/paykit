@@ -31,8 +31,8 @@ const features: { icon: ReactNode; title: string; description: string }[] = [
   },
   {
     icon: <Cable className="size-5" />,
-    title: "Any Provider",
-    description: "Stripe, Polar, Creem, or your own. Swap with one import.",
+    title: "Built For Stripe",
+    description: "Stripe subscriptions, webhooks, portal, and product sync built in.",
   },
   {
     icon: <Blocks className="size-5" />,

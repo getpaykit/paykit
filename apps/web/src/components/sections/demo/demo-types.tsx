@@ -74,7 +74,7 @@ export const interactiveReplies = [
   "Your plans are type-safe. Typo a plan ID and TypeScript catches it at build time.",
   "The dashboard mounts at /paykit in your app. No separate service to deploy.",
   "Webhooks are verified and deduplicated in the same DB transaction. No double charges.",
-  "You can swap from Stripe to Polar by changing one import. Your billing logic stays identical.",
+  "Stripe details stay inside PayKit. Your app keeps using plans, customers, and features.",
   "Every entitlement check is a single function call. No complex permission logic needed.",
   "PayKit runs inside your app. It's a library, not a platform. One npm install and you're set.",
 ];

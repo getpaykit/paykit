@@ -14,7 +14,7 @@
 <h3 align="center">The billing framework for TypeScript</h3>
 
 <p align="center">
-  Define products in code. Any provider. Gate features. Track usage.
+  Define plans in code. Gate features. Track usage. Webhooks handled for you.
 </p>
 
 <p align="center">
@@ -37,7 +37,6 @@
 PayKit is an embedded billing framework for TypeScript apps. It sits inside your app, uses your database, and gives you a single API to manage products, subscriptions, entitlements, and usage billing without touching provider dashboards.
 
 ```ts
-import { stripe } from "@paykitjs/stripe";
 import { createPayKit, feature, plan } from "paykitjs";
 
 const messages = feature({ id: "messages", type: "metered" });
@@ -57,10 +56,10 @@ const pro = plan({
 });
 
 export const paykit = createPayKit({
-  provider: stripe({
+  stripe: {
     secretKey: process.env.STRIPE_SECRET_KEY!,
     webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
-  }),
+  },
   database: process.env.DATABASE_URL!,
   products: [free, pro],
 });

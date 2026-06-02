@@ -5,7 +5,7 @@ import { readFileSync } from "node:fs";
 // generated package.json with dist-relative exports and resolved versions).
 // We publish from `dist` rather than the package root because the root
 // package.json points at `src` for the workspace's source-condition dev setup.
-const packageDirs = ["packages/paykit", "packages/polar", "packages/stripe"];
+const packageDirs = ["packages/paykit"];
 
 for (const dir of packageDirs) {
   const pkg = JSON.parse(readFileSync(`${dir}/dist/package.json`, "utf8"));

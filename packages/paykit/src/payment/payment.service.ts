@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 
 import type { PayKitContext } from "../core/context";
 import { generateId } from "../core/utils";
@@ -23,16 +23,8 @@ export async function syncPaymentByProviderCustomer(
     return;
   }
 
-  const providerData = {
-    paymentId: input.payment.providerPaymentId,
-    methodId: input.payment.providerMethodId ?? null,
-  };
-
   const existing = await database.query.invoice.findFirst({
-    where: and(
-      eq(invoice.providerId, input.providerId),
-      sql`${invoice.providerData}->>'paymentId' = ${input.payment.providerPaymentId}`,
-    ),
+    where: eq(invoice.stripePaymentId, input.payment.providerPaymentId),
   });
 
   if (existing) {
@@ -41,6 +33,8 @@ export async function syncPaymentByProviderCustomer(
       .set({
         status: input.payment.status,
         amount: input.payment.amount,
+        stripePaymentId: input.payment.providerPaymentId,
+        stripePaymentMethodId: input.payment.providerMethodId ?? null,
         updatedAt: new Date(),
       })
       .where(eq(invoice.id, existing.id));
@@ -55,8 +49,8 @@ export async function syncPaymentByProviderCustomer(
     amount: input.payment.amount,
     currency: input.payment.currency,
     description: input.payment.description ?? null,
-    providerId: input.providerId,
-    providerData,
+    stripePaymentId: input.payment.providerPaymentId,
+    stripePaymentMethodId: input.payment.providerMethodId ?? null,
   });
 }
 

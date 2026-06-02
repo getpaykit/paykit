@@ -56,12 +56,6 @@ importers:
       '@base-ui/react':
         specifier: ^1.2.0
         version: 1.5.0(@date-fns/tz@1.5.0)(@types/react@19.2.15)(date-fns@4.2.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@paykitjs/polar':
-        specifier: workspace:*
-        version: link:../../packages/polar
-      '@paykitjs/stripe':
-        specifier: workspace:*
-        version: link:../../packages/stripe
       '@t3-oss/env-nextjs':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.9.3)(zod@4.4.3)
@@ -368,12 +362,6 @@ importers:
 
   e2e:
     devDependencies:
-      '@paykitjs/polar':
-        specifier: workspace:*
-        version: link:../packages/polar
-      '@paykitjs/stripe':
-        specifier: workspace:*
-        version: link:../packages/stripe
       '@t3-oss/env-core':
         specifier: ^0.12.0
         version: 0.12.0(typescript@5.9.3)(zod@4.4.3)
@@ -504,6 +492,9 @@ importers:
       posthog-node:
         specifier: ^5.28.8
         version: 5.35.1(rxjs@7.8.2)
+      stripe:
+        specifier: ^19.1.0
+        version: 19.3.1(@types/node@25.9.1)
       typescript:
         specifier: ^5.9.2
         version: 5.9.3
@@ -520,44 +511,6 @@ importers:
       tsdown:
         specifier: ^0.21.1
         version: 0.21.10(typescript@5.9.3)
-      vitest:
-        specifier: ^4.0.18
-        version: 4.1.7(@types/node@25.9.1)(msw@2.14.6(@types/node@25.9.1)(typescript@5.9.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
-
-  packages/polar:
-    dependencies:
-      '@polar-sh/sdk':
-        specifier: ^0.47.0
-        version: 0.47.1
-      paykitjs:
-        specifier: workspace:*
-        version: link:../paykit
-    devDependencies:
-      tsdown:
-        specifier: ^0.21.1
-        version: 0.21.10(typescript@5.9.3)
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.18
-        version: 4.1.7(@types/node@25.9.1)(msw@2.14.6(@types/node@25.9.1)(typescript@5.9.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
-
-  packages/stripe:
-    dependencies:
-      paykitjs:
-        specifier: workspace:*
-        version: link:../paykit
-      stripe:
-        specifier: ^19.1.0
-        version: 19.3.1(@types/node@25.9.1)
-    devDependencies:
-      tsdown:
-        specifier: ^0.21.1
-        version: 0.21.10(typescript@5.9.3)
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.3
       vitest:
         specifier: ^4.0.18
         version: 4.1.7(@types/node@25.9.1)(msw@2.14.6(@types/node@25.9.1)(typescript@5.9.3))(vite@8.0.14(@types/node@25.9.1)(esbuild@0.28.0)(jiti@2.7.0)(tsx@4.22.3)(yaml@2.9.0))
@@ -2441,9 +2394,6 @@ packages:
 
   '@pinojs/redact@0.4.0':
     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
-
-  '@polar-sh/sdk@0.47.1':
-    resolution: {integrity: sha512-fkz7wPLbqfuDmY9LxuXpE2uP2TAV6J0q/YN5hJ4UBxpjbkB0hKM6c4R35N89t83dfzMlG6EOlqOn+Rd1T6XrJQ==}
 
   '@poppinss/colors@4.1.6':
     resolution: {integrity: sha512-H9xkIdFswbS8n1d6vmRd8+c10t2Qe+rZITbbDHHkQixH5+2x1FDGmi/0K+WgWiqQFKPSlIYB7jlH6Kpfn6Fleg==}
@@ -9201,11 +9151,6 @@ snapshots:
     optional: true
 
   '@pinojs/redact@0.4.0': {}
-
-  '@polar-sh/sdk@0.47.1':
-    dependencies:
-      standardwebhooks: 1.0.0
-      zod: 4.4.3
 
   '@poppinss/colors@4.1.6':
     dependencies:

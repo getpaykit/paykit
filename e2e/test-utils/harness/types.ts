@@ -1,17 +1,11 @@
-import type { PayKitProviderConfig } from "paykitjs";
+import type { StripeOptions } from "paykitjs";
 
 import type { PayKitContext } from "../../../packages/paykit/src/core/context";
 
-export interface ProviderCapabilities {
-  testClocks: boolean;
-  directSubscription: boolean;
-}
-
 export interface ProviderHarness {
   id: string;
-  capabilities: ProviderCapabilities;
 
-  createProviderConfig(): PayKitProviderConfig;
+  createStripeOptions(): StripeOptions;
 
   /**
    * Apply testing-only overrides to the PayKit provider (e.g., Stripe's

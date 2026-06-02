@@ -15,8 +15,8 @@ const features = [
   },
   {
     icon: <Cable className="size-5" />,
-    title: "Any provider",
-    description: "Stripe, Polar, Creem, or your own custom provider. Swap with one import.",
+    title: "Stripe built in",
+    description: "Subscriptions, webhooks, portal, and product sync without adapter setup.",
   },
   {
     icon: <Blocks className="size-5" />,
