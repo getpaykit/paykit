@@ -21,7 +21,7 @@ export function SectionLine({ orientation }: { orientation: "horizontal" | "vert
 
 export function SectionShell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("relative mx-auto max-w-[76rem]", sectionShellWidth, className)}>
+    <div className={cn("relative mx-auto max-w-[72rem]", sectionShellWidth, className)}>
       <SectionLine orientation="vertical" />
       <div className="absolute top-0 right-0 h-full">
         <SectionLine orientation="vertical" />
