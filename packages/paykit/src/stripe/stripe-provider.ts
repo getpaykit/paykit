@@ -84,6 +84,26 @@ function getStripeCustomerId(
   return typeof customer === "string" ? customer : customer.id;
 }
 
+function parseUnsignedStripeEvent(body: string): StripeSdk.Event {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(body) as unknown;
+  } catch {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID);
+  }
+
+  if (
+    !parsed ||
+    typeof parsed !== "object" ||
+    typeof (parsed as { id?: unknown }).id !== "string" ||
+    typeof (parsed as { type?: unknown }).type !== "string"
+  ) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID);
+  }
+
+  return parsed as StripeSdk.Event;
+}
+
 function normalizeStripePaymentMethod(paymentMethod: StripeSdk.PaymentMethod): {
   expiryMonth?: number;
   expiryYear?: number;
@@ -176,7 +196,7 @@ function normalizeStripeTestClock(clock: StripeSdk.TestHelpers.TestClock): Provi
   };
 }
 
-function assertStripeTestKey(options: StripeOptions): void {
+function assertStripeTestKey(options: Pick<StripeOptions, "secretKey">): void {
   if (!options.secretKey.startsWith("sk_test_")) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_TEST_KEY_REQUIRED);
   }
@@ -562,7 +582,10 @@ function createDetachedPaymentMethodEvents(event: StripeSdk.Event): NormalizedWe
   ];
 }
 
-export function createStripeProvider(client: StripeSdk, options: StripeOptions): PaymentProvider {
+export function createStripeProvider(
+  client: StripeSdk,
+  options: StripeAdapterOptions,
+): PaymentProvider {
   const currency = "usd";
 
   return {
@@ -951,10 +974,17 @@ export function createStripeProvider(client: StripeSdk, options: StripeOptions):
       const signature = headerKey ? data.headers[headerKey] : undefined;
 
       const event = data.allowUnsignedPayload
-        ? (JSON.parse(data.body) as StripeSdk.Event)
+        ? parseUnsignedStripeEvent(data.body)
         : await (async () => {
             if (!signature) {
               throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SIGNATURE_MISSING);
+            }
+            if (!options.webhookSecret) {
+              throw PayKitError.from(
+                "BAD_REQUEST",
+                PAYKIT_ERROR_CODES.PROVIDER_INVALID_CONFIG,
+                "Stripe webhookSecret is required to verify signed webhook payloads.",
+              );
             }
             return client.webhooks.constructEventAsync(data.body, signature, options.webhookSecret);
           })();
@@ -1063,5 +1093,5 @@ export function createStripeAdapter(options: StripeAdapterOptions): PaymentProvi
     maxNetworkRetries: 3,
   });
 
-  return createStripeProvider(client, { ...options, webhookSecret: options.webhookSecret ?? "" });
+  return createStripeProvider(client, options);
 }
