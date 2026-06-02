@@ -150,6 +150,18 @@ export function detectFramework(cwd: string): Framework | null {
   return null;
 }
 
+export function detectBetterAuth(cwd: string) {
+  const pkg = readPackageJson(cwd);
+
+  if (pkg) {
+    if (hasDependency(pkg, "better-auth")) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export function detectNextJsRouterPath(cwd: string): string {
   const rootFiles = safeReaddir(cwd);
   const hasAppDir = rootFiles.includes("app");

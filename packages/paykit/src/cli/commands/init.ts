@@ -14,6 +14,7 @@ import type { Framework } from "../configs/frameworks.config";
 import { templates } from "../templates/index";
 import {
   defaultConfigPath,
+  detectBetterAuth,
   detectFramework,
   detectNextJsRouterPath,
   detectPackageManager,
@@ -93,9 +94,40 @@ function providerConfig(provider: InitProvider): string {
   })`;
 }
 
+function buildIdentifyBlock(includeIdentify: boolean, useBetterAuthIdentify: string | null) {
+  const identifyBlock = !includeIdentify
+    ? ""
+    : useBetterAuthIdentify
+      ? `
+identify: async (request) => {
+  const session = await auth.api.getSession({ headers: request.headers });
+  if (!session) return null;
+  return {
+    customerId: session.user.id,
+    email: session.user.email,
+    name: session.user.name,
+  };
+},`
+      : `
+identify: async (request) => {
+  // Replace with your auth logic, for example:
+  // const session = await auth.api.getSession({ headers: request.headers });
+  // if (!session) return null;
+  // return {
+  //   customerId: session.user.id,
+  //   email: session.user.email,
+  //   name: session.user.name,
+  // };
+  return null;
+},`;
+
+  return identifyBlock;
+}
+
 function generateConfigFile(
   templateId: string,
   includeIdentify: boolean,
+  useBetterAuthIdentify: string | null,
   provider: InitProvider,
 ): string {
   const productImports =
@@ -112,23 +144,11 @@ function generateConfigFile(
     ? `\nimport { ${productImports.join(", ")} } from "./paykit-products";`
     : "";
 
-  const identifyBlock = includeIdentify
-    ? `
-  identify: async (request) => {
-    // Replace with your auth logic, for example:
-    // const session = await auth.api.getSession({ headers: request.headers });
-    // if (!session) return null;
-    // return {
-    //   customerId: session.user.id,
-    //   email: session.user.email,
-    //   name: session.user.name,
-    // };
-    return null;
-  },`
-    : "";
+  const identifyBlock = buildIdentifyBlock(includeIdentify, useBetterAuthIdentify);
 
   return `${providerImport(provider)}
 import { createPayKit } from "paykitjs";${importLine}
+${includeIdentify && useBetterAuthIdentify ? `import { auth } from "${useBetterAuthIdentify}";` : ""}
 
 export const paykit = createPayKit({
   database: process.env.DATABASE_URL!,
@@ -172,6 +192,7 @@ function detectExistingProductsModule(content: string): string[] | null {
 function generateConfigFileFromProductsModule(
   productNames: string[],
   includeIdentify: boolean,
+  useBetterAuthIdentify: string | null,
   provider: InitProvider,
   productsImportPath = "./paykit-products",
 ): string {
@@ -183,23 +204,11 @@ function generateConfigFileFromProductsModule(
     ? `\nimport { ${uniqueProductNames.join(", ")} } from "${productsImportPath}";`
     : "";
 
-  const identifyBlock = includeIdentify
-    ? `
-  identify: async (request) => {
-    // Replace with your auth logic, for example:
-    // const session = await auth.api.getSession({ headers: request.headers });
-    // if (!session) return null;
-    // return {
-    //   customerId: session.user.id,
-    //   email: session.user.email,
-    //   name: session.user.name,
-    // };
-    return null;
-  },`
-    : "";
+  const identifyBlock = buildIdentifyBlock(includeIdentify, useBetterAuthIdentify);
 
   return `${providerImport(provider)}
 import { createPayKit } from "paykitjs";${importLine}
+${includeIdentify && useBetterAuthIdentify ? `import { auth } from "${useBetterAuthIdentify}";` : ""}
 
 export const paykit = createPayKit({
   database: process.env.DATABASE_URL!,
@@ -335,6 +344,11 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
   const existingConfig = findExistingFile(cwd, POSSIBLE_CONFIG_PATHS);
   const existingClient = findExistingFile(cwd, POSSIBLE_CLIENT_PATHS);
   const existingProvider = detectExistingProvider(cwd, existingConfig);
+  const usesBetterAuth = detectBetterAuth(cwd);
+  const existingBetterAuthConfig = findExistingFile(cwd, [
+    "src/server/better-auth/config.ts",
+    "src/lib/auth.ts",
+  ]);
 
   let provider: string | symbol = "stripe";
   if (existingProvider) {
@@ -549,6 +563,10 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
 
   const files: FileToWrite[] = [];
 
+  if (usesBetterAuth && existingBetterAuthConfig) {
+    p.log.step(`Detected Better Auth: ${picocolors.bold(existingBetterAuthConfig)}`);
+  }
+
   // Config
   if (!existingConfig || hasLegacyProductsModule) {
     files.push({
@@ -556,11 +574,21 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
       content: existingProductsModule
         ? generateConfigFileFromProductsModule(
             existingProductsModule,
-            clientPath !== null,
+            clientPath !== null || usesBetterAuth,
+            usesBetterAuth && existingBetterAuthConfig
+              ? resolveImportPath(configPath, existingBetterAuthConfig, cwd, framework)
+              : null,
             selectedProvider,
             existingProductsImportPath,
           )
-        : generateConfigFile(templateId as string, clientPath !== null, selectedProvider),
+        : generateConfigFile(
+            templateId as string,
+            clientPath !== null || usesBetterAuth,
+            usesBetterAuth && existingBetterAuthConfig
+              ? resolveImportPath(configPath, existingBetterAuthConfig, cwd, framework)
+              : null,
+            selectedProvider,
+          ),
     });
   }
 
