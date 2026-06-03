@@ -5,12 +5,18 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import type { ComponentPropsWithoutRef } from "react";
 
 import { CopyMarkdownButton } from "@/components/docs/copy-markdown-button";
 import { Features } from "@/components/docs/features";
-import { PackageInstall, PackageRun } from "@/components/docs/package-command";
+import { PackageManagerProvider } from "@/components/docs/package-command";
+import { PackageCommandPre } from "@/components/docs/package-command-pre";
+import {
+  packageManagerCookieName,
+  parsePackageManagerCookie,
+} from "@/components/docs/package-manager-state";
 import { TocFooter } from "@/components/docs/toc-footer";
 import type { SourcePage } from "@/lib/source";
 import { source } from "@/lib/source";
@@ -37,6 +43,10 @@ export default async function Page({ params }: DocsPageProps) {
 
   const MDXContent = page.data.body;
   const showBreadcrumb = (slug?.length ?? 0) >= 3;
+  const cookieStore = await cookies();
+  const packageManager = parsePackageManagerCookie(
+    cookieStore.get(packageManagerCookieName)?.value,
+  );
 
   return (
     <DocsPage
@@ -59,24 +69,25 @@ export default async function Page({ params }: DocsPageProps) {
       </div>
       <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
-        <MDXContent
-          components={{
-            ...defaultMdxComponents,
-            h1: ({ children, ...props }: ComponentPropsWithoutRef<"h1">) => (
-              <h2 {...props}>{children}</h2>
-            ),
-            Callout,
-            Card,
-            Cards,
-            Step,
-            Steps,
-            Tab,
-            Tabs,
-            Features,
-            PackageInstall,
-            PackageRun,
-          }}
-        />
+        <PackageManagerProvider initialManager={packageManager}>
+          <MDXContent
+            components={{
+              ...defaultMdxComponents,
+              pre: PackageCommandPre,
+              h1: ({ children, ...props }: ComponentPropsWithoutRef<"h1">) => (
+                <h2 {...props}>{children}</h2>
+              ),
+              Callout,
+              Card,
+              Cards,
+              Step,
+              Steps,
+              Tab,
+              Tabs,
+              Features,
+            }}
+          />
+        </PackageManagerProvider>
       </DocsBody>
     </DocsPage>
   );

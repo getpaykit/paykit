@@ -15,6 +15,13 @@ export default defineConfig({
   mdxOptions: {
     rehypeCodeOptions: {
       themes: shikiThemes,
+      transformers: [
+        {
+          pre(node) {
+            node.properties["data-language"] = this.options.lang;
+          },
+        },
+      ],
     },
   },
 });

@@ -24,7 +24,9 @@ Each plugin mounts its own endpoints under the PayKit API base path automaticall
 
 `@paykitjs/dash` adds an embedded billing dashboard your users can access directly from your app. It shows subscriptions, invoices, and lets customers manage their payment methods.
 
-<PackageInstall package="@paykitjs/dash" />
+```bash
+npm install @paykitjs/dash
+```
 
 Pass an `authorize` function to control who can access it. Without `authorize`, the dashboard is open to any authenticated request.
 

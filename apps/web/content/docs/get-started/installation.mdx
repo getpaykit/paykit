@@ -10,9 +10,9 @@ description: Install PayKit, configure your billing instance, and mount the rout
 
 Let's start by adding PayKit to your project:
 
-
-
-<PackageInstall package="paykitjs" />
+```bash
+npm install paykitjs
+```
 
 <Callout type="info">
   If you're using a separate client and server setup, make sure to install
@@ -225,7 +225,9 @@ export const paykit = createPayKit({
 
 PayKit includes a CLI tool to keep your database in sync with your configuration.
 
-<PackageRun command="paykitjs push" />
+```bash
+npx paykitjs push
+```
 
 <Callout>
   This applies database migrations and syncs your plan definitions to provider's

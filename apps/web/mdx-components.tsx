@@ -5,10 +5,13 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { MDXComponents } from "mdx/types";
 
+import { PackageCommandPre } from "@/components/docs/package-command-pre";
+
 export function useMDXComponents(components?: MDXComponents): MDXComponents {
   return {
     ...defaultMdxComponents,
     ...components,
+    pre: PackageCommandPre,
     Callout,
     Card,
     Cards,

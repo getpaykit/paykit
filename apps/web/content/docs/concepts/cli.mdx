@@ -7,7 +7,9 @@ PayKit includes a CLI tool for project setup, database migrations, and plan sync
 
 ## `paykitjs init`
 
-<PackageRun command="paykitjs init" />
+```bash
+npx paykitjs init
+```
 
 An interactive setup wizard that scaffolds everything you need to get started. It configures Stripe, then generates:
 
@@ -19,7 +21,9 @@ Run this once when starting a new project.
 
 ## `paykitjs push`
 
-<PackageRun command="paykitjs push" />
+```bash
+npx paykitjs push
+```
 
 The command you'll run most often. It does two things:
 
@@ -44,7 +48,9 @@ This is similar to how you'd run database migrations on deploy. The `-y` flag sk
 
 ## `paykitjs status`
 
-<PackageRun command="paykitjs status" />
+```bash
+npx paykitjs status
+```
 
 Validates your entire PayKit setup without making any changes. Useful when debugging a broken environment. It checks:
 
@@ -56,7 +62,9 @@ Validates your entire PayKit setup without making any changes. Useful when debug
 
 Pass `--throw` to exit with code 1 on failures, useful for CI pipelines:
 
-<PackageRun command="paykitjs status --throw" />
+```bash
+npx paykitjs status --throw
+```
 
 ## Telemetry
 
