@@ -279,7 +279,7 @@ export function DefaultPre({
       )}
     >
       {hasTitle ? (
-        <div className="flex flex-row items-center justify-between pr-1 pl-2 text-xs font-medium text-muted-foreground">
+        <div className="flex h-7 flex-row items-center justify-between pr-1 pl-2 text-xs font-medium text-muted-foreground">
           <div className="flex min-w-0 items-center gap-2">
             {typeof icon === "string" ? (
               <div className="[&_svg]:size-3" dangerouslySetInnerHTML={{ __html: icon }} />
