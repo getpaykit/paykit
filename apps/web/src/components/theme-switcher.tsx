@@ -6,8 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useThemeTransition } from "@/components/use-theme-transition";
 
 export function ThemeSwitcher() {
-  const { activeTheme, mounted, toggleLabel, toggleTheme } = useThemeTransition();
-  const buttonTheme = mounted ? activeTheme : "light";
+  const { toggleLabel, toggleTheme } = useThemeTransition();
 
   return (
     <Button
@@ -18,11 +17,8 @@ export function ThemeSwitcher() {
       aria-label={toggleLabel}
       suppressHydrationWarning
     >
-      {buttonTheme === "dark" ? (
-        <RiMoonLine className="size-4.5 text-current" suppressHydrationWarning />
-      ) : (
-        <RiSunLine className="size-4.5 text-current" suppressHydrationWarning />
-      )}
+      <RiSunLine className="hidden size-4.5 text-current dark:hidden [html.light_&]:block" />
+      <RiMoonLine className="hidden size-4.5 text-current [html.dark_&]:block" />
       <span className="sr-only" suppressHydrationWarning>
         {toggleLabel}
       </span>
