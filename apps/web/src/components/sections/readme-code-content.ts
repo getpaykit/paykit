@@ -33,7 +33,7 @@ export const paykit = createPayKit({
   },
   products: [free, pro],
   on: {
-    "subscription.activated": async ({ customer, plan })  => {
+    "subscription.activated": async ({ customer, plan }) => {
       await sendEmail(customer.email, "Welcome to Pro!")
     },
   }
