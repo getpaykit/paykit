@@ -481,6 +481,10 @@ html:not([data-anchor-scrolling]) {
   inset-inline-start: 0px !important;
 }
 
+#nd-toc a[href^="#"] > svg.absolute {
+  translate: -7px 0;
+}
+
 #nd-toc .stroke-fd-primary {
   @apply stroke-fd-muted-foreground;
   stroke-width: 2;
