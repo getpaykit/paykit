@@ -53,11 +53,11 @@ export default async function Page({ params }: DocsPageProps) {
         style: "clerk",
       }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription>{page.data.description}</DocsDescription>
-      <div className="-mt-6 border-b pb-5 mb-4">
+      <div className="flex items-start justify-between gap-4">
+        <DocsTitle>{page.data.title}</DocsTitle>
         <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
       </div>
+      <DocsDescription>{page.data.description}</DocsDescription>
       <DocsBody>
         <MDXContent
           components={{
