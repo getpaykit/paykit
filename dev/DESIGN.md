@@ -1,6 +1,13 @@
 # UI Design Principles
 
-## Design References
+## PayKit's Style
+
+https://efferd.com/view/dashboard-9
+https://efferd.com/view/auth-2
+https://efferd.com/view/auth-4
+https://efferd.com/view/auth-12
+
+## Other References
 
 These are web pages we admire and draw inspiration from. We don't copy any of them directly — PayKit has its own identity. Use these as a reference for quality, tone, and craft.
 
