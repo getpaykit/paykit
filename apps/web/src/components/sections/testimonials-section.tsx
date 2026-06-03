@@ -1,112 +1,87 @@
-import { Icons } from "@/components/icons";
 import { Section, SectionContent } from "@/components/layout/section";
-import { cn } from "@/lib/utils";
+import { tweets } from "@/components/sections/testimonials-content";
+import type { Tweet } from "@/components/sections/testimonials-content";
 
-const testimonials = [
-  {
-    handle: "@alexdev",
-    avatar: "/testimonials/placeholder-1.png",
-    text: "Just integrated PayKit into our SaaS. Went from zero billing to subscriptions + usage limits in under an hour. The DX is insane.",
-  },
-  {
-    handle: "@sarahbuilds",
-    avatar: "/testimonials/placeholder-2.png",
-    text: "PayKit replaced 800 lines of Stripe webhook code with a single subscribe() call. I'm never going back.",
-  },
-  {
-    handle: "@marcuseng",
-    avatar: "/testimonials/placeholder-3.png",
-    text: "The fact that billing state lives in my own Postgres and I can just JOIN it with my tables is a game changer.",
-  },
-  {
-    handle: "@devpriya",
-    avatar: "/testimonials/placeholder-4.png",
-    text: "We switched from Stripe's raw API to PayKit. Took 30 minutes. Our billing code went from 3 files to 1.",
-  },
-  {
-    handle: "@joshcodes",
-    avatar: "/testimonials/placeholder-5.png",
-    text: "check() and report() for usage billing is exactly what I needed. No more custom middleware to gate features.",
-  },
-  {
-    handle: "@emmaoss",
-    avatar: "/testimonials/placeholder-6.png",
-    text: "Open source billing that actually works. No vendor lock-in, no separate dashboard, just npm install and go.",
-  },
-  {
-    handle: "@ryanships",
-    avatar: "/testimonials/placeholder-7.png",
-    text: "The type safety is incredible. Typo a plan ID and TypeScript catches it before you even run the code.",
-  },
-  {
-    handle: "@linadev",
-    avatar: "/testimonials/placeholder-8.png",
-    text: "PayKit feels like what Stripe should have been for framework developers. Simple, embedded, type-safe.",
-  },
-];
+const columns = [1, 2, 3, 4].map((column) => tweets.filter((tweet) => tweet.column === column));
 
-// Split into 3 columns for masonry layout
-const columns = [
-  testimonials.filter((_, i) => i % 3 === 0),
-  testimonials.filter((_, i) => i % 3 === 1),
-  testimonials.filter((_, i) => i % 3 === 2),
-];
-
-function TestimonialCard({ handle, text }: { handle: string; avatar: string; text: string }) {
+function VerifiedIcon() {
   return (
-    <div className="border-foreground/[0.08] rounded-[10px] border p-[4px]">
-      <div className="flex flex-col gap-3 rounded-md border border-foreground/[0.06] p-4">
-        <div className="flex items-center gap-2.5">
-          <div className="bg-foreground/[0.08] size-8 rounded-full" />
-          <div className="flex items-center gap-1.5">
-            <Icons.XIcon className="text-foreground/30 size-3" />
-            <span className="text-foreground/60 text-sm font-medium">{handle}</span>
+    <svg className="size-3.5 shrink-0" fill="none" height="14" width="14" viewBox="0 0 14 14">
+      <path
+        d="M10.811 2.479c.133.322.388.577.71.711l1.127.467a1.31 1.31 0 0 1 .71.71c.133.322.133.683 0 1.005l-.466 1.126a1.31 1.31 0 0 0 0 1.005l.466 1.126a1.31 1.31 0 0 1 0 1.004 1.31 1.31 0 0 1-.711.71l-1.126.466a1.31 1.31 0 0 0-.711.71l-.467 1.127a1.31 1.31 0 0 1-1.715.71l-1.126-.466a1.31 1.31 0 0 0-1.004.001l-1.127.466a1.31 1.31 0 0 1-1.714-.71l-.467-1.127c-.133-.322-.388-.577-.71-.711l-1.127-.467a1.31 1.31 0 0 1-.71-.71 1.31 1.31 0 0 1 0-1.004l.466-1.126c.133-.322.133-.683-.001-1.004L.643 5.371a1.31 1.31 0 0 1 0-1.005 1.31 1.31 0 0 1 .711-.71l1.126-.466c.321-.133.577-.388.71-.709l.467-1.127c.133-.322.389-.577.71-.71a1.31 1.31 0 0 1 1.005 0l1.126.466c.322.133.683.133 1.004-.001L8.63.644c.322-.133.683-.133 1.004 0s.577.389.71.71z"
+        fill="#0788f5"
+      />
+      <path
+        d="M9.742 5.165c.094-.147.125-.325.087-.495s-.141-.318-.288-.412-.325-.125-.495-.087-.318.141-.412.288l-2.57 4.038-1.176-1.47c-.109-.136-.267-.223-.44-.242s-.347.031-.483.14-.223.267-.243.44.031.347.14.483l1.75 2.188c.065.082.149.146.244.189s.2.062.304.056.206-.036.296-.089.166-.126.222-.215z"
+        fill="#fff"
+        fillRule="evenodd"
+      />
+    </svg>
+  );
+}
+
+function TweetCard({ tweet }: { tweet: Tweet }) {
+  return (
+    <figure className="relative flex flex-col justify-end overflow-hidden border-b bg-background p-4 last:border-b-0 md:px-5">
+      <a
+        className="absolute inset-0 z-10"
+        href={tweet.link}
+        rel="noopener noreferrer"
+        target="_blank"
+      >
+        <span className="sr-only">View tweet by {tweet.name}</span>
+      </a>
+      <div className="flex items-center gap-2">
+        <span className="relative flex size-8 shrink-0 overflow-hidden rounded-full bg-secondary">
+          <img
+            className="size-full aspect-square"
+            alt={`${tweet.name}'s profile picture`}
+            src={tweet.avatar}
+          />
+        </span>
+        <figcaption className="min-w-0">
+          <div className="flex min-w-0 items-center gap-1">
+            <cite className="truncate text-sm not-italic">{tweet.name}</cite>
+            {tweet.checkmark && <VerifiedIcon />}
           </div>
-        </div>
-        <p className="text-foreground/50 text-sm leading-relaxed">{text}</p>
+          <span className="text-muted-foreground -mt-0.5 block truncate text-[11px] tracking-tight">
+            @{tweet.handle}
+          </span>
+        </figcaption>
       </div>
-    </div>
+      <div className="text-foreground/80 mt-2 flex-1 ps-10 text-sm leading-relaxed tracking-wide whitespace-pre-line">
+        <p>{tweet.text}</p>
+      </div>
+    </figure>
   );
 }
 
 export function TestimonialsSection() {
   return (
     <Section>
-      <SectionContent>
-        <div className="mb-10 text-center">
-          <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
-            Loved by developers
+      <SectionContent className="relative border-b px-6 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
+        <div className="max-w-lg space-y-2">
+          <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
+            Feedback
           </h2>
-          <p className="text-foreground/45 mx-auto mt-2 max-w-md text-sm leading-relaxed sm:text-base">
-            See what developers are saying about PayKit.
-          </p>
         </div>
-
-        {/* Masonry columns with fade at edges */}
-        <div className="relative overflow-hidden">
-          <div
-            className="pointer-events-none absolute inset-0 z-10"
-            style={{
-              maskImage:
-                "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
-              WebkitMaskImage:
-                "linear-gradient(to bottom, transparent 0%, black 10%, black 90%, transparent 100%)",
-            }}
-          />
-          <div className={cn("grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3")}>
-            {columns.map((column, colIdx) => (
-              <div
-                key={colIdx}
-                className={cn("flex flex-col gap-4", colIdx === 1 && "lg:-translate-y-6")}
-              >
-                {column.map((testimonial) => (
-                  <TestimonialCard key={testimonial.handle} {...testimonial} />
-                ))}
-              </div>
-            ))}
-          </div>
+        <div className="pointer-events-none absolute inset-0 z-0 flex h-full justify-center">
+          <div className="h-full w-px border-r border-dashed border-border" />
         </div>
       </SectionContent>
+
+      <div className="relative max-h-[31rem] overflow-hidden border-l border-border">
+        <div className="grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
+          {columns.map((column, columnIndex) => (
+            <div key={columnIndex} className="flex min-h-full flex-col bg-background">
+              {column.map((tweet) => (
+                <TweetCard key={`${tweet.handle}-${tweet.text}`} tweet={tweet} />
+              ))}
+            </div>
+          ))}
+        </div>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent via-background/70 to-background" />
+      </div>
     </Section>
   );
 }
