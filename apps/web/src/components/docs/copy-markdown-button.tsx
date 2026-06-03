@@ -35,7 +35,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
 
   return (
     <ButtonGroup>
-      <Button variant="outline" size="sm" className="gap-1.5" onClick={onClick}>
+      <Button variant="outline" size="sm" className="w-25 justify-start gap-1.5" onClick={onClick}>
         {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
         {copied ? "Copied" : "Copy page"}
       </Button>
