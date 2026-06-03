@@ -51,18 +51,14 @@ export function FeaturesSection() {
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="group border-foreground/[0.08] rounded-[10px] border p-[4px] transition-colors hover:border-foreground/[0.1]"
+              className="group flex h-full flex-col gap-3 rounded-md border border-foreground/[0.06] p-5 transition-colors hover:border-foreground/[0.08] hover:bg-foreground/[0.01]"
             >
-              <div className="flex h-full flex-col gap-3 rounded-md border border-foreground/[0.06] p-5 transition-colors group-hover:border-foreground/[0.08] group-hover:bg-foreground/[0.01]">
-                <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
-                  {feature.icon}
-                </span>
-                <div className="space-y-1">
-                  <h3 className="text-foreground/90 text-sm font-semibold">{feature.title}</h3>
-                  <p className="text-foreground/45 text-sm leading-relaxed">
-                    {feature.description}
-                  </p>
-                </div>
+              <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
+                {feature.icon}
+              </span>
+              <div className="space-y-1">
+                <h3 className="text-foreground/90 text-sm font-semibold">{feature.title}</h3>
+                <p className="text-foreground/45 text-sm leading-relaxed">{feature.description}</p>
               </div>
             </div>
           ))}

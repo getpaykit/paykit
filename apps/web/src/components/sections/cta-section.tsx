@@ -22,10 +22,10 @@ export function CTASection() {
     <Section>
       <SectionContent>
         <div className="flex flex-col items-center gap-5 text-center">
-          <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
+          <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
             Ready to add billing?
           </h2>
-          <p className="text-foreground/45 max-w-md text-sm leading-relaxed sm:text-base">
+          <p className="text-foreground/80 max-w-md text-sm leading-relaxed sm:text-base">
             One command to get started. Define your plans, connect Stripe, and ship billing in
             minutes.
           </p>

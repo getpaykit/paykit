@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import type { ReactNode } from "react";
 
+import { FrameCorners } from "@/components/ui/frame-corners";
+
 const features: { icon: ReactNode; title: string; description: string }[] = [
   {
     icon: <Package className="size-5" />,
@@ -67,18 +69,15 @@ export function Features() {
       {features.map((feature) => (
         <div
           key={feature.title}
-          className="group border-foreground/[0.08] rounded-[10px] border p-[4px] transition-colors hover:border-foreground/[0.1]"
+          className="group relative flex h-full flex-col gap-3 rounded-none border border-border p-5 transition-colors hover:border-foreground/[0.08] hover:bg-foreground/[0.01]"
         >
-          <div className="flex h-full flex-col gap-3 rounded-md border border-foreground/[0.06] p-5 transition-colors group-hover:border-foreground/[0.08] group-hover:bg-foreground/[0.01]">
-            <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
-              {feature.icon}
-            </span>
-            <div className="flex flex-col gap-1">
-              <h3 className="!m-0 text-foreground/90 text-sm font-semibold">{feature.title}</h3>
-              <p className="!m-0 text-foreground/45 text-sm leading-relaxed">
-                {feature.description}
-              </p>
-            </div>
+          <FrameCorners />
+          <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
+            {feature.icon}
+          </span>
+          <div className="flex flex-col gap-1">
+            <h3 className="!m-0 text-foreground/90 text-sm font-semibold">{feature.title}</h3>
+            <p className="!m-0 text-foreground/45 text-sm leading-relaxed">{feature.description}</p>
           </div>
         </div>
       ))}

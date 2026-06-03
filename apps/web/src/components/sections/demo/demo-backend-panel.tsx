@@ -21,7 +21,7 @@ export function DemoBackendPanel({
   return (
     <div
       className={cn(
-        "border-foreground/[0.12] bg-card flex flex-col overflow-hidden rounded-lg border border-dashed",
+        "border-foreground/[0.12] bg-card flex flex-col overflow-hidden rounded-none border border-dashed",
         className,
       )}
     >

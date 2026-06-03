@@ -21,7 +21,7 @@ function WindowChrome({
   return (
     <div
       className={cn(
-        "border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-lg border shadow-lg",
+        "border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-none border shadow-lg",
         className,
       )}
     >
