@@ -4,9 +4,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FaGithub } from "react-icons/fa";
 import { RiArrowDownSLine, RiCloseLine, RiExternalLinkLine, RiMenuLine } from "react-icons/ri";
 
+import { Icons } from "@/components/icons";
 import { SectionShell } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { BrandMenu } from "@/components/web/brand-menu";
@@ -19,6 +19,7 @@ interface NavItem {
   href: string;
   path?: string;
   external?: boolean;
+  icon?: React.ReactNode;
 }
 
 function NavLink({
@@ -56,10 +57,25 @@ const navTabs: NavItem[] = [
 ];
 
 const dropdownLinks: NavItem[] = [
-  { name: "Discord", href: URLs.discord, external: true },
-  { name: "Twitter / X", href: URLs.x, external: true },
-  { name: "LinkedIn", href: URLs.linkedin, external: true },
-  { name: "llms.txt", href: "/llms.txt", external: true },
+  {
+    name: "Discord",
+    href: URLs.discord,
+    external: true,
+    icon: <Icons.DiscordIcon className="size-4" />,
+  },
+  { name: "Twitter / X", href: URLs.x, external: true, icon: <Icons.XIcon className="size-3.5" /> },
+  {
+    name: "LinkedIn",
+    href: URLs.linkedin,
+    external: true,
+    icon: <Icons.LinkedInIcon className="size-3.5" />,
+  },
+  {
+    name: "llms.txt",
+    href: "/llms.txt",
+    external: true,
+    icon: <Icons.LlmsIcon className="size-4" />,
+  },
 ];
 
 const mobileLinks: NavItem[] = [
@@ -205,10 +221,13 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                               className="text-foreground/60 hover:text-foreground hover:bg-foreground/3 flex items-center justify-between px-4 py-2 text-sm transition-colors"
                               onClick={() => setLinksOpen(false)}
                             >
-                              {link.name}
-                              {link.external && (
-                                <RiExternalLinkLine className="text-foreground/20 size-3" />
-                              )}
+                              <span className="flex items-center gap-2.5">
+                                <span className="text-foreground/35 flex size-4 items-center justify-center">
+                                  {link.icon}
+                                </span>
+                                {link.name}
+                              </span>
+                              <RiExternalLinkLine className="text-foreground/20 size-3" />
                             </NavLink>
                           ))}
                         </motion.div>
@@ -227,7 +246,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                   size="sm"
                   className="text-muted-foreground"
                 >
-                  <FaGithub className="size-4" />
+                  <Icons.GitHubIcon className="size-4" />
                   <span className="font-sans text-sm">1.1k</span>
                 </Button>
               </div>
@@ -262,6 +281,11 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    {item.icon && (
+                      <span className="text-foreground/35 dark:text-foreground/25 flex size-4 items-center justify-center">
+                        {item.icon}
+                      </span>
+                    )}
                     <span
                       className={`text-base tracking-wider uppercase ${
                         isActive(item.path || item.href)
