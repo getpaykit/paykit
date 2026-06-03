@@ -1,10 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ExternalLink, Github, Menu, X } from "lucide-react";
+import { ChevronDown, ExternalLink, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { FaGithub } from "react-icons/fa";
 
 import { SectionShell } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
@@ -49,15 +50,15 @@ function NavLink({
 // ─── Data ────────────────────────────────────────────────────────────
 
 const navTabs: NavItem[] = [
-  { name: "readme", href: "/" },
   { name: "docs", href: "/docs", path: "/docs" },
+  { name: "blog", href: "/blog", path: "/blog" },
+  { name: "sponsors", href: "/sponsor", path: "/sponsor" },
 ];
 
 const dropdownLinks: NavItem[] = [
   { name: "Discord", href: URLs.discord, external: true },
   { name: "Twitter / X", href: URLs.x, external: true },
   { name: "LinkedIn", href: URLs.linkedin, external: true },
-  { name: "Donate", href: "/donate", external: true },
   { name: "llms.txt", href: "/llms.txt", external: true },
 ];
 
@@ -69,8 +70,8 @@ const mobileLinks: NavItem[] = [
 // ─── Tab styles ──────────────────────────────────────────────────────
 
 const tabBase =
-  "group/tab relative flex h-full items-center justify-center gap-1.5 px-5.5 py-3.5 transition-colors duration-150";
-const tabActive = "bg-background border-b-2 border-b-foreground/60";
+  "group/tab relative flex h-full items-center justify-center gap-1.5 px-4 py-3.5 transition-colors duration-150";
+const tabActive = "bg-background";
 const tabInactive =
   "hover:bg-foreground/[0.03] bg-transparent text-foreground/60 dark:text-foreground/40 hover:text-foreground/70";
 const labelBase =
@@ -109,10 +110,13 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          className="bg-background border-border pointer-events-auto w-full border-b lg:hidden"
+          className="bg-background pointer-events-auto w-full lg:hidden"
         >
-          <SectionShell className="flex items-center justify-between">
-            <BrandMenu linkClassName="gap-1 px-5 py-3" wordmarkClassName="scale-95" />
+          <SectionShell className="border-border flex items-center justify-between border-b">
+            <BrandMenu
+              linkClassName="gap-1 rounded-sm px-5 py-3 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
+              wordmarkClassName="scale-95"
+            />
             <button
               type="button"
               aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -131,12 +135,12 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
-          className="bg-background border-border pointer-events-auto relative hidden w-full items-stretch justify-center border-b lg:flex"
+          className="bg-background pointer-events-auto relative hidden w-full items-stretch justify-center lg:flex"
         >
-          <SectionShell>
+          <SectionShell className="border-border border-b">
             <div className="flex h-12 items-center justify-between px-12">
               {/* Logo */}
-              <BrandMenu />
+              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
 
               {/* Center tabs */}
               <div className="absolute inset-0 flex items-stretch justify-center">
@@ -152,7 +156,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       >
                         <NavLink
                           item={item}
-                          className={`${tabBase} border-foreground/6 border-r ${active ? tabActive : tabInactive}`}
+                          className={`${tabBase} ${active ? tabActive : tabInactive}`}
                         >
                           <span className={`${labelBase} ${active ? "text-foreground" : ""}`}>
                             {item.name}
@@ -219,11 +223,12 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                 <Button
                   render={<Link href={URLs.githubRepo} target="_blank" rel="noopener noreferrer" />}
                   nativeButton={false}
-                  variant={"outline"}
+                  variant="ghost"
                   size="sm"
+                  className="text-muted-foreground"
                 >
-                  <Github className="size-3.5" />
-                  <span>GitHub</span>
+                  <FaGithub className="size-4" />
+                  <span className="font-sans text-sm">1.1k</span>
                 </Button>
               </div>
             </div>
@@ -252,7 +257,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                 >
                   <NavLink
                     item={item}
-                    className={`border-foreground/6 flex items-center gap-2.5 border-b px-5 py-3.5 transition-colors ${
+                    className={`flex items-center gap-2.5 px-5 py-3.5 transition-colors ${
                       isActive(item.path || item.href) ? "bg-foreground/4" : "hover:bg-foreground/3"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}

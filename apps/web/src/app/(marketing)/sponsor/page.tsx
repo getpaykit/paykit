@@ -4,20 +4,20 @@ import Link from "next/link";
 import { Section, SectionContent } from "@/components/layout/section";
 import { FooterSection } from "@/components/sections/footer-section";
 
-const donateUrl = "https://opencollective.com/maxktz";
+const sponsorUrl = "https://opencollective.com/maxktz";
 
 export const metadata: Metadata = {
-  title: "Donate",
+  title: "Sponsor",
   description: "Support PayKit development through Open Collective.",
   alternates: {
-    canonical: "/donate",
+    canonical: "/sponsor",
   },
 };
 
-export default function DonatePage() {
+export default function SponsorPage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <meta httpEquiv="refresh" content={`1;url=${donateUrl}`} />
+      <meta httpEquiv="refresh" content={`1;url=${sponsorUrl}`} />
 
       <Section className="flex-1">
         <SectionContent className="px-12 pt-24 pb-24 sm:pt-24 sm:pb-24 md:pt-32 md:pb-24 lg:px-12 lg:pt-36 lg:pb-24">
@@ -34,7 +34,7 @@ export default function DonatePage() {
 
             <div className="mt-8">
               <Link
-                href={donateUrl}
+                href={sponsorUrl}
                 className="text-foreground/45 hover:text-foreground/70 font-mono text-sm transition-colors"
               >
                 Continue to Open Collective

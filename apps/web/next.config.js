@@ -43,6 +43,7 @@ const config = {
       destination: "https://github.com/orgs/getpaykit/projects/1",
       permanent: false,
     },
+    { source: "/donate", destination: "/sponsor", permanent: true },
   ],
 };
 

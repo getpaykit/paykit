@@ -182,10 +182,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           <div className="flex flex-row items-center">
             <Wordmark title="PayKit" className="h-3.5" />
             {VERSION_TEXT && (
-              <Badge
-                className="text-muted-foreground mb-0.5 ml-3 rounded-md px-1"
-                variant={"outline"}
-              >
+              <Badge className="text-foreground/50 ml-3 rounded-xs px-1" variant={"outline"}>
                 {VERSION_TEXT}
               </Badge>
             )}
