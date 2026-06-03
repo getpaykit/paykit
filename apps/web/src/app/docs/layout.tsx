@@ -2,7 +2,6 @@ import type * as PageTree from "fumadocs-core/page-tree";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
 import { cloneElement } from "react";
 import type { ReactElement, ReactNode } from "react";
-import { RiGithubFill } from "react-icons/ri";
 
 import {
   CategoryFolderIcon,
@@ -13,11 +12,11 @@ import {
   isSoonPage,
 } from "@/components/docs/docs-icons";
 import { SidebarCollapseButton } from "@/components/docs/sidebar-collapse-button";
+import { Icons } from "@/components/icons";
 import { Wordmark } from "@/components/icons/wordmark";
 import { ThemeSwitcher } from "@/components/theme-switcher";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { URLs, VERSION_TEXT } from "@/lib/consts";
+import { URLs } from "@/lib/consts";
 import { source } from "@/lib/source";
 
 function normalizeName(name: string): string {
@@ -170,7 +169,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               size="icon"
               className="docs-sidebar-github-button text-fd-muted-foreground hover:text-fd-accent-foreground"
             >
-              <RiGithubFill className="size-4.5" aria-hidden="true" />
+              <Icons.GitHubIcon className="size-4.5" aria-hidden="true" />
             </Button>
             <ThemeSwitcher />
           </div>
@@ -181,11 +180,6 @@ export default function Layout({ children }: { children: ReactNode }) {
         title: (
           <div className="flex flex-row items-center">
             <Wordmark title="PayKit" className="h-3.5" />
-            {VERSION_TEXT && (
-              <Badge className="text-foreground/50 ml-3 rounded-xs px-1" variant={"outline"}>
-                {VERSION_TEXT}
-              </Badge>
-            )}
           </div>
         ),
         url: "/",

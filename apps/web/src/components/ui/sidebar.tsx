@@ -4,7 +4,7 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as React from "react";
-import { RiSidebarFoldLine } from "react-icons/ri";
+import { RiSideBarLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -260,7 +260,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<t
       }}
       {...props}
     >
-      <RiSidebarFoldLine />
+      <RiSideBarLine />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

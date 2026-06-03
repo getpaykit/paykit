@@ -1,7 +1,7 @@
 "use client";
 
 import { useSidebar } from "fumadocs-ui/components/sidebar/base";
-import { RiSidebarFoldLine } from "react-icons/ri";
+import { RiSideBarLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +20,7 @@ export function SidebarCollapseButton() {
         setCollapsed((prev) => !prev);
       }}
     >
-      <RiSidebarFoldLine className="size-4" aria-hidden="true" />
+      <RiSideBarLine className="size-4" aria-hidden="true" />
     </Button>
   );
 }
