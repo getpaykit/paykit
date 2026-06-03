@@ -1,8 +1,8 @@
 import type * as PageTree from "fumadocs-core/page-tree";
 import { DocsLayout } from "fumadocs-ui/layouts/docs";
-import { Github } from "lucide-react";
 import { cloneElement } from "react";
 import type { ReactElement, ReactNode } from "react";
+import { RiGithubFill } from "react-icons/ri";
 
 import {
   CategoryFolderIcon,
@@ -170,7 +170,7 @@ export default function Layout({ children }: { children: ReactNode }) {
               size="icon"
               className="docs-sidebar-github-button text-fd-muted-foreground hover:text-fd-accent-foreground"
             >
-              <Github className="size-4.5" aria-hidden="true" />
+              <RiGithubFill className="size-4.5" aria-hidden="true" />
             </Button>
             <ThemeSwitcher />
           </div>

@@ -1,8 +1,8 @@
 "use client";
 
-import { Code2 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
+import { RiCodeSSlashLine } from "react-icons/ri";
 import { toast } from "sonner";
 
 import { LOGO_SVG, Logo } from "@/components/icons/logo";
@@ -37,7 +37,7 @@ export function BrandMenu({
     try {
       await navigator.clipboard.writeText(brandAssets[asset]);
       toast.success(`${asset} SVG code copied to clipboard.`, {
-        icon: <Code2 className="size-4" />,
+        icon: <RiCodeSSlashLine className="size-4" />,
       });
     } catch {
       toast.error("Failed to copy to clipboard.");
@@ -73,7 +73,7 @@ export function BrandMenu({
             <Logo className="text-muted-foreground" /> Copy logo as SVG
           </ContextMenuItem>
           <ContextMenuItem className="px-3" onClick={() => copyAsSvg("Wordmark")}>
-            <Code2 className="text-muted-foreground" /> Copy wordmark as SVG
+            <RiCodeSSlashLine className="text-muted-foreground" /> Copy wordmark as SVG
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

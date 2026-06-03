@@ -2,9 +2,9 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useDocsSearch } from "fumadocs-core/search/client";
-import { FileText, Hash, Search, Text } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createContext, use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RiFileTextLine, RiHashtag, RiSearchLine, RiText } from "react-icons/ri";
 
 import { cn } from "@/lib/utils";
 
@@ -112,7 +112,7 @@ function CommandMenuDialog() {
   );
 }
 
-// ─── Search Mode ─────────────────────────────────────────────────────────────
+// ─── RiSearchLine Mode ─────────────────────────────────────────────────────────────
 
 function SearchMode({
   query,
@@ -170,7 +170,7 @@ function SearchMode({
     <>
       {/* Input */}
       <div className="border-foreground/[0.06] flex items-center border-b px-3">
-        <Search className="text-muted-foreground mr-2 size-4 shrink-0" />
+        <RiSearchLine className="text-muted-foreground mr-2 size-4 shrink-0" />
         <input
           ref={inputRef}
           value={query}
@@ -215,11 +215,11 @@ function SearchMode({
               onMouseEnter={() => setSelectedIndex(index)}
             >
               {item.type === "heading" ? (
-                <Hash className="size-3.5 shrink-0 opacity-50" />
+                <RiHashtag className="size-3.5 shrink-0 opacity-50" />
               ) : item.type === "text" ? (
-                <Text className="size-3.5 shrink-0 opacity-50" />
+                <RiText className="size-3.5 shrink-0 opacity-50" />
               ) : (
-                <FileText className="size-4 shrink-0" />
+                <RiFileTextLine className="size-4 shrink-0" />
               )}
               <span className="truncate">
                 {item.content}

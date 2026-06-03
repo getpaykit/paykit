@@ -1,5 +1,5 @@
-import { Github } from "lucide-react";
 import Link from "next/link";
+import { RiGithubFill } from "react-icons/ri";
 
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -55,7 +55,7 @@ export default function Footer() {
               aria-label="GitHub"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >
-              <Github className="h-4 w-4" />
+              <RiGithubFill className="h-4 w-4" />
             </Link>
             <div className="text-foreground/15 flex h-4 w-4 items-center justify-center select-none">
               |

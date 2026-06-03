@@ -1,25 +1,25 @@
 import type { Folder, Root } from "fumadocs-core/page-tree";
-import type { LucideIcon } from "lucide-react";
-import {
-  Binoculars,
-  Book,
-  CircleHelp,
-  Database,
-  Gauge,
-  Key,
-  KeyRound,
-  LucideAArrowDown,
-  Mail,
-  Mailbox,
-  Phone,
-  ScanFace,
-  ShieldCheck,
-  TriangleAlertIcon,
-  UserCircle,
-  UserSquare2,
-  Users2,
-} from "lucide-react";
 import type { ReactNode, SVGProps } from "react";
+import type { IconType } from "react-icons";
+import {
+  RiAccountBoxLine,
+  RiAccountCircleLine,
+  RiBookLine,
+  RiDatabase2Line,
+  RiErrorWarningLine,
+  RiInboxLine,
+  RiKey2Line,
+  RiKeyLine,
+  RiMailLine,
+  RiPhoneLine,
+  RiQuestionLine,
+  RiSearchEyeLine,
+  RiShieldCheckLine,
+  RiSortAlphabetAsc,
+  RiSpeedUpLine,
+  RiTeamLine,
+  RiUserSearchLine,
+} from "react-icons/ri";
 
 import { Icons } from "./icons";
 
@@ -31,7 +31,7 @@ export interface SubpageItem {
 export interface ListItem {
   title: string;
   href: string;
-  icon: ((props?: SVGProps<any>) => ReactNode) | LucideIcon;
+  icon: ((props?: SVGProps<any>) => ReactNode) | IconType;
   group?: boolean;
   separator?: boolean;
   isNew?: boolean;
@@ -42,7 +42,7 @@ export interface ListItem {
 interface Content {
   title: string;
   href?: string;
-  Icon: ((props?: SVGProps<any>) => ReactNode) | LucideIcon;
+  Icon: ((props?: SVGProps<any>) => ReactNode) | IconType;
   isNew?: boolean;
   list: ListItem[];
 }
@@ -418,7 +418,7 @@ export const contents: Content[] = [
       {
         title: "Social Sign-On",
         group: true,
-        icon: LucideAArrowDown,
+        icon: RiSortAlphabetAsc,
         href: "",
       },
       {
@@ -1090,13 +1090,13 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Other Relational Databases",
         href: "/docs/adapters/other-relational-databases",
-        icon: () => <Database className="h-4 w-4 text-current" />,
+        icon: () => <RiDatabase2Line className="h-4 w-4 text-current" />,
       },
       {
         group: true,
         title: "Adapters",
         href: "",
-        icon: () => <Database className="h-4 w-4 text-current" />,
+        icon: () => <RiDatabase2Line className="h-4 w-4 text-current" />,
       },
       {
         title: "Drizzle",
@@ -1182,7 +1182,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         group: true,
         title: "Others",
         href: "",
-        icon: () => <Database className="h-4 w-4 text-current" />,
+        icon: () => <RiDatabase2Line className="h-4 w-4 text-current" />,
       },
       {
         title: "Community Adapters",
@@ -1227,7 +1227,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         group: true,
         title: "Full Stack",
         href: "",
-        icon: LucideAArrowDown,
+        icon: RiSortAlphabetAsc,
       },
       {
         title: "Astro",
@@ -1269,7 +1269,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         group: true,
         title: "Backend",
         href: "",
-        icon: LucideAArrowDown,
+        icon: RiSortAlphabetAsc,
       },
       {
         title: "Hono",
@@ -1310,7 +1310,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         group: true,
         title: "Mobile & Desktop",
         href: "",
-        icon: LucideAArrowDown,
+        icon: RiSortAlphabetAsc,
       },
       {
         title: "Expo",
@@ -1342,38 +1342,38 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Authentication",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="h-4 w-4" />,
+        icon: () => <RiSortAlphabetAsc className="h-4 w-4" />,
       },
 
       {
         title: "Two Factor",
-        icon: () => <ScanFace className="h-4 w-4" />,
+        icon: () => <RiUserSearchLine className="h-4 w-4" />,
         href: "/docs/plugins/2fa",
       },
       {
         title: "Username",
-        icon: () => <UserSquare2 className="h-4 w-4" />,
+        icon: () => <RiAccountBoxLine className="h-4 w-4" />,
         href: "/docs/plugins/username",
       },
       {
         title: "Anonymous",
-        icon: () => <UserCircle className="h-4 w-4" />,
+        icon: () => <RiAccountCircleLine className="h-4 w-4" />,
         href: "/docs/plugins/anonymous",
       },
       {
         title: "Phone Number",
-        icon: () => <Phone className="h-4 w-4" />,
+        icon: () => <RiPhoneLine className="h-4 w-4" />,
         href: "/docs/plugins/phone-number",
       },
       {
         title: "Magic Link",
         href: "/docs/plugins/magic-link",
-        icon: () => <Mailbox className="h-4 w-4" />,
+        icon: () => <RiInboxLine className="h-4 w-4" />,
       },
       {
         title: "Email OTP",
         href: "/docs/plugins/email-otp",
-        icon: () => <Mail className="h-4 w-4" />,
+        icon: () => <RiMailLine className="h-4 w-4" />,
       },
       {
         title: "Passkey",
@@ -1436,7 +1436,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Authorization",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="h-4 w-4" />,
+        icon: () => <RiSortAlphabetAsc className="h-4 w-4" />,
       },
       {
         title: "Admin",
@@ -1458,7 +1458,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "API Key",
         href: "/docs/plugins/api-key",
-        icon: () => <KeyRound className="size-4" />,
+        icon: () => <RiKey2Line className="size-4" />,
       },
       {
         title: "MCP",
@@ -1494,7 +1494,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       },
       {
         title: "Organization",
-        icon: () => <Users2 className="h-4 w-4" />,
+        icon: () => <RiTeamLine className="h-4 w-4" />,
         href: "/docs/plugins/organization",
       },
       {
@@ -1566,11 +1566,11 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Utility",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="h-4 w-4" />,
+        icon: () => <RiSortAlphabetAsc className="h-4 w-4" />,
       },
       {
         title: "Bearer",
-        icon: () => <Key className="h-4 w-4" />,
+        icon: () => <RiKeyLine className="h-4 w-4" />,
         href: "/docs/plugins/bearer",
       },
       {
@@ -1707,7 +1707,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
         title: "Payments",
         group: true,
         href: "",
-        icon: () => <LucideAArrowDown className="h-4 w-4" />,
+        icon: () => <RiSortAlphabetAsc className="h-4 w-4" />,
       },
       {
         title: "Stripe",
@@ -1935,7 +1935,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Create a Database Adapter",
         href: "/docs/guides/create-a-db-adapter",
-        icon: () => <Database className="h-4 w-4 text-current" />,
+        icon: () => <RiDatabase2Line className="h-4 w-4 text-current" />,
       },
       {
         title: "Browser Extension Guide",
@@ -1976,7 +1976,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Optimize for Performance",
         href: "/docs/guides/optimizing-for-performance",
-        icon: () => <Gauge className="size-4" />,
+        icon: () => <RiSpeedUpLine className="size-4" />,
       },
       {
         title: "Migration",
@@ -2210,7 +2210,7 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Errors",
         href: "/docs/reference/errors",
-        icon: () => <TriangleAlertIcon className="h-4 w-4 text-current" />,
+        icon: () => <RiErrorWarningLine className="h-4 w-4 text-current" />,
         hasSubpages: true,
         subpages: [
           {
@@ -2275,23 +2275,23 @@ C0.7,239.6,62.1,0.5,62.2,0.4c0,0,54,13.8,119.9,30.8S302.1,62,302.2,62c0.2,0,0.2,
       {
         title: "Resources",
         href: "/docs/reference/resources",
-        icon: () => <Book className="h-4 w-4 text-current" />,
+        icon: () => <RiBookLine className="h-4 w-4 text-current" />,
       },
 
       {
         title: "Security",
         href: "/docs/reference/security",
-        icon: () => <ShieldCheck className="h-4 w-4 text-current" />,
+        icon: () => <RiShieldCheckLine className="h-4 w-4 text-current" />,
       },
       {
         title: "Telemetry",
         href: "/docs/reference/telemetry",
-        icon: () => <Binoculars className="h-4 w-4 text-current" />,
+        icon: () => <RiSearchEyeLine className="h-4 w-4 text-current" />,
       },
       {
         title: "FAQ",
         href: "/docs/reference/faq",
-        icon: () => <CircleHelp className="h-4 w-4 text-current" />,
+        icon: () => <RiQuestionLine className="h-4 w-4 text-current" />,
       },
     ],
   },

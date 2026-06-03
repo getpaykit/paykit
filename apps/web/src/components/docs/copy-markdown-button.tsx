@@ -1,9 +1,14 @@
 "use client";
 
-import { Check, ChevronDown, Copy, ExternalLink } from "lucide-react";
-import { RiMarkdownLine } from "react-icons/ri";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import {
+  RiArrowDownSLine,
+  RiCheckLine,
+  RiExternalLinkLine,
+  RiFileCopyLine,
+  RiMarkdownLine,
+} from "react-icons/ri";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +42,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
   return (
     <ButtonGroup>
       <Button variant="outline" size="sm" className="w-25 justify-start gap-1.5" onClick={onClick}>
-        {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
+        {copied ? <RiCheckLine className="size-3" /> : <RiFileCopyLine className="size-3" />}
         {copied ? "Copied" : "Copy page"}
       </Button>
       <DropdownMenu>
@@ -46,7 +51,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
             <Button variant="outline" size="icon-sm" aria-label="Open page markdown actions" />
           }
         >
-          <ChevronDown className="size-3.5" />
+          <RiArrowDownSLine className="size-3.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem render={<Link href={markdownUrl} target="_blank" rel="noreferrer" />}>
@@ -54,13 +59,13 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
             View as markdown
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/llms.txt" target="_blank" rel="noreferrer" />}>
-            <ExternalLink className="size-3.5" />
+            <RiExternalLinkLine className="size-3.5" />
             View llms.txt
           </DropdownMenuItem>
           <DropdownMenuItem
             render={<Link href="/llms-full.txt" target="_blank" rel="noreferrer" />}
           >
-            <ExternalLink className="size-3.5" />
+            <RiExternalLinkLine className="size-3.5" />
             View llms-full.txt
           </DropdownMenuItem>
         </DropdownMenuContent>

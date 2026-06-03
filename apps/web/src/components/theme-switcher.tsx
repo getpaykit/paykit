@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import { RiMoonLine, RiSunLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { useThemeTransition } from "@/components/use-theme-transition";
@@ -19,9 +19,9 @@ export function ThemeSwitcher() {
       suppressHydrationWarning
     >
       {buttonTheme === "dark" ? (
-        <Moon className="size-4.5 text-current" suppressHydrationWarning />
+        <RiMoonLine className="size-4.5 text-current" suppressHydrationWarning />
       ) : (
-        <Sun className="size-4.5 text-current" suppressHydrationWarning />
+        <RiSunLine className="size-4.5 text-current" suppressHydrationWarning />
       )}
       <span className="sr-only" suppressHydrationWarning>
         {toggleLabel}

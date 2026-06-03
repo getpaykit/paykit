@@ -1,7 +1,7 @@
 "use client";
 
-import { Github } from "lucide-react";
 import Link from "next/link";
+import { RiGithubFill } from "react-icons/ri";
 
 import { Icons } from "@/components/icons";
 import { Section, SectionContent } from "@/components/layout/section";
@@ -17,7 +17,7 @@ const socialLinks = [
   { label: "Discord", href: URLs.discord, icon: <Icons.DiscordIcon className="size-4" /> },
   { label: "Twitter/X", href: URLs.x, icon: <Icons.XIcon className="size-3.5" /> },
   { label: "LinkedIn", href: URLs.linkedin, icon: <Icons.LinkedInIcon className="size-3.5" /> },
-  { label: "GitHub", href: URLs.githubRepo, icon: <Github className="size-4" /> },
+  { label: "GitHub", href: URLs.githubRepo, icon: <RiGithubFill className="size-4" /> },
 ];
 
 const prompt = encodeURIComponent(`Explain what PayKit (paykit.sh) is and why I should use it.

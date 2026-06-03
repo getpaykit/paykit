@@ -1,35 +1,42 @@
-import { Blocks, Cable, Database, Gauge, ShieldCheck, Webhook } from "lucide-react";
+import {
+  RiDatabase2Line,
+  RiPlug2Line,
+  RiPuzzle2Line,
+  RiShieldCheckLine,
+  RiSpeedUpLine,
+  RiWebhookLine,
+} from "react-icons/ri";
 
 import { Section, SectionContent } from "@/components/layout/section";
 
 const features = [
   {
-    icon: <Gauge className="size-5" />,
+    icon: <RiSpeedUpLine className="size-5" />,
     title: "Usage billing",
     description: "Metered features with check() and report(). Zero network latency.",
   },
   {
-    icon: <Webhook className="size-5" />,
+    icon: <RiWebhookLine className="size-5" />,
     title: "Webhooks handled",
     description: "Verified, deduplicated, synced to your database automatically.",
   },
   {
-    icon: <Cable className="size-5" />,
+    icon: <RiPlug2Line className="size-5" />,
     title: "Stripe built in",
     description: "Subscriptions, webhooks, portal, and product sync without adapter setup.",
   },
   {
-    icon: <Blocks className="size-5" />,
+    icon: <RiPuzzle2Line className="size-5" />,
     title: "Plugins",
     description: "Extend PayKit with dashboard, analytics, or build your own plugin.",
   },
   {
-    icon: <Database className="size-5" />,
+    icon: <RiDatabase2Line className="size-5" />,
     title: "Your database",
     description: "Billing state in your Postgres, low latency, joinable with your tables.",
   },
   {
-    icon: <ShieldCheck className="size-5" />,
+    icon: <RiShieldCheckLine className="size-5" />,
     title: "Type-safe",
     description: "Plan IDs, feature IDs, events. All inferred from your schema.",
   },

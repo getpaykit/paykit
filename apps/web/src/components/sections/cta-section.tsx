@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, Copy } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { RiArrowRightSLine, RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 import { Section, SectionContent } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
@@ -52,7 +52,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <Check className="text-foreground/50 size-3.5" />
+                      <RiCheckLine className="text-foreground/50 size-3.5" />
                     </motion.span>
                   ) : hovered ? (
                     <motion.span
@@ -63,7 +63,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <Copy className="text-foreground/50 size-3.5" />
+                      <RiFileCopyLine className="text-foreground/50 size-3.5" />
                     </motion.span>
                   ) : (
                     <motion.span
@@ -74,7 +74,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <ChevronRight className="text-foreground/30 size-4" />
+                      <RiArrowRightSLine className="text-foreground/30 size-4" />
                     </motion.span>
                   )}
                 </AnimatePresence>

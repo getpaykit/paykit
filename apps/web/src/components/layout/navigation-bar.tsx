@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ExternalLink, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { FaGithub } from "react-icons/fa";
+import { RiArrowDownSLine, RiCloseLine, RiExternalLinkLine, RiMenuLine } from "react-icons/ri";
 
 import { SectionShell } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
@@ -125,7 +125,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
               onClick={() => setMobileMenuOpen((prev) => !prev)}
               className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-5 py-3 transition-colors"
             >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+              {mobileMenuOpen ? <RiCloseLine size={18} /> : <RiMenuLine size={18} />}
             </button>
           </SectionShell>
         </motion.div>
@@ -184,7 +184,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       className={`${tabBase} gap-1 ${linksOpen ? "text-foreground/70" : tabInactive}`}
                     >
                       <span className={`${labelBase}`}>links</span>
-                      <ChevronDown
+                      <RiArrowDownSLine
                         className={`size-3 transition-transform duration-150 ${linksOpen ? "rotate-180" : ""}`}
                       />
                     </button>
@@ -207,7 +207,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                             >
                               {link.name}
                               {link.external && (
-                                <ExternalLink className="text-foreground/20 size-3" />
+                                <RiExternalLinkLine className="text-foreground/20 size-3" />
                               )}
                             </NavLink>
                           ))}
@@ -272,7 +272,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       {item.name}
                     </span>
                     {item.external && (
-                      <ExternalLink className="text-foreground/35 dark:text-foreground/20 ml-auto size-3" />
+                      <RiExternalLinkLine className="text-foreground/35 dark:text-foreground/20 ml-auto size-3" />
                     )}
                   </NavLink>
                 </motion.div>

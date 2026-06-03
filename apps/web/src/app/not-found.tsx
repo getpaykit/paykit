@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { RiArrowLeftLine } from "react-icons/ri";
 
 import { MiniNavBar } from "@/components/layout/mini-nav-bar";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -50,7 +50,7 @@ export default function NotFound() {
 
                 <div className="pt-2">
                   <Button size="lg" render={<Link href="/" />} nativeButton={false}>
-                    <ArrowLeft />
+                    <RiArrowLeftLine />
                     Go home
                   </Button>
                 </div>

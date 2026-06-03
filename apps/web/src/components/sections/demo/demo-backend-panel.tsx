@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, User } from "lucide-react";
 import type { ReactNode } from "react";
+import { RiLoader4Line, RiUserLine } from "react-icons/ri";
 
 import { cn } from "@/lib/utils";
 
@@ -63,7 +63,7 @@ function FlowLog({
               className="border-foreground/[0.08] shrink-0 overflow-hidden rounded-md border"
             >
               <div className="text-foreground/45 border-foreground/[0.06] flex items-center gap-2 border-b py-1.5 pr-1.5 pl-3 text-xs">
-                <User className="size-3 shrink-0" />
+                <RiUserLine className="size-3 shrink-0" />
                 {card.trigger}
               </div>
 
@@ -88,7 +88,7 @@ function FlowLog({
                         </motion.div>
                       ) : entry.type === "pending" ? (
                         <div className="flex items-center gap-2 py-0.5 pl-1.5">
-                          <Loader2 className="text-foreground/35 size-3 shrink-0 animate-spin" />
+                          <RiLoader4Line className="text-foreground/35 size-3 shrink-0 animate-spin" />
                           <span className="text-foreground/40 text-xs">{entry.label}</span>
                         </div>
                       ) : (

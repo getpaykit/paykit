@@ -1,63 +1,63 @@
 "use client";
 
-import {
-  Blocks,
-  Cable,
-  Database,
-  Gauge,
-  Monitor,
-  Package,
-  ShieldCheck,
-  Terminal,
-  Webhook,
-} from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  RiBox3Line,
+  RiComputerLine,
+  RiDatabase2Line,
+  RiPlug2Line,
+  RiPuzzle2Line,
+  RiShieldCheckLine,
+  RiSpeedUpLine,
+  RiTerminalBoxLine,
+  RiWebhookLine,
+} from "react-icons/ri";
 
 import { FrameCorners } from "@/components/ui/frame-corners";
 
 const features: { icon: ReactNode; title: string; description: string }[] = [
   {
-    icon: <Package className="size-5" />,
+    icon: <RiBox3Line className="size-5" />,
     title: "Products in Code",
     description: "Define plans and features as typed primitives.",
   },
   {
-    icon: <Webhook className="size-5" />,
+    icon: <RiWebhookLine className="size-5" />,
     title: "Webhooks Handled",
     description: "Verified, deduplicated, synced to your database automatically.",
   },
   {
-    icon: <Gauge className="size-5" />,
+    icon: <RiSpeedUpLine className="size-5" />,
     title: "Usage Billing",
     description: "Metered features with check() and report().",
   },
   {
-    icon: <Cable className="size-5" />,
+    icon: <RiPlug2Line className="size-5" />,
     title: "Built For Stripe",
     description: "Stripe subscriptions, webhooks, portal, and product sync built in.",
   },
   {
-    icon: <Blocks className="size-5" />,
+    icon: <RiPuzzle2Line className="size-5" />,
     title: "Plugin Ecosystem",
     description: "Dashboard, analytics, or build your own plugin.",
   },
   {
-    icon: <Database className="size-5" />,
+    icon: <RiDatabase2Line className="size-5" />,
     title: "Local Billing State",
     description: "Billing state in your Postgres, joinable with your tables.",
   },
   {
-    icon: <Terminal className="size-5" />,
+    icon: <RiTerminalBoxLine className="size-5" />,
     title: "CLI",
     description: "Init, push, and status. Scaffold, migrate, validate.",
   },
   {
-    icon: <Monitor className="size-5" />,
+    icon: <RiComputerLine className="size-5" />,
     title: "Client SDK",
     description: "Browser-side billing calls with full type inference.",
   },
   {
-    icon: <ShieldCheck className="size-5" />,
+    icon: <RiShieldCheckLine className="size-5" />,
     title: "Type-safe",
     description: "Plan IDs, feature IDs, events — all inferred from your schema.",
   },

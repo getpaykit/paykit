@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
+import { RiLoader4Line } from "react-icons/ri";
 
 import { FrameCorners } from "@/components/ui/frame-corners";
 import { cn } from "@/lib/utils";
@@ -231,7 +231,7 @@ export function HeroCodeBlock({
                   ))}
                 </AnimatePresence>
                 {pushing && terminalLines.length > 0 && (
-                  <Loader2 className="mt-1 size-3 animate-spin text-white/30" />
+                  <RiLoader4Line className="mt-1 size-3 animate-spin text-white/30" />
                 )}
               </div>
             )}

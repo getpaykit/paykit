@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Send } from "lucide-react";
 import type { RefObject } from "react";
+import { RiLoader4Line, RiSendPlaneLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -134,7 +134,7 @@ export function DemoAppWindow({
                 >
                   {busy === "downgrade" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Downgrading...
                     </>
                   ) : plan === "free" ? (
@@ -169,12 +169,12 @@ export function DemoAppWindow({
                 >
                   {busy === "upgrade" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Upgrading...
                     </>
                   ) : busy === "resubscribe" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Resubscribing...
                     </>
                   ) : plan === "pro" && downgradeScheduled ? (
@@ -285,7 +285,7 @@ export function DemoAppWindow({
                 disabled={blocked || aiState !== "idle" || !input.trim()}
                 className="text-foreground/35 hover:text-foreground/60 disabled:opacity-20"
               >
-                <Send className="size-3.5" />
+                <RiSendPlaneLine className="size-3.5" />
               </button>
             </div>
           </div>

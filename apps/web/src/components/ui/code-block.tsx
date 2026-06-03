@@ -1,5 +1,5 @@
 "use client";
-import { Check, Copy } from "lucide-react";
+
 import type {
   ButtonHTMLAttributes,
   ComponentProps,
@@ -9,6 +9,7 @@ import type {
   RefObject,
 } from "react";
 import { createContext, forwardRef, useCallback, useContext, useMemo, useRef } from "react";
+import { RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -195,8 +196,10 @@ function CopyButton({
       onClick={onClick}
       {...props}
     >
-      <Check className={cn("size-3.5 transition-transform", !checked && "scale-0")} />
-      <Copy className={cn("absolute size-3.5 transition-transform", checked && "scale-0")} />
+      <RiCheckLine className={cn("size-3.5 transition-transform", !checked && "scale-0")} />
+      <RiFileCopyLine
+        className={cn("absolute size-3.5 transition-transform", checked && "scale-0")}
+      />
     </button>
   );
 }
