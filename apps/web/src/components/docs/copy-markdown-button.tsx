@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, Copy, ExternalLink } from "lucide-react";
+import { RiMarkdownLine } from "react-icons/ri";
 import Link from "next/link";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -49,7 +50,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem render={<Link href={markdownUrl} target="_blank" rel="noreferrer" />}>
-            <ExternalLink className="size-3.5" />
+            <RiMarkdownLine className="size-3.5" />
             View as markdown
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/llms.txt" target="_blank" rel="noreferrer" />}>

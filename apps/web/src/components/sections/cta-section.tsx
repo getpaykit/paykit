@@ -30,7 +30,7 @@ export function CTASection() {
             minutes.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button render={<Link href="/docs" />} nativeButton={false} size="lg" className="px-4">
+            <Button render={<Link href="/docs" />} nativeButton={false} size="lg" className="px-5">
               Get Started
             </Button>
             <Button
