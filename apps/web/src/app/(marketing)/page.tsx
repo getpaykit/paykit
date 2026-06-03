@@ -1,6 +1,6 @@
 import { CTASection } from "@/components/sections/cta-section";
 import { DemoSection } from "@/components/sections/demo";
-import { FeaturesSection } from "@/components/sections/features-section";
+import { FeedbackSection } from "@/components/sections/feedback-section";
 import { FooterSection } from "@/components/sections/footer-section";
 import { HeroSection } from "@/components/sections/hero-section";
 import { demoSnippets } from "@/components/sections/readme-code-content";
@@ -29,7 +29,7 @@ export default function HomePage() {
             resubscribe: <InlineCode lang="ts" code={demoSnippets.resubscribe} />,
           }}
         />
-        <FeaturesSection />
+        <FeedbackSection />
         <CTASection />
         <FooterSection />
       </div>
