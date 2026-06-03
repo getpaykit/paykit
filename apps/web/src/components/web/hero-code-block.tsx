@@ -1,11 +1,11 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, Loader2, Terminal } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type { ReactNode } from "react";
 import { useCallback, useState } from "react";
 
-import { Button } from "@/components/ui/button";
+import { FrameCorners } from "@/components/ui/frame-corners";
 import { cn } from "@/lib/utils";
 
 type View = "code" | "terminal";
@@ -133,75 +133,74 @@ export function HeroCodeBlock({
     setPushing(false);
   }, [pushing]);
 
-  const backToCode = useCallback(() => {
+  const selectCodeTab = useCallback((tab: "plans" | "config") => {
+    setActiveTab(tab);
     setView("code");
-    setTerminalLines([]);
   }, []);
 
+  const selectTerminalTab = useCallback(() => {
+    if (view === "terminal") return;
+
+    void runPush();
+  }, [runPush, view]);
+
   return (
-    <div className="border-border w-full max-w-full min-w-0 rounded-[10px] border p-[4px] sm:w-[37rem] lg:w-full lg:max-w-[37rem]">
-      <div className="border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-[6px] border">
+    <div className="relative w-full max-w-full min-w-0 sm:w-[37rem] lg:w-full lg:max-w-[37rem]">
+      <FrameCorners />
+      <div className="border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-none border">
         {/* Tab bar */}
         <div className="border-foreground/[0.08] flex items-center border-b">
           <div className="flex flex-1 pl-0.5">
-            {view === "code" ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("plans")}
-                  className={cn(
-                    "relative px-3.5 py-2 text-sm transition-colors",
-                    activeTab === "plans"
-                      ? "text-foreground/80"
-                      : "text-foreground/40 hover:text-foreground/60",
-                  )}
-                >
-                  products.ts
-                  {activeTab === "plans" && (
-                    <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
-                  )}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("config")}
-                  className={cn(
-                    "relative px-3.5 py-2 text-sm transition-colors",
-                    activeTab === "config"
-                      ? "text-foreground/80"
-                      : "text-foreground/40 hover:text-foreground/60",
-                  )}
-                >
-                  paykit.ts
-                  {activeTab === "config" && (
-                    <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
-                  )}
-                </button>
-              </>
-            ) : (
-              <span className="text-foreground/50 px-4 py-2 font-mono text-sm">Terminal</span>
-            )}
+            <button
+              type="button"
+              onClick={() => selectCodeTab("plans")}
+              className={cn(
+                "relative px-3.5 py-2 text-sm transition-colors",
+                view === "code" && activeTab === "plans"
+                  ? "text-foreground/80"
+                  : "text-foreground/40 hover:text-foreground/60",
+              )}
+            >
+              products.ts
+              {view === "code" && activeTab === "plans" && (
+                <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={() => selectCodeTab("config")}
+              className={cn(
+                "relative px-3.5 py-2 text-sm transition-colors",
+                view === "code" && activeTab === "config"
+                  ? "text-foreground/80"
+                  : "text-foreground/40 hover:text-foreground/60",
+              )}
+            >
+              paykit.ts
+              {view === "code" && activeTab === "config" && (
+                <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={selectTerminalTab}
+              className={cn(
+                "relative px-3.5 py-2 text-sm transition-colors",
+                view === "terminal"
+                  ? "text-foreground/80"
+                  : "text-foreground/40 hover:text-foreground/60",
+              )}
+            >
+              terminal
+              {view === "terminal" && (
+                <span className="bg-foreground/50 absolute right-2 bottom-0 left-2 h-px" />
+              )}
+            </button>
           </div>
         </div>
 
         {/* Content — fixed height */}
         <div className="relative h-[22rem] lg:h-[27.5rem]">
-          {/* Push / back button */}
-          <div className="absolute right-2.5 bottom-2.5 z-10">
-            <Button
-              variant="outline"
-              size={"sm"}
-              onClick={view === "code" ? () => void runPush() : backToCode}
-              disabled={pushing}
-              className={"not-hover:bg-secondary/80!"}
-            >
-              {view === "code" ? (
-                <Terminal className="size-3.5" />
-              ) : (
-                <ChevronLeft className="size-3.5 -ml-1" />
-              )}
-              {view === "code" ? "Terminal" : "Back to code"}
-            </Button>
-          </div>
           <div className="h-full min-h-0 min-w-0 overflow-hidden">
             {view === "code" ? (
               <>
