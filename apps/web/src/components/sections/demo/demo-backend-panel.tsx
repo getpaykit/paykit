@@ -60,7 +60,7 @@ function FlowLog({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="border-foreground/[0.08] shrink-0 overflow-hidden rounded-md border"
+              className="border-foreground/[0.08] shrink-0 overflow-hidden rounded-none border"
             >
               <div className="text-foreground/45 border-foreground/[0.06] flex items-center gap-2 border-b py-1.5 pr-1.5 pl-3 text-xs">
                 <RiUserLine className="size-3 shrink-0" />
@@ -82,7 +82,7 @@ function FlowLog({
                           initial={{ opacity: 0.5 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.3 }}
-                          className="bg-foreground/[0.03] flex items-center overflow-hidden rounded px-2 py-2"
+                          className="bg-foreground/[0.03] flex items-center overflow-hidden rounded-none px-2 py-2"
                         >
                           {snippets[entry.snippet]}
                         </motion.div>

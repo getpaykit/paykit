@@ -8,6 +8,7 @@ import "./src/env.js";
 const withMDX = createMDX();
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(currentDir, "../..");
+const remixLucideShim = join(currentDir, "src/lib/lucide-react-remix-shim.ts");
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -17,6 +18,13 @@ const config = {
   outputFileTracingRoot: repoRoot,
   turbopack: {
     root: repoRoot,
+    resolveAlias: {
+      "lucide-react": "./src/lib/lucide-react-remix-shim.ts",
+    },
+  },
+  webpack: (config) => {
+    config.resolve.alias["lucide-react"] = remixLucideShim;
+    return config;
   },
   experimental: {
     optimizePackageImports: [
