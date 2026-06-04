@@ -33,7 +33,7 @@ export function DocsPage({
         id="nd-page"
         data-full={full}
         className={cn(
-          "flex w-full max-w-[43rem] flex-col px-4 pt-7 pb-32 md:pt-12",
+          "flex w-full max-w-[43rem] flex-col px-4 pt-7 pb-32 md:pt-14",
           "mx-auto [grid-area:main]",
           full && "max-w-[1168px]",
           className,
@@ -81,7 +81,9 @@ export function DocsBody({ children, className, ...props }: ComponentProps<"div"
 }
 
 function DocsToc({ footer }: { footer?: ReactNode }) {
-  return <TOC container={{ className: "xl:layout:[--fd-toc-width:250px]" }} footer={footer} />;
+  return (
+    <TOC container={{ className: "pt-14 xl:layout:[--fd-toc-width:250px]" }} footer={footer} />
+  );
 }
 
 function DocsBreadcrumb({
