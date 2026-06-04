@@ -1,13 +1,13 @@
 export type PackageManager = "npm" | "yarn" | "bun" | "pnpm";
 
 export const packageManagers = [
-  "npm",
-  "yarn",
-  "bun",
   "pnpm",
+  "npm",
+  "bun",
+  "yarn",
 ] as const satisfies readonly PackageManager[];
 export const packageManagerCookieName = "paykit-package-manager";
-export const fallbackPackageManager: PackageManager = "npm";
+export const fallbackPackageManager: PackageManager = "pnpm";
 
 export function isPackageManager(value: string | null): value is PackageManager {
   return packageManagers.includes(value as PackageManager);

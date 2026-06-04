@@ -222,7 +222,7 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
 
   return (
     <Tabs
-      defaultValue="npm"
+      defaultValue="pnpm"
       value={manager}
       onValueChange={(value) => {
         if (isPackageManager(value)) setManager(value);
@@ -233,17 +233,17 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
           <TabsList variant="underline">
             <TabsTab
               className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
+              value="pnpm"
+            >
+              <PnpmIcon className="size-3" />
+              pnpm
+            </TabsTab>
+            <TabsTab
+              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
               value="npm"
             >
               <NpmIcon className="size-3" />
               npm
-            </TabsTab>
-            <TabsTab
-              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
-              value="yarn"
-            >
-              <YarnIcon className="size-[0.7875rem]" />
-              yarn
             </TabsTab>
             <TabsTab
               className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
@@ -254,10 +254,10 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
             </TabsTab>
             <TabsTab
               className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
-              value="pnpm"
+              value="yarn"
             >
-              <PnpmIcon className="size-3" />
-              pnpm
+              <YarnIcon className="size-[0.7875rem]" />
+              yarn
             </TabsTab>
           </TabsList>
           <CopyButton code={activeCommand} />
