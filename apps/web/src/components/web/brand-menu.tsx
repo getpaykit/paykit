@@ -25,10 +25,12 @@ const brandAssets = {
 export function BrandMenu({
   className,
   linkClassName,
+  wordmarkBaseClassName,
   wordmarkClassName,
 }: {
   className?: string;
   linkClassName?: string;
+  wordmarkBaseClassName?: string;
   wordmarkClassName?: string;
 }) {
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -56,7 +58,10 @@ export function BrandMenu({
               aria-label="PayKit home"
               className={cn("flex items-center py-1.5", linkClassName)}
             >
-              <Wordmark title={null} className={cn("h-4 origin-left", wordmarkClassName)} />
+              <Wordmark
+                title={null}
+                className={cn(wordmarkBaseClassName ?? "h-4", wordmarkClassName)}
+              />
             </Link>
           }
         />
