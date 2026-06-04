@@ -93,7 +93,7 @@
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
+  --secondary: #f5f5f5;
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
@@ -147,13 +147,13 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.87 0 0);
-  --primary-foreground: oklch(0.166 0 0);
-  --secondary: #1b1b1b;
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.168 0 0);
+  --secondary: oklch(0.168 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
+  --accent: oklch(34.07% 0.00004 271.152);
   --accent-foreground: oklch(0.985 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.637 0.237 25.331);
@@ -366,13 +366,6 @@ html:not([data-anchor-scrolling]) {
   }
 }
 
-@layer utilities {
-  #nd-sidebar [data-radix-scroll-area-viewport] > *,
-  #nd-sidebar-mobile [data-radix-scroll-area-viewport] > * {
-    gap: 0 !important;
-  }
-}
-
 .prose code:not(pre code),
 .prose a {
   overflow-wrap: anywhere;
@@ -384,6 +377,10 @@ html:not([data-anchor-scrolling]) {
   border-radius: 0 !important;
   box-shadow: none !important;
   padding: 0 !important;
+}
+
+.not-fumadocs-codeblock pre {
+  overscroll-behavior-x: none;
 }
 
 .not-fumadocs-codeblock .shiki code span {
@@ -405,31 +402,7 @@ html:not([data-anchor-scrolling]) {
 }
 
 .not-fumadocs-codeblock .shiki .highlighted {
-  background-color: color-mix(in oklab, var(--color-fd-primary) 10%, transparent);
-}
-
-.not-fumadocs-codeblock .shiki .highlighted::after {
-  content: "";
-  position: absolute;
-  inset-block: 0;
-  left: 0;
-  border-left: 2px solid color-mix(in oklab, var(--color-fd-primary) 50%, transparent);
-}
-
-#nd-sidebar
-  > div.flex.flex-col.gap-3.p-4.pb-2
-  > div:first-child
-  > button[aria-label="Collapse Sidebar"]:not(.docs-sidebar-collapse-button) {
-  display: none;
-}
-
-/* Sidebar: fixed positioning so it never scrolls with content, but only when expanded */
-@media (min-width: 768px) {
-  [data-sidebar-placeholder]:not(:has(#nd-sidebar[data-collapsed="true"])) {
-    position: fixed !important;
-    width: var(--fd-sidebar-width) !important;
-    inset-inline-start: max(0px, calc((100vw - var(--fd-layout-width, 97rem)) / 2)) !important;
-  }
+  background-color: color-mix(in oklab, var(--color-fd-primary) 2.2%, transparent);
 }
 
 @media (max-width: 767px) {
@@ -462,53 +435,6 @@ html:not([data-anchor-scrolling]) {
   [data-toc-popover] > header {
     inset-inline-start: var(--fd-sidebar-col, 0px) !important;
   }
-}
-
-/* Fumadocs sidebar: edge-to-edge item rows with explicit horizontal padding */
-#nd-sidebar [data-radix-scroll-area-viewport],
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] {
-  padding: 0 !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-}
-
-#nd-sidebar [style*="mask-image"],
-#nd-sidebar-mobile [style*="mask-image"],
-#nd-sidebar [style*="-webkit-mask-image"],
-#nd-sidebar-mobile [style*="-webkit-mask-image"] {
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
-}
-
-#nd-sidebar:not([data-collapsed="true"]) > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar:not([data-collapsed="true"]) > .min-h-0.flex-1,
-#nd-sidebar:not([data-collapsed="true"]) > div.flex.flex-col.p-4.pt-2,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar-mobile > .min-h-0.flex-1,
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2 {
-  @apply border-border border-l;
-}
-
-#nd-sidebar > div.flex.flex-col.p-4.pt-2:has(.docs-sidebar-github-button),
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2:has(.docs-sidebar-github-button) {
-  @apply border-border flex flex-row items-center justify-start gap-2 border-t pt-2 pb-3;
-}
-
-#nd-sidebar .docs-sidebar-github-button,
-#nd-sidebar-mobile .docs-sidebar-github-button {
-  @apply rounded-[var(--radius)] border-0;
-}
-
-#nd-sidebar > div.flex.flex-col.p-4.pt-2 > div:last-child > :is(a, button),
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2 > div:last-child > :is(a, button) {
-  @apply size-7 rounded-md;
-}
-
-#nd-sidebar,
-#nd-sidebar-mobile {
-  background-color: var(--sidebar);
-  --animate-fd-collapsible-down: fd-collapsible-down 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-fd-collapsible-up: fd-collapsible-up 170ms ease-out;
 }
 
 #nd-toc {
@@ -557,238 +483,6 @@ html:not([data-anchor-scrolling]) {
 [data-toc-popover-trigger],
 [data-toc-popover-trigger] > svg[role="progressbar"] {
   overflow: visible !important;
-}
-
-#nd-sidebar [data-radix-scroll-area-viewport] :is(a, button).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  :is(a, button).flex.flex-row.items-center.gap-2 {
-  @apply w-full rounded-none;
-  padding-inline: 1.25rem !important;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  @apply border-border;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  border-color: var(--border) !important;
-  transition-property: background-color, color !important;
-  min-height: 41px !important;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-/* Docs sidebar categories: replace default folder chevron with Hugeicons */
-#nd-sidebar
-  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
-  > svg:not(.docs-category-chevron):not(.docs-category-icon),
-#nd-sidebar-mobile
-  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
-  > svg:not(.docs-category-chevron):not(.docs-category-icon) {
-  display: none !important;
-}
-
-#nd-sidebar button[aria-expanded="true"] .docs-category-chevron,
-#nd-sidebar-mobile button[aria-expanded="true"] .docs-category-chevron {
-  transform: rotate(180deg);
-}
-
-/* Category triggers: top divider only, except for the first item */
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-bottom: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-top: 1px solid var(--border);
-}
-
-/* Expanded category trigger: add divider below the trigger, not above the content */
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  @apply relative;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2::after,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2::after {
-  content: "";
-  @apply border-border pointer-events-none absolute right-0 bottom-0 left-0 border-b;
-}
-
-/* Sidebar search row: full width like category rows */
-#nd-sidebar > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2 {
-  @apply px-0;
-  padding-top: calc(0.5rem + 2px) !important;
-  @apply pb-0;
-  row-gap: 0.5rem !important;
-}
-
-#nd-sidebar > div.flex.flex-col.gap-3.p-4.pb-2 > div:first-child,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2 > div:first-child {
-  padding-inline-start: 1.25rem;
-  padding-inline-end: 1rem;
-}
-
-#nd-sidebar [data-search-full],
-#nd-sidebar-mobile [data-search-full] {
-  @apply border-border w-full rounded-none border-x-0 border-y shadow-none;
-  min-height: 40px !important;
-  padding-inline: 1.25rem !important;
-  padding-block: 0.5rem !important;
-  filter: none !important;
-}
-
-#nd-sidebar [data-search-full] > svg,
-#nd-sidebar-mobile [data-search-full] > svg {
-  @apply size-3.5 shrink-0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  .before\:bg-fd-border
-  :is(a, button).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  .before\:bg-fd-border
-  :is(a, button).flex.flex-row.items-center.gap-2 {
-  padding-block: 0.4rem !important;
-}
-
-/* Non-collapsible inner folders: render as separator-like labels */
-#nd-sidebar [data-radix-scroll-area-viewport] div.relative.flex.flex-row.items-center.gap-2.w-full,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full {
-  @apply text-foreground/35 flex h-[1.2rem] items-center gap-2 overflow-hidden rounded-none px-5 text-[0.6875rem] leading-[0.8rem] tracking-[0.06em] whitespace-nowrap uppercase;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full::after,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full::after {
-  @apply bg-border h-px flex-1;
-  content: "";
-}
-
-/* Remove folder guide rail (left vertical trace) */
-#nd-sidebar [data-radix-scroll-area-viewport] .before\:bg-fd-border::before,
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] .before\:bg-fd-border::before {
-  display: none !important;
-}
-
-/* Remove active item left marker */
-#nd-sidebar [data-radix-scroll-area-viewport] a[data-active="true"]::before,
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] a[data-active="true"]::before {
-  content: none !important;
-  display: none !important;
-}
-
-/* Disabled sidebar items (url="#") */
-#nd-sidebar [data-radix-scroll-area-viewport] a[href="#"],
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] a[href="#"] {
-  @apply pointer-events-none opacity-50;
 }
 
 input[type="search"]::-webkit-search-cancel-button,
@@ -890,44 +584,6 @@ input[type="search"]::-webkit-search-results-decoration {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
-}
-
-/* Ensure sidebar category animation stays visible and smooth */
-#nd-sidebar [class*="animate-fd-collapsible"][data-state="open"],
-#nd-sidebar-mobile [class*="animate-fd-collapsible"][data-state="open"] {
-  animation-duration: 220ms !important;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
-}
-
-#nd-sidebar [data-radix-scroll-area-viewport] > div > [data-state="open"] > div[data-state="open"],
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"] {
-  @apply pt-1 pb-1;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"]
-  > div,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"]
-  > div {
-  gap: 0 !important;
-  padding-top: 0 !important;
-}
-
-#nd-sidebar [class*="animate-fd-collapsible"][data-state="closed"],
-#nd-sidebar-mobile [class*="animate-fd-collapsible"][data-state="closed"] {
-  animation-duration: 170ms !important;
-  animation-timing-function: ease-out !important;
 }
 
 /* Lift context menu positioner above fixed nav (z-99) */

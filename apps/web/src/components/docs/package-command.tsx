@@ -74,7 +74,10 @@ export function PackageManagerProvider({
 function Tabs({ className, ...props }: TabsPrimitive.Root.Props) {
   return (
     <TabsPrimitive.Root
-      className={cn("flex flex-col gap-2 data-[orientation=vertical]:flex-row", className)}
+      className={cn(
+        "flex min-w-0 max-w-full flex-col gap-2 data-[orientation=vertical]:flex-row",
+        className,
+      )}
       data-slot="tabs"
       {...props}
     />
@@ -91,6 +94,14 @@ function TabsList({
   variant?: TabsVariant;
   indicatorClassName?: string;
 }) {
+  const [enableIndicatorTransition, setEnableIndicatorTransition] = useState(false);
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setEnableIndicatorTransition(true), 80);
+
+    return () => window.clearTimeout(timeout);
+  }, []);
+
   return (
     <TabsPrimitive.List
       className={cn(
@@ -106,8 +117,10 @@ function TabsList({
     >
       {children}
       <TabsPrimitive.Indicator
+        renderBeforeHydration
         className={cn(
-          "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
+          "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) duration-200 ease-in-out",
+          enableIndicatorTransition ? "transition-[width,translate]" : "transition-none",
           variant === "underline"
             ? "bg-primary! z-10 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:translate-y-px data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px"
             : "bg-background dark:bg-accent -z-1 rounded-md shadow-sm",
@@ -189,7 +202,7 @@ function CopyButton({ className, code }: { className?: string; code: string }) {
       type="button"
       className={cn(
         buttonVariants({ variant: "ghost", size: "icon" }),
-        "relative h-6 w-6 rounded border-none text-foreground/45 active:scale-90 dark:hover:bg-[#232323]!",
+        "relative h-6 w-6 rounded-sm border-none text-primary/45 hover:text-primary/70 active:scale-90 dark:hover:bg-[#232323]!",
         className,
       )}
       aria-label="Copy command"
@@ -215,32 +228,32 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
         if (isPackageManager(value)) setManager(value);
       }}
     >
-      <div className="dark:bg-primary-foreground group mt-2 flex flex-col rounded-none bg-[#F5F5F5] px-1 pb-1 pt-0.5">
+      <div className="bg-secondary group mt-2 flex min-w-0 max-w-full flex-col rounded-sm px-1 pb-1 pt-0.5">
         <div className="flex flex-row items-center justify-between pr-1 pl-2">
           <TabsList variant="underline">
             <TabsTab
-              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-foreground data-active:text-foreground data-active:hover:text-foreground"
+              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
               value="npm"
             >
               <NpmIcon className="size-3" />
               npm
             </TabsTab>
             <TabsTab
-              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-foreground data-active:text-foreground data-active:hover:text-foreground"
+              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
               value="yarn"
             >
               <YarnIcon className="size-[0.7875rem]" />
               yarn
             </TabsTab>
             <TabsTab
-              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-foreground data-active:text-foreground data-active:hover:text-foreground"
+              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
               value="bun"
             >
               <BunIcon className="size-[0.7875rem]" />
               bun
             </TabsTab>
             <TabsTab
-              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-foreground data-active:text-foreground data-active:hover:text-foreground"
+              className="h-5! gap-2 px-1.5 hover:bg-transparent! hover:text-primary data-active:text-primary data-active:hover:text-primary"
               value="pnpm"
             >
               <PnpmIcon className="size-3" />
@@ -249,9 +262,9 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
           </TabsList>
           <CopyButton code={activeCommand} />
         </div>
-        <div className="bg-background text-muted-foreground rounded-none border p-3 text-[13px] leading-normal">
+        <div className="bg-background text-muted-foreground min-w-0 overflow-x-auto overscroll-x-none rounded-xs border p-3 text-[13px] leading-normal">
           {packageManagers.map((item) => (
-            <TabsPanel className="font-mono" key={item} value={item}>
+            <TabsPanel className="w-max min-w-full font-mono" key={item} value={item}>
               <CommandText command={commandForManager(command, item)} />
             </TabsPanel>
           ))}
@@ -274,7 +287,7 @@ export function DefaultPre({
   return (
     <div
       className={cn(
-        "not-fumadocs-codeblock dark:bg-primary-foreground group relative mt-4 bg-[#F5F5F5]",
+        "not-fumadocs-codeblock bg-secondary group relative mt-4 min-w-0 max-w-full rounded-sm",
         hasTitle ? "px-1 pb-1 pt-0.5" : "p-1",
       )}
     >
@@ -301,7 +314,7 @@ export function DefaultPre({
         {...props}
         className={cn(
           className,
-          "bg-background w-max min-w-full overflow-x-auto rounded-none! border px-0 py-3 text-[13px] leading-normal outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0 [&>code]:flex [&>code]:flex-col [&>code]:px-0! [&_.line]:px-3",
+          "bg-background w-full max-w-full overflow-x-auto overscroll-x-none rounded-xs! border px-0 py-3 text-[13px] leading-normal outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0 [&>code]:flex [&>code]:w-max [&>code]:min-w-full [&>code]:flex-col [&>code]:px-0! [&_.line]:px-3",
           !hasTitle && "[&_.line]:pr-10",
         )}
       >
