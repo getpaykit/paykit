@@ -8,6 +8,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { RiSearchLine, RiSideBarLine } from "react-icons/ri";
 
@@ -81,35 +82,45 @@ function SidebarContent({
   );
 }
 
-function DocsSidebar({ onCollapse, tree }: { onCollapse: () => void; tree: Root }) {
+function DocsSidebar({
+  onCollapse,
+  open,
+  tree,
+}: {
+  onCollapse: () => void;
+  open: boolean;
+  tree: Root;
+}) {
   const pathname = usePathname();
 
   return (
-    <div className="hidden [grid-area:sidebar] md:block">
-      <aside className="fixed inset-y-0 left-[max(0px,calc((100vw-var(--fd-layout-width))/2))] z-20 flex w-(--fd-sidebar-width) border-x bg-background">
-        <div className="flex h-full w-full flex-col">
-          <div className="flex h-12 items-center justify-between px-2.5">
-            <BrandMenu
-              linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-              wordmarkBaseClassName="h-3.5"
-            />
-            <Button
-              aria-label="Hide sidebar"
-              className="size-7 text-muted-foreground"
-              onClick={onCollapse}
-              size="icon-sm"
-              type="button"
-              variant="ghost"
-            >
-              <RiSideBarLine />
-            </Button>
+    <div className="hidden [grid-area:sidebar] md:layout:[--fd-sidebar-width:250px] md:block">
+      {open ? (
+        <aside className="fixed inset-y-0 left-[max(0px,calc((100vw-var(--fd-layout-width))/2))] z-20 flex w-(--fd-sidebar-width) border-x bg-background">
+          <div className="flex h-full w-full flex-col">
+            <div className="flex h-12 items-center justify-between px-2.5">
+              <BrandMenu
+                linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
+                wordmarkBaseClassName="h-3.5"
+              />
+              <Button
+                aria-label="Hide sidebar"
+                className="size-7 text-muted-foreground"
+                onClick={onCollapse}
+                size="icon-sm"
+                type="button"
+                variant="ghost"
+              >
+                <RiSideBarLine />
+              </Button>
+            </div>
+            <div className="px-2.5 pb-2">
+              <SearchButton className="w-full" />
+            </div>
+            <SidebarContent pathname={pathname} tree={tree} />
           </div>
-          <div className="px-2.5 pb-2">
-            <SearchButton className="w-full" />
-          </div>
-          <SidebarContent pathname={pathname} tree={tree} />
-        </div>
-      </aside>
+        </aside>
+      ) : null}
     </div>
   );
 }
@@ -244,7 +255,14 @@ function SidebarItem({
 export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root }) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [previousSidebarOpen, setPreviousSidebarOpen] = useState(sidebarOpen);
   const { setOpenSearch } = useSearchContext();
+  const isColumnChanged = previousSidebarOpen !== sidebarOpen;
+
+  useEffect(() => {
+    if (isColumnChanged) setPreviousSidebarOpen(sidebarOpen);
+  }, [isColumnChanged, sidebarOpen]);
+
   const layoutStyle = {
     "--fd-layout-width": "90rem",
     "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
@@ -260,17 +278,17 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
     <TreeContextProvider tree={tree}>
       <div
         id="nd-docs-layout"
-        data-column-changed="false"
+        data-column-changed={isColumnChanged}
         style={layoutStyle}
         className={cn(
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
           "[--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
-          "md:[--fd-sidebar-width:250px]",
-          "xl:[--fd-toc-width:250px] max-md:[--fd-header-height:3rem]",
+          "data-[column-changed=true]:transition-[grid-template-columns]",
+          "max-md:[--fd-header-height:3rem]",
         )}
       >
-        {sidebarOpen && <DocsSidebar onCollapse={() => setSidebarOpen(false)} tree={tree} />}
+        <DocsSidebar onCollapse={() => setSidebarOpen(false)} open={sidebarOpen} tree={tree} />
         <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} tree={tree} />
         <header
           id="nd-subnav"
