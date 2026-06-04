@@ -27,7 +27,6 @@ import {
   packageManagerCookieName,
   parsePackageManagerCookie,
 } from "@/components/docs/package-manager-state";
-import { TocFooter } from "@/components/docs/toc-footer";
 import type { SourcePage } from "@/lib/source";
 import { source } from "@/lib/source";
 import { cn } from "@/lib/utils";
@@ -227,7 +226,6 @@ export default async function Page({ params }: DocsPageProps) {
       }}
       toc={page.data.toc}
       full={page.data.full}
-      tocFooter={<TocFooter />}
     >
       <div className="flex items-start justify-between gap-4">
         <DocsTitle>{page.data.title}</DocsTitle>

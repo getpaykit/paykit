@@ -120,6 +120,8 @@
   --scrollbar-thumb: var(--border);
   --scrollbar-thumb-hover: var(--ring);
   --scrollbar-track: transparent;
+  --selection: #4f4f4f;
+  --selection-foreground: #ffffff;
   --radius: 0.45rem;
   --fd-nav-height: 56px;
   --fd-banner-height: 0px;
@@ -173,6 +175,8 @@
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
+  --selection: #4f4f4f;
+  --selection-foreground: #ffffff;
   --theme-transition-line: oklch(0.985 0 0 / 0.22);
 }
 
@@ -192,19 +196,6 @@
     animation: theme-line-reveal 720ms cubic-bezier(0.72, 0, 0.2, 1) both;
     box-shadow: 0 1px 0 var(--theme-transition-line);
   }
-}
-
-/*
- * Fumadocs ships several docs surfaces with hard-coded `rounded-xl`.
- * Normalize them at the docs container level so light and dark use the same radius.
- */
-#nd-page :is(.rounded-xl, .rounded-2xl) {
-  border-radius: var(--radius-lg);
-}
-
-#nd-page .last\:rounded-b-xl:last-child {
-  border-bottom-right-radius: var(--radius-lg);
-  border-bottom-left-radius: var(--radius-lg);
 }
 
 @theme inline {
@@ -297,7 +288,12 @@
   }
 
   body {
-    @apply selection:bg-foreground selection:text-background overscroll-none bg-background text-foreground;
+    @apply overscroll-none bg-background text-foreground;
+  }
+
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-foreground);
   }
 
   button:not([disabled]),
@@ -403,86 +399,6 @@ html:not([data-anchor-scrolling]) {
 
 .not-fumadocs-codeblock .shiki .highlighted {
   background-color: color-mix(in oklab, var(--color-fd-primary) 2.2%, transparent);
-}
-
-@media (max-width: 767px) {
-  :root {
-    --subnav-height: 3.5rem;
-  }
-
-  #nd-subnav {
-    position: fixed !important;
-    top: var(--fd-docs-row-1, 0px) !important;
-    inset-inline-start: 0 !important;
-    inset-inline-end: 0 !important;
-  }
-
-  /* Compensate for fixed #nd-subnav leaving grid flow */
-  [data-toc-popover] {
-    margin-top: var(--subnav-height);
-  }
-}
-
-[data-toc-popover] > header {
-  position: fixed !important;
-  top: var(--fd-docs-row-2, 0px) !important;
-  inset-inline-start: 0 !important;
-  inset-inline-end: 0 !important;
-  z-index: 10 !important;
-}
-
-@media (min-width: 768px) {
-  [data-toc-popover] > header {
-    inset-inline-start: var(--fd-sidebar-col, 0px) !important;
-  }
-}
-
-#nd-toc {
-  @apply pe-5;
-}
-
-#nd-toc .bg-fd-primary.rounded-full {
-  display: none;
-}
-
-#nd-toc a[href^="#"] {
-  padding-inline-start: 14px !important;
-}
-
-#nd-toc a[href^="#"] > .inset-y-0 {
-  inset-inline-start: 0px !important;
-}
-
-#nd-toc a[href^="#"] > .absolute {
-  inset-inline-start: 0px !important;
-}
-
-#nd-toc a[href^="#"] > svg.absolute {
-  translate: -7px 0;
-}
-
-#nd-toc .stroke-fd-primary {
-  @apply stroke-fd-muted-foreground;
-  stroke-width: 2;
-  transform: translateX(-7px);
-}
-
-#nd-toc [data-hidden] {
-  inset-inline-start: -8.5px !important;
-}
-
-[data-toc-popover] {
-  @apply h-11.5;
-}
-
-[data-toc-popover-trigger] {
-  @apply h-11.5 py-0;
-}
-
-[data-toc-popover],
-[data-toc-popover-trigger],
-[data-toc-popover-trigger] > svg[role="progressbar"] {
-  overflow: visible !important;
 }
 
 input[type="search"]::-webkit-search-cancel-button,

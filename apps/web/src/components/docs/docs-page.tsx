@@ -33,7 +33,7 @@ export function DocsPage({
         id="nd-page"
         data-full={full}
         className={cn(
-          "flex w-full max-w-2xl flex-col px-4 py-12 pb-32",
+          "flex w-full max-w-[43rem] flex-col px-4 py-12 pb-32",
           "mx-auto [grid-area:main]",
           full && "max-w-[1168px]",
           className,
@@ -81,7 +81,7 @@ export function DocsBody({ children, className, ...props }: ComponentProps<"div"
 }
 
 function DocsToc({ footer }: { footer?: ReactNode }) {
-  return <TOC footer={footer} style="clerk" />;
+  return <TOC container={{ className: "xl:layout:[--fd-toc-width:250px]" }} footer={footer} />;
 }
 
 function DocsBreadcrumb({
