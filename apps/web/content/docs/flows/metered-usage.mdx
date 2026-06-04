@@ -9,7 +9,7 @@ This guide walks through implementing usage-based billing: how to define metered
 
 <Step>
 
-## Define a metered feature
+<StepTitle>Define a metered feature</StepTitle>
 
 Metered features track usage against a limit. Define one with `type: "metered"`.
 
@@ -23,7 +23,7 @@ const messages = feature({ id: "messages", type: "metered" });
 
 <Step>
 
-## Include in plans with different limits
+<StepTitle>Include in plans with different limits</StepTitle>
 
 Pass the feature into each plan with a `limit` and `reset` interval.
 
@@ -55,7 +55,7 @@ Free customers get 100 messages per month; Pro customers get 2,000.
 
 <Step>
 
-## Check before consuming
+<StepTitle>Check before consuming</StepTitle>
 
 Call `check` before performing the action. It returns `allowed` (whether the customer has remaining balance) and `balance` (how many units are left).
 
@@ -72,7 +72,7 @@ If `allowed` is `false`, the customer has hit their limit. Return early instead 
 
 <Step>
 
-## Perform the action
+<StepTitle>Perform the action</StepTitle>
 
 Only run the actual work if `allowed` is `true`.
 
@@ -88,7 +88,7 @@ const response = await generateChatResponse(input);
 
 <Step>
 
-## Report usage
+<StepTitle>Report usage</StepTitle>
 
 After the action succeeds, call `report` to decrement the customer's balance.
 
@@ -106,7 +106,7 @@ Pass `amount` matching however many units the action consumed. For most cases th
 
 <Step>
 
-## Balance resets
+<StepTitle>Balance resets</StepTitle>
 
 PayKit uses lazy resets. When the reset period passes, it doesn't reset balances proactively. Instead, the next `check` or `report` call detects that the period has expired and resets the balance automatically before returning.
 

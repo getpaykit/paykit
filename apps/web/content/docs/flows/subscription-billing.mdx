@@ -7,7 +7,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
 
 <Steps>
   <Step>
-    ## Define plans
+    <StepTitle>Define plans</StepTitle>
 
     Start by defining your plans. A typical setup has a free tier as the default and one or more paid tiers in the same group.
 
@@ -52,7 +52,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Create a customer
+    <StepTitle>Create a customer</StepTitle>
 
     Before a customer can subscribe, they need to exist in PayKit.
 
@@ -93,7 +93,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Subscribe to a paid plan
+    <StepTitle>Subscribe to a paid plan</StepTitle>
 
     Call `subscribe()` with the target plan ID. For paid plans without a saved payment method, it returns a `paymentUrl` for checkout.
 
@@ -138,7 +138,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Handle the webhook
+    <StepTitle>Handle the webhook</StepTitle>
 
     After checkout, your payment provider sends a webhook to PayKit's endpoint. PayKit verifies the signature, syncs the subscription locally, and fires a `customer.updated` event. This is fully automatic.
 
@@ -148,7 +148,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Check entitlements
+    <StepTitle>Check entitlements</StepTitle>
 
     Use `check()` to gate features based on the customer's active plan.
 
@@ -173,7 +173,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Upgrade
+    <StepTitle>Upgrade</StepTitle>
 
     Upgrading moves the customer to a higher-priced plan in the same group. It takes effect immediately.
 
@@ -189,7 +189,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Downgrade
+    <StepTitle>Downgrade</StepTitle>
 
     Downgrading moves the customer to a lower-priced plan. The current plan stays active until the end of the billing period, then the target plan activates automatically.
 
@@ -205,7 +205,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Cancel
+    <StepTitle>Cancel</StepTitle>
 
     Cancellation works the same way as a downgrade: subscribe the customer to the default free plan.
 
@@ -228,7 +228,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
   </Step>
 
   <Step>
-    ## Listen to changes
+    <StepTitle>Listen to changes</StepTitle>
 
     Add `on` handlers to your PayKit instance to react to any billing change. `customer.updated` fires after every subscription or entitlement update, including webhook-driven changes.
 
