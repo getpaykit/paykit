@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 type DocsLayoutStyle = CSSProperties & {
   "--fd-header-height": string;
   "--fd-layout-width": string;
+  "--fd-sidebar-col": string;
 };
 
 function SearchButton({ className }: { className?: string }) {
@@ -247,12 +248,13 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
   const { setOpenSearch } = useSearchContext();
   const layoutStyle = {
     "--fd-header-height": "35px",
-    "--fd-layout-width": "92rem",
+    "--fd-layout-width": "90rem",
+    "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
     gridTemplate: `
       "sidebar sidebar header toc toc" var(--fd-header-height)
       "sidebar sidebar toc-popover toc toc" var(--fd-toc-popover-height)
       "sidebar sidebar main toc toc" 1fr
-      / minmax(0, 1fr) var(--fd-sidebar-width) minmax(0, calc(var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))) var(--fd-toc-width) minmax(0, 1fr)
+      / minmax(0, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))) var(--fd-toc-width) minmax(0, 1fr)
     `,
   } satisfies DocsLayoutStyle;
 
@@ -266,7 +268,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
           "[--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
-          sidebarOpen && "md:[--fd-sidebar-width:250px]",
+          "md:[--fd-sidebar-width:250px]",
           "xl:[--fd-toc-width:250px] max-md:[--fd-header-height:3rem]",
         )}
       >
