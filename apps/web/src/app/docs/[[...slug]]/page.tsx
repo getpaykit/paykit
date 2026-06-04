@@ -227,11 +227,16 @@ export default async function Page({ params }: DocsPageProps) {
       toc={page.data.toc}
       full={page.data.full}
     >
-      <div className="flex items-start justify-between gap-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
         <DocsTitle>{page.data.title}</DocsTitle>
-        <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
+        <div className="hidden md:block">
+          <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
+        </div>
       </div>
       <DocsDescription>{page.data.description}</DocsDescription>
+      <div className="mt-3 self-start md:hidden">
+        <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
+      </div>
       <DocsBody>
         <PackageManagerProvider initialManager={packageManager}>
           <MDXContent
