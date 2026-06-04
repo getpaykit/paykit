@@ -109,7 +109,7 @@ type StepProps = HTMLAttributes<HTMLDivElement>;
 export function Step({ className, children, ...props }: StepProps) {
   return (
     <div className={cn("mt-6 pl-9", className)} {...props}>
-      <div className="[&>h2]:text-primary [&>h2]:pt-0.5 [&>h2]:text-[15px]! [&>h2]:leading-6 [&>h2]:font-medium [&>h2]:not-first:mt-2 [&>h2]:tracking-normal [&>h2]:select-auto [&>h2]:mt-0! [&>h3]:text-primary [&>h3]:pt-0.5 [&>h3]:text-[15px]! [&>h3]:leading-6 [&>h3]:font-medium [&>h3]:not-first:mt-2 [&>h3]:tracking-normal [&>h3]:select-auto [&>h3]:mt-0!">
+      <div className="[&>a]:mt-0! [&>a>svg]:hidden! [&>a>h2]:mt-0! [&>a>h2]:pt-0.5 [&>a>h2]:text-[15px]! [&>a>h2]:font-medium [&>a>h2]:tracking-normal [&>a>h2]:select-auto [&>h2]:mt-0! [&>h2]:pt-0.5 [&>h2]:text-[15px]! [&>h2]:font-medium [&>h2]:tracking-normal [&>h2]:select-auto [&>h3]:mt-0! [&>h3]:pt-0.5 [&>h3]:text-[15px]! [&>h3]:font-medium [&>h3]:tracking-normal [&>h3]:select-auto">
         {children}
       </div>
     </div>
