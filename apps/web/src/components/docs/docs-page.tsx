@@ -33,7 +33,7 @@ export function DocsPage({
         id="nd-page"
         data-full={full}
         className={cn(
-          "flex w-full max-w-[43rem] flex-col px-4 py-12 pb-32",
+          "flex w-full max-w-[43rem] flex-col px-4 pt-7 pb-32 md:pt-12",
           "mx-auto [grid-area:main]",
           full && "max-w-[1168px]",
           className,

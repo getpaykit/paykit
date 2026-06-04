@@ -24,7 +24,6 @@ import { BrandMenu } from "@/components/web/brand-menu";
 import { cn } from "@/lib/utils";
 
 type DocsLayoutStyle = CSSProperties & {
-  "--fd-header-height": string;
   "--fd-layout-width": string;
   "--fd-sidebar-col": string;
 };
@@ -247,7 +246,6 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { setOpenSearch } = useSearchContext();
   const layoutStyle = {
-    "--fd-header-height": "35px",
     "--fd-layout-width": "90rem",
     "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
     gridTemplate: `
@@ -267,7 +265,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         className={cn(
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
-          "[--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
+          "[--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
           "md:[--fd-sidebar-width:250px]",
           "xl:[--fd-toc-width:250px] max-md:[--fd-header-height:3rem]",
         )}
@@ -277,7 +275,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         <header
           id="nd-subnav"
           data-transparent="false"
-          className="fixed top-0 z-30 flex h-12 w-full flex-row items-center justify-between border-b bg-fd-background px-2.5 [grid-area:header] md:pointer-events-none md:sticky md:h-[35px] md:border-b-0 md:bg-transparent md:px-0"
+          className="fixed top-0 z-30 flex h-12 w-full flex-row items-center justify-between border-b bg-fd-background px-2.5 [grid-area:header] md:hidden"
         >
           <BrandMenu
             className="md:hidden"
