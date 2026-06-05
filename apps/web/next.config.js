@@ -82,6 +82,7 @@ const config = {
       permanent: false,
     },
     { source: "/donate", destination: "/sponsor", permanent: true },
+    { source: "/sponsors", destination: "/sponsor", permanent: true },
   ],
 };
 
