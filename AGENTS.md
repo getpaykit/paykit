@@ -21,6 +21,14 @@ APIs.
 - Keep JSDoc strings short and useful
 - while writing JSDoc follow it's standards, such as tags
 
+## References
+
+If need to inspect source code of libraries or packages, prefer inspected clonned source repo while exists, instead of inspecting library dist.
+
+those directories already contain the source checkout of some packages:
+
+- `~/ref/fumadocs` - fumadocs framework / package.
+
 ## Behavior
 
 - When asked opinion questions, answer only. Do not edit code unless explicitly asked.
