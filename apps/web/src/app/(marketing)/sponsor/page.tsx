@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { RiArrowLeftLine } from "react-icons/ri";
 
 import { Section, SectionContent } from "@/components/layout/section";
-import { FooterSection } from "@/components/sections/footer-section";
-
-const sponsorUrl = "https://opencollective.com/maxktz";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Sponsor",
-  description: "Support PayKit development through Open Collective.",
+  title: "Sponsors",
+  description: "PayKit sponsors page is coming soon.",
   alternates: {
     canonical: "/sponsor",
   },
@@ -17,34 +16,27 @@ export const metadata: Metadata = {
 export default function SponsorPage() {
   return (
     <div className="flex min-h-dvh flex-col">
-      <meta httpEquiv="refresh" content={`1;url=${sponsorUrl}`} />
-
-      <Section className="flex-1">
-        <SectionContent className="px-12 pt-24 pb-24 sm:pt-24 sm:pb-24 md:pt-32 md:pb-24 lg:px-12 lg:pt-36 lg:pb-24">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="space-y-4">
-              <h1 className="text-foreground/90 text-3xl font-semibold tracking-tight sm:text-4xl">
-                Redirecting to Open Collective...
-              </h1>
-              <p className="text-foreground/45 mx-auto max-w-xl text-sm leading-relaxed sm:text-base">
-                Support ongoing PayKit development on Open Collective. If you are not redirected
-                automatically, use the fallback link below.
-              </p>
-            </div>
-
-            <div className="mt-8">
-              <Link
-                href={sponsorUrl}
-                className="text-foreground/45 hover:text-foreground/70 font-mono text-sm transition-colors"
-              >
-                Continue to Open Collective
-              </Link>
+      <Section last className="flex-1">
+        <SectionContent className="relative flex min-h-dvh flex-col items-center justify-center">
+          <div className="relative flex flex-col items-center gap-4 text-center">
+            <p className="text-foreground/30 font-mono text-xs tracking-widest uppercase">
+              Coming soon
+            </p>
+            <h1 className="text-foreground text-2xl font-medium tracking-tight sm:text-3xl">
+              Sponsors page is not ready yet
+            </h1>
+            <p className="text-foreground/50 max-w-xs text-sm">
+              Sponsor information and acknowledgements will be available soon.
+            </p>
+            <div className="pt-2">
+              <Button size="lg" render={<Link href="/" />} nativeButton={false}>
+                <RiArrowLeftLine />
+                Go home
+              </Button>
             </div>
           </div>
         </SectionContent>
       </Section>
-
-      <FooterSection />
     </div>
   );
 }
