@@ -20,8 +20,6 @@
     "subscription-billing",
     "metered-usage",
     "---Plugins---",
-    "dashboard",
-    "---Guides---",
-    "skills"
+    "dashboard"
   ]
 }
