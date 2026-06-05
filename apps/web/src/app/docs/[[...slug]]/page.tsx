@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 
 import { CopyMarkdownButton } from "@/components/docs/copy-markdown-button";
 import { docsMdxComponents } from "@/components/docs/docs-mdx-components";
@@ -17,10 +17,6 @@ export const revalidate = false;
 
 export default async function Page({ params }: DocsPageProps) {
   const { slug } = await params;
-
-  if (!slug || slug.length === 0) {
-    redirect("/docs/get-started");
-  }
 
   const page = source.getPage(slug ?? []) as SourcePage | undefined;
 
@@ -63,16 +59,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: DocsPageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  if (!slug || slug.length === 0) {
-    return {
-      title: "Documentation",
-      description: "PayKit documentation",
-    };
-  }
-
   const page = source.getPage(slug ?? []);
 
   if (!page) notFound();
+
+  const ogPath = slug?.length ? `/${slug.join("/")}` : "";
 
   return {
     title: page.data.title,
@@ -82,7 +73,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
       description: page.data.description,
       images: [
         {
-          url: `/api/og/${slug.join("/")}`,
+          url: `/api/og${ogPath}`,
           width: 1200,
           height: 600,
           alt: page.data.title,
@@ -92,7 +83,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
     twitter: {
       title: page.data.title,
       description: page.data.description,
-      images: [`/api/og/${slug.join("/")}`],
+      images: [`/api/og${ogPath}`],
     },
   };
 }

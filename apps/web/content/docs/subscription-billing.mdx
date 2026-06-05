@@ -48,7 +48,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
     });
     ```
 
-    For the full reference on plan groups, feature types, and pricing options, see [Plans & Features](/docs/concepts/plans-and-features).
+    For the full reference on plan groups, feature types, and pricing options, see [Plans & Features](/docs/plans-and-features).
   </Step>
 
   <Step>
@@ -144,7 +144,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
 
     You don't need to manually process Stripe events or update your database. By the time `customer.updated` fires, the customer's subscriptions and entitlements are already up to date.
 
-    See [Webhook Events](/docs/concepts/webhook-events) for details on how PayKit processes and deduplicates incoming events.
+    See [Webhook Events](/docs/webhook-events) for details on how PayKit processes and deduplicates incoming events.
   </Step>
 
   <Step>
@@ -169,7 +169,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
     });
     ```
 
-    For metered features, `check()` also returns a `balance` with `remaining`, `limit`, and `resetAt`. See [Entitlements](/docs/concepts/entitlements) for the full pattern including `report()`.
+    For metered features, `check()` also returns a `balance` with `remaining`, `limit`, and `resetAt`. See [Entitlements](/docs/entitlements) for the full pattern including `report()`.
   </Step>
 
   <Step>

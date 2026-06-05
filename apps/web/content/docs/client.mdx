@@ -16,7 +16,7 @@ import type { paykit } from "@/server/paykit";
 export const paykitClient = createPayKitClient<typeof paykit>();
 ```
 
-The client resolves the current customer automatically on each request. You need `identify` configured on your server instance for this to work. See [customer identification](/docs/concepts/customers#customer-identification-client) for details.
+The client resolves the current customer automatically on each request. You need `identify` configured on your server instance for this to work. See [customer identification](/docs/customers#customer-identification-client) for details.
 
 ## Available methods
 
@@ -72,4 +72,4 @@ You can also pass an absolute URL like `https://example.com/custom`.
 
 ## Type safety
 
-The client infers available plan IDs directly from your server instance type. If you pass an invalid `planId`, TypeScript catches it at compile time. See [TypeScript](/docs/concepts/typescript) for more on how type inference works across the stack.
+The client infers available plan IDs directly from your server instance type. If you pass an invalid `planId`, TypeScript catches it at compile time. See [TypeScript](/docs/typescript) for more on how type inference works across the stack.

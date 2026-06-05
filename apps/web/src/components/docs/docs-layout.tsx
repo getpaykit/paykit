@@ -65,18 +65,25 @@ function SidebarContent({
   pathname: string;
   tree: Root;
 }) {
+  const sections = getSidebarSections(tree.children);
+
   return (
     <nav className="no-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-2.5 py-2 text-sm">
-      {tree.children.map((node, index) => {
-        if (isDuplicateSeparator(node, tree.children[index + 1])) return null;
-
+      {sections.map((section, index) => {
         return (
-          <SidebarNode
-            key={node.$id ?? `${node.type}-${index}`}
-            node={node}
-            onItemClick={onItemClick}
-            pathname={pathname}
-          />
+          <div className="flex flex-col gap-1" key={section.key ?? index}>
+            {section.separator ? <SidebarSeparator separator={section.separator} /> : null}
+            <div className="flex flex-col gap-0.5">
+              {section.children.map((node, childIndex) => (
+                <SidebarNode
+                  key={node.$id ?? `${node.type}-${childIndex}`}
+                  node={node}
+                  onItemClick={onItemClick}
+                  pathname={pathname}
+                />
+              ))}
+            </div>
+          </div>
         );
       })}
     </nav>
@@ -208,11 +215,63 @@ function MobileSidebar({
   );
 }
 
-function isDuplicateSeparator(current: PageTree.Node, next: PageTree.Node | undefined): boolean {
+interface SidebarSection {
+  key?: string;
+  separator?: PageTree.Separator;
+  children: PageTree.Node[];
+}
+
+function getSidebarSections(nodes: PageTree.Node[]): SidebarSection[] {
+  const sections: SidebarSection[] = [];
+  let current: SidebarSection | undefined;
+
+  for (const [index, node] of nodes.entries()) {
+    const next = nodes[index + 1];
+
+    if (node.type === "separator") {
+      if (isDuplicateFolderSeparator(node, next)) {
+        current = undefined;
+        continue;
+      }
+
+      current = {
+        key: node.$id,
+        separator: node,
+        children: [],
+      };
+      sections.push(current);
+      continue;
+    }
+
+    if (!current) {
+      current = {
+        key: node.$id,
+        children: [],
+      };
+      sections.push(current);
+    }
+
+    current.children.push(node);
+  }
+
+  return sections.filter((section) => section.separator || section.children.length > 0);
+}
+
+function isDuplicateFolderSeparator(
+  separator: PageTree.Separator,
+  next: PageTree.Node | undefined,
+): boolean {
   return (
-    current.type === "separator" &&
     next?.type === "folder" &&
-    String(current.name).toLowerCase() === String(next.name).toLowerCase()
+    String(separator.name).toLowerCase() === String(next.name).toLowerCase()
+  );
+}
+
+function SidebarSeparator({ separator }: { separator: PageTree.Separator }) {
+  return (
+    <div className="flex h-6 items-center px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase">
+      <span className="truncate">{separator.name}</span>
+    </div>
   );
 }
 
@@ -226,11 +285,7 @@ function SidebarNode({
   pathname: string;
 }) {
   if (node.type === "separator") {
-    return (
-      <div className="px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase">
-        {node.name}
-      </div>
-    );
+    return <SidebarSeparator separator={node} />;
   }
 
   if (node.type === "folder") {
