@@ -95,32 +95,37 @@ function DocsSidebar({
 
   return (
     <div className="hidden [grid-area:sidebar] md:layout:[--fd-sidebar-width:250px] md:block">
-      {open ? (
-        <aside className="fixed inset-y-0 left-[max(0px,calc((100vw-var(--fd-layout-width))/2))] z-20 flex w-(--fd-sidebar-width) border-x bg-background">
-          <div className="flex h-full w-full flex-col">
-            <div className="flex h-12 items-center justify-between px-2.5">
-              <BrandMenu
-                linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-                wordmarkBaseClassName="h-3.5"
-              />
-              <Button
-                aria-label="Hide sidebar"
-                className="size-7 text-muted-foreground"
-                onClick={onCollapse}
-                size="icon-sm"
-                type="button"
-                variant="ghost"
-              >
-                <RiSideBarLine />
-              </Button>
-            </div>
-            <div className="px-2.5 pb-2">
-              <SearchButton className="w-full" />
-            </div>
-            <SidebarContent pathname={pathname} tree={tree} />
+      <aside
+        data-open={open}
+        className={cn(
+          "fixed inset-y-0 left-[max(0px,calc((100vw-var(--fd-layout-width))/2))] z-20 flex w-(--fd-sidebar-width) border-x bg-background",
+          "transition-[opacity,translate] duration-200 ease-out",
+          !open && "pointer-events-none -translate-x-2 opacity-0",
+        )}
+      >
+        <div className="flex h-full w-full flex-col">
+          <div className="flex h-12 items-center justify-between px-2.5">
+            <BrandMenu
+              linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
+              wordmarkBaseClassName="h-3.5"
+            />
+            <Button
+              aria-label="Hide sidebar"
+              className="size-7 text-muted-foreground"
+              onClick={onCollapse}
+              size="icon-sm"
+              type="button"
+              variant="ghost"
+            >
+              <RiSideBarLine />
+            </Button>
           </div>
-        </aside>
-      ) : null}
+          <div className="px-2.5 pb-2">
+            <SearchButton className="w-full" />
+          </div>
+          <SidebarContent pathname={pathname} tree={tree} />
+        </div>
+      </aside>
     </div>
   );
 }
@@ -134,10 +139,16 @@ function SidebarIsland({
   onSearch: () => void;
   visible: boolean;
 }) {
-  if (!visible) return null;
-
   return (
-    <div className="fixed top-4 left-4 z-30 hidden rounded-md border bg-background p-0.5 md:flex">
+    <div
+      className={cn(
+        "fixed top-4 left-4 z-30 hidden rounded-md border bg-background p-0.5 md:flex",
+        "transition-[opacity,scale,translate] duration-200 ease-out",
+        visible
+          ? "delay-150 opacity-100"
+          : "pointer-events-none -translate-x-1 scale-95 opacity-0 delay-0",
+      )}
+    >
       <Button
         aria-label="Show sidebar"
         onClick={onOpen}
@@ -301,12 +312,14 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
   const layoutStyle = {
     "--fd-layout-width": "90rem",
     "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
-    gridTemplate: `
-      "sidebar sidebar header toc toc" var(--fd-header-height)
-      "sidebar sidebar toc-popover toc toc" var(--fd-toc-popover-height)
-      "sidebar sidebar main toc toc" 1fr
-      / minmax(0, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))) var(--fd-toc-width) minmax(0, 1fr)
+    gridTemplateAreas: `
+      "sidebar sidebar header toc toc"
+      "sidebar sidebar toc-popover toc toc"
+      "sidebar sidebar main toc toc"
     `,
+    gridTemplateRows: "var(--fd-header-height) var(--fd-toc-popover-height) 1fr",
+    gridTemplateColumns:
+      "minmax(0, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--fd-layout-width) - var(--fd-sidebar-width) - var(--fd-toc-width))) var(--fd-toc-width) minmax(0, 1fr)",
   } satisfies DocsLayoutStyle;
 
   return (
@@ -319,7 +332,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
           "[--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
-          "data-[column-changed=true]:transition-[grid-template-columns]",
+          "data-[column-changed=true]:transition-[grid-template-columns] data-[column-changed=true]:duration-200 data-[column-changed=true]:ease-out",
           "max-md:[--fd-header-height:3rem]",
         )}
       >
