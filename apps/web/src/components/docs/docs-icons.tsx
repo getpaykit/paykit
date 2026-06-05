@@ -53,7 +53,6 @@ const pageIcons = {
   usage: <RiCoinsLine className="docs-category-icon size-3! shrink-0" />,
   database: <RiDatabase2Line className="docs-category-icon size-3! shrink-0" />,
   typescript: <RiCodeSSlashLine className="docs-category-icon size-3! shrink-0" />,
-  "payment providers": <RiBankCardLine className="docs-category-icon size-3! shrink-0" />,
   checkout: <RiShoppingCartLine className="docs-category-icon size-3! shrink-0" />,
   "payment methods": <RiWalletLine className="docs-category-icon size-3! shrink-0" />,
   charges: <RiReceiptLine className="docs-category-icon size-3! shrink-0" />,

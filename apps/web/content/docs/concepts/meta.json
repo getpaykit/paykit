@@ -7,7 +7,6 @@
     "entitlements",
     "webhook-events",
     "database",
-    "payment-providers",
     "plugins",
     "client",
     "cli",
