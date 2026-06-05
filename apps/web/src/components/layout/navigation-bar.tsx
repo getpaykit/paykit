@@ -128,21 +128,20 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           transition={{ duration: 0.28, ease: "easeOut" }}
           className="bg-background pointer-events-auto w-full lg:hidden"
         >
-          <SectionShell className="border-border flex items-center justify-between border-b">
-            <BrandMenu
-              linkClassName="gap-1 rounded-sm px-5 py-3 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-              wordmarkClassName="scale-95"
-            />
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-controls="mobile-navigation-menu"
-              aria-expanded={mobileMenuOpen}
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-5 py-3 transition-colors"
-            >
-              {mobileMenuOpen ? <RiCloseLine size={18} /> : <RiMenuLine size={18} />}
-            </button>
+          <SectionShell className="border-border border-b">
+            <div className="flex w-full items-center justify-between pl-2.5">
+              <BrandMenu linkClassName="rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <button
+                type="button"
+                aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-controls="mobile-navigation-menu"
+                aria-expanded={mobileMenuOpen}
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-5 py-3 transition-colors"
+              >
+                {mobileMenuOpen ? <RiCloseLine size={18} /> : <RiMenuLine size={18} />}
+              </button>
+            </div>
           </SectionShell>
         </motion.div>
 
