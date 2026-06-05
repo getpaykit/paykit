@@ -125,6 +125,41 @@ function DocsSidebar({
   );
 }
 
+function SidebarIsland({
+  onOpen,
+  onSearch,
+  visible,
+}: {
+  onOpen: () => void;
+  onSearch: () => void;
+  visible: boolean;
+}) {
+  if (!visible) return null;
+
+  return (
+    <div className="fixed top-4 left-4 z-30 hidden rounded-md border bg-background p-0.5 md:flex">
+      <Button
+        aria-label="Show sidebar"
+        onClick={onOpen}
+        size="icon-sm"
+        type="button"
+        variant="ghost"
+      >
+        <RiSideBarLine />
+      </Button>
+      <Button
+        aria-label="Open search"
+        onClick={onSearch}
+        size="icon-sm"
+        type="button"
+        variant="ghost"
+      >
+        <RiSearchLine />
+      </Button>
+    </div>
+  );
+}
+
 function MobileSidebar({
   onOpenChange,
   open,
@@ -289,6 +324,11 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         )}
       >
         <DocsSidebar onCollapse={() => setSidebarOpen(false)} open={sidebarOpen} tree={tree} />
+        <SidebarIsland
+          onOpen={() => setSidebarOpen(true)}
+          onSearch={() => setOpenSearch(true)}
+          visible={!sidebarOpen}
+        />
         <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} tree={tree} />
         <header
           id="nd-subnav"
