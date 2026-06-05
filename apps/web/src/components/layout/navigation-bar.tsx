@@ -243,9 +243,10 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                   nativeButton={false}
                   variant="ghost"
                   size="sm"
+                  className="px-2 -mr-2"
                 >
-                  <Icons.GitHubIcon className="size-4" />
-                  <span className="font-sans text-sm">1.1k</span>
+                  <Icons.GitHubIcon className="size-4.5" />
+                  <span className="font-sans text-sm">1k</span>
                 </Button>
               </div>
             </div>
