@@ -22,7 +22,7 @@ The client resolves the current customer automatically on each request. You need
 
 The client exposes `subscribe` and `customerPortal`. Neither requires a `customerId` since it's resolved from the incoming request via `identify`.
 
-## `subscribe`
+## subscribe
 
 Works the same as the server-side `subscribe`, but without `customerId`. Returns `{ paymentUrl }`.
 
@@ -44,7 +44,7 @@ Works the same as the server-side `subscribe`, but without `customerId`. Returns
 </Button>
 ```
 
-## `customerPortal`
+## customerPortal
 
 Opens the provider's customer portal. Returns `{ url }`.
 
