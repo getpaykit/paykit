@@ -71,7 +71,7 @@ export function DocsDescription({ children, className, ...props }: ComponentProp
   if (children === undefined) return null;
 
   return (
-    <p {...props} className={cn("text-muted-foreground mt-2 text-[15px]", className)}>
+    <p {...props} className={cn("text-primary/80 mt-2 text-[15px]", className)}>
       {children}
     </p>
   );
