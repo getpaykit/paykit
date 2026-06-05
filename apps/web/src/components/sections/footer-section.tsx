@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { Icons } from "@/components/icons";
 import { Section, SectionContent } from "@/components/layout/section";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { URLs } from "@/lib/consts";
 
 const navLinks = [
@@ -92,6 +93,10 @@ export function FooterSection() {
           </div>
 
           <div className="flex items-center gap-3">
+            <ThemeSwitcher
+              className="size-auto p-0 text-foreground/30 hover:bg-transparent hover:text-foreground/60 [&_svg]:size-4"
+              size="icon-sm"
+            />
             {socialLinks.map((link) => (
               <Link
                 key={link.label}

@@ -237,7 +237,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
               </div>
 
               {/* Right */}
-              <div className="relative z-10 flex items-center gap-2">
+              <div className="relative z-10 flex items-center gap-0.">
                 <Button
                   render={<Link href={URLs.githubRepo} target="_blank" rel="noopener noreferrer" />}
                   nativeButton={false}
