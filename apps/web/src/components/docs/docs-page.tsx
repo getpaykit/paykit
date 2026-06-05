@@ -12,6 +12,8 @@ import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
 import { cn } from "@/lib/utils";
 
+const tocWidthClassName = "xl:layout:[--fd-toc-width:250px]";
+
 export function DocsPage({
   children,
   className,
@@ -27,8 +29,11 @@ export function DocsPage({
   toc?: TOCProviderProps["toc"];
   tocFooter?: ReactNode;
 }) {
+  const hasToc = toc.length > 0 || tocFooter !== undefined;
+
   return (
     <TOCProvider toc={toc}>
+      {hasToc && <DocsTocLayoutMarker />}
       <article
         id="nd-page"
         data-full={full}
@@ -43,7 +48,7 @@ export function DocsPage({
         {children}
         {footer && <DocsFooter />}
       </article>
-      <DocsToc footer={tocFooter} />
+      {hasToc && <DocsToc footer={tocFooter} />}
     </TOCProvider>
   );
 }
@@ -81,9 +86,11 @@ export function DocsBody({ children, className, ...props }: ComponentProps<"div"
 }
 
 function DocsToc({ footer }: { footer?: ReactNode }) {
-  return (
-    <TOC container={{ className: "pt-14 xl:layout:[--fd-toc-width:250px]" }} footer={footer} />
-  );
+  return <TOC container={{ className: cn("pt-14", tocWidthClassName) }} footer={footer} />;
+}
+
+function DocsTocLayoutMarker() {
+  return <div aria-hidden className={cn("hidden", tocWidthClassName)} />;
 }
 
 function DocsBreadcrumb({

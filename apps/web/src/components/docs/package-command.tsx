@@ -2,13 +2,21 @@
 
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import type { ComponentProps, ReactNode, SVGProps } from "react";
-import { createContext, isValidElement, useCallback, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  isValidElement,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 import { RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 import {
   fallbackPackageManager,
   isPackageManager,
-  packageManagerCookieName,
+  packageManagerStorageKey,
   packageManagers,
   type PackageManager,
 } from "@/components/docs/package-manager-state";
@@ -18,34 +26,45 @@ import { cn } from "@/lib/utils";
 
 type CommandKind = "install" | "dlx" | "create" | "run";
 type TabsVariant = "default" | "underline";
+type PackageManagerListener = (value: PackageManager) => void;
 
 export interface PackageCommand {
   kind: CommandKind;
   args: string;
 }
 
-const packageManagerEventName = "paykit-package-manager";
+const packageManagerListeners = new Set<PackageManagerListener>();
 const PackageManagerContext = createContext<PackageManager>(fallbackPackageManager);
 
+function readStoredManager(): PackageManager | null {
+  const storedValue =
+    sessionStorage.getItem(packageManagerStorageKey) ??
+    localStorage.getItem(packageManagerStorageKey);
+
+  return isPackageManager(storedValue) ? storedValue : null;
+}
+
 function setStoredManager(value: PackageManager) {
-  document.cookie = `${packageManagerCookieName}=${value}; path=/; max-age=31536000; samesite=lax`;
-  window.dispatchEvent(new CustomEvent(packageManagerEventName, { detail: value }));
+  sessionStorage.setItem(packageManagerStorageKey, value);
+  localStorage.setItem(packageManagerStorageKey, value);
+
+  for (const listener of packageManagerListeners) {
+    listener(value);
+  }
 }
 
 function usePackageManager() {
   const initialManager = useContext(PackageManagerContext);
   const [manager, setManagerState] = useState<PackageManager>(initialManager);
 
-  useEffect(() => {
-    function handleLocal(event: Event) {
-      const value = (event as CustomEvent<PackageManager>).detail;
-      if (isPackageManager(value)) setManagerState(value);
-    }
+  useLayoutEffect(() => {
+    const storedManager = readStoredManager();
+    if (storedManager) setManagerState(storedManager);
 
-    window.addEventListener(packageManagerEventName, handleLocal);
+    packageManagerListeners.add(setManagerState);
 
     return () => {
-      window.removeEventListener(packageManagerEventName, handleLocal);
+      packageManagerListeners.delete(setManagerState);
     };
   }, []);
 

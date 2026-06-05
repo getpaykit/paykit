@@ -2,7 +2,6 @@ import { Callout as BaseCallout } from "fumadocs-ui/components/callout";
 import { Card, Cards } from "fumadocs-ui/components/card";
 import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
-import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import type { ComponentPropsWithoutRef } from "react";
 import { RiLinkM } from "react-icons/ri";
@@ -23,10 +22,7 @@ import {
 } from "@/components/docs/mdx-text";
 import { PackageManagerProvider } from "@/components/docs/package-command";
 import { PackageCommandPre } from "@/components/docs/package-command-pre";
-import {
-  packageManagerCookieName,
-  parsePackageManagerCookie,
-} from "@/components/docs/package-manager-state";
+import { fallbackPackageManager } from "@/components/docs/package-manager-state";
 import type { SourcePage } from "@/lib/source";
 import { source } from "@/lib/source";
 import { cn } from "@/lib/utils";
@@ -34,6 +30,8 @@ import { cn } from "@/lib/utils";
 interface DocsPageProps {
   params: Promise<{ slug?: string[] }>;
 }
+
+export const revalidate = false;
 
 function Callout(props: ComponentPropsWithoutRef<typeof BaseCallout>) {
   return (
@@ -214,10 +212,6 @@ export default async function Page({ params }: DocsPageProps) {
 
   const MDXContent = page.data.body;
   const showBreadcrumb = (slug?.length ?? 0) >= 3;
-  const cookieStore = await cookies();
-  const packageManager = parsePackageManagerCookie(
-    cookieStore.get(packageManagerCookieName)?.value,
-  );
 
   return (
     <DocsPage
@@ -238,7 +232,7 @@ export default async function Page({ params }: DocsPageProps) {
         <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
       </div>
       <DocsBody>
-        <PackageManagerProvider initialManager={packageManager}>
+        <PackageManagerProvider initialManager={fallbackPackageManager}>
           <MDXContent
             components={{
               ...defaultMdxComponents,
