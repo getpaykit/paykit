@@ -11,10 +11,17 @@ import type { CSSProperties } from "react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { useState } from "react";
-import { RiSearchLine, RiSideBarLine } from "react-icons/ri";
+import { RiExternalLinkLine, RiRobot2Line, RiSearchLine, RiSideBarLine } from "react-icons/ri";
 
 import { getDocsPageIcon } from "@/components/docs/docs-icons";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -37,13 +44,13 @@ function SearchButton({ className }: { className?: string }) {
     <button
       type="button"
       className={cn(
-        "text-muted-foreground hover:bg-muted hover:text-foreground inline-flex h-8 items-center gap-2 rounded-sm border bg-secondary/50 px-2 text-sm transition-colors dark:hover:bg-muted/50",
+        "text-primary/70 hover:bg-muted hover:text-primary/90 inline-flex h-7.5 items-center gap-1.5 rounded-sm border bg-secondary/50 px-2 text-[14px] transition-colors dark:hover:bg-muted/50",
         className,
       )}
       onClick={() => setOpenSearch(true)}
     >
-      <RiSearchLine className="size-4 shrink-0" />
-      <span>Search</span>
+      <RiSearchLine className="size-3.5 shrink-0" />
+      <span className="">Search</span>
       <span className="ml-auto inline-flex items-center gap-0.5 font-mono text-[11px]">
         <kbd className="inline-flex h-4.5 w-4.5 items-center justify-center rounded-sm border bg-background p-0">
           <span className="mt-[1.2px] text-[14px] leading-none">⌘</span>
@@ -68,7 +75,7 @@ function SidebarContent({
   const sections = getSidebarSections(tree.children);
 
   return (
-    <nav className="no-scrollbar flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-2.5 py-2 text-sm">
+    <nav className="docs-sidebar-content flex min-h-0 flex-1 flex-col gap-3.5 overflow-x-hidden overflow-y-auto overscroll-contain px-2.5 py-2 text-sm mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]">
       {sections.map((section, index) => {
         return (
           <div className="flex flex-col gap-1" key={section.key ?? index}>
@@ -87,6 +94,36 @@ function SidebarContent({
         );
       })}
     </nav>
+  );
+}
+
+function LlmsDropdown() {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <Button
+            aria-label="Open LLM files"
+            className="size-7 text-muted-foreground"
+            size="icon-sm"
+            type="button"
+            variant="ghost"
+          />
+        }
+      >
+        <RiRobot2Line />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" side="top" className="w-40">
+        <DropdownMenuItem render={<Link href="/llms.txt" target="_blank" rel="noreferrer" />}>
+          <RiExternalLinkLine className="size-3.5" />
+          llms.txt
+        </DropdownMenuItem>
+        <DropdownMenuItem render={<Link href="/llms-full.txt" target="_blank" rel="noreferrer" />}>
+          <RiExternalLinkLine className="size-3.5" />
+          llms-full.txt
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 
@@ -132,6 +169,10 @@ function DocsSidebar({
             <SearchButton className="w-full" />
           </div>
           <SidebarContent pathname={pathname} tree={tree} />
+          <div className="flex pb-2.5 pt-0.5 items-center justify-between px-2.5">
+            <LlmsDropdown />
+            <ThemeSwitcher className="size-7 text-muted-foreground" size="icon-sm" />
+          </div>
         </div>
       </aside>
     </div>
@@ -269,7 +310,7 @@ function isDuplicateFolderSeparator(
 
 function SidebarSeparator({ separator }: { separator: PageTree.Separator }) {
   return (
-    <div className="flex h-6 items-center px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase">
+    <div className="flex h-4.5 items-center px-2 text-[11px] font-medium tracking-wide text-muted-foreground/70 uppercase">
       <span className="truncate">{separator.name}</span>
     </div>
   );
@@ -342,7 +383,7 @@ function SidebarItem({
       href={item.url}
       onClick={onItemClick}
       className={cn(
-        "flex h-7 items-center gap-2 rounded-sm px-2 text-[13px] transition-none",
+        "flex h-6.75 items-center gap-2 rounded-sm px-2 text-[13px] transition-none",
         active
           ? "bg-secondary text-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted/50",

@@ -58,7 +58,7 @@ export function DocsTitle({ children, className, ...props }: ComponentProps<"h1"
     <h1
       {...props}
       className={cn(
-        "scroll-m-20 text-3xl font-semibold tracking-tight xl:text-[2.0625rem] xl:leading-[2.375rem]",
+        "scroll-m-20 text-3xl font-semibold tracking-tight xl:text-[2.0625rem] xl:leading-9.5",
         className,
       )}
     >

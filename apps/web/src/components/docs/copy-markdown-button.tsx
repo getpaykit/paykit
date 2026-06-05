@@ -47,7 +47,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
   }, [markdown, markdownUrl]);
 
   return (
-    <div className="bg-secondary h-7.5 group/buttons relative flex rounded-sm gap-px p-[2px] select-none *:data-[slot=button]:focus-visible:relative *:data-[slot=button]:focus-visible:z-10">
+    <div className="bg-secondary h-7.5 group/buttons relative flex rounded-sm gap-px p-0.5 select-none *:data-[slot=button]:focus-visible:relative *:data-[slot=button]:focus-visible:z-10">
       <Button
         variant="ghost"
         size="sm"
