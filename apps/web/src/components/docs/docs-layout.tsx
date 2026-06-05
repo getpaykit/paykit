@@ -1,5 +1,6 @@
 "use client";
 
+import { useHotkey } from "@tanstack/react-hotkeys";
 import type { Root } from "fumadocs-core/page-tree";
 import type * as PageTree from "fumadocs-core/page-tree";
 import { useSearchContext } from "fumadocs-ui/contexts/search";
@@ -304,6 +305,17 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
   const [previousSidebarOpen, setPreviousSidebarOpen] = useState(sidebarOpen);
   const { setOpenSearch } = useSearchContext();
   const isColumnChanged = previousSidebarOpen !== sidebarOpen;
+
+  useHotkey(
+    "Mod+B",
+    () => {
+      setSidebarOpen((open) => !open);
+    },
+    {
+      ignoreInputs: true,
+      preventDefault: true,
+    },
+  );
 
   useEffect(() => {
     if (isColumnChanged) setPreviousSidebarOpen(sidebarOpen);
