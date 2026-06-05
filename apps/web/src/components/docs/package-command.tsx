@@ -247,7 +247,7 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
         if (isPackageManager(value)) setManager(value);
       }}
     >
-      <div className="bg-secondary group mt-2 flex min-w-0 max-w-full flex-col rounded-sm px-1 pb-1 pt-0.5">
+      <div className="bg-secondary group mt-3.5 flex min-w-0 max-w-full flex-col rounded-sm px-1 pb-1 pt-0.5">
         <div className="flex flex-row items-center justify-between pr-1 pl-2">
           <TabsList variant="underline">
             <TabsTab
@@ -281,7 +281,7 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
           </TabsList>
           <CopyButton code={activeCommand} />
         </div>
-        <div className="bg-background text-muted-foreground min-w-0 overflow-x-auto overscroll-x-none rounded-xs border p-3 text-[13px] leading-normal">
+        <div className="bg-background text-muted-foreground min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-none rounded-xs border px-3.5 py-3 text-[13px] leading-normal">
           {packageManagers.map((item) => (
             <TabsPanel className="w-max min-w-full font-mono" key={item} value={item}>
               <CommandText command={commandForManager(command, item)} />
@@ -306,7 +306,7 @@ export function DefaultPre({
   return (
     <div
       className={cn(
-        "not-fumadocs-codeblock bg-secondary group relative mt-4 min-w-0 max-w-full rounded-sm",
+        "docs-codeblock bg-secondary group relative mt-3.5 min-w-0 max-w-full rounded-sm",
         hasTitle ? "px-1 pb-1 pt-0.5" : "p-1",
       )}
     >
@@ -331,10 +331,10 @@ export function DefaultPre({
       ) : null}
       <pre
         {...props}
+        data-copy-overlay={!hasTitle ? true : undefined}
         className={cn(
           className,
-          "bg-background w-full max-w-full overflow-x-auto overscroll-x-none rounded-xs! border px-0 py-3 text-[13px] leading-normal outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0 [&>code]:flex [&>code]:w-max [&>code]:min-w-full [&>code]:flex-col [&>code]:px-0! [&_.line]:px-3",
-          !hasTitle && "[&_.line]:pr-10",
+          "bg-background w-full max-w-full overflow-x-auto overflow-y-hidden overscroll-x-none rounded-xs! border px-0 py-3 text-[13px] leading-normal outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0 [&>code]:flex [&>code]:w-max [&>code]:min-w-full [&>code]:flex-col [&>code]:px-0! [&_.line]:px-3",
         )}
       >
         {children}

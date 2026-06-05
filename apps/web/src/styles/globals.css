@@ -362,12 +362,12 @@ html:not([data-anchor-scrolling]) {
   }
 }
 
-.prose code:not(pre code),
-.prose a {
+.docs-body code:not(pre code),
+.docs-body a {
   overflow-wrap: anywhere;
 }
 
-.not-fumadocs-codeblock pre code {
+.docs-codeblock pre code {
   background: transparent !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -375,30 +375,44 @@ html:not([data-anchor-scrolling]) {
   padding: 0 !important;
 }
 
-.not-fumadocs-codeblock pre {
+.docs-codeblock pre {
+  overflow-y: hidden;
   overscroll-behavior-x: none;
 }
 
-.not-fumadocs-codeblock .shiki code span {
+.docs-codeblock pre.shiki {
+  --padding-left: 0.875rem;
+  --padding-right: 0.875rem;
+}
+
+.docs-codeblock pre.shiki[data-copy-overlay] {
+  --padding-right: 2.5rem;
+}
+
+.docs-codeblock .shiki code span {
   color: var(--shiki-light);
   font-style: var(--shiki-light-font-style);
 }
 
-.dark .not-fumadocs-codeblock .shiki code span {
+.dark .docs-codeblock .shiki code span {
   color: var(--shiki-dark);
   font-style: var(--shiki-dark-font-style);
 }
 
-.not-fumadocs-codeblock .shiki .line {
+.docs-codeblock .shiki .line {
   position: relative;
 }
 
-.not-fumadocs-codeblock .shiki .line:empty {
+.docs-codeblock .shiki .line:empty {
   height: 1lh;
 }
 
-.not-fumadocs-codeblock .shiki .highlighted {
+.docs-codeblock .shiki .highlighted {
   background-color: color-mix(in oklab, var(--color-fd-primary) 2.2%, transparent);
+}
+
+.docs-codeblock .shiki .highlighted::after {
+  border-left: 1px solid color-mix(in oklab, var(--primary) 50%, transparent);
 }
 
 input[type="search"]::-webkit-search-cancel-button,
@@ -407,89 +421,6 @@ input[type="search"]::-webkit-search-results-button,
 input[type="search"]::-webkit-search-results-decoration {
   appearance: none;
   display: none;
-}
-
-/* Code blocks — flat near-black, rounded edges, no gradients */
-.dark .shiki:not(.not-fumadocs-codeblock *) {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Tab/card wrappers containing code blocks */
-.dark .bg-fd-card:has(.shiki),
-.dark [data-slot="tabs"]:has(.shiki),
-.dark div:has(> [role="tablist"]):has(.shiki) {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Override when keepBackground is enabled */
-.dark .bg-\(--shiki-dark-bg\),
-.dark [class*="bg-(--shiki-dark-bg)"] {
-  background-color: var(--card) !important;
-}
-
-/* Code block title bar / tab list — flat, no gradient */
-.dark figure.shiki > div:first-child,
-.dark [role="tablist"]:has(+ [role="tabpanel"] .shiki),
-.dark [role="tablist"]:has(+ div .shiki) {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Tab content panel background */
-.dark [role="tabpanel"]:has(.shiki:not(.not-fumadocs-codeblock *)) {
-  background-color: var(--card) !important;
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Code block inside tabs — match parent, no extra border/shadow */
-.dark [role="tabpanel"] .shiki:not(.not-fumadocs-codeblock *) {
-  background-color: var(--card) !important;
-  border: none;
-  box-shadow: none;
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Code block content viewport — force near-black in dark mode */
-.dark .fd-scroll-container,
-.dark figure.shiki .fd-scroll-container,
-.dark figure:has(.shiki) > div:last-child {
-  background-color: var(--card) !important;
-}
-
-/* Code block figure bg-fd-secondary / bg-fd-card wrappers */
-.dark figure.shiki,
-.dark figure:has(pre) {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-}
-
-/* All code block figures — rounded corners (docs only) */
-#nd-page figure:has(.shiki),
-#nd-page figure.shiki,
-#nd-page [data-slot="tabs"]:has(.shiki),
-#nd-page .bg-fd-card:has(.shiki) {
-  border-radius: var(--radius-lg) !important;
-  overflow: hidden;
-}
-
-#nd-page figure.shiki > div:first-child,
-#nd-page [role="tablist"]:has(+ [role="tabpanel"] .shiki),
-#nd-page [role="tablist"]:has(+ div .shiki) {
-  border-radius: var(--radius-lg) !important;
-}
-
-#nd-page [role="tabpanel"]:has(.shiki:not(.not-fumadocs-codeblock *)),
-#nd-page [role="tabpanel"] .shiki:not(.not-fumadocs-codeblock *) {
-  border-radius: var(--radius-lg) !important;
-}
-
-.prose blockquote {
-  @apply rounded-lg;
 }
 
 /* Respect prefers-reduced-motion for accessibility (WCAG 2.3.3) */

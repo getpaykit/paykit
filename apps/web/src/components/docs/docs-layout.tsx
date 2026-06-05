@@ -358,7 +358,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         <header
           id="nd-subnav"
           data-transparent="false"
-          className="fixed top-0 z-30 flex h-12 w-full flex-row items-center justify-between border-b bg-fd-background px-2.5 [grid-area:header] md:hidden"
+          className="fixed top-0 z-30 flex h-12 w-full flex-row items-center justify-between border-b bg-background px-2.5 [grid-area:header] md:hidden"
         >
           <BrandMenu
             className="md:hidden"

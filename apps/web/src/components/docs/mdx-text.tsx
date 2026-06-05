@@ -13,10 +13,7 @@ const linkIconClassName =
 
 export function Anchor({ className, ...props }: ComponentProps<"a">) {
   return (
-    <a
-      {...props}
-      className={cn(className, "not-prose group font-normal no-underline hover:text-primary")}
-    >
+    <a {...props} className={cn(className, "group font-normal no-underline hover:text-primary")}>
       <span
         className={cn(
           "underline decoration-1 underline-offset-4 transition-colors duration-100 group-hover:text-primary",
@@ -45,7 +42,7 @@ export function MDXLink({
     <Link
       href={href}
       target={_blank ? "_blank" : "_self"}
-      className={cn(className, "not-prose group font-normal no-underline hover:text-primary")}
+      className={cn(className, "group font-normal no-underline hover:text-primary")}
     >
       <span
         className={cn(
@@ -79,23 +76,24 @@ export function Steps({ className, children, ...props }: HTMLAttributes<HTMLDivE
     <div className={cn("steps relative mt-4", className)} {...props}>
       {steps.map((child, index) => {
         const step = child as React.ReactElement<StepProps>;
+        const isFirstStep = index === 0;
         const isLastStep = index === steps.length - 1;
 
         return (
           <div key={index} className="relative">
             <div
               className={cn(
-                "bg-border absolute top-[27px] left-[12.5px] h-full w-px",
+                "bg-border absolute top-[26px] left-[12px] h-full w-px",
                 isLastStep && "from-border via-border/50 bg-gradient-to-b to-transparent",
               )}
               aria-hidden="true"
             />
-            <div className="bg-border/85 text-primary absolute top-0.5 left-0 flex size-[25px] items-center justify-center rounded-full font-mono text-xs">
+            <div className="bg-border/85 text-primary absolute top-0.5 left-0 flex size-6 items-center justify-center rounded-full font-mono text-xs">
               {index + 1}
             </div>
             {cloneElement(step, {
               ...step.props,
-              className: cn(step.props.className, "relative"),
+              className: cn(step.props.className, "relative", isFirstStep && "mt-0"),
             })}
           </div>
         );
@@ -116,9 +114,7 @@ export function Step({ className, children, ...props }: StepProps) {
 
 export function StepTitle({ className, children }: { children: string; className?: string }) {
   return (
-    <h3
-      className={cn(className, "text-primary pt-[0.16rem] text-[15px]! font-medium not-first:mt-2")}
-    >
+    <h3 className={cn(className, "text-primary pt-0.5 text-[15px]! font-medium not-first:mt-2")}>
       {children}
     </h3>
   );

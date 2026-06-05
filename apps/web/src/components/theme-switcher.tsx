@@ -12,7 +12,7 @@ export function ThemeSwitcher() {
     <Button
       variant="ghost"
       size="icon"
-      className="text-fd-muted-foreground hover:text-fd-accent-foreground"
+      className="text-muted-foreground hover:text-accent-foreground"
       onClick={toggleTheme}
       aria-label={toggleLabel}
       suppressHydrationWarning

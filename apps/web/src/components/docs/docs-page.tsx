@@ -57,7 +57,10 @@ export function DocsTitle({ children, className, ...props }: ComponentProps<"h1"
   return (
     <h1
       {...props}
-      className={cn("scroll-m-20 text-3xl font-semibold tracking-tight xl:text-4xl", className)}
+      className={cn(
+        "scroll-m-20 text-3xl font-semibold tracking-tight xl:text-[2.0625rem] xl:leading-[2.375rem]",
+        className,
+      )}
     >
       {children}
     </h1>
@@ -78,7 +81,7 @@ export function DocsBody({ children, className, ...props }: ComponentProps<"div"
   return (
     <div
       {...props}
-      className={cn("prose text-primary/80 mt-8 w-full flex-1 text-[14px]", className)}
+      className={cn("docs-body text-primary/80 mt-8 w-full flex-1 text-[14px]", className)}
     >
       {children}
     </div>
@@ -117,12 +120,12 @@ function DocsBreadcrumb({
   return (
     <div
       {...props}
-      className={cn("flex items-center gap-1.5 text-sm text-fd-muted-foreground", className)}
+      className={cn("flex items-center gap-1.5 text-sm text-muted-foreground", className)}
     >
       {items.map((item, index) => {
         const itemClassName = cn(
           "truncate",
-          index === items.length - 1 && "font-medium text-fd-primary",
+          index === items.length - 1 && "font-medium text-primary",
         );
 
         return (
@@ -177,7 +180,7 @@ function DocsFooterItem({ item, index }: { item: FooterItem; index: 0 | 1 }) {
     <Link
       href={item.url}
       className={cn(
-        "flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-fd-accent/80 hover:text-fd-accent-foreground @max-lg:col-span-full",
+        "flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-accent/80 hover:text-accent-foreground @max-lg:col-span-full",
         index === 1 && "text-end",
       )}
     >
@@ -190,7 +193,7 @@ function DocsFooterItem({ item, index }: { item: FooterItem; index: 0 | 1 }) {
         <Icon className="-mx-1 size-4 shrink-0" />
         <p>{item.name}</p>
       </div>
-      <p className="truncate text-fd-muted-foreground">
+      <p className="truncate text-muted-foreground">
         {item.description ?? (index === 0 ? "Previous page" : "Next page")}
       </p>
     </Link>

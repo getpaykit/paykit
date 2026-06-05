@@ -43,7 +43,7 @@ export function MdxTabs({
 
   return (
     <TabsPrimitive.Root
-      className={cn("flex flex-col gap-2 data-[orientation=vertical]:flex-row", className)}
+      className={cn("my-3.5 flex flex-col gap-2 data-[orientation=vertical]:flex-row", className)}
       data-slot="tabs"
       value={value}
       onValueChange={(nextValue) => {
@@ -119,7 +119,7 @@ export function MdxTabsPanel({ className, ...props }: TabsPrimitive.Panel.Props)
   return (
     <TabsPrimitive.Panel
       className={cn(
-        "relative flex-1 outline-none [&>.not-fumadocs-codeblock:first-child]:mt-0 [&_h3]:text-base [&_h3]:font-medium [&>.steps]:mt-6",
+        "relative flex-1 outline-none [&>.docs-codeblock:first-child]:mt-0 [&>p:first-child]:mt-[3px] [&_h3]:text-base [&_h3]:font-medium [&>.steps]:mt-6",
         className,
       )}
       data-slot="tabs-content"
