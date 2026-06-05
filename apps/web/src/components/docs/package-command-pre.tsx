@@ -1,11 +1,12 @@
+import { highlight } from "fumadocs-core/highlight";
 import type { ComponentProps, ReactNode } from "react";
 import { isValidElement } from "react";
 
-import {
-  DefaultPre,
-  PackageManagerCommandBlock,
-  type PackageCommand,
-} from "@/components/docs/package-command";
+import { DocsCodeSurface } from "@/components/docs/docs-code-surface";
+import { DefaultPre, PackageManagerCommandBlock } from "@/components/docs/package-command";
+import { commandForManager, type PackageCommand } from "@/components/docs/package-command-utils";
+import { packageManagers, type PackageManager } from "@/components/docs/package-manager-state";
+import { shikiHighlightOptions } from "@/lib/shiki-themes";
 
 function extractText(node: ReactNode): string {
   if (node === null || node === undefined || typeof node === "boolean") return "";
@@ -46,12 +47,38 @@ function parsePackageCommand(command: string): PackageCommand | null {
   return null;
 }
 
-export function PackageCommandPre(props: ComponentProps<"pre"> & { "data-language"?: string }) {
+async function highlightShellCommand(command: string) {
+  return highlight(command, {
+    lang: "bash",
+    ...shikiHighlightOptions,
+    components: {
+      pre: (props: ComponentProps<"pre">) => <DocsCodeSurface {...props} data-language="bash" />,
+    },
+  });
+}
+
+export async function PackageCommandPre(
+  props: ComponentProps<"pre"> & { "data-language"?: string },
+) {
   const commandText = normalizeCommand(extractText(props.children));
   const command = hasSingleLine(commandText) ? parsePackageCommand(commandText) : null;
 
   if (command && isShellLanguage(props["data-language"])) {
-    return <PackageManagerCommandBlock command={command} />;
+    const highlightedCommandEntries = await Promise.all(
+      packageManagers.map(async (manager) => [
+        manager,
+        await highlightShellCommand(commandForManager(command, manager)),
+      ]),
+    );
+
+    return (
+      <PackageManagerCommandBlock
+        command={command}
+        highlightedCommands={
+          Object.fromEntries(highlightedCommandEntries) as Record<PackageManager, ReactNode>
+        }
+      />
+    );
   }
 
   return <DefaultPre {...props} />;

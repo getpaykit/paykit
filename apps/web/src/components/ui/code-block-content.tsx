@@ -1,17 +1,11 @@
 import { highlight } from "fumadocs-core/highlight";
 import type { HighlightOptions } from "fumadocs-core/highlight";
 import type { ComponentProps } from "react";
-import type { BundledLanguage, BundledTheme } from "shiki";
+import type { BundledLanguage } from "shiki";
 
 import { CodeBlock, type CodeBlockProps, Pre } from "@/components/ui/code-block";
+import { shikiHighlightOptions, shikiInlineTheme } from "@/lib/shiki-themes";
 import { cn } from "@/lib/utils";
-const defaultThemes = {
-  themes: {
-    light: "github-light" satisfies BundledTheme,
-    dark: "github-dark" satisfies BundledTheme,
-  },
-  defaultColor: false as const,
-};
 
 const defaultCodeBlockProps: CodeBlockProps = {
   className:
@@ -42,7 +36,7 @@ export async function InlineCode({ lang, code }: { lang: string; code: string })
   const { codeToTokens } = await import("shiki");
   const { tokens } = await codeToTokens(code, {
     lang: lang as BundledLanguage,
-    theme: "github-dark",
+    theme: shikiInlineTheme,
   });
 
   return (
@@ -73,7 +67,7 @@ export async function CodeBlockContent({
 
   const highlighted = await highlight(code, {
     lang,
-    ...defaultThemes,
+    ...shikiHighlightOptions,
     ...options,
     components: {
       pre: createPre(merged, allowCopy),

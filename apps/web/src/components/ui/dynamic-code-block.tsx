@@ -3,19 +3,11 @@ import type { HighlightOptions } from "fumadocs-core/highlight";
 import { useShiki } from "fumadocs-core/highlight/client";
 import type { ComponentProps, FC } from "react";
 import { createContext, Suspense, use } from "react";
-import type { BundledTheme } from "shiki";
 
 import type { CodeBlockProps } from "@/components/ui/code-block";
 import { CodeBlock, Pre } from "@/components/ui/code-block";
+import { shikiHighlightOptions } from "@/lib/shiki-themes";
 import { cn } from "@/lib/utils";
-
-const defaultThemes = {
-  themes: {
-    light: "github-light" satisfies BundledTheme,
-    dark: "github-dark" satisfies BundledTheme,
-  },
-  defaultColor: false as const,
-};
 
 export interface DynamicCodeblockProps {
   lang: string;
@@ -67,7 +59,7 @@ export function DynamicCodeBlock({
 }: DynamicCodeblockProps) {
   const shikiOptions = {
     lang,
-    ...defaultThemes,
+    ...shikiHighlightOptions,
     ...options,
     components: {
       pre: DefaultPre,

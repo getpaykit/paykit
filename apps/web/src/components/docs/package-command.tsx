@@ -13,6 +13,8 @@ import {
 } from "react";
 import { RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
+import { DocsCodeSurface } from "@/components/docs/docs-code-surface";
+import { commandForManager, type PackageCommand } from "@/components/docs/package-command-utils";
 import {
   fallbackPackageManager,
   isPackageManager,
@@ -24,14 +26,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { useCopyButton } from "@/components/ui/use-copy-button";
 import { cn } from "@/lib/utils";
 
-type CommandKind = "install" | "dlx" | "create" | "run";
 type TabsVariant = "default" | "underline";
 type PackageManagerListener = (value: PackageManager) => void;
-
-export interface PackageCommand {
-  kind: CommandKind;
-  args: string;
-}
 
 const packageManagerListeners = new Set<PackageManagerListener>();
 const PackageManagerContext = createContext<PackageManager>(fallbackPackageManager);
@@ -185,26 +181,6 @@ function extractText(node: ReactNode): string {
   return "";
 }
 
-function commandForManager(command: PackageCommand, manager: PackageManager): string {
-  switch (command.kind) {
-    case "install":
-      return manager === "npm" ? `npm install ${command.args}` : `${manager} add ${command.args}`;
-    case "dlx":
-      if (manager === "npm") return `npx ${command.args}`;
-      if (manager === "yarn") return `yarn dlx ${command.args}`;
-      if (manager === "bun") return `bunx --bun ${command.args}`;
-      return `pnpm dlx ${command.args}`;
-    case "create":
-      return `${manager} create ${command.args}`;
-    case "run":
-      return manager === "npm" ? `npm run ${command.args}` : `${manager} ${command.args}`;
-  }
-}
-
-function CommandText({ command }: { command: string }) {
-  return <span className="whitespace-pre">{command}</span>;
-}
-
 function cleanCopyText(value: string): string {
   return value
     .replace(/\s*\/\/\s*\[!code\s+[^\]]+\]\s*$/gm, "")
@@ -235,7 +211,13 @@ function CopyButton({ className, code }: { className?: string; code: string }) {
   );
 }
 
-export function PackageManagerCommandBlock({ command }: { command: PackageCommand }) {
+export function PackageManagerCommandBlock({
+  command,
+  highlightedCommands,
+}: {
+  command: PackageCommand;
+  highlightedCommands: Record<PackageManager, ReactNode>;
+}) {
   const [manager, setManager] = usePackageManager();
   const activeCommand = commandForManager(command, manager);
 
@@ -247,7 +229,7 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
         if (isPackageManager(value)) setManager(value);
       }}
     >
-      <div className="bg-secondary group mt-3.5 flex min-w-0 max-w-full flex-col rounded-sm px-1 pb-1 pt-0.5">
+      <div className="docs-codeblock bg-secondary group mt-3.5 flex min-w-0 max-w-full flex-col rounded-sm px-1 pb-1 pt-0.5">
         <div className="flex flex-row items-center justify-between pr-1 pl-2">
           <TabsList variant="underline">
             <TabsTab
@@ -281,13 +263,11 @@ export function PackageManagerCommandBlock({ command }: { command: PackageComman
           </TabsList>
           <CopyButton code={activeCommand} />
         </div>
-        <div className="bg-background text-muted-foreground min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-none rounded-xs border px-3.5 py-3 text-[13px] leading-normal">
-          {packageManagers.map((item) => (
-            <TabsPanel className="w-max min-w-full font-mono" key={item} value={item}>
-              <CommandText command={commandForManager(command, item)} />
-            </TabsPanel>
-          ))}
-        </div>
+        {packageManagers.map((item) => (
+          <TabsPanel className="min-w-0" key={item} value={item}>
+            {highlightedCommands[item]}
+          </TabsPanel>
+        ))}
       </div>
     </Tabs>
   );
@@ -329,16 +309,13 @@ export function DefaultPre({
           code={code}
         />
       ) : null}
-      <pre
+      <DocsCodeSurface
         {...props}
         data-copy-overlay={!hasTitle ? true : undefined}
-        className={cn(
-          className,
-          "bg-background w-full max-w-full overflow-x-auto overflow-y-hidden overscroll-x-none rounded-xs! border px-0 py-3 text-[13px] leading-normal outline-none has-data-highlighted-line:px-0 has-data-line-numbers:px-0 has-data-[slot=tabs]:p-0 [&>code]:flex [&>code]:w-max [&>code]:min-w-full [&>code]:flex-col [&>code]:px-0! [&_.line]:px-3",
-        )}
+        className={className}
       >
         {children}
-      </pre>
+      </DocsCodeSurface>
     </div>
   );
 }
