@@ -423,6 +423,7 @@ html:not([data-anchor-scrolling]) {
 }
 
 .docs-codeblock .shiki .highlighted::after {
+  display: none;
   border-left: 1px solid color-mix(in oklab, var(--primary) 50%, transparent);
 }
 
