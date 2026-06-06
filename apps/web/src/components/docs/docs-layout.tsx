@@ -56,7 +56,7 @@ function SearchButton({ className }: { className?: string }) {
           <span className="mt-[1.2px] text-[14px] leading-none">⌘</span>
         </kbd>
         <kbd className="inline-flex h-4.5 w-4.5 items-center justify-center rounded-sm border bg-background p-0">
-          <span className="mt-px">K</span>
+          <span>K</span>
         </kbd>
       </span>
     </button>
