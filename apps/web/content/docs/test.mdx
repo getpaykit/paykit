@@ -1,0 +1,153 @@
+---
+title: TOC Test
+description: Temporary page for testing table of contents behavior.
+---
+
+## Overview
+
+This temporary page exists to stress-test the table of contents with a mix of heading depths, long sections, repeated content shapes, and enough vertical space to make active heading tracking visible while scrolling.
+
+PayKit documentation pages often mix prose, lists, callouts, tabs, and code examples. The goal here is not to explain a real feature, but to approximate the density of a real guide so the right-side navigation can be checked in a realistic layout.
+
+- This page should not be linked from the sidebar.
+- It should still be routable directly at `/docs/test`.
+- The headings should appear in the table of contents.
+
+### Why this page exists
+
+A table of contents can look correct with two headings and still behave poorly on longer pages. Active indicators, sticky positioning, scroll margins, and nested heading indentation usually need a longer document to reveal issues.
+
+This section intentionally includes enough text to create a visible scroll region. It also has an H3 under the first H2 so nested entries can be checked near the top of the document.
+
+### What to look for
+
+When testing this page, check whether the active item updates at the right time, whether nested H3 items are visually distinct from H2 items, and whether long labels wrap or truncate in an acceptable way.
+
+Also check the transition between sections. The TOC should not jump erratically when a heading reaches the top of the viewport.
+
+## Installation-shaped section
+
+This section mimics a setup guide. It has multiple subsections under a single H2, which is useful for checking how several H3s group visually below one parent heading.
+
+The content is intentionally ordinary documentation prose. It should feel like a real setup guide with enough paragraphs to test vertical rhythm.
+
+### Install dependencies
+
+Start by adding the packages required by your application. In a real guide, this section would describe the recommended package manager command and any peer dependency expectations.
+
+```bash
+npm install paykitjs
+```
+
+After installing dependencies, restart your development server if your framework requires it. Some tools pick up new dependencies automatically, while others need a fresh process.
+
+### Create a server instance
+
+The server instance is usually created in a shared module such as `src/lib/paykit.ts`. Keeping the setup in one place makes it easier to reuse from route handlers, server actions, and background jobs.
+
+```ts
+import { createPayKit } from "paykitjs";
+
+export const paykit = createPayKit({
+  // configuration goes here
+});
+```
+
+This example is intentionally small. The important part for this test page is that the code block has normal spacing around it and does not interfere with heading detection.
+
+### Connect provider credentials
+
+Provider credentials are usually read from environment variables. The documentation should make it clear which values are required locally and which values are only needed in production.
+
+A realistic guide often includes a short explanation here about test mode, webhook secrets, and how to avoid committing sensitive values to source control.
+
+```ts
+export const paykit = createPayKit({
+  stripe: {
+    secretKey: process.env.STRIPE_SECRET_KEY!,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET!,
+  },
+});
+```
+
+### Configure storage
+
+Billing state needs a durable place to live. A database connection can be passed directly or wrapped in an adapter depending on the integration.
+
+This section is long enough to verify that the active H3 remains selected while the reader is still inside the subsection. If active tracking moves too early, this kind of content makes it easier to notice.
+
+### Mount handlers
+
+Route handlers receive webhook deliveries and client API requests. The exact file path depends on the framework, but the shape is generally the same: export handlers that delegate to PayKit.
+
+This subsection closes the five-H3 group under one H2. The table of contents should show all five children under the parent section without crowding the layout.
+
+## Usage examples
+
+Usage sections often combine explanation with small snippets. They also tend to include shorter subsections, which helps test whether the TOC handles sections of varying length.
+
+### Subscribe a customer
+
+A subscription call usually needs a customer identifier and a plan identifier. If the customer does not have a saved payment method, the API may return a checkout URL.
+
+```ts
+await paykit.subscribe({
+  customerId: "user_123",
+  planId: "pro",
+});
+```
+
+The surrounding prose should be long enough to make the section feel real, but not so long that the page becomes annoying to use as a visual test fixture.
+
+### Check an entitlement
+
+Entitlement checks are typically used before gated actions. A good docs page should explain what happens when access is denied and how the result should be handled in the app.
+
+```ts
+const result = await paykit.check({
+  customerId: "user_123",
+  featureId: "messages",
+});
+```
+
+If this heading appears in the TOC, verify that the active marker moves from the previous subsection to this one at a reasonable scroll threshold.
+
+## Long content section
+
+This section exists mostly to provide scroll distance between heading groups. It should help test whether the TOC active state remains stable during long paragraphs without intermediate headings.
+
+PayKit is designed to feel like application code rather than a hosted billing dashboard. That means a documentation page may spend time explaining tradeoffs, data ownership, and how provider-specific details stay behind typed APIs.
+
+A long content block also tests whether the TOC footer, if present, remains visible and whether the active indicator line can cover a long portion of the navigation without visual glitches.
+
+More prose follows to add height. The exact words are not important, but the density should resemble a normal guide. Readers often skim docs pages, so headings need to be useful landmarks rather than decoration.
+
+When the current section has no H3 headings, the TOC should still keep the H2 active while scrolling through the body content. If it jumps to the next section too early, this section should make that obvious.
+
+## Edge cases
+
+This section contains heading labels that are intentionally a little different from each other. They are useful for checking slug generation, text extraction, and display behavior.
+
+### What's new?
+
+This heading includes punctuation. It should produce a stable anchor and should not collide unexpectedly with nearby headings.
+
+The content here is short but still includes more than one sentence. That keeps the layout realistic enough for visual testing.
+
+### Whats new
+
+This heading is similar to the previous one but not identical in source text. It is useful for checking whether anchor generation or TOC rendering handles near-duplicates safely.
+
+If the page supports duplicate heading labels, the generated IDs should still point to the correct section.
+
+### A heading with inline `code`
+
+Some docs headings include inline code. The rendered heading should look good, and the TOC label should use meaningful text rather than `[object Object]`.
+
+This subsection is especially useful after changes to heading text extraction logic.
+
+## Final section
+
+The final section confirms how the TOC behaves near the bottom of the page. Active tracking sometimes has special edge cases when there is not enough content below the last heading.
+
+Scroll to the end and verify that this final item becomes active. Also verify that the previous section does not remain selected after this heading reaches the viewport.
