@@ -74,7 +74,13 @@ export function Steps({ className, children, ...props }: HTMLAttributes<HTMLDivE
   const steps = Children.toArray(children).filter((child) => isValidElement<StepProps>(child));
 
   return (
-    <div className={cn("steps relative mt-4", className)} {...props}>
+    <div
+      className={cn(
+        "steps relative mt-4 [&_h3]:mt-0! [&_h3]:pt-0.5 [&_h3]:text-[15px]! [&_h3]:font-medium [&_h3]:not-first:mt-2",
+        className,
+      )}
+      {...props}
+    >
       {steps.map((child, index) => {
         const step = child as React.ReactElement<StepProps>;
         const isFirstStep = index === 0;
