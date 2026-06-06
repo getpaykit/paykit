@@ -4,6 +4,15 @@ import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { URLs } from "@/lib/consts";
 
+/**
+ * Site footer with watermark artwork, decorative grid, copyright, social links,
+ * and theme toggle.
+ *
+ * Decorative elements are aria-hidden; links provide aria labels.
+ *
+ * @component
+ * @returns JSX.Element
+ */
 export default function Footer() {
   return (
     <footer className="border-foreground/[0.06] bg-background relative z-40 w-full overflow-hidden border-t">

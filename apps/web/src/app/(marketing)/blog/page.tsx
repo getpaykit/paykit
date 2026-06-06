@@ -5,6 +5,12 @@ import { RiArrowLeftLine } from "react-icons/ri";
 import { Section, SectionContent } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Blog placeholder SEO metadata.
+ *
+ * @type {Metadata}
+ * Contains the page title, description, and canonical route.
+ */
 export const metadata: Metadata = {
   title: "Blog",
   description: "PayKit blog is coming soon.",
@@ -13,6 +19,10 @@ export const metadata: Metadata = {
   },
 };
 
+/** Marketing blog landing page placeholder.
+ *
+ * @returns JSX.Element
+ */
 export default function BlogPage() {
   return (
     <div className="flex min-h-dvh flex-col">

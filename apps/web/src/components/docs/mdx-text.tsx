@@ -42,6 +42,7 @@ export function MDXLink({
     <Link
       href={href}
       target={_blank ? "_blank" : "_self"}
+      rel={_blank ? "noopener noreferrer" : undefined}
       className={cn(className, "group font-normal no-underline hover:text-primary")}
     >
       <span

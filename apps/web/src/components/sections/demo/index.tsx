@@ -321,7 +321,7 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
             upgradeBanner={upgradeBanner}
             autoTyping={autoTyping}
             chatRef={chatRef}
-            className={`${WINDOW_HEIGHT} md:w-1/2 lg:w-[73%]`}
+            className={`${WINDOW_HEIGHT} md:w-1/2 lg:flex-[2]`}
             onInputChange={setInput}
             onSend={handleSend}
             onUpgrade={() => void handleUpgrade()}
@@ -333,7 +333,7 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
           <DemoBackendPanel
             cards={cards}
             snippets={snippets}
-            className="h-58 md:h-144 md:w-1/2 lg:w-[37%]"
+            className="h-58 md:h-144 md:w-1/2 lg:flex-[1]"
           />
         </div>
       </SectionContent>

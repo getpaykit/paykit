@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   RiArrowDownSLine,
   RiCheckLine,
@@ -22,6 +22,10 @@ import {
 export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
   const [copied, setCopied] = useState(false);
   const [markdown, setMarkdown] = useState<string>();
+
+  useEffect(() => {
+    setMarkdown(undefined);
+  }, [markdownUrl]);
 
   const onClick = useCallback(() => {
     setCopied(true);

@@ -110,6 +110,8 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
     closeTimeout.current = setTimeout(() => setLinksOpen(false), 150);
   }, []);
 
+  const linksMenuId = "header-links-menu";
+
   return (
     <>
       <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start [scrollbar-gutter:stable]">
@@ -185,10 +187,26 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
                     className="relative"
                     onMouseEnter={openLinks}
                     onMouseLeave={closeLinks}
+                    onFocus={openLinks}
+                    onBlur={(event) => {
+                      if (!event.currentTarget.contains(event.relatedTarget)) closeLinks();
+                    }}
                   >
                     <button
                       type="button"
+                      aria-controls={linksMenuId}
+                      aria-expanded={linksOpen}
                       className={`${tabBase} gap-1 ${linksOpen ? "text-foreground/70" : tabInactive}`}
+                      onKeyDown={(event) => {
+                        if (event.key === "Escape") {
+                          setLinksOpen(false);
+                          return;
+                        }
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          setLinksOpen((open) => !open);
+                        }
+                      }}
                     >
                       <span className={`${labelBase}`}>links</span>
                       <RiArrowDownSLine
@@ -203,6 +221,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 4 }}
                           transition={{ duration: 0.15 }}
+                          id={linksMenuId}
                           className="bg-background border-foreground/8 absolute top-full left-1/2 z-50 mt-px min-w-45 -translate-x-1/2 border py-1 shadow-lg"
                         >
                           {dropdownLinks.map((link) => (
@@ -229,7 +248,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
               </div>
 
               {/* Right */}
-              <div className="relative z-10 flex items-center gap-0.">
+              <div className="relative z-10 flex items-center gap-0">
                 <Button
                   render={<Link href={URLs.githubRepo} target="_blank" rel="noopener noreferrer" />}
                   nativeButton={false}

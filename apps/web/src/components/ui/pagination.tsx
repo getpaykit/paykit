@@ -4,6 +4,10 @@ import { RiArrowLeftSLine, RiArrowRightSLine, RiMoreLine } from "react-icons/ri"
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/** Pagination navigation landmark.
+ *
+ * @param props - Standard nav props.
+ */
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -16,6 +20,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
+/** List container for pagination items. */
 function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
@@ -26,6 +31,7 @@ function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) 
   );
 }
 
+/** Individual pagination list item. */
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
   return <li data-slot="pagination-item" {...props} />;
 }
@@ -35,6 +41,10 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<"a">;
 
+/** Pagination link rendered through Button.
+ *
+ * @param props - Link props plus `isActive` and optional Button `size`.
+ */
 function PaginationLink({ className, isActive, size = "icon", ...props }: PaginationLinkProps) {
   return (
     <Button
@@ -54,6 +64,7 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
   );
 }
 
+/** Previous-page pagination link with accessible label. */
 function PaginationPrevious({
   className,
   text = "Previous",
@@ -72,6 +83,7 @@ function PaginationPrevious({
   );
 }
 
+/** Next-page pagination link with accessible label. */
 function PaginationNext({
   className,
   text = "Next",
@@ -90,6 +102,7 @@ function PaginationNext({
   );
 }
 
+/** Non-interactive pagination ellipsis hidden from assistive tech. */
 function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span

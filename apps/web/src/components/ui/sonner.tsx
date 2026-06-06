@@ -8,8 +8,14 @@ import {
   RiInformationLine,
   RiLoader4Line,
 } from "react-icons/ri";
-import { Toaster as Sonner, type ToasterProps } from "sonner";
+import { Toaster as Sonner } from "sonner";
+import type { ToasterProps } from "sonner";
 
+/** Renders the app toast provider with theme-aware Sonner defaults.
+ *
+ * @param props - Sonner toaster props spread onto the underlying component.
+ * @returns JSX.Element
+ */
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme();
 

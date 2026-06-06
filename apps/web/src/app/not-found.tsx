@@ -9,6 +9,10 @@ import { Section, SectionContent } from "@/components/layout/section";
 import { Providers } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 
+/** 404 page shown when a route is missing.
+ *
+ * @returns JSX.Element
+ */
 export default function NotFound() {
   return (
     <Providers>

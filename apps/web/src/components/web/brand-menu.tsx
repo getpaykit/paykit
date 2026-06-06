@@ -22,6 +22,17 @@ const brandAssets = {
   Wordmark: WORDMARK_SVG,
 };
 
+/**
+ * Brand/logo home link with a context menu for copying SVG assets.
+ *
+ * Uses `copyAsSvg` to copy `brandAssets` keys (`Logo`, `Wordmark`) and show
+ * toast feedback.
+ *
+ * @param props.className - Optional wrapper class name.
+ * @param props.linkClassName - Optional home link class name.
+ * @param props.wordmarkBaseClassName - Optional base class for the wordmark SVG.
+ * @param props.wordmarkClassName - Optional extra class for the wordmark SVG.
+ */
 export function BrandMenu({
   className,
   linkClassName,

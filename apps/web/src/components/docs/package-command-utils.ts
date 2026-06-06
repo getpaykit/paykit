@@ -29,6 +29,8 @@ export function commandForManager(command: PackageCommand, manager: PackageManag
     case "create":
       return `${manager} create ${command.args}`;
     case "run":
-      return manager === "npm" ? `npm run ${command.args}` : `${manager} ${command.args}`;
+      if (manager === "npm") return `npm run ${command.args}`;
+      if (manager === "bun") return `bun run ${command.args}`;
+      return `${manager} ${command.args}`;
   }
 }

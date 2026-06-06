@@ -22,6 +22,7 @@ import {
   StepTitle,
 } from "@/components/docs/mdx-text";
 import { PackageCommandPre } from "@/components/docs/package-command-pre";
+import { extractText } from "@/components/docs/react-node-text";
 import { cn } from "@/lib/utils";
 
 type DocsCalloutType = "info" | "warn" | "error" | "success";
@@ -54,9 +55,10 @@ function Strong({ className, ...props }: ComponentPropsWithoutRef<"strong">) {
 }
 
 function getHeadingId(children: ComponentPropsWithoutRef<"h2">["children"]) {
+  const text = extractText(children);
+
   return (
-    children
-      ?.toString()
+    text
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, "")
       .trim()
