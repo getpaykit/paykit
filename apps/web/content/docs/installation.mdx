@@ -8,7 +8,7 @@ description: how to install and configure PayKit in your app
 <Steps>
 
 <Step>
-<StepTitle>Install the package</StepTitle>
+### Install the package
 
 Let's start by adding PayKit to your project:
 
@@ -19,7 +19,7 @@ npm install paykitjs
 </Step>
 
 <Step>
-<StepTitle>Create the PayKit instance</StepTitle>
+### Create the PayKit instance
 
 Create a file named `paykit.ts` anywhere in your app. 
 
@@ -39,7 +39,7 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-<StepTitle>Configure Stripe</StepTitle>
+### Configure Stripe
 
 PayKit uses Stripe for billing. Pass your Stripe keys directly to the PayKit instance.
 
@@ -56,7 +56,7 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-<StepTitle>Configure database</StepTitle>
+### Configure database
 
 PayKit needs a database to store billing state, such as subscriptions. You can create a separate database, or simply plug it into the app's own db.
 
@@ -80,7 +80,7 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-<StepTitle>Mount request handler</StepTitle>
+### Mount request handler
 
 To handle webhooks and client API requests, you need to set up a request handler on your server.
 
@@ -132,7 +132,7 @@ Create a new file or route in your framework's designated catch-all route handle
 </Step>
 
 <Step>
-<StepTitle>Create client instance</StepTitle>
+### Create client instance
 
 The client-side library helps you interact with the server. PayKit client sdk suitable for almost all modern frameworks, including React.
 
@@ -164,7 +164,7 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-<StepTitle>Define your products</StepTitle>
+### Define your products
 
 Optionally. PayKit provides a code-first way to create your plans, and a very useful usage billing with `track()` and `report()` out of the box. 
 
@@ -218,7 +218,7 @@ export const paykit = createPayKit({
 </Step>
 
 <Step>
-<StepTitle>Push changes to DB</StepTitle>
+### Push changes to DB
 
 PayKit includes a CLI tool to keep your database in sync with your configuration.
 
