@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { RiArrowLeftLine } from "react-icons/ri";
 
 import { MiniNavBar } from "@/components/layout/mini-nav-bar";
 import { PageTransition } from "@/components/layout/page-transition";
@@ -9,6 +9,10 @@ import { Section, SectionContent } from "@/components/layout/section";
 import { Providers } from "@/components/providers";
 import { Button } from "@/components/ui/button";
 
+/** 404 page shown when a route is missing.
+ *
+ * @returns JSX.Element
+ */
 export default function NotFound() {
   return (
     <Providers>
@@ -50,7 +54,7 @@ export default function NotFound() {
 
                 <div className="pt-2">
                   <Button size="lg" render={<Link href="/" />} nativeButton={false}>
-                    <ArrowLeft />
+                    <RiArrowLeftLine />
                     Go home
                   </Button>
                 </div>

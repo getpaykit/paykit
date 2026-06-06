@@ -1,9 +1,13 @@
 import { NavigationMenu as NavigationMenuPrimitive } from "@base-ui/react/navigation-menu";
 import { cva } from "class-variance-authority";
-import { ChevronDownIcon } from "lucide-react";
+import { RiArrowDownSLine } from "react-icons/ri";
 
 import { cn } from "@/lib/utils";
 
+/** Root navigation menu with a shared floating viewport.
+ *
+ * @param props - Root props plus optional `align` for the viewport positioner.
+ */
 function NavigationMenu({
   align = "start",
   className,
@@ -25,6 +29,7 @@ function NavigationMenu({
   );
 }
 
+/** Container for top-level navigation menu items. */
 function NavigationMenuList({
   className,
   ...props
@@ -38,6 +43,7 @@ function NavigationMenuList({
   );
 }
 
+/** Wrapper for a navigation menu item/trigger pair. */
 function NavigationMenuItem({
   className,
   ...props
@@ -51,10 +57,12 @@ function NavigationMenuItem({
   );
 }
 
+/** Shared trigger styles for navigation menu buttons. */
 const navigationMenuTriggerStyle = cva(
   "group/navigation-menu-trigger inline-flex h-9 w-max items-center justify-center rounded-lg px-2.5 py-1.5 text-sm font-medium transition-all outline-none hover:bg-muted focus:bg-muted focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-1 disabled:pointer-events-none disabled:opacity-50 data-popup-open:bg-muted/50 data-popup-open:hover:bg-muted data-open:bg-muted/50 data-open:hover:bg-muted data-open:focus:bg-muted",
 );
 
+/** Opens a navigation menu content panel and shows a chevron indicator. */
 function NavigationMenuTrigger({
   className,
   children,
@@ -67,7 +75,7 @@ function NavigationMenuTrigger({
       {...props}
     >
       {children}{" "}
-      <ChevronDownIcon
+      <RiArrowDownSLine
         className="relative top-px ml-1 size-3 transition duration-300 group-data-popup-open/navigation-menu-trigger:rotate-180 group-data-open/navigation-menu-trigger:rotate-180"
         aria-hidden="true"
       />
@@ -75,6 +83,7 @@ function NavigationMenuTrigger({
   );
 }
 
+/** Animated content panel rendered inside the navigation menu viewport. */
 function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.Content.Props) {
   return (
     <NavigationMenuPrimitive.Content
@@ -88,6 +97,10 @@ function NavigationMenuContent({ className, ...props }: NavigationMenuPrimitive.
   );
 }
 
+/** Positions the floating navigation viewport.
+ *
+ * @param props - Positioner props including `side`, `sideOffset`, `align`, and `alignOffset`.
+ */
 function NavigationMenuPositioner({
   className,
   side = "bottom",
@@ -117,6 +130,7 @@ function NavigationMenuPositioner({
   );
 }
 
+/** Styled link used inside navigation menu content. */
 function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Link.Props) {
   return (
     <NavigationMenuPrimitive.Link
@@ -130,6 +144,7 @@ function NavigationMenuLink({ className, ...props }: NavigationMenuPrimitive.Lin
   );
 }
 
+/** Small arrow indicator pointing from trigger to viewport. */
 function NavigationMenuIndicator({
   className,
   ...props

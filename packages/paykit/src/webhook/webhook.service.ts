@@ -16,7 +16,7 @@ import {
 import type { AnyNormalizedWebhookEvent, WebhookApplyAction } from "../types/events";
 
 export interface HandleWebhookInput {
-  allowStaleSignatures?: boolean;
+  allowUnsignedPayload?: boolean;
   body: string;
   headers: Record<string, string>;
 }
@@ -35,10 +35,9 @@ async function beginWebhookEvent(
       id: generateId("evt"),
       payload: input.payload,
       processedAt: null,
-      providerEventId: input.providerEventId,
-      providerId: ctx.provider.id,
       receivedAt: new Date(),
       status: "processing",
+      stripeEventId: input.providerEventId,
       traceId: getTraceId(),
       type: input.type,
     });
@@ -56,8 +55,7 @@ async function beginWebhookEvent(
       .set({ error: null, processedAt: null, status: "processing" })
       .where(
         and(
-          eq(webhookEvent.providerId, ctx.provider.id),
-          eq(webhookEvent.providerEventId, input.providerEventId),
+          eq(webhookEvent.stripeEventId, input.providerEventId),
           sql`(${webhookEvent.status} = 'failed' OR (${webhookEvent.status} = 'processing' AND ${webhookEvent.receivedAt} < now() - interval '5 minutes'))`,
         ),
       )
@@ -82,12 +80,7 @@ async function finishWebhookEvent(
       processedAt: new Date(),
       status: input.status,
     })
-    .where(
-      and(
-        eq(webhookEvent.providerId, ctx.provider.id),
-        eq(webhookEvent.providerEventId, input.providerEventId),
-      ),
-    );
+    .where(eq(webhookEvent.stripeEventId, input.providerEventId));
 }
 
 function getProviderEventId(
@@ -206,7 +199,7 @@ export async function handleWebhook(
 ): Promise<{ received: true }> {
   return ctx.logger.trace.run("wh", async () => {
     const events = await ctx.provider.handleWebhook({
-      allowStaleSignatures: input.allowStaleSignatures,
+      allowUnsignedPayload: input.allowUnsignedPayload,
       body: input.body,
       headers: input.headers,
     });

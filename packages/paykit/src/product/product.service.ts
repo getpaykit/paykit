@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import { generateId } from "../core/utils";
@@ -18,13 +18,24 @@ export interface StoredProductWithProvider extends StoredProduct {
 
 export function withProviderInfo(
   storedProduct: StoredProduct,
-  providerId: string,
+  _providerId: string,
 ): StoredProductWithProvider {
-  const providerMap = (storedProduct.provider ?? {}) as Record<string, Record<string, string>>;
-  const providerInfo = providerMap[providerId];
   return {
     ...storedProduct,
-    providerProduct: providerInfo ?? null,
+    providerProduct: getStripeProductInfo(storedProduct),
+  };
+}
+
+function getStripeProductInfo(
+  storedProduct: Pick<StoredProduct, "stripePriceId" | "stripeProductId">,
+) {
+  if (!storedProduct.stripePriceId) {
+    return null;
+  }
+
+  return {
+    priceId: storedProduct.stripePriceId,
+    ...(storedProduct.stripeProductId ? { productId: storedProduct.stripeProductId } : {}),
   };
 }
 
@@ -165,7 +176,8 @@ export async function insertProductVersion(
     name: input.name,
     priceAmount: input.priceAmount,
     priceInterval: input.priceInterval,
-    provider: {},
+    stripePriceId: null,
+    stripeProductId: null,
     updatedAt: now,
     version: input.version,
   };
@@ -226,15 +238,14 @@ export async function replaceProductFeatures(
 export async function getProviderProduct(
   database: PayKitDatabase,
   productInternalId: string,
-  providerId: string,
+  _providerId: string,
 ): Promise<Record<string, string> | null> {
   const row = await database.query.product.findFirst({
     where: eq(product.internalId, productInternalId),
   });
   if (!row) return null;
 
-  const providerMap = row.provider as Record<string, Record<string, string>>;
-  return providerMap[providerId] ?? null;
+  return getStripeProductInfo(row);
 }
 
 export async function upsertProviderProduct(
@@ -245,17 +256,12 @@ export async function upsertProviderProduct(
     providerProduct: Record<string, string>;
   },
 ): Promise<void> {
-  const existing = await database.query.product.findFirst({
-    where: eq(product.internalId, input.productInternalId),
-  });
-  if (!existing) return;
-
-  const providerMap = (existing.provider ?? {}) as Record<string, Record<string, string>>;
-  providerMap[input.providerId] = input.providerProduct;
-
   await database
     .update(product)
-    .set({ provider: providerMap })
+    .set({
+      stripeProductId: input.providerProduct.productId ?? null,
+      stripePriceId: input.providerProduct.priceId ?? null,
+    })
     .where(eq(product.internalId, input.productInternalId));
 }
 
@@ -276,7 +282,10 @@ export async function getProductByProviderData(
   input: { providerId: string; key: string; value: string },
 ): Promise<StoredProduct | null> {
   const row = await database.query.product.findFirst({
-    where: sql`${product.provider}->${input.providerId}->>${input.key} = ${input.value}`,
+    where:
+      input.key === "productId"
+        ? eq(product.stripeProductId, input.value)
+        : eq(product.stripePriceId, input.value),
   });
 
   return row ?? null;

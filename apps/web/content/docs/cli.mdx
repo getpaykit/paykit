@@ -1,0 +1,74 @@
+---
+title: CLI
+description: Project initialization and plan management from the command line.
+---
+
+PayKit includes a CLI tool for project setup, database migrations, and plan syncing. Install it once and use it throughout the project lifecycle.
+
+## paykitjs init
+
+```bash
+npx paykitjs init
+```
+
+An interactive setup wizard that scaffolds everything you need to get started. It configures Stripe, then generates:
+
+- A `paykit.ts` config file with an example plan structure
+- A route handler for webhooks
+- An optional client file for frontend use
+
+Run this once when starting a new project.
+
+## paykitjs push
+
+```bash
+npx paykitjs push
+```
+
+The command you'll run most often. It does two things:
+
+1. Applies any pending database migrations to keep your schema up to date
+2. Syncs your plan definitions to the database and Stripe, creating or updating products and prices in Stripe
+
+Run it on initial setup and again whenever you change your plan configuration.
+
+### How versioning works
+
+When you change a plan and push, PayKit creates a new version of that plan. Old versions are never modified or deleted. This means running instances of your app keep working on their matching version while new code picks up the new one.
+
+### Production usage
+
+Run `push` before your app starts or builds, as part of your deploy pipeline. This way the updated product versions are ready in the database by the time your new code goes live.
+
+```bash
+paykitjs push -y && next build
+```
+
+This is similar to how you'd run database migrations on deploy. The `-y` flag skips the confirmation prompt.
+
+## paykitjs status
+
+```bash
+npx paykitjs status
+```
+
+Validates your entire PayKit setup without making any changes. Useful when debugging a broken environment. It checks:
+
+- Configuration file validity
+- Database connection
+- Migration status (whether `push` needs to be run)
+- Provider API connectivity
+- Sync status between your config, database, and provider
+
+Pass `--throw` to exit with code 1 on failures, useful for CI pipelines:
+
+```bash
+npx paykitjs status --throw
+```
+
+## Telemetry
+
+Telemetry can be disabled via environment variables:
+
+- `PAYKIT_TELEMETRY_DISABLED=1`
+- `DO_NOT_TRACK=1`

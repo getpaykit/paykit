@@ -25,15 +25,8 @@ export type {
   EntitlementBalance,
   ReportResult,
 } from "./entitlement/entitlement.service";
-export type {
-  PayKitProviderConfig,
-  PaymentProvider,
-  ProviderCustomer,
-  ProviderCustomerMap,
-  ProviderTunnelAccount,
-  ProviderTunnelWebhook,
-  ProviderTestClock,
-} from "./providers/provider";
+export { PAYKIT_STRIPE_API_VERSION } from "./stripe/stripe-provider";
+export type { StripeOptions } from "./stripe/stripe-provider";
 export type {
   Customer,
   StoredFeature,

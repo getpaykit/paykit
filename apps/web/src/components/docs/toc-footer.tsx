@@ -2,8 +2,14 @@ import Link from "next/link";
 
 import { URLs } from "@/lib/consts";
 
-const progressValue = 15;
+const progressValue = 65;
 
+/** Docs table-of-contents footer with roadmap progress link.
+ *
+ * Opens the roadmap in a new tab and displays `progressValue`.
+ *
+ * @returns JSX.Element
+ */
 export function TocFooter() {
   return (
     <div className="flex flex-col">

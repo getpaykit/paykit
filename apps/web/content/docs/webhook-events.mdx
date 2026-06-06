@@ -1,0 +1,71 @@
+---
+title: Webhook Events
+description: How PayKit handles provider webhooks and fires application events.
+---
+
+PayKit handles webhooks from your payment provider automatically. It verifies signatures, normalizes events, syncs local billing state, and then fires your application handlers.
+
+## How it works
+
+When your provider sends a webhook, PayKit:
+
+1. Verifies the signature using your provider secret
+2. Normalizes the raw provider event into an internal event type
+3. Applies state changes to your database (subscription status, invoice records, payment method updates)
+4. Fires your `on` handlers with the normalized payload
+
+You don't touch raw Stripe events. PayKit translates them and keeps your local state in sync before your handler runs.
+
+## App-level events
+
+Pass an `on` option to `createPayKit` to register handlers for PayKit events.
+
+```ts title="paykit.ts"
+export const paykit = createPayKit({
+  // ...
+  on: {
+    "customer.updated": ({ payload }) => {
+      console.log("Billing changed for", payload.customerId);
+      console.log("Subscriptions:", payload.subscriptions);
+    },
+  },
+});
+```
+
+## customer.updated
+
+Fires after any subscription or entitlement change. Use it to sync billing state into your own data layer, invalidate caches, or trigger downstream logic.
+
+Payload shape:
+
+| Field | Type | Description |
+|---|---|---|
+| `customerId` | `string` | Your internal customer identifier |
+| `subscriptions` | `Subscription[]` | The customer's updated subscriptions |
+
+## Wildcard handler
+
+`"*"` catches all PayKit events. Useful for logging or debugging.
+
+```ts title="paykit.ts"
+export const paykit = createPayKit({
+  // ...
+  on: {
+    "*": ({ event }) => {
+      console.log(event.name, event.payload);
+    },
+  },
+});
+```
+
+## Webhook route
+
+The webhook endpoint is exposed by paykit handler at `/paykit/webhook` by default. See the [installation page](/docs/installation) for details on mounting it.
+
+## Idempotency
+
+PayKit records each incoming webhook event and processes it idempotently. If your provider sends the same event more than once, PayKit skips the duplicate. Your `on` handlers won't fire twice for the same event.
+
+<Callout type="info">
+  You don't need to manually handle Stripe webhook events. PayKit processes them internally and keeps your local billing state in sync.
+</Callout>

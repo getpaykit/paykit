@@ -49,7 +49,7 @@ describe("duplicate-webhook: same event delivered twice", () => {
         database: t.database,
         eventType: "subscription.updated",
       });
-      const providerEventId = String(subscriptionWebhook.providerEventId);
+      const providerEventId = String(subscriptionWebhook.stripeEventId);
       const forwardedRequest = await waitForForwardedWebhookRequest({
         after: beforeSubscribe,
         providerEventId,
@@ -65,7 +65,7 @@ describe("duplicate-webhook: same event delivered twice", () => {
       const webhookCountBeforeRows = await t.database
         .select({ count: count() })
         .from(webhookEvent)
-        .where(eq(webhookEvent.providerEventId, providerEventId));
+        .where(eq(webhookEvent.stripeEventId, providerEventId));
       const webhookCountBefore = webhookCountBeforeRows[0]?.count ?? 0;
 
       const subscriptionCountBeforeRows = await t.database
@@ -105,7 +105,7 @@ describe("duplicate-webhook: same event delivered twice", () => {
       const webhookCountAfterRows = await t.database
         .select({ count: count() })
         .from(webhookEvent)
-        .where(eq(webhookEvent.providerEventId, providerEventId));
+        .where(eq(webhookEvent.stripeEventId, providerEventId));
       const webhookCountAfter = webhookCountAfterRows[0]?.count ?? 0;
 
       const subscriptionCountAfterRows = await t.database

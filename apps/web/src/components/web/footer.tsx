@@ -1,10 +1,18 @@
-import { Github } from "lucide-react";
 import Link from "next/link";
 
 import { Icons } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { URLs } from "@/lib/consts";
 
+/**
+ * Site footer with watermark artwork, decorative grid, copyright, social links,
+ * and theme toggle.
+ *
+ * Decorative elements are aria-hidden; links provide aria labels.
+ *
+ * @component
+ * @returns JSX.Element
+ */
 export default function Footer() {
   return (
     <footer className="border-foreground/[0.06] bg-background relative z-40 w-full overflow-hidden border-t">
@@ -55,7 +63,7 @@ export default function Footer() {
               aria-label="GitHub"
               className="text-foreground/30 hover:text-foreground/60 transition-colors"
             >
-              <Github className="h-4 w-4" />
+              <Icons.GitHubIcon className="h-4 w-4" />
             </Link>
             <div className="text-foreground/15 flex h-4 w-4 items-center justify-center select-none">
               |

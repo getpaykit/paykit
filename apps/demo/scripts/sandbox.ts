@@ -15,7 +15,7 @@ export const sandboxConfig = {
   target: "production",
 } as const;
 
-export const paykitPackages = ["paykitjs", "@paykitjs/polar", "@paykitjs/stripe"] as const;
+export const paykitPackages = ["paykitjs"] as const;
 
 const scriptsDir = fileURLToPath(new URL(".", import.meta.url));
 

@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Loader2, Send } from "lucide-react";
 import type { RefObject } from "react";
+import { RiLoader4Line, RiSendPlaneLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,13 +19,8 @@ function WindowChrome({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-lg border shadow-lg",
-        className,
-      )}
-    >
-      <div className="border-foreground/[0.06] flex h-9.5 shrink-0 items-center gap-3 border-b px-4">
+    <div className={cn("bg-card flex flex-col overflow-hidden rounded-sm border", className)}>
+      <div className="flex h-9.5 shrink-0 items-center gap-3 border-b px-4">
         <div className="flex items-center gap-1.5">
           <div className="size-2.5 rounded-full bg-red-400/40" />
           <div className="size-2.5 rounded-full bg-yellow-400/40" />
@@ -92,7 +87,7 @@ export function DemoAppWindow({
     >
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
         {/* Top bar */}
-        <div className="border-foreground/[0.06] flex shrink-0 items-center justify-between border-b px-4 py-2.5">
+        <div className="flex shrink-0 items-center justify-between border-b px-4 py-2.5">
           <div className="flex items-center gap-2">
             <span
               className={cn(
@@ -116,7 +111,7 @@ export function DemoAppWindow({
         {/* Billing + chat */}
         <div className="flex min-h-0 flex-1 flex-col lg:flex-row">
           {/* Billing panel — hidden on mobile, sidebar on desktop */}
-          <div className="border-foreground/[0.06] hidden shrink-0 flex-col lg:flex lg:w-50 lg:border-r">
+          <div className="hidden shrink-0 flex-col lg:flex lg:w-50 lg:border-r">
             <div className="flex gap-2 px-3 py-3 lg:flex-col">
               <PlanCard
                 name="Free"
@@ -134,7 +129,7 @@ export function DemoAppWindow({
                 >
                   {busy === "downgrade" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Downgrading...
                     </>
                   ) : plan === "free" ? (
@@ -169,12 +164,12 @@ export function DemoAppWindow({
                 >
                   {busy === "upgrade" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Upgrading...
                     </>
                   ) : busy === "resubscribe" ? (
                     <>
-                      <Loader2 className="size-2.5 animate-spin" />
+                      <RiLoader4Line className="size-2.5 animate-spin" />
                       Resubscribing...
                     </>
                   ) : plan === "pro" && downgradeScheduled ? (
@@ -259,7 +254,7 @@ export function DemoAppWindow({
             </div>
 
             {/* Input */}
-            <div className="border-foreground/[0.06] flex shrink-0 items-center gap-2.5 border-t px-4 py-3">
+            <div className="flex shrink-0 items-center gap-2.5 border-t px-4 py-3">
               {autoTyping ? (
                 <div className="text-foreground min-w-0 flex-1 text-[13px]">
                   {input}
@@ -285,7 +280,7 @@ export function DemoAppWindow({
                 disabled={blocked || aiState !== "idle" || !input.trim()}
                 className="text-foreground/35 hover:text-foreground/60 disabled:opacity-20"
               >
-                <Send className="size-3.5" />
+                <RiSendPlaneLine className="size-3.5" />
               </button>
             </div>
           </div>
@@ -317,8 +312,8 @@ function PlanCard({
         active
           ? variant === "pro"
             ? "border-emerald-500/20 bg-emerald-500/[0.03]"
-            : "border-foreground/[0.12] bg-foreground/[0.02]"
-          : "border-foreground/[0.06]",
+            : "border-border bg-foreground/[0.02]"
+          : "border-border",
       )}
     >
       <div className="flex items-baseline justify-between">

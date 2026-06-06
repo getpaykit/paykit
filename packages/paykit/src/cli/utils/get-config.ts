@@ -134,7 +134,7 @@ async function loadModule(cwd: string, configPath: string): Promise<unknown> {
 
 type ConfiguredPayKit = {
   handleWebhook(input: {
-    allowStaleSignatures?: boolean;
+    allowUnsignedPayload?: boolean;
     body: string;
     headers: Record<string, string>;
   }): Promise<unknown>;

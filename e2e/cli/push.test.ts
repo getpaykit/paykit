@@ -81,24 +81,22 @@ describe("paykitjs push", () => {
         { id: "pro", name: "Pro", group: "base", is_default: false },
       ]);
 
-      // Verify paid plan (pro) was synced to Stripe via provider JSONB
-      const providerRows = await ctx.database
-        .select({ id: product.id, provider: product.provider })
+      // Verify paid plan (pro) was synced to Stripe.
+      const proRows = await ctx.database
+        .select({ id: product.id, stripeProductId: product.stripeProductId })
         .from(product)
         .where(eq(product.id, "pro"))
         .orderBy(desc(product.version))
         .limit(1);
-      const proProduct = providerRows[0] as
-        | { id: string; provider: Record<string, { productId: string }> }
-        | undefined;
+      const proProduct = proRows[0] as { id: string; stripeProductId: string | null } | undefined;
       expect(proProduct).toBeTruthy();
-      const stripeInfo = proProduct?.provider.stripe;
-      expect(stripeInfo).toBeTruthy();
-      if (!stripeInfo) {
+      if (!proProduct?.stripeProductId) {
         throw new Error("Missing Stripe product metadata for synced plan");
       }
 
-      const stripeProduct = await fixture.stripeClient.products.retrieve(stripeInfo.productId);
+      const stripeProduct = await fixture.stripeClient.products.retrieve(
+        proProduct.stripeProductId,
+      );
       expect(stripeProduct.active).toBe(true);
     } finally {
       await database.end();

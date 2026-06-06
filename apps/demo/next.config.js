@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 /** @type {import("next").NextConfig} */
 const config = {
-  transpilePackages: ["paykitjs", "@paykitjs/polar", "@paykitjs/stripe", "autumn-js"],
+  transpilePackages: ["paykitjs", "autumn-js"],
   serverExternalPackages: ["pg"],
   turbopack: {
     root: fileURLToPath(new URL("../..", import.meta.url)),

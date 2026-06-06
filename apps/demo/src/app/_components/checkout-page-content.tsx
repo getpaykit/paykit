@@ -13,18 +13,16 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
-import { paykitScenarios } from "@/lib/paykit-scenarios";
-import type { PayKitScenario } from "@/lib/paykit-scenarios";
 import { api } from "@/trpc/react";
 
-function PayKitTabContent({ scenario }: { scenario: PayKitScenario }) {
+function PayKitTabContent() {
   return (
-    <TabsContent value={`paykit-${scenario}`} className="flex flex-col gap-8 pt-4">
-      <SubscribePanel scenario={scenario} />
+    <TabsContent value="paykit" className="flex flex-col gap-8 pt-4">
+      <SubscribePanel />
       <Separator />
       <section className="flex flex-col gap-3">
         <h2 className="text-sm font-medium">Features</h2>
-        <FeaturesPanel scenario={scenario} />
+        <FeaturesPanel />
       </section>
     </TabsContent>
   );
@@ -37,14 +35,8 @@ export function CheckoutPageContent() {
   const router = useRouter();
   const toastShown = useRef(false);
 
-  const configuredPaykitScenarios = paykitScenarios.filter(
-    (scenario) => scenarios.data?.[scenario.id]?.configured,
-  );
   const hasAutumn = scenarios.data?.autumn?.configured === true;
-  const availableTabs = [
-    ...configuredPaykitScenarios.map((scenario) => scenario.tab),
-    ...(hasAutumn ? ["autumn-stripe"] : []),
-  ];
+  const availableTabs = ["paykit", ...(hasAutumn ? ["autumn-stripe"] : [])];
   const tab = searchParams.get("tab");
   const activeTab = tab && availableTabs.includes(tab) ? tab : availableTabs[0];
   const setTab = useCallback(
@@ -109,18 +101,6 @@ export function CheckoutPageContent() {
     );
   }
 
-  if (!activeTab) {
-    return (
-      <div className="space-y-3">
-        <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
-        <p className="text-muted-foreground text-sm">
-          No billing providers are configured. Add a complete provider env group and restart the
-          demo.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -146,16 +126,10 @@ export function CheckoutPageContent() {
       <Separator />
       <Tabs value={activeTab} onValueChange={setTab}>
         <TabsList>
-          {configuredPaykitScenarios.map((scenario) => (
-            <TabsTrigger key={scenario.id} value={scenario.tab}>
-              {scenario.label}
-            </TabsTrigger>
-          ))}
+          <TabsTrigger value="paykit">PayKit</TabsTrigger>
           {hasAutumn ? <TabsTrigger value="autumn-stripe">Autumn Stripe</TabsTrigger> : null}
         </TabsList>
-        {configuredPaykitScenarios.map((scenario) => (
-          <PayKitTabContent key={scenario.id} scenario={scenario.id} />
-        ))}
+        <PayKitTabContent />
         {hasAutumn ? (
           <TabsContent value="autumn-stripe" className="flex flex-col gap-8 pt-4">
             <AutumnSubscribePanel />

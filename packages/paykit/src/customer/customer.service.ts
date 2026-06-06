@@ -12,7 +12,7 @@ import {
   subscription,
 } from "../database/schema";
 import { getProductByHash } from "../product/product.service";
-import type { ProviderCustomer, ProviderCustomerMap } from "../providers/provider";
+import type { ProviderCustomer } from "../providers/provider";
 import {
   getActiveSubscriptionInGroup,
   getCurrentSubscriptions,
@@ -310,24 +310,39 @@ export async function getCustomerWithDetails(
 
 export function getProviderCustomer(
   customerRow: Customer,
-  providerId: string,
+  _providerId: string,
 ): ProviderCustomer | null {
-  const providerMap = (customerRow.provider ?? {}) as ProviderCustomerMap;
-  return providerMap[providerId] ?? null;
+  if (!customerRow.stripeCustomerId) {
+    return null;
+  }
+
+  return {
+    frozenTime: customerRow.stripeFrozenTime?.toISOString(),
+    id: customerRow.stripeCustomerId,
+    syncedEmail: customerRow.stripeSyncedEmail,
+    syncedMetadata: customerRow.stripeSyncedMetadata,
+    syncedName: customerRow.stripeSyncedName,
+    testClockId: customerRow.stripeTestClockId ?? undefined,
+  };
 }
 
 export async function setProviderCustomer(
   database: PayKitDatabase,
   input: { customerId: string; providerCustomer: ProviderCustomer; providerId: string },
 ): Promise<void> {
-  const existingCustomer = await getCustomerByIdOrThrow(database, input.customerId);
-  const providerMap = (existingCustomer.provider ?? {}) as ProviderCustomerMap;
-  providerMap[input.providerId] = input.providerCustomer;
+  const values: Partial<typeof customer.$inferInsert> = {
+    stripeCustomerId: input.providerCustomer.id,
+    stripeFrozenTime: input.providerCustomer.frozenTime
+      ? new Date(input.providerCustomer.frozenTime)
+      : null,
+    stripeSyncedEmail: input.providerCustomer.syncedEmail ?? null,
+    stripeSyncedMetadata: input.providerCustomer.syncedMetadata ?? null,
+    stripeSyncedName: input.providerCustomer.syncedName ?? null,
+    stripeTestClockId: input.providerCustomer.testClockId ?? null,
+    updatedAt: new Date(),
+  };
 
-  await database
-    .update(customer)
-    .set({ provider: providerMap, updatedAt: new Date() })
-    .where(eq(customer.id, input.customerId));
+  await database.update(customer).set(values).where(eq(customer.id, input.customerId));
 }
 
 export function getProviderCustomerId(customerRow: Customer, providerId: string): string | null {
@@ -351,7 +366,7 @@ export async function findCustomerByProviderCustomerId(
 ): Promise<Customer | null> {
   return (
     (await database.query.customer.findFirst({
-      where: sql`${customer.provider}->${input.providerId}->>'id' = ${input.providerCustomerId}`,
+      where: eq(customer.stripeCustomerId, input.providerCustomerId),
     })) ?? null
   );
 }
@@ -401,8 +416,7 @@ export async function upsertProviderCustomer(
     providerCustomer = { ...existingProviderCustomer!, id: existingProviderCustomerId };
   } else {
     const result = await ctx.provider.createCustomer({
-      createTestClock:
-        ctx.options.testing?.enabled === true && ctx.provider.capabilities.testClocks,
+      createTestClock: ctx.options.testing?.enabled === true,
       id: existingCustomer.id,
       email: existingCustomer.email ?? undefined,
       name: existingCustomer.name ?? undefined,

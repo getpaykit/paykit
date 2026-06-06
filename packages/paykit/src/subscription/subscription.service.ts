@@ -426,8 +426,8 @@ async function activateScheduledSubscriptionForGroup(
     subscriptionStatus: string;
     subscriptionCurrentPeriodEndAt?: Date | null;
     subscriptionCurrentPeriodStartAt?: Date | null;
-    providerId?: string | null;
-    providerData?: Record<string, unknown> | null;
+    stripeSubscriptionId?: string | null;
+    stripeSubscriptionScheduleId?: string | null;
   },
 ): Promise<string | null> {
   const activationDate = getSubscriptionEffectiveDate({
@@ -474,8 +474,8 @@ async function activateScheduledSubscriptionForGroup(
     subscriptionId: targetSub.id,
     startedAt: targetSub.startedAt ?? activationDate,
     status: input.subscriptionStatus,
-    providerData: input.providerData,
-    providerId: input.providerId,
+    stripeSubscriptionId: input.stripeSubscriptionId,
+    stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId,
   });
 
   return targetSub.id;
@@ -558,10 +558,6 @@ export async function applySubscriptionWebhookAction(
     ? (ctx.products.planMap.get(storedProduct.id) ?? null)
     : null;
 
-  const providerData = {
-    subscriptionId: action.data.subscription.providerSubscriptionId,
-  };
-
   const targetSub =
     existingSub ??
     (storedProduct && normalizedPlan
@@ -571,9 +567,10 @@ export async function applySubscriptionWebhookAction(
           customerId: customerRow.id,
           planFeatures: normalizedPlan.includes,
           productInternalId: storedProduct.internalId,
-          providerData,
-          providerId: ctx.provider.id,
           startedAt: action.data.subscription.currentPeriodStartAt ?? new Date(),
+          stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+          stripeSubscriptionScheduleId:
+            action.data.subscription.providerSubscriptionScheduleId ?? null,
           status: action.data.subscription.status,
         })
       : null);
@@ -588,7 +585,8 @@ export async function applySubscriptionWebhookAction(
   });
 
   await syncSubscriptionBillingState(ctx.database, {
-    providerData,
+    stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+    stripeSubscriptionScheduleId: action.data.subscription.providerSubscriptionScheduleId ?? null,
     subscriptionId: targetSub.id,
   });
 
@@ -689,8 +687,9 @@ export async function applySubscriptionWebhookAction(
         customerId: customerRow.id,
         productGroup: storedProduct.group,
         productInternalId: storedProduct.internalId,
-        providerData,
-        providerId: ctx.provider.id,
+        stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+        stripeSubscriptionScheduleId:
+          action.data.subscription.providerSubscriptionScheduleId ?? null,
         subscriptionCurrentPeriodEndAt: action.data.subscription.currentPeriodEndAt,
         subscriptionCurrentPeriodStartAt: action.data.subscription.currentPeriodStartAt,
         subscriptionStatus: action.data.subscription.status,
@@ -709,13 +708,7 @@ export async function applySubscriptionWebhookAction(
 }
 
 function getProviderSubscriptionId(subscription: ActiveSubscription): string | null {
-  if (subscription?.providerData == null) {
-    return null;
-  }
-
-  return typeof (subscription.providerData as Record<string, unknown>).subscriptionId === "string"
-    ? ((subscription.providerData as Record<string, unknown>).subscriptionId as string)
-    : null;
+  return subscription?.stripeSubscriptionId ?? null;
 }
 
 function hasProviderSubscription(subscription: ActiveSubscription): boolean {
@@ -726,21 +719,9 @@ function getProviderSubscriptionRef(subscription: ActiveSubscription): {
   subscriptionId: string | null;
   subscriptionScheduleId: string | null;
 } {
-  if (subscription?.providerData == null) {
-    return {
-      subscriptionId: null,
-      subscriptionScheduleId: null,
-    };
-  }
-
-  const providerData = subscription.providerData as Record<string, unknown>;
   return {
-    subscriptionId:
-      typeof providerData.subscriptionId === "string" ? providerData.subscriptionId : null,
-    subscriptionScheduleId:
-      typeof providerData.subscriptionScheduleId === "string"
-        ? providerData.subscriptionScheduleId
-        : null,
+    subscriptionId: subscription?.stripeSubscriptionId ?? null,
+    subscriptionScheduleId: subscription?.stripeSubscriptionScheduleId ?? null,
   };
 }
 
@@ -784,11 +765,9 @@ async function handleSamePlanSubscribe(
       await syncSubscriptionBillingState(tx, {
         currentPeriodEndAt: providerResult.subscription.currentPeriodEndAt,
         currentPeriodStartAt: providerResult.subscription.currentPeriodStartAt,
-        providerData: {
-          subscriptionId: providerResult.subscription.providerSubscriptionId,
-          subscriptionScheduleId:
-            providerResult.subscription.providerSubscriptionScheduleId ?? null,
-        },
+        stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
+        stripeSubscriptionScheduleId:
+          providerResult.subscription.providerSubscriptionScheduleId ?? null,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -946,11 +925,9 @@ async function handleCancelToFree(
       await syncSubscriptionBillingState(tx, {
         currentPeriodEndAt: providerResult.subscription.currentPeriodEndAt,
         currentPeriodStartAt: providerResult.subscription.currentPeriodStartAt,
-        providerData: {
-          subscriptionId: providerResult.subscription.providerSubscriptionId,
-          subscriptionScheduleId:
-            providerResult.subscription.providerSubscriptionScheduleId ?? null,
-        },
+        stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
+        stripeSubscriptionScheduleId:
+          providerResult.subscription.providerSubscriptionScheduleId ?? null,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -1000,11 +977,9 @@ async function handleScheduledDowngrade(
       await syncSubscriptionBillingState(tx, {
         currentPeriodEndAt: providerResult.subscription.currentPeriodEndAt,
         currentPeriodStartAt: providerResult.subscription.currentPeriodStartAt,
-        providerData: {
-          subscriptionId: providerResult.subscription.providerSubscriptionId,
-          subscriptionScheduleId:
-            providerResult.subscription.providerSubscriptionScheduleId ?? null,
-        },
+        stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
+        stripeSubscriptionScheduleId:
+          providerResult.subscription.providerSubscriptionScheduleId ?? null,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -1094,7 +1069,6 @@ async function insertLocalTargetSubscription(
     customerId: subCtx.customerId,
     planFeatures: subCtx.planFeatures,
     productInternalId: subCtx.storedPlan.internalId,
-    providerId: subCtx.providerId,
     startedAt: input.startedAt,
     status: input.status,
   });
@@ -1109,11 +1083,6 @@ async function upsertProviderBackedTargetSubscription(
   },
   options?: { deferred?: boolean },
 ): Promise<void> {
-  const providerData = {
-    subscriptionId: input.subscription.providerSubscriptionId,
-    subscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
-  };
-
   let subscriptionId: string | null = null;
   if (options?.deferred) {
     const existingSub = await getSubscriptionByProviderSubscriptionId(database, {
@@ -1125,7 +1094,8 @@ async function upsertProviderBackedTargetSubscription(
       await syncSubscriptionBillingState(database, {
         currentPeriodEndAt: input.subscription.currentPeriodEndAt ?? null,
         currentPeriodStartAt: input.subscription.currentPeriodStartAt ?? null,
-        providerData,
+        stripeSubscriptionId: input.subscription.providerSubscriptionId,
+        stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
         status: input.subscription.status,
         subscriptionId: existingSub.id,
       });
@@ -1139,9 +1109,9 @@ async function upsertProviderBackedTargetSubscription(
       customerId: subCtx.customerId,
       planFeatures: subCtx.planFeatures,
       productInternalId: subCtx.storedPlan.internalId,
-      providerId: subCtx.providerId,
-      providerData,
       startedAt: input.subscription.currentPeriodStartAt ?? new Date(),
+      stripeSubscriptionId: input.subscription.providerSubscriptionId,
+      stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
       status: input.subscription.status,
     });
     subscriptionId = inserted.id;
@@ -1202,8 +1172,6 @@ function addResetInterval(date: Date, resetInterval: string): Date {
   return next;
 }
 
-type ProviderProductMap = Record<string, Record<string, string>>;
-
 export async function warnOnDuplicateActiveSubscriptionGroups(
   ctx: PayKitContext,
   customerId: string,
@@ -1255,8 +1223,12 @@ function mapJoinRowToSubscriptionWithCatalog(row: {
   subscription: typeof subscription.$inferSelect;
   product: typeof product.$inferSelect;
 }): SubscriptionWithCatalog {
-  const providerMap = row.product.provider as ProviderProductMap | null;
-  const providerId = row.subscription.providerId;
+  const stripeProduct = row.product.stripePriceId
+    ? {
+        priceId: row.product.stripePriceId,
+        ...(row.product.stripeProductId ? { productId: row.product.stripeProductId } : {}),
+      }
+    : null;
   return {
     ...row.subscription,
     planGroup: row.product.group,
@@ -1265,7 +1237,7 @@ function mapJoinRowToSubscriptionWithCatalog(row: {
     planName: row.product.name,
     priceAmount: row.product.priceAmount,
     priceInterval: row.product.priceInterval,
-    providerProduct: (providerId ? providerMap?.[providerId] : null) ?? null,
+    providerProduct: stripeProduct,
   };
 }
 
@@ -1342,10 +1314,7 @@ export async function getSubscriptionByProviderSubscriptionId(
   return (
     (await database.query.subscription.findFirst({
       orderBy: (s, { desc: d }) => [d(s.createdAt)],
-      where: and(
-        eq(subscription.providerId, input.providerId),
-        sql`${subscription.providerData}->>'subscriptionId' = ${input.providerSubscriptionId}`,
-      ),
+      where: eq(subscription.stripeSubscriptionId, input.providerSubscriptionId),
     })) ?? null
   );
 }
@@ -1369,10 +1338,10 @@ export async function insertSubscriptionRecord(
     currentPeriodStartAt?: Date | null;
     planFeatures: readonly NormalizedPlanFeature[];
     productInternalId: string;
-    providerId?: string | null;
-    providerData?: Record<string, unknown> | null;
     scheduledProductId?: string | null;
     startedAt?: Date | null;
+    stripeSubscriptionId?: string | null;
+    stripeSubscriptionScheduleId?: string | null;
     status: string;
     trialEndsAt?: Date | null;
   },
@@ -1390,11 +1359,11 @@ export async function insertSubscriptionRecord(
       endedAt: null,
       id: generateId("sub"),
       productInternalId: input.productInternalId,
-      providerData: input.providerData ?? null,
-      providerId: input.providerId ?? null,
       quantity: 1,
       scheduledProductId: input.scheduledProductId ?? null,
       startedAt: input.startedAt ?? now,
+      stripeSubscriptionId: input.stripeSubscriptionId ?? null,
+      stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId ?? null,
       status: input.status,
       trialEndsAt: input.trialEndsAt ?? null,
     })
@@ -1537,8 +1506,8 @@ export async function activateScheduledSubscription(
     subscriptionId: string;
     startedAt?: Date | null;
     status: string;
-    providerId?: string | null;
-    providerData?: Record<string, unknown> | null;
+    stripeSubscriptionId?: string | null;
+    stripeSubscriptionScheduleId?: string | null;
   },
 ): Promise<void> {
   await database
@@ -1549,9 +1518,9 @@ export async function activateScheduledSubscription(
       currentPeriodEndAt: input.currentPeriodEndAt ?? null,
       currentPeriodStartAt: input.currentPeriodStartAt ?? null,
       endedAt: null,
-      providerData: input.providerData ?? null,
-      providerId: input.providerId,
       startedAt: input.startedAt ?? new Date(),
+      stripeSubscriptionId: input.stripeSubscriptionId ?? null,
+      stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId ?? null,
       status: input.status,
       updatedAt: new Date(),
     })
@@ -1621,8 +1590,9 @@ export async function syncSubscriptionBillingState(
     subscriptionId: string;
     currentPeriodEndAt?: Date | null;
     currentPeriodStartAt?: Date | null;
-    providerData?: Record<string, unknown> | null;
     startedAt?: Date | null;
+    stripeSubscriptionId?: string | null;
+    stripeSubscriptionScheduleId?: string | null;
     status?: string;
   },
 ): Promise<void> {
@@ -1644,8 +1614,15 @@ export async function syncSubscriptionBillingState(
         input.currentPeriodStartAt !== undefined
           ? input.currentPeriodStartAt
           : existing.currentPeriodStartAt,
-      providerData: input.providerData !== undefined ? input.providerData : existing.providerData,
       startedAt: input.startedAt !== undefined ? input.startedAt : existing.startedAt,
+      stripeSubscriptionId:
+        input.stripeSubscriptionId !== undefined
+          ? input.stripeSubscriptionId
+          : existing.stripeSubscriptionId,
+      stripeSubscriptionScheduleId:
+        input.stripeSubscriptionScheduleId !== undefined
+          ? input.stripeSubscriptionScheduleId
+          : existing.stripeSubscriptionScheduleId,
       status: input.status ?? existing.status,
       updatedAt: new Date(),
     })

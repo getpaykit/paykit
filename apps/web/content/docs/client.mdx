@@ -1,0 +1,75 @@
+---
+title: Client
+description: Call PayKit from the browser with a typed HTTP client.
+---
+
+The PayKit client SDK lets you call billing operations from the browser. It's fully type-safe, and methods and their inputs are inferred from your server instance.
+
+## Setup
+
+Install the client and create an instance typed to your server paykit export. It uses `import type` to carry server types into the browser without bundling any server code.
+
+```ts title="src/lib/paykit-client.ts"
+import { createPayKitClient } from "paykitjs/client";
+import type { paykit } from "@/server/paykit";
+
+export const paykitClient = createPayKitClient<typeof paykit>();
+```
+
+The client resolves the current customer automatically on each request. You need `identify` configured on your server instance for this to work. See [customer identification](/docs/customers#customer-identification-client) for details.
+
+## Available methods
+
+The client exposes `subscribe` and `customerPortal`. Neither requires a `customerId` since it's resolved from the incoming request via `identify`.
+
+## subscribe
+
+Works the same as the server-side `subscribe`, but without `customerId`. Returns `{ paymentUrl }`.
+
+```tsx
+// Subscribe from a React component
+<Button
+  onClick={async () => {
+    const { paymentUrl } = await paykitClient.subscribe({
+      planId: "pro", // type-safe, only valid plan IDs accepted
+      successUrl: "/billing/success",
+      cancelUrl: "/billing",
+    });
+    if (paymentUrl) {
+      window.location.href = paymentUrl;
+    }
+  }}
+>
+  Upgrade to Pro
+</Button>
+```
+
+## customerPortal
+
+Opens the provider's customer portal. Returns `{ url }`.
+
+```ts
+// Open customer billing portal
+const { url } = await paykitClient.customerPortal({
+  returnUrl: window.location.href,
+});
+window.location.href = url;
+```
+
+## Custom base URL
+
+If you changed `basePath` on your server instance, pass the PayKit root URL to the client.
+
+```ts
+export const paykitClient = createPayKitClient<typeof paykit>({
+  baseURL: "/custom",
+});
+```
+
+The client derives its API URL automatically, so `baseURL: "/custom"` maps to `/custom/api` under the hood.
+
+You can also pass an absolute URL like `https://example.com/custom`.
+
+## Type safety
+
+The client infers available plan IDs directly from your server instance type. If you pass an invalid `planId`, TypeScript catches it at compile time. See [TypeScript](/docs/typescript) for more on how type inference works across the stack.

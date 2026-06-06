@@ -120,6 +120,8 @@
   --scrollbar-thumb: var(--border);
   --scrollbar-thumb-hover: var(--ring);
   --scrollbar-track: transparent;
+  --selection: #4f4f4f;
+  --selection-foreground: #ffffff;
   --radius: 0.45rem;
   --fd-nav-height: 56px;
   --fd-banner-height: 0px;
@@ -141,24 +143,24 @@
 }
 
 .dark {
-  --background: oklch(0.17 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.1871 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.87 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.24 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
+  --background: oklch(12.9% 0 0);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(12.9% 0 0);
+  --card-foreground: oklch(0.97 0 0);
+  --popover: oklch(0.147 0 0);
+  --popover-foreground: oklch(0.97 0 0);
+  --primary: oklch(0.97 0 0);
+  --primary-foreground: oklch(0.168 0 0);
+  --secondary: oklch(0.168 0 0);
+  --secondary-foreground: oklch(0.97 0 0);
   --muted: oklch(0.269 0 0);
   --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
+  --accent: oklch(0.27 0 0);
+  --accent-foreground: oklch(0.97 0 0);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.637 0.237 25.331);
-  --border: oklch(26% 0 0);
-  --input: oklch(1 0 0 / 15%);
+  --border: oklch(0.239 0 0);
+  --input: oklch(1 0 0 / 10%);
   --ring: oklch(0.556 0 0);
   --chart-1: oklch(0.87 0 0);
   --chart-2: oklch(0.556 0 0);
@@ -169,10 +171,12 @@
   --sidebar-foreground: var(--foreground);
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--foreground);
-  --sidebar-accent: var(--muted);
+  --sidebar-accent: var(--accent);
   --sidebar-accent-foreground: var(--accent-foreground);
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
+  --selection: #4f4f4f;
+  --selection-foreground: #ffffff;
   --theme-transition-line: oklch(0.985 0 0 / 0.22);
 }
 
@@ -192,19 +196,6 @@
     animation: theme-line-reveal 720ms cubic-bezier(0.72, 0, 0.2, 1) both;
     box-shadow: 0 1px 0 var(--theme-transition-line);
   }
-}
-
-/*
- * Fumadocs ships several docs surfaces with hard-coded `rounded-xl`.
- * Normalize them at the docs container level so light and dark use the same radius.
- */
-#nd-page :is(.rounded-xl, .rounded-2xl) {
-  border-radius: var(--radius-lg);
-}
-
-#nd-page .last\:rounded-b-xl:last-child {
-  border-bottom-right-radius: var(--radius-lg);
-  border-bottom-left-radius: var(--radius-lg);
 }
 
 @theme inline {
@@ -292,12 +283,18 @@
   }
 
   html {
-    @apply overflow-x-hidden;
+    @apply overflow-x-hidden overflow-y-scroll;
+
     max-width: 100vw;
   }
 
   body {
-    @apply selection:bg-foreground selection:text-background overscroll-none bg-background text-foreground;
+    @apply overscroll-none bg-background text-foreground;
+  }
+
+  ::selection {
+    background-color: var(--selection);
+    color: var(--selection-foreground);
   }
 
   button:not([disabled]),
@@ -306,6 +303,18 @@
   }
   html {
     @apply font-sans;
+  }
+
+  code,
+  pre,
+  kbd,
+  samp,
+  .font-mono {
+    font-kerning: none;
+    font-variant-ligatures: none;
+    font-feature-settings:
+      "liga" 0,
+      "calt" 0;
   }
 }
 
@@ -354,387 +363,69 @@ html:not([data-anchor-scrolling]) {
   }
 }
 
-@layer utilities {
-  #nd-sidebar [data-radix-scroll-area-viewport] > *,
-  #nd-sidebar-mobile [data-radix-scroll-area-viewport] > * {
-    gap: 0 !important;
-  }
+.docs-sidebar-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.prose code:not(pre code),
-.prose a {
+.docs-sidebar-content::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.docs-body code:not(pre code),
+.docs-body a {
   overflow-wrap: anywhere;
 }
 
-#nd-sidebar
-  > div.flex.flex-col.gap-3.p-4.pb-2
-  > div:first-child
-  > button[aria-label="Collapse Sidebar"]:not(.docs-sidebar-collapse-button) {
-  display: none;
-}
-
-/* Sidebar: fixed positioning so it never scrolls with content, but only when expanded */
-@media (min-width: 768px) {
-  [data-sidebar-placeholder]:not(:has(#nd-sidebar[data-collapsed="true"])) {
-    position: fixed !important;
-    width: var(--fd-sidebar-width) !important;
-    inset-inline-start: max(0px, calc((100vw - var(--fd-layout-width, 97rem)) / 2)) !important;
-  }
-}
-
-@media (max-width: 767px) {
-  :root {
-    --subnav-height: 3.5rem;
-  }
-
-  #nd-subnav {
-    position: fixed !important;
-    top: var(--fd-docs-row-1, 0px) !important;
-    inset-inline-start: 0 !important;
-    inset-inline-end: 0 !important;
-  }
-
-  /* Compensate for fixed #nd-subnav leaving grid flow */
-  [data-toc-popover] {
-    margin-top: var(--subnav-height);
-  }
-}
-
-[data-toc-popover] > header {
-  position: fixed !important;
-  top: var(--fd-docs-row-2, 0px) !important;
-  inset-inline-start: 0 !important;
-  inset-inline-end: 0 !important;
-  z-index: 10 !important;
-}
-
-@media (min-width: 768px) {
-  [data-toc-popover] > header {
-    inset-inline-start: var(--fd-sidebar-col, 0px) !important;
-  }
-}
-
-/* Fumadocs sidebar: edge-to-edge item rows with explicit horizontal padding */
-#nd-sidebar [data-radix-scroll-area-viewport],
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] {
+.docs-codeblock pre code {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   padding: 0 !important;
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
 }
 
-#nd-sidebar [style*="mask-image"],
-#nd-sidebar-mobile [style*="mask-image"],
-#nd-sidebar [style*="-webkit-mask-image"],
-#nd-sidebar-mobile [style*="-webkit-mask-image"] {
-  -webkit-mask-image: none !important;
-  mask-image: none !important;
+.docs-codeblock pre {
+  overflow-y: hidden;
+  overscroll-behavior-x: none;
 }
 
-#nd-sidebar:not([data-collapsed="true"]) > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar:not([data-collapsed="true"]) > .min-h-0.flex-1,
-#nd-sidebar:not([data-collapsed="true"]) > div.flex.flex-col.p-4.pt-2,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar-mobile > .min-h-0.flex-1,
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2 {
-  @apply border-border border-l;
+.docs-codeblock pre.shiki {
+  --padding-left: 0.875rem;
+  --padding-right: 0.875rem;
 }
 
-#nd-sidebar > div.flex.flex-col.p-4.pt-2:has(.docs-sidebar-github-button),
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2:has(.docs-sidebar-github-button) {
-  @apply border-border flex flex-row items-center justify-start gap-2 border-t pt-2 pb-3;
+.docs-codeblock pre.shiki[data-copy-overlay] {
+  --padding-right: 2.5rem;
 }
 
-#nd-sidebar .docs-sidebar-github-button,
-#nd-sidebar-mobile .docs-sidebar-github-button {
-  @apply rounded-[var(--radius)] border-0;
+.docs-codeblock .shiki code span {
+  color: var(--shiki-light);
+  font-style: var(--shiki-light-font-style);
 }
 
-#nd-sidebar > div.flex.flex-col.p-4.pt-2 > div:last-child > :is(a, button),
-#nd-sidebar-mobile > div.flex.flex-col.p-4.pt-2 > div:last-child > :is(a, button) {
-  @apply size-7 rounded-md;
+.dark .docs-codeblock .shiki code span {
+  color: var(--shiki-dark);
+  font-style: var(--shiki-dark-font-style);
 }
 
-#nd-sidebar,
-#nd-sidebar-mobile {
-  background-color: var(--sidebar);
-  --animate-fd-collapsible-down: fd-collapsible-down 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  --animate-fd-collapsible-up: fd-collapsible-up 170ms ease-out;
+.docs-codeblock .shiki .line {
+  position: relative;
 }
 
-#nd-toc {
-  @apply pe-5;
+.docs-codeblock .shiki .line:empty {
+  height: 1lh;
 }
 
-#nd-toc .bg-fd-primary.rounded-full {
+.docs-codeblock .shiki .highlighted {
+  background-color: color-mix(in oklab, var(--color-fd-primary) 2.2%, transparent);
+}
+
+.docs-codeblock .shiki .highlighted::after {
   display: none;
-}
-
-#nd-toc a[href^="#"] {
-  padding-inline-start: 14px !important;
-}
-
-#nd-toc a[href^="#"] > .inset-y-0 {
-  inset-inline-start: 0px !important;
-}
-
-#nd-toc a[href^="#"] > .absolute {
-  inset-inline-start: 0px !important;
-}
-
-#nd-toc .stroke-fd-primary {
-  @apply stroke-fd-muted-foreground;
-  stroke-width: 2;
-  transform: translateX(-7px);
-}
-
-#nd-toc [data-hidden] {
-  inset-inline-start: -8.5px !important;
-}
-
-[data-toc-popover] {
-  @apply h-11.5;
-}
-
-[data-toc-popover-trigger] {
-  @apply h-11.5 py-0;
-}
-
-[data-toc-popover],
-[data-toc-popover-trigger],
-[data-toc-popover-trigger] > svg[role="progressbar"] {
-  overflow: visible !important;
-}
-
-#nd-sidebar [data-radix-scroll-area-viewport] :is(a, button).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  :is(a, button).flex.flex-row.items-center.gap-2 {
-  @apply w-full rounded-none;
-  padding-inline: 1.25rem !important;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  @apply border-border;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  border-color: var(--border) !important;
-  transition-property: background-color, color !important;
-  min-height: 41px !important;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > :is(button, a).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-/* Docs sidebar categories: replace default folder chevron with Hugeicons */
-#nd-sidebar
-  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
-  > svg:not(.docs-category-chevron):not(.docs-category-icon),
-#nd-sidebar-mobile
-  button[aria-expanded]:not([data-slot="dropdown-menu-trigger"])
-  > svg:not(.docs-category-chevron):not(.docs-category-icon) {
-  display: none !important;
-}
-
-#nd-sidebar button[aria-expanded="true"] .docs-category-chevron,
-#nd-sidebar-mobile button[aria-expanded="true"] .docs-category-chevron {
-  transform: rotate(180deg);
-}
-
-/* Category triggers: top divider only, except for the first item */
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-bottom: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state]:first-child
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-top: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > button[aria-expanded]:not([data-slot="dropdown-menu-trigger"]).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="closed"]
-  + [data-state]
-  > button[aria-expanded]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  border-top: 1px solid var(--border);
-}
-
-/* Expanded category trigger: add divider below the trigger, not above the content */
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2 {
-  @apply relative;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2::after,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > button[aria-expanded="true"]:not(
-    [data-slot="dropdown-menu-trigger"]
-  ).flex.flex-row.items-center.gap-2::after {
-  content: "";
-  @apply border-border pointer-events-none absolute right-0 bottom-0 left-0 border-b;
-}
-
-/* Sidebar search row: full width like category rows */
-#nd-sidebar > div.flex.flex-col.gap-3.p-4.pb-2,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2 {
-  @apply px-0;
-  padding-top: calc(0.5rem + 2px) !important;
-  @apply pb-0;
-  row-gap: 0.5rem !important;
-}
-
-#nd-sidebar > div.flex.flex-col.gap-3.p-4.pb-2 > div:first-child,
-#nd-sidebar-mobile > div.flex.flex-col.gap-3.p-4.pb-2 > div:first-child {
-  padding-inline-start: 1.25rem;
-  padding-inline-end: 1rem;
-}
-
-#nd-sidebar [data-search-full],
-#nd-sidebar-mobile [data-search-full] {
-  @apply border-border w-full rounded-none border-x-0 border-y shadow-none;
-  min-height: 40px !important;
-  padding-inline: 1.25rem !important;
-  padding-block: 0.5rem !important;
-  filter: none !important;
-}
-
-#nd-sidebar [data-search-full] > svg,
-#nd-sidebar-mobile [data-search-full] > svg {
-  @apply size-3.5 shrink-0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  .before\:bg-fd-border
-  :is(a, button).flex.flex-row.items-center.gap-2,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  .before\:bg-fd-border
-  :is(a, button).flex.flex-row.items-center.gap-2 {
-  padding-block: 0.4rem !important;
-}
-
-/* Non-collapsible inner folders: render as separator-like labels */
-#nd-sidebar [data-radix-scroll-area-viewport] div.relative.flex.flex-row.items-center.gap-2.w-full,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full {
-  @apply text-foreground/35 flex h-[1.2rem] items-center gap-2 overflow-hidden rounded-none px-5 text-[0.6875rem] leading-[0.8rem] tracking-[0.06em] whitespace-nowrap uppercase;
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full::after,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  div.relative.flex.flex-row.items-center.gap-2.w-full::after {
-  @apply bg-border h-px flex-1;
-  content: "";
-}
-
-/* Remove folder guide rail (left vertical trace) */
-#nd-sidebar [data-radix-scroll-area-viewport] .before\:bg-fd-border::before,
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] .before\:bg-fd-border::before {
-  display: none !important;
-}
-
-/* Remove active item left marker */
-#nd-sidebar [data-radix-scroll-area-viewport] a[data-active="true"]::before,
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] a[data-active="true"]::before {
-  content: none !important;
-  display: none !important;
-}
-
-/* Disabled sidebar items (url="#") */
-#nd-sidebar [data-radix-scroll-area-viewport] a[href="#"],
-#nd-sidebar-mobile [data-radix-scroll-area-viewport] a[href="#"] {
-  @apply pointer-events-none opacity-50;
+  border-left: 1px solid color-mix(in oklab, var(--primary) 50%, transparent);
 }
 
 input[type="search"]::-webkit-search-cancel-button,
@@ -745,89 +436,6 @@ input[type="search"]::-webkit-search-results-decoration {
   display: none;
 }
 
-/* Code blocks — flat near-black, rounded edges, no gradients */
-.dark .shiki {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Tab/card wrappers containing code blocks */
-.dark .bg-fd-card:has(.shiki),
-.dark [data-slot="tabs"]:has(.shiki),
-.dark div:has(> [role="tablist"]):has(.shiki) {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Override when keepBackground is enabled */
-.dark .bg-\(--shiki-dark-bg\),
-.dark [class*="bg-(--shiki-dark-bg)"] {
-  background-color: var(--card) !important;
-}
-
-/* Code block title bar / tab list — flat, no gradient */
-.dark figure.shiki > div:first-child,
-.dark [role="tablist"]:has(+ [role="tabpanel"] .shiki),
-.dark [role="tablist"]:has(+ div .shiki) {
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.06);
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Tab content panel background */
-.dark [role="tabpanel"]:has(.shiki) {
-  background-color: var(--card) !important;
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Code block inside tabs — match parent, no extra border/shadow */
-.dark [role="tabpanel"] .shiki {
-  background-color: var(--card) !important;
-  border: none;
-  box-shadow: none;
-  border-radius: var(--radius-lg) !important;
-}
-
-/* Code block content viewport — force near-black in dark mode */
-.dark .fd-scroll-container,
-.dark figure.shiki .fd-scroll-container,
-.dark figure:has(.shiki) > div:last-child {
-  background-color: var(--card) !important;
-}
-
-/* Code block figure bg-fd-secondary / bg-fd-card wrappers */
-.dark figure.shiki,
-.dark figure:has(pre) {
-  background-color: var(--card) !important;
-  border-color: rgba(255, 255, 255, 0.06);
-}
-
-/* All code block figures — rounded corners (docs only) */
-#nd-page figure:has(.shiki),
-#nd-page figure.shiki,
-#nd-page [data-slot="tabs"]:has(.shiki),
-#nd-page .bg-fd-card:has(.shiki) {
-  border-radius: var(--radius-lg) !important;
-  overflow: hidden;
-}
-
-#nd-page figure.shiki > div:first-child,
-#nd-page [role="tablist"]:has(+ [role="tabpanel"] .shiki),
-#nd-page [role="tablist"]:has(+ div .shiki) {
-  border-radius: var(--radius-lg) !important;
-}
-
-#nd-page [role="tabpanel"]:has(.shiki),
-#nd-page [role="tabpanel"] .shiki {
-  border-radius: var(--radius-lg) !important;
-}
-
-.prose blockquote {
-  @apply rounded-lg;
-}
-
 /* Respect prefers-reduced-motion for accessibility (WCAG 2.3.3) */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -836,44 +444,6 @@ input[type="search"]::-webkit-search-results-decoration {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
-}
-
-/* Ensure sidebar category animation stays visible and smooth */
-#nd-sidebar [class*="animate-fd-collapsible"][data-state="open"],
-#nd-sidebar-mobile [class*="animate-fd-collapsible"][data-state="open"] {
-  animation-duration: 220ms !important;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1) !important;
-}
-
-#nd-sidebar [data-radix-scroll-area-viewport] > div > [data-state="open"] > div[data-state="open"],
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"] {
-  @apply pt-1 pb-1;
-}
-
-#nd-sidebar
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"]
-  > div,
-#nd-sidebar-mobile
-  [data-radix-scroll-area-viewport]
-  > div
-  > [data-state="open"]
-  > div[data-state="open"]
-  > div {
-  gap: 0 !important;
-  padding-top: 0 !important;
-}
-
-#nd-sidebar [class*="animate-fd-collapsible"][data-state="closed"],
-#nd-sidebar-mobile [class*="animate-fd-collapsible"][data-state="closed"] {
-  animation-duration: 170ms !important;
-  animation-timing-function: ease-out !important;
 }
 
 /* Lift context menu positioner above fixed nav (z-99) */

@@ -30,28 +30,16 @@ async function main() {
     env,
   );
 
-  if (hasEnv(values, ["POLAR_DATABASE_URL", "POLAR_ACCESS_TOKEN", "POLAR_WEBHOOK_SECRET"])) {
-    console.log("Push PayKit Polar config");
+  if (hasEnv(values, ["PAYKIT_DATABASE_URL", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"])) {
+    console.log("Push PayKit config");
     await runCommand(
       "bunx",
-      ["paykitjs", "push", "--config", "paykit.polar.config.ts", "--yes"],
+      ["paykitjs", "push", "--config", "paykit.config.ts", "--yes"],
       demoDir,
       env,
     );
   } else {
-    console.log("Skipping PayKit Polar push: provider env incomplete");
-  }
-
-  if (hasEnv(values, ["STRIPE_DATABASE_URL", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"])) {
-    console.log("Push PayKit Stripe config");
-    await runCommand(
-      "bunx",
-      ["paykitjs", "push", "--config", "paykit.stripe.config.ts", "--yes"],
-      demoDir,
-      env,
-    );
-  } else {
-    console.log("Skipping PayKit Stripe push: provider env incomplete");
+    console.log("Skipping PayKit push: env incomplete");
   }
 
   if (hasEnv(values, ["AUTUMN_SECRET_KEY"])) {

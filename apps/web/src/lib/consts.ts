@@ -1,5 +1,7 @@
 import type { FAQPage, Organization, SoftwareApplication, WebSite, WithContext } from "schema-dts";
 
+import { env } from "@/env";
+
 export const OG_IMAGE_PATH = "/brand/og.png";
 export const SITE_NAME = "PayKit";
 
@@ -12,7 +14,7 @@ export const OG_DESCRIPTION =
   "Define plans and features in code. Handles Stripe, webhooks, and usage state. Runs inside your app, writes to your database. Open source.";
 
 export const URLs = {
-  site: "https://paykit.sh",
+  site: env.NEXT_PUBLIC_APP_URL,
   githubOrg: "https://github.com/getpaykit",
   githubRepo: "https://github.com/getpaykit/paykit",
   roadmap: "https://github.com/orgs/getpaykit/projects/1",
@@ -22,8 +24,6 @@ export const URLs = {
   authorGitHub: "https://github.com/maxktz",
   authorX: "https://x.com/maxktz",
 } as const;
-
-export const VERSION_TEXT = "v0.1 beta";
 
 export const websiteSchema: WithContext<WebSite> = {
   "@context": "https://schema.org",

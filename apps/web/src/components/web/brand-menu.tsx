@@ -1,8 +1,8 @@
 "use client";
 
-import { Code2 } from "lucide-react";
 import Link from "next/link";
 import { useRef } from "react";
+import { RiCodeSSlashLine } from "react-icons/ri";
 import { toast } from "sonner";
 
 import { LOGO_SVG, Logo } from "@/components/icons/logo";
@@ -22,13 +22,26 @@ const brandAssets = {
   Wordmark: WORDMARK_SVG,
 };
 
+/**
+ * Brand/logo home link with a context menu for copying SVG assets.
+ *
+ * Uses `copyAsSvg` to copy `brandAssets` keys (`Logo`, `Wordmark`) and show
+ * toast feedback.
+ *
+ * @param props.className - Optional wrapper class name.
+ * @param props.linkClassName - Optional home link class name.
+ * @param props.wordmarkBaseClassName - Optional base class for the wordmark SVG.
+ * @param props.wordmarkClassName - Optional extra class for the wordmark SVG.
+ */
 export function BrandMenu({
   className,
   linkClassName,
+  wordmarkBaseClassName,
   wordmarkClassName,
 }: {
   className?: string;
   linkClassName?: string;
+  wordmarkBaseClassName?: string;
   wordmarkClassName?: string;
 }) {
   const logoRef = useRef<HTMLAnchorElement>(null);
@@ -37,7 +50,7 @@ export function BrandMenu({
     try {
       await navigator.clipboard.writeText(brandAssets[asset]);
       toast.success(`${asset} SVG code copied to clipboard.`, {
-        icon: <Code2 className="size-4" />,
+        icon: <RiCodeSSlashLine className="size-4" />,
       });
     } catch {
       toast.error("Failed to copy to clipboard.");
@@ -56,7 +69,10 @@ export function BrandMenu({
               aria-label="PayKit home"
               className={cn("flex items-center py-1.5", linkClassName)}
             >
-              <Wordmark title={null} className={cn("h-4 origin-left", wordmarkClassName)} />
+              <Wordmark
+                title={null}
+                className={cn(wordmarkBaseClassName ?? "h-4", wordmarkClassName)}
+              />
             </Link>
           }
         />
@@ -73,7 +89,7 @@ export function BrandMenu({
             <Logo className="text-muted-foreground" /> Copy logo as SVG
           </ContextMenuItem>
           <ContextMenuItem className="px-3" onClick={() => copyAsSvg("Wordmark")}>
-            <Code2 className="text-muted-foreground" /> Copy wordmark as SVG
+            <RiCodeSSlashLine className="text-muted-foreground" /> Copy wordmark as SVG
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>

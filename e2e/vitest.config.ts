@@ -1,14 +1,11 @@
 import { defineConfig } from "vitest/config";
 
-const provider = process.env.PROVIDER;
-const isPolar = provider === "polar";
-
 export default defineConfig({
   test: {
     // Cap parallel workers — Stripe test mode rate-limits at 25 ops/sec; too many
     // workers starting syncProducts simultaneously trips it. Paired with Stripe
     // SDK maxNetworkRetries for headroom.
-    maxWorkers: isPolar ? 1 : 6,
+    maxWorkers: 6,
     projects: [
       {
         test: {
@@ -17,7 +14,6 @@ export default defineConfig({
           globalSetup: ["./test-utils/hub.ts"],
           hookTimeout: 180_000,
           include: ["core/**/*.test.ts"],
-          sequence: isPolar ? { concurrent: false } : undefined,
           testTimeout: 600_000,
         },
       },

@@ -9,12 +9,14 @@ function headersToRecord(headers: Headers): Record<string, string> {
   return result;
 }
 
-function shouldAllowStaleSignatures(headers: Headers): boolean {
+function shouldAllowUnsignedPayload(headers: Headers): boolean {
   if (headers.get("x-paykit-cloud-replay") !== "1") {
     return false;
   }
 
   return (
+    process.env.PAYKIT_ALLOW_UNSIGNED_PAYLOADS === "1" ||
+    // Legacy alias kept for local replay compatibility; remove in a future major.
     process.env.PAYKIT_ALLOW_STALE_SIGNATURES === "1" ||
     process.env.NODE_ENV === "development" ||
     process.env.NODE_ENV === "test"
@@ -33,7 +35,7 @@ export const receiveWebhook = definePayKitMethod(
       resolveInput: async (ctx) => {
         const headers = ctx.headers ?? new Headers();
         return {
-          allowStaleSignatures: shouldAllowStaleSignatures(headers),
+          allowUnsignedPayload: shouldAllowUnsignedPayload(headers),
           body: await ctx.request!.text(),
           headers: headersToRecord(headers),
         };

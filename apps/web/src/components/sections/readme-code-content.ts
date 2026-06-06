@@ -22,20 +22,18 @@ export const pro = plan({
 })`;
 
 // Hero config tab
-export const heroConfigCode = `import { stripe } from "@paykitjs/stripe"
-import { createPayKit } from "paykitjs"
+export const heroConfigCode = `import { createPayKit } from "paykitjs"
 import { free, pro } from "./products"
 
 export const paykit = createPayKit({
-  // Any provider: (Stripe / Polar / Creem)
-  provider: stripe({
+  database: env.DATABASE_URL,
+  stripe: {
     secretKey: env.STRIPE_SECRET_KEY,
     webhookSecret: env.STRIPE_WEBHOOK_SECRET,
-  }),
-  database: env.DATABASE_URL,
+  },
   products: [free, pro],
   on: {
-    "subscription.activated": ({ customer, plan }) => {
+    "subscription.activated": async ({ customer }) => {
       await sendEmail(customer.email, "Welcome to Pro!")
     },
   }

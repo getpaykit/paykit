@@ -1,18 +1,18 @@
-import {
-  CalendarCheck,
-  CalendarX,
-  CreditCard,
-  Database,
-  ExternalLink,
-  Link2,
-  RefreshCw,
-  Shield,
-  ShieldAlert,
-  Sparkles,
-  UserCheck,
-  Webhook,
-} from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  RiBankCardLine,
+  RiCalendarCheckLine,
+  RiCalendarCloseLine,
+  RiDatabase2Line,
+  RiExternalLinkLine,
+  RiLink,
+  RiRefreshLine,
+  RiShieldFlashLine,
+  RiShieldLine,
+  RiSparklingLine,
+  RiUserFollowLine,
+  RiWebhookLine,
+} from "react-icons/ri";
 
 export type SnippetKey = "subscribe" | "check" | "report" | "portal" | "downgrade" | "resubscribe";
 
@@ -47,18 +47,18 @@ export function nextCardId() {
 }
 
 export const stepIcons: Record<StepIcon, ReactNode> = {
-  user: <UserCheck className="size-3 shrink-0" />,
-  "credit-card": <CreditCard className="size-3 shrink-0" />,
-  webhook: <Webhook className="size-3 shrink-0" />,
-  database: <Database className="size-3 shrink-0" />,
-  link: <Link2 className="size-3 shrink-0" />,
-  "external-link": <ExternalLink className="size-3 shrink-0" />,
-  "calendar-x": <CalendarX className="size-3 shrink-0" />,
-  "calendar-check": <CalendarCheck className="size-3 shrink-0" />,
-  sparkles: <Sparkles className="size-3 shrink-0" />,
-  shield: <Shield className="size-3 shrink-0" />,
-  "shield-alert": <ShieldAlert className="size-3 shrink-0" />,
-  refresh: <RefreshCw className="size-3 shrink-0" />,
+  user: <RiUserFollowLine className="size-3 shrink-0" />,
+  "credit-card": <RiBankCardLine className="size-3 shrink-0" />,
+  webhook: <RiWebhookLine className="size-3 shrink-0" />,
+  database: <RiDatabase2Line className="size-3 shrink-0" />,
+  link: <RiLink className="size-3 shrink-0" />,
+  "external-link": <RiExternalLinkLine className="size-3 shrink-0" />,
+  "calendar-x": <RiCalendarCloseLine className="size-3 shrink-0" />,
+  "calendar-check": <RiCalendarCheckLine className="size-3 shrink-0" />,
+  sparkles: <RiSparklingLine className="size-3 shrink-0" />,
+  shield: <RiShieldLine className="size-3 shrink-0" />,
+  "shield-alert": <RiShieldFlashLine className="size-3 shrink-0" />,
+  refresh: <RiRefreshLine className="size-3 shrink-0" />,
 };
 
 // Scripted replies for auto-play
@@ -74,7 +74,7 @@ export const interactiveReplies = [
   "Your plans are type-safe. Typo a plan ID and TypeScript catches it at build time.",
   "The dashboard mounts at /paykit in your app. No separate service to deploy.",
   "Webhooks are verified and deduplicated in the same DB transaction. No double charges.",
-  "You can swap from Stripe to Polar by changing one import. Your billing logic stays identical.",
+  "Stripe details stay inside PayKit. Your app keeps using plans, customers, and features.",
   "Every entitlement check is a single function call. No complex permission logic needed.",
   "PayKit runs inside your app. It's a library, not a platform. One npm install and you're set.",
 ];

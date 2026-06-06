@@ -7,7 +7,7 @@ import { createTRPCRouter, publicProcedure } from "@/server/api/trpc";
 
 type DemoPayKit<TFeatureId extends string> = {
   $infer: { featureId: TFeatureId };
-  options: Pick<PayKitOptions, "provider">;
+  options: Pick<PayKitOptions, "stripe">;
   check(input: {
     customerId: string;
     featureId: TFeatureId;
@@ -29,17 +29,12 @@ export function createPaykitRouter<const TFeatureId extends string>(
   function requirePaykit() {
     const paykit = getPaykit();
     if (!paykit) {
-      throw new TRPCError({ code: "NOT_FOUND", message: "PayKit provider is not configured" });
+      throw new TRPCError({ code: "NOT_FOUND", message: "PayKit is not configured" });
     }
     return paykit;
   }
 
   return createTRPCRouter({
-    capabilities: publicProcedure.query(() => {
-      const paykit = getPaykit();
-      return paykit?.options.provider.capabilities ?? { testClocks: false };
-    }),
-
     createCustomer: publicProcedure.mutation(async ({ ctx }) => {
       const paykit = requirePaykit();
       const session = await auth.api.getSession({ headers: ctx.headers });

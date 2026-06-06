@@ -66,6 +66,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
       className={cn(geist.variable, fontMono.variable, GeistPixelSquare.variable)}
     >

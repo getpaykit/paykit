@@ -10,8 +10,6 @@ import {
   uniqueIndex,
 } from "drizzle-orm/pg-core";
 
-import type { ProviderCustomerMap } from "../providers/provider";
-
 const pgTable = pgTableCreator((name) => `paykit_${name}`);
 
 const createdAt = timestamp("created_at")
@@ -29,12 +27,21 @@ export const customer = pgTable(
     email: text("email"),
     name: text("name"),
     metadata: jsonb("metadata").$type<Record<string, string> | null>(),
-    provider: jsonb("provider").$type<ProviderCustomerMap>().notNull().default({}),
+    stripeCustomerId: text("stripe_customer_id"),
+    stripeTestClockId: text("stripe_test_clock_id"),
+    stripeFrozenTime: timestamp("stripe_frozen_time", { withTimezone: true }),
+    stripeSyncedEmail: text("stripe_synced_email"),
+    stripeSyncedName: text("stripe_synced_name"),
+    stripeSyncedMetadata: jsonb("stripe_synced_metadata").$type<Record<string, string> | null>(),
     deletedAt: timestamp("deleted_at"),
     createdAt,
     updatedAt,
   },
-  (table) => [index("paykit_customer_deleted_at_idx").on(table.deletedAt)],
+  (table) => [
+    index("paykit_customer_deleted_at_idx").on(table.deletedAt),
+    index("paykit_customer_stripe_customer_idx").on(table.stripeCustomerId),
+    index("paykit_customer_stripe_test_clock_idx").on(table.stripeTestClockId),
+  ],
 );
 
 export const paymentMethod = pgTable(
@@ -44,8 +51,12 @@ export const paymentMethod = pgTable(
     customerId: text("customer_id")
       .notNull()
       .references(() => customer.id),
-    providerId: text("provider_id").notNull(),
-    providerData: jsonb("provider_data").$type<Record<string, unknown>>().notNull(),
+    stripePaymentMethodId: text("stripe_payment_method_id"),
+    type: text("type"),
+    brand: text("brand"),
+    last4: text("last4"),
+    expiryMonth: integer("expiry_month"),
+    expiryYear: integer("expiry_year"),
     isDefault: boolean("is_default").notNull().default(false),
     deletedAt: timestamp("deleted_at"),
     createdAt,
@@ -53,7 +64,7 @@ export const paymentMethod = pgTable(
   },
   (table) => [
     index("paykit_payment_method_customer_idx").on(table.customerId, table.deletedAt),
-    index("paykit_payment_method_provider_idx").on(table.providerId),
+    index("paykit_payment_method_stripe_payment_method_idx").on(table.stripePaymentMethodId),
   ],
 );
 
@@ -63,8 +74,6 @@ export const feature = pgTable("feature", {
   createdAt,
   updatedAt,
 });
-
-type ProviderProductMap = Record<string, Record<string, string>>;
 
 export const product = pgTable(
   "product",
@@ -78,13 +87,16 @@ export const product = pgTable(
     priceAmount: integer("price_amount"),
     priceInterval: text("price_interval"),
     hash: text("hash"),
-    provider: jsonb("provider").$type<ProviderProductMap>().notNull().default({}),
+    stripeProductId: text("stripe_product_id"),
+    stripePriceId: text("stripe_price_id"),
     createdAt,
     updatedAt,
   },
   (table) => [
     uniqueIndex("paykit_product_id_version_unique").on(table.id, table.version),
     index("paykit_product_default_idx").on(table.isDefault),
+    index("paykit_product_stripe_product_idx").on(table.stripeProductId),
+    index("paykit_product_stripe_price_idx").on(table.stripePriceId),
   ],
 );
 
@@ -119,8 +131,8 @@ export const subscription = pgTable(
     productInternalId: text("product_internal_id")
       .notNull()
       .references(() => product.internalId),
-    providerId: text("provider_id"),
-    providerData: jsonb("provider_data").$type<Record<string, unknown> | null>(),
+    stripeSubscriptionId: text("stripe_subscription_id"),
+    stripeSubscriptionScheduleId: text("stripe_subscription_schedule_id"),
     status: text("status").notNull(),
     canceled: boolean("canceled").notNull().default(false),
     cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
@@ -142,7 +154,8 @@ export const subscription = pgTable(
       table.endedAt,
     ),
     index("paykit_subscription_product_idx").on(table.productInternalId),
-    index("paykit_subscription_provider_idx").on(table.providerId),
+    index("paykit_subscription_stripe_subscription_idx").on(table.stripeSubscriptionId),
+    index("paykit_subscription_stripe_schedule_idx").on(table.stripeSubscriptionScheduleId),
   ],
 );
 
@@ -184,8 +197,9 @@ export const invoice = pgTable(
     currency: text("currency").notNull(),
     description: text("description"),
     hostedUrl: text("hosted_url"),
-    providerId: text("provider_id").notNull(),
-    providerData: jsonb("provider_data").$type<Record<string, unknown>>().notNull(),
+    stripeInvoiceId: text("stripe_invoice_id"),
+    stripePaymentId: text("stripe_payment_id"),
+    stripePaymentMethodId: text("stripe_payment_method_id"),
     periodStartAt: timestamp("period_start_at"),
     periodEndAt: timestamp("period_end_at"),
     createdAt,
@@ -194,7 +208,8 @@ export const invoice = pgTable(
   (table) => [
     index("paykit_invoice_customer_idx").on(table.customerId, table.createdAt),
     index("paykit_invoice_subscription_idx").on(table.subscriptionId),
-    index("paykit_invoice_provider_idx").on(table.providerId),
+    index("paykit_invoice_stripe_invoice_idx").on(table.stripeInvoiceId),
+    index("paykit_invoice_stripe_payment_idx").on(table.stripePaymentId),
   ],
 );
 
@@ -202,18 +217,14 @@ export const metadata = pgTable(
   "metadata",
   {
     id: text("id").primaryKey(),
-    providerId: text("provider_id").notNull(),
     type: text("type").notNull(),
     data: jsonb("data").$type<Record<string, unknown>>().notNull(),
-    providerCheckoutSessionId: text("provider_checkout_session_id"),
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
     expiresAt: timestamp("expires_at"),
     createdAt,
   },
   (table) => [
-    uniqueIndex("paykit_metadata_checkout_session_unique").on(
-      table.providerId,
-      table.providerCheckoutSessionId,
-    ),
+    uniqueIndex("paykit_metadata_stripe_checkout_session_unique").on(table.stripeCheckoutSessionId),
   ],
 );
 
@@ -221,8 +232,7 @@ export const webhookEvent = pgTable(
   "webhook_event",
   {
     id: text("id").primaryKey(),
-    providerId: text("provider_id").notNull(),
-    providerEventId: text("provider_event_id").notNull(),
+    stripeEventId: text("stripe_event_id").notNull(),
     type: text("type").notNull(),
     payload: jsonb("payload").$type<Record<string, unknown>>().notNull(),
     status: text("status").notNull(),
@@ -232,7 +242,7 @@ export const webhookEvent = pgTable(
     processedAt: timestamp("processed_at"),
   },
   (table) => [
-    uniqueIndex("paykit_webhook_event_provider_unique").on(table.providerId, table.providerEventId),
-    index("paykit_webhook_event_status_idx").on(table.providerId, table.status),
+    uniqueIndex("paykit_webhook_event_stripe_event_id_unique").on(table.stripeEventId),
+    index("paykit_webhook_event_stripe_status_idx").on(table.status),
   ],
 );

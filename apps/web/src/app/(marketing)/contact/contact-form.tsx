@@ -1,8 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Loader2 } from "lucide-react";
 import { useActionState } from "react";
+import { RiCheckLine, RiLoader4Line } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,7 @@ export function ContactForm() {
           className="flex flex-col items-center gap-3 py-12 text-center"
         >
           <div className="bg-foreground/[0.05] flex size-10 items-center justify-center rounded-full">
-            <Check className="text-foreground/60 size-5" />
+            <RiCheckLine className="text-foreground/60 size-5" />
           </div>
           <p className="text-foreground/80 text-base font-medium">We received your message.</p>
           <p className="text-foreground/45 text-sm">We will get back to you as soon as possible.</p>
@@ -87,7 +87,7 @@ export function ContactForm() {
           {state?.error && <p className="text-destructive text-sm">{state.error}</p>}
 
           <Button type="submit" size="lg" disabled={pending} className="w-full">
-            {pending ? <Loader2 className="size-4 animate-spin" /> : "Get in touch"}
+            {pending ? <RiLoader4Line className="size-4 animate-spin" /> : "Get in touch"}
           </Button>
         </motion.form>
       )}

@@ -1,28 +1,30 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
+import type { ComponentProps } from "react";
+import { RiMoonLine, RiSunLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { useThemeTransition } from "@/components/use-theme-transition";
+import { cn } from "@/lib/utils";
 
-export function ThemeSwitcher() {
-  const { activeTheme, mounted, toggleLabel, toggleTheme } = useThemeTransition();
-  const buttonTheme = mounted ? activeTheme : "light";
+export function ThemeSwitcher({
+  className,
+  size = "icon",
+  variant = "ghost",
+}: Pick<ComponentProps<typeof Button>, "className" | "size" | "variant">) {
+  const { toggleLabel, toggleTheme } = useThemeTransition();
 
   return (
     <Button
-      variant="ghost"
-      size="icon"
-      className="text-fd-muted-foreground hover:text-fd-accent-foreground"
+      variant={variant}
+      size={size}
+      className={cn(className)}
       onClick={toggleTheme}
       aria-label={toggleLabel}
       suppressHydrationWarning
     >
-      {buttonTheme === "dark" ? (
-        <Moon className="size-4.5 text-current" suppressHydrationWarning />
-      ) : (
-        <Sun className="size-4.5 text-current" suppressHydrationWarning />
-      )}
+      <RiSunLine className="hidden text-current dark:hidden [html.light_&]:block" />
+      <RiMoonLine className="hidden text-current [html.dark_&]:block" />
       <span className="sr-only" suppressHydrationWarning>
         {toggleLabel}
       </span>

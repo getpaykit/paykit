@@ -24,7 +24,7 @@ const dynamicImport = new Function("specifier", "return import(specifier)") as (
   specifier: string,
 ) => Promise<unknown>;
 
-async function runDevChecks(ctx: PayKitContext, pool: Pool): Promise<void> {
+async function runDevChecks(ctx: PayKitContext): Promise<void> {
   if (_global.__paykitDevChecksRan) return;
   _global.__paykitDevChecksRan = true;
   if (process.env.PAYKIT_DISABLE_DEPENDENCY_CHECKER !== "1") {
@@ -37,13 +37,6 @@ async function runDevChecks(ctx: PayKitContext, pool: Pool): Promise<void> {
   }
 
   await Promise.allSettled([
-    getPendingMigrationCount(pool).then((count) => {
-      if (count > 0) {
-        console.warn(
-          `${picocolors.yellow("[paykit]")} ${count} pending migration${count === 1 ? "" : "s"}. Run ${picocolors.bold("paykitjs push")} to apply.`,
-        );
-      }
-    }),
     dryRunSyncProducts(ctx).then((results) => {
       const outOfSync = results.filter((r) => r.action !== "unchanged");
       if (outOfSync.length > 0) {
@@ -55,6 +48,15 @@ async function runDevChecks(ctx: PayKitContext, pool: Pool): Promise<void> {
   ]);
 }
 
+async function assertNoPendingMigrations(pool: Pool): Promise<void> {
+  const count = await getPendingMigrationCount(pool);
+  if (count > 0) {
+    throw new Error(
+      `${picocolors.yellow("[paykit]")} ${count} pending migration${count === 1 ? "" : "s"}. Run ${picocolors.bold("paykitjs push")} before starting your app.`,
+    );
+  }
+}
+
 async function initContext(options: PayKitOptions): Promise<PayKitContext> {
   assertValidPayKitOptions(options);
 
@@ -62,10 +64,15 @@ async function initContext(options: PayKitOptions): Promise<PayKitContext> {
     typeof options.database === "string"
       ? new Pool({ connectionString: options.database })
       : options.database;
+
+  if (process.env.NODE_ENV !== "production" && !process.env.PAYKIT_CLI) {
+    await assertNoPendingMigrations(pool);
+  }
+
   const ctx = await createContext({ ...options, database: pool });
 
   if (process.env.NODE_ENV !== "production" && !process.env.PAYKIT_CLI) {
-    runDevChecks(ctx, pool).catch(() => {});
+    runDevChecks(ctx).catch(() => {});
   }
 
   return ctx;
@@ -76,7 +83,10 @@ export function createPayKit<const TOptions extends PayKitOptions>(
 ): PayKitInstance<TOptions> {
   let contextPromise: Promise<PayKitContext> | undefined;
   const getContext = () => {
-    contextPromise ??= initContext(options);
+    if (!contextPromise) {
+      contextPromise = initContext(options);
+      contextPromise.catch(() => {});
+    }
     return contextPromise;
   };
 

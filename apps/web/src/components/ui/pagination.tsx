@@ -1,9 +1,13 @@
-import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from "lucide-react";
 import * as React from "react";
+import { RiArrowLeftSLine, RiArrowRightSLine, RiMoreLine } from "react-icons/ri";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+/** Pagination navigation landmark.
+ *
+ * @param props - Standard nav props.
+ */
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
     <nav
@@ -16,6 +20,7 @@ function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   );
 }
 
+/** List container for pagination items. */
 function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) {
   return (
     <ul
@@ -26,6 +31,7 @@ function PaginationContent({ className, ...props }: React.ComponentProps<"ul">) 
   );
 }
 
+/** Individual pagination list item. */
 function PaginationItem({ ...props }: React.ComponentProps<"li">) {
   return <li data-slot="pagination-item" {...props} />;
 }
@@ -35,6 +41,10 @@ type PaginationLinkProps = {
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
   React.ComponentProps<"a">;
 
+/** Pagination link rendered through Button.
+ *
+ * @param props - Link props plus `isActive` and optional Button `size`.
+ */
 function PaginationLink({ className, isActive, size = "icon", ...props }: PaginationLinkProps) {
   return (
     <Button
@@ -54,6 +64,7 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
   );
 }
 
+/** Previous-page pagination link with accessible label. */
 function PaginationPrevious({
   className,
   text = "Previous",
@@ -66,12 +77,13 @@ function PaginationPrevious({
       className={cn("pl-1.5!", className)}
       {...props}
     >
-      <ChevronLeftIcon data-icon="inline-start" />
+      <RiArrowLeftSLine data-icon="inline-start" />
       <span className="hidden sm:block">{text}</span>
     </PaginationLink>
   );
 }
 
+/** Next-page pagination link with accessible label. */
 function PaginationNext({
   className,
   text = "Next",
@@ -85,11 +97,12 @@ function PaginationNext({
       {...props}
     >
       <span className="hidden sm:block">{text}</span>
-      <ChevronRightIcon data-icon="inline-end" />
+      <RiArrowRightSLine data-icon="inline-end" />
     </PaginationLink>
   );
 }
 
+/** Non-interactive pagination ellipsis hidden from assistive tech. */
 function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span">) {
   return (
     <span
@@ -101,7 +114,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
       )}
       {...props}
     >
-      <MoreHorizontalIcon />
+      <RiMoreLine />
       <span className="sr-only">More pages</span>
     </span>
   );
