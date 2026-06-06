@@ -6,7 +6,7 @@ import { PageTransition } from "@/components/layout/page-transition";
 export default function MarketingLayout({ children }: { children: ReactNode }) {
   return (
     <div className="bg-background text-foreground min-h-dvh overflow-x-hidden">
-      <NavigationBar stars={null} />
+      <NavigationBar />
       <main>
         <PageTransition>{children}</PageTransition>
       </main>

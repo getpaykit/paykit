@@ -12,8 +12,6 @@ import { Button } from "@/components/ui/button";
 import { BrandMenu } from "@/components/web/brand-menu";
 import { URLs } from "@/lib/consts";
 
-// ─── Shared nav link ─────────────────────────────────────────────────
-
 interface NavItem {
   name: string;
   href: string;
@@ -48,8 +46,6 @@ function NavLink({
   );
 }
 
-// ─── Data ────────────────────────────────────────────────────────────
-
 const navTabs: NavItem[] = [
   { name: "docs", href: "/docs", path: "/docs" },
   { name: "blog", href: "/blog", path: "/blog" },
@@ -83,8 +79,6 @@ const mobileLinks: NavItem[] = [
   ...dropdownLinks.map((l) => ({ ...l, name: l.name.toLowerCase() })),
 ];
 
-// ─── Tab styles ──────────────────────────────────────────────────────
-
 const tabBase =
   "group/tab relative flex h-full items-center justify-center gap-1.5 px-4 py-3.5 transition-colors duration-150";
 const tabActive = "bg-background";
@@ -93,9 +87,7 @@ const tabInactive =
 const labelBase =
   "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
 
-// ─── Component ───────────────────────────────────────────────────────
-
-export function NavigationBar({ stars: _stars }: { stars: number | null }) {
+export function NavigationBar({ stars }: { stars?: number | null }) {
   const routerPathname = usePathname();
   const [pathname, setPathname] = useState("/");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -246,7 +238,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                   className="px-2 -mr-2"
                 >
                   <Icons.GitHubIcon className="size-4.5" />
-                  <span className="font-sans text-sm">1k</span>
+                  <span className="font-sans text-sm">{stars ?? "1k"}</span>
                 </Button>
               </div>
             </div>

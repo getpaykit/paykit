@@ -2,11 +2,21 @@ import type { PackageManager } from "@/components/docs/package-manager-state";
 
 type CommandKind = "install" | "dlx" | "create" | "run";
 
+/** Parsed package-manager command metadata. */
 export interface PackageCommand {
+  /** Command category parsed from a shell snippet. */
   kind: CommandKind;
+  /** Arguments after the package-manager command prefix. */
   args: string;
 }
 
+/**
+ * Formats a parsed command for the selected package manager.
+ *
+ * @param command - Parsed package command.
+ * @param manager - Target package manager.
+ * @returns Shell command for npm, yarn, bun, or pnpm. `dlx` defaults to pnpm.
+ */
 export function commandForManager(command: PackageCommand, manager: PackageManager): string {
   switch (command.kind) {
     case "install":

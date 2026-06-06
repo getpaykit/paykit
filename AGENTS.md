@@ -23,9 +23,10 @@ APIs.
 
 ## References
 
-If need to inspect source code of libraries or packages, prefer inspected clonned source repo while exists, instead of inspecting library dist.
+If you need to inspect source code of libraries or packages, prefer inspecting
+cloned source repositories when available, rather than library dist files.
 
-those directories already contain the source checkout of some packages:
+These directories already contain source checkouts for some packages:
 
 - `~/ref/fumadocs` - fumadocs framework / package.
 

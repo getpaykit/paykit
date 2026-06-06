@@ -54,7 +54,14 @@ function Strong({ className, ...props }: ComponentPropsWithoutRef<"strong">) {
 }
 
 function getHeadingId(children: ComponentPropsWithoutRef<"h2">["children"]) {
-  return children?.toString().replace(/ /g, "-").replace(/'/g, "").replace(/\?/g, "").toLowerCase();
+  return (
+    children
+      ?.toString()
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-") || "heading"
+  );
 }
 
 function Heading1({ className, children, ...props }: ComponentPropsWithoutRef<"h1">) {
@@ -72,7 +79,8 @@ function Heading1({ className, children, ...props }: ComponentPropsWithoutRef<"h
 }
 
 function Heading2({ className, ...props }: ComponentPropsWithoutRef<"h2">) {
-  const headingId = getHeadingId(props.children);
+  // Preserve Fumadocs-generated IDs so TOC active tracking stays in sync.
+  const headingId = typeof props.id === "string" ? props.id : getHeadingId(props.children);
 
   return (
     <a
@@ -259,6 +267,10 @@ function Card({
   );
 }
 
+/** MDX component overrides used by documentation pages. Maps standard MDX
+ * elements to styled React components and exposes docs-only components such as
+ * Callout, Card, Tabs, Steps, and Features. Public API for MDX rendering.
+ */
 export const docsMdxComponents = {
   pre: PackageCommandPre,
   h1: Heading1,

@@ -75,7 +75,7 @@ export function FeedbackSection() {
           {columns.map((column, columnIndex) => (
             <div key={columnIndex} className="flex min-h-full flex-col bg-background">
               {column.map((tweet) => (
-                <TweetCard key={`${tweet.handle}-${tweet.text}`} tweet={tweet} />
+                <TweetCard key={tweet.link} tweet={tweet} />
               ))}
             </div>
           ))}

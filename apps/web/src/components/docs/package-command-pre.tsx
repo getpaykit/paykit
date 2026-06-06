@@ -1,20 +1,12 @@
 import { highlight } from "fumadocs-core/highlight";
 import type { ComponentProps, ReactNode } from "react";
-import { isValidElement } from "react";
 
 import { DocsCodeSurface } from "@/components/docs/docs-code-surface";
 import { DefaultPre, PackageManagerCommandBlock } from "@/components/docs/package-command";
 import { commandForManager, type PackageCommand } from "@/components/docs/package-command-utils";
 import { packageManagers, type PackageManager } from "@/components/docs/package-manager-state";
+import { extractText } from "@/components/docs/react-node-text";
 import { shikiHighlightOptions } from "@/lib/shiki-themes";
-
-function extractText(node: ReactNode): string {
-  if (node === null || node === undefined || typeof node === "boolean") return "";
-  if (typeof node === "string" || typeof node === "number") return String(node);
-  if (Array.isArray(node)) return node.map(extractText).join("");
-  if (isValidElement<{ children?: ReactNode }>(node)) return extractText(node.props.children);
-  return "";
-}
 
 function normalizeCommand(value: string): string {
   return value.replace(/\n+$/, "").trim();
@@ -57,6 +49,16 @@ async function highlightShellCommand(command: string) {
   });
 }
 
+/**
+ * Renders docs code fences, upgrading single-line shell package commands.
+ *
+ * Normalizes/extracts text, parses supported package-manager commands, checks
+ * the code fence language, asynchronously highlights each manager variant, and
+ * renders either `PackageManagerCommandBlock` or `DefaultPre`.
+ *
+ * @param props - Pre props plus optional `data-language` from the code fence.
+ * @returns Highlighted package command block or the default pre element.
+ */
 export async function PackageCommandPre(
   props: ComponentProps<"pre"> & { "data-language"?: string },
 ) {

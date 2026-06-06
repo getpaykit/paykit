@@ -29,6 +29,10 @@ export interface MdxTabsProps extends Omit<TabsPrimitive.Root.Props, "value" | "
   label?: ReactNode;
 }
 
+/** Root tabs component for MDX content.
+ *
+ * Supports controlled selection via `items`, `defaultIndex`, `defaultValue`, and optional `label`.
+ */
 export function MdxTabs({
   className,
   items,
@@ -47,7 +51,14 @@ export function MdxTabs({
       data-slot="tabs"
       value={value}
       onValueChange={(nextValue) => {
-        if (items && !items.includes(nextValue)) return;
+        if (items && !items.includes(nextValue)) {
+          if (process.env.NODE_ENV !== "production") {
+            console.warn(
+              `Ignoring unknown MDX tab value "${nextValue}". Expected one of: ${items.join(", ")}.`,
+            );
+          }
+          return;
+        }
         setValue(nextValue);
       }}
       {...props}
@@ -67,6 +78,7 @@ export function MdxTabs({
   );
 }
 
+/** Tab list container with the active-tab indicator. */
 export function MdxTabsList({
   indicatorClassName,
   className,
@@ -99,6 +111,10 @@ export function MdxTabsList({
   );
 }
 
+/** Individual MDX tab trigger.
+ *
+ * Pass `value` to connect the trigger to a matching panel.
+ */
 export function MdxTabsTab({ className, ...props }: TabsPrimitive.Tab.Props) {
   return (
     <TabsPrimitive.Tab
@@ -115,6 +131,7 @@ export function MdxTabsTab({ className, ...props }: TabsPrimitive.Tab.Props) {
   );
 }
 
+/** Content panel for an MDX tab value. */
 export function MdxTabsPanel({ className, ...props }: TabsPrimitive.Panel.Props) {
   return (
     <TabsPrimitive.Panel
@@ -128,6 +145,10 @@ export function MdxTabsPanel({ className, ...props }: TabsPrimitive.Panel.Props)
   );
 }
 
+/** Convenience tab panel that resolves `value` from props or tab context.
+ *
+ * @throws If no tab value can be resolved.
+ */
 export function MdxTab({ value, ...props }: ComponentProps<typeof MdxTabsPanel>) {
   const context = useContext(MdxTabsContext);
   const resolvedValue = value ?? context?.items?.[0];

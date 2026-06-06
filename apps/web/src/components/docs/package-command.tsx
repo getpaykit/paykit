@@ -4,7 +4,6 @@ import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
 import type { ComponentProps, ReactNode, SVGProps } from "react";
 import {
   createContext,
-  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -22,6 +21,7 @@ import {
   packageManagers,
   type PackageManager,
 } from "@/components/docs/package-manager-state";
+import { extractText } from "@/components/docs/react-node-text";
 import { buttonVariants } from "@/components/ui/button";
 import { useCopyButton } from "@/components/ui/use-copy-button";
 import { cn } from "@/lib/utils";
@@ -33,15 +33,12 @@ const packageManagerListeners = new Set<PackageManagerListener>();
 const PackageManagerContext = createContext<PackageManager>(fallbackPackageManager);
 
 function readStoredManager(): PackageManager | null {
-  const storedValue =
-    sessionStorage.getItem(packageManagerStorageKey) ??
-    localStorage.getItem(packageManagerStorageKey);
+  const storedValue = localStorage.getItem(packageManagerStorageKey);
 
   return isPackageManager(storedValue) ? storedValue : null;
 }
 
 function setStoredManager(value: PackageManager) {
-  sessionStorage.setItem(packageManagerStorageKey, value);
   localStorage.setItem(packageManagerStorageKey, value);
 
   for (const listener of packageManagerListeners) {
@@ -171,14 +168,6 @@ function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props) {
       {...props}
     />
   );
-}
-
-function extractText(node: ReactNode): string {
-  if (node === null || node === undefined || typeof node === "boolean") return "";
-  if (typeof node === "string" || typeof node === "number") return String(node);
-  if (Array.isArray(node)) return node.map(extractText).join("");
-  if (isValidElement<{ children?: ReactNode }>(node)) return extractText(node.props.children);
-  return "";
 }
 
 function cleanCopyText(value: string): string {

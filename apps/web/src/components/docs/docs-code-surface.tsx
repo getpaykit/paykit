@@ -2,6 +2,13 @@ import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
+/**
+ * Renders the styled `<pre>` wrapper used by docs code blocks.
+ *
+ * @param props - Standard pre props, including `className` and `tabIndex`.
+ * Remaining props are spread onto the `<pre>` element. Defaults `tabIndex` to
+ * `0` when undefined so code blocks are keyboard focusable.
+ */
 export function DocsCodeSurface({ className, tabIndex, ...props }: ComponentProps<"pre">) {
   return (
     <pre
