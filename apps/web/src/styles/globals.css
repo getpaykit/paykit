@@ -283,7 +283,7 @@
   }
 
   html {
-    @apply overflow-x-hidden;
+    @apply overflow-x-hidden overflow-y-scroll;
     max-width: 100vw;
   }
 
