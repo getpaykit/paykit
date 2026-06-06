@@ -9,7 +9,8 @@ const codeBlockOverrides = {
     "border-0 my-0 h-full w-full min-w-0 shadow-none bg-card! [&_div]:bg-card! max-sm:[&_.line::after]:!hidden max-sm:[&_.line]:!pl-3 sm:[&_.line::after]:w-4 sm:[&_.line::after]:text-right sm:[&_.line::after]:left-2",
   keepBackground: false,
   viewportProps: {
-    className: "h-full w-full min-w-0 overflow-auto max-h-none",
+    className:
+      "h-full w-full min-w-0 overflow-x-auto overflow-y-hidden overscroll-x-none max-h-none",
   },
 } as const;
 
@@ -22,7 +23,7 @@ export function HeroSection() {
             <HeroTitle />
           </div>
 
-          <div className="flex w-full justify-center lg:min-w-0 lg:basis-[55%] lg:justify-end">
+          <div className="flex w-full justify-center lg:min-w-0 lg:basis-[57%] lg:justify-end">
             <HeroCodeBlock
               plansCodeBlock={
                 <CodeBlockContent
