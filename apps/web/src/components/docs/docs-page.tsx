@@ -5,11 +5,12 @@ import { usePathname } from "fumadocs-core/framework";
 import Link from "fumadocs-core/link";
 import type * as PageTree from "fumadocs-core/page-tree";
 import { useTreeContext, useTreePath } from "fumadocs-ui/contexts/tree";
-import { TOC, TOCProvider, type TOCProviderProps } from "fumadocs-ui/layouts/docs/page/slots/toc";
+import { TOCProvider, type TOCProviderProps } from "fumadocs-ui/layouts/docs/page/slots/toc";
 import type { ComponentProps, ReactNode } from "react";
 import { Fragment, useMemo } from "react";
 import { RiArrowLeftSLine, RiArrowRightSLine } from "react-icons/ri";
 
+import { DocsToc } from "@/components/docs/docs-toc";
 import { cn } from "@/lib/utils";
 
 const tocWidthClassName = "xl:layout:[--fd-toc-width:250px]";
@@ -48,7 +49,7 @@ export function DocsPage({
         {children}
         {footer && <DocsFooter />}
       </article>
-      {hasToc && <DocsToc footer={tocFooter} />}
+      {hasToc && <DocsTocLayout footer={tocFooter} />}
     </TOCProvider>
   );
 }
@@ -88,8 +89,8 @@ export function DocsBody({ children, className, ...props }: ComponentProps<"div"
   );
 }
 
-function DocsToc({ footer }: { footer?: ReactNode }) {
-  return <TOC container={{ className: cn("pt-14", tocWidthClassName) }} footer={footer} />;
+function DocsTocLayout({ footer }: { footer?: ReactNode }) {
+  return <DocsToc className={tocWidthClassName} footer={footer} />;
 }
 
 function DocsTocLayoutMarker() {
