@@ -21,10 +21,25 @@ APIs.
 - Keep JSDoc strings short and useful
 - while writing JSDoc follow it's standards, such as tags
 
+## References
+
+If you need to inspect source code of libraries or packages, prefer inspecting
+cloned source repositories when available, rather than library dist files.
+
+These directories already contain source checkouts for some packages:
+
+- `~/ref/fumadocs` - fumadocs framework / package.
+
 ## Behavior
 
 - When asked opinion questions, answer only. Do not edit code unless explicitly asked.
 - Never commit, push, or run database migrations unless explicitly asked.
+- Never create a partial commit from files that also contain unstaged changes.
+  If a requested commit overlaps dirty files, either commit the full intended
+  change or stop and ask. Do not rely on hooks stashing/hiding unstaged changes.
+- If a commit hook fails while hiding or restoring unstaged changes, stop
+  immediately and recover the user's unstaged work before retrying or committing
+  anything.
 - When generating migrations, always provide a name.
 - Never edit past migrations; create a new migration instead.
 - Never run "deploy" scripts to test anything, only if explicitly asked

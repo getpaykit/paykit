@@ -21,7 +21,7 @@ export function SectionLine({ orientation }: { orientation: "horizontal" | "vert
 
 export function SectionShell({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <div className={cn("relative mx-auto max-w-[76rem]", sectionShellWidth, className)}>
+    <div className={cn("relative mx-auto max-w-[72rem]", sectionShellWidth, className)}>
       <SectionLine orientation="vertical" />
       <div className="absolute top-0 right-0 h-full">
         <SectionLine orientation="vertical" />
@@ -45,7 +45,7 @@ export function Section({
   return (
     <SectionShell className={className}>
       {!last && (
-        <div className="absolute bottom-0 left-1/2 w-screen -translate-x-1/2">
+        <div className="absolute bottom-0 left-0 h-px w-full">
           <SectionLine orientation="horizontal" />
         </div>
       )}
@@ -66,11 +66,11 @@ export function SectionContent({
   return <div className={cn("px-5 py-8 sm:px-8 sm:py-10 lg:p-12", className)}>{children}</div>;
 }
 
-// ─── SectionSeparator (full viewport-width solid line) ───────────────
+// ─── SectionSeparator ────────────────────────────────────────────────
 
 export function SectionSeparator() {
   return (
-    <div className="relative left-1/2 h-px w-screen -translate-x-1/2">
+    <div className="relative h-px w-full">
       <SectionLine orientation="horizontal" />
     </div>
   );

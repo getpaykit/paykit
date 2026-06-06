@@ -1,5 +1,5 @@
 "use client";
-import { Check, Copy } from "lucide-react";
+
 import type {
   ButtonHTMLAttributes,
   ComponentProps,
@@ -9,6 +9,7 @@ import type {
   RefObject,
 } from "react";
 import { createContext, forwardRef, useCallback, useContext, useMemo, useRef } from "react";
+import { RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -93,7 +94,7 @@ export function CodeBlock({
   const areaRef = useRef<HTMLDivElement>(null);
   allowCopy ??= !isTab;
   const bg = cn(
-    "bg-fd-secondary",
+    "bg-secondary",
     keepBackground && "bg-(--shiki-light-bg) dark:bg-(--shiki-dark-bg)",
   );
   const onCopy = useCallback(() => {
@@ -111,15 +112,15 @@ export function CodeBlock({
       dir="ltr"
       {...props}
       className={cn(
-        isTab ? [bg, "rounded-lg"] : "my-4 rounded-lg bg-fd-card",
-        "group shiki relative border shadow-sm outline-none not-prose overflow-hidden text-sm",
+        isTab ? [bg, "rounded-lg"] : "my-4 rounded-lg bg-card",
+        "group shiki relative overflow-hidden border text-sm shadow-sm outline-none",
         props.className,
       )}
     >
       {title ? (
         <div
           className={cn(
-            "group flex text-fd-muted-foreground items-center gap-2 ps-3 h-9.5 pr-1 bg-fd-muted",
+            "group flex h-9.5 items-center gap-2 bg-muted ps-3 pr-1 text-muted-foreground",
             isTab && "border-b",
           )}
         >
@@ -140,7 +141,7 @@ export function CodeBlock({
         </div>
       ) : (
         Actions({
-          className: "absolute top-1 right-1 z-2 text-fd-muted-foreground",
+          className: "absolute top-1 right-1 z-2 text-muted-foreground",
           children: allowCopy && <CopyButton onCopy={onCopy} />,
         })
       )}
@@ -149,7 +150,7 @@ export function CodeBlock({
         {...viewportProps}
         className={cn(
           !isTab && [bg, "rounded-none border border-x-0 border-b-0"],
-          "text-sm overflow-auto max-h-[600px] bg-fd-muted/50 fd-scroll-container",
+          "max-h-[600px] overflow-auto bg-muted/50 text-sm",
           viewportProps.className,
           !title && "border-t-0",
         )}
@@ -195,8 +196,10 @@ function CopyButton({
       onClick={onClick}
       {...props}
     >
-      <Check className={cn("size-3.5 transition-transform", !checked && "scale-0")} />
-      <Copy className={cn("absolute size-3.5 transition-transform", checked && "scale-0")} />
+      <RiCheckLine className={cn("size-3.5 transition-transform", !checked && "scale-0")} />
+      <RiFileCopyLine
+        className={cn("absolute size-3.5 transition-transform", checked && "scale-0")}
+      />
     </button>
   );
 }
@@ -209,7 +212,7 @@ export function CodeBlockTabs({ ref, ...props }: ComponentProps<typeof Tabs>) {
       ref={mergeRefs(containerRef, ref)}
       {...props}
       className={cn(
-        "bg-fd-card p-1 rounded-lg border overflow-hidden",
+        "overflow-hidden rounded-lg border bg-card p-1",
         !nested && "my-4",
         props.className,
       )}
@@ -233,7 +236,7 @@ export function CodeBlockTabsList(props: ComponentProps<typeof TabsList>) {
     <TabsList
       {...props}
       className={cn(
-        "flex flex-row overflow-x-auto px-1 -mx-1 text-fd-muted-foreground",
+        "flex flex-row overflow-x-auto px-1 -mx-1 text-muted-foreground",
         props.className,
       )}
     >
@@ -247,11 +250,11 @@ export function CodeBlockTabsTrigger({ children, ...props }: ComponentProps<type
     <TabsTrigger
       {...props}
       className={cn(
-        "relative group inline-flex text-sm font-medium text-nowrap items-center transition-colors gap-2 px-2 first:ms-1 py-1.5 hover:text-fd-accent-foreground data-[state=active]:text-fd-primary [&_svg]:size-3.5",
+        "group relative inline-flex items-center gap-2 px-2 py-1.5 text-sm font-medium text-nowrap transition-colors first:ms-1 hover:text-accent-foreground data-[state=active]:text-primary [&_svg]:size-3.5",
         props.className,
       )}
     >
-      <div className="group-data-[state=active]:bg-fd-primary absolute inset-x-2 bottom-0 h-px" />
+      <div className="absolute inset-x-2 bottom-0 h-px group-data-[state=active]:bg-primary" />
       {children}
     </TabsTrigger>
   );
@@ -281,16 +284,16 @@ export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
         ref={ref}
         {...props}
         className={cn(
-          "not-prose group fd-codeblock relative my-6 overflow-hidden rounded-lg border bg-fd-secondary/50 text-sm",
+          "group relative my-6 overflow-hidden rounded-lg border bg-secondary/50 text-sm",
           keepBackground && "bg-[var(--shiki-light-bg)] dark:bg-[var(--shiki-dark-bg)]",
           props.className,
         )}
       >
         {title ? (
-          <div className="bg-fd-muted flex flex-row items-center gap-2 border-b px-4 py-1.5">
+          <div className="flex flex-row items-center gap-2 border-b bg-muted px-4 py-1.5">
             {icon ? (
               <div
-                className="text-fd-muted-foreground [&_svg]:size-3.5"
+                className="text-muted-foreground [&_svg]:size-3.5"
                 dangerouslySetInnerHTML={
                   typeof icon === "string"
                     ? {
@@ -302,7 +305,7 @@ export const CodeBlockOld = forwardRef<HTMLElement, CodeBlockProps>(
                 {typeof icon !== "string" ? icon : null}
               </div>
             ) : null}
-            <figcaption className="text-fd-muted-foreground flex-1 truncate">{title}</figcaption>
+            <figcaption className="flex-1 truncate text-muted-foreground">{title}</figcaption>
             {allowCopy ? <CopyButton className="-me-2" onCopy={onCopy} /> : null}
           </div>
         ) : (

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { URLs } from "@/lib/consts";
 
-const progressValue = 15;
+const progressValue = 65;
 
 export function TocFooter() {
   return (

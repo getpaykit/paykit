@@ -7,6 +7,11 @@ import { Toaster } from "sonner";
 export function Providers({ children }: { children: ReactNode }) {
   return (
     <RootProvider
+      search={{
+        options: {
+          api: "/api/search",
+        },
+      }}
       theme={{
         attribute: "class",
         enableSystem: true,

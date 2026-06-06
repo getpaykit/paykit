@@ -1,23 +1,23 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, ExternalLink, Github, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { RiArrowDownSLine, RiCloseLine, RiExternalLinkLine, RiMenuLine } from "react-icons/ri";
 
+import { Icons } from "@/components/icons";
 import { SectionShell } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { BrandMenu } from "@/components/web/brand-menu";
 import { URLs } from "@/lib/consts";
-
-// ─── Shared nav link ─────────────────────────────────────────────────
 
 interface NavItem {
   name: string;
   href: string;
   path?: string;
   external?: boolean;
+  icon?: React.ReactNode;
 }
 
 function NavLink({
@@ -46,19 +46,32 @@ function NavLink({
   );
 }
 
-// ─── Data ────────────────────────────────────────────────────────────
-
 const navTabs: NavItem[] = [
-  { name: "readme", href: "/" },
   { name: "docs", href: "/docs", path: "/docs" },
+  { name: "blog", href: "/blog", path: "/blog" },
+  { name: "sponsors", href: "/sponsor", path: "/sponsor" },
 ];
 
 const dropdownLinks: NavItem[] = [
-  { name: "Discord", href: URLs.discord, external: true },
-  { name: "Twitter / X", href: URLs.x, external: true },
-  { name: "LinkedIn", href: URLs.linkedin, external: true },
-  { name: "Donate", href: "/donate", external: true },
-  { name: "llms.txt", href: "/llms.txt", external: true },
+  {
+    name: "Discord",
+    href: URLs.discord,
+    external: true,
+    icon: <Icons.DiscordIcon className="size-4" />,
+  },
+  { name: "Twitter / X", href: URLs.x, external: true, icon: <Icons.XIcon className="size-3.5" /> },
+  {
+    name: "LinkedIn",
+    href: URLs.linkedin,
+    external: true,
+    icon: <Icons.LinkedInIcon className="size-3.5" />,
+  },
+  {
+    name: "llms.txt",
+    href: "/llms.txt",
+    external: true,
+    icon: <Icons.LlmsIcon className="size-4" />,
+  },
 ];
 
 const mobileLinks: NavItem[] = [
@@ -66,19 +79,15 @@ const mobileLinks: NavItem[] = [
   ...dropdownLinks.map((l) => ({ ...l, name: l.name.toLowerCase() })),
 ];
 
-// ─── Tab styles ──────────────────────────────────────────────────────
-
 const tabBase =
-  "group/tab relative flex h-full items-center justify-center gap-1.5 px-5.5 py-3.5 transition-colors duration-150";
-const tabActive = "bg-background border-b-2 border-b-foreground/60";
+  "group/tab relative flex h-full items-center justify-center gap-1.5 px-4 py-3.5 transition-colors duration-150";
+const tabActive = "bg-background";
 const tabInactive =
   "hover:bg-foreground/[0.03] bg-transparent text-foreground/60 dark:text-foreground/40 hover:text-foreground/70";
 const labelBase =
   "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
 
-// ─── Component ───────────────────────────────────────────────────────
-
-export function NavigationBar({ stars: _stars }: { stars: number | null }) {
+export function NavigationBar({ stars }: { stars?: number | null }) {
   const routerPathname = usePathname();
   const [pathname, setPathname] = useState("/");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -109,20 +118,22 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.28, ease: "easeOut" }}
-          className="bg-background border-border pointer-events-auto w-full border-b lg:hidden"
+          className="bg-background pointer-events-auto w-full lg:hidden"
         >
-          <SectionShell className="flex items-center justify-between">
-            <BrandMenu linkClassName="gap-1 px-5 py-3" wordmarkClassName="scale-95" />
-            <button
-              type="button"
-              aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
-              aria-controls="mobile-navigation-menu"
-              aria-expanded={mobileMenuOpen}
-              onClick={() => setMobileMenuOpen((prev) => !prev)}
-              className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-5 py-3 transition-colors"
-            >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+          <SectionShell className="border-border border-b">
+            <div className="flex h-11 w-full items-center justify-between px-5">
+              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <button
+                type="button"
+                aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
+                aria-controls="mobile-navigation-menu"
+                aria-expanded={mobileMenuOpen}
+                onClick={() => setMobileMenuOpen((prev) => !prev)}
+                className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 -mr-5.5 h-full px-5.5 transition-colors"
+              >
+                {mobileMenuOpen ? <RiCloseLine size={18} /> : <RiMenuLine size={18} />}
+              </button>
+            </div>
           </SectionShell>
         </motion.div>
 
@@ -131,12 +142,12 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           initial={{ y: -10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.28, delay: 0.04, ease: "easeOut" }}
-          className="bg-background border-border pointer-events-auto relative hidden w-full items-stretch justify-center border-b lg:flex"
+          className="bg-background pointer-events-auto relative hidden w-full items-stretch justify-center lg:flex"
         >
-          <SectionShell>
+          <SectionShell className="border-border border-b">
             <div className="flex h-12 items-center justify-between px-12">
               {/* Logo */}
-              <BrandMenu />
+              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
 
               {/* Center tabs */}
               <div className="absolute inset-0 flex items-stretch justify-center">
@@ -152,7 +163,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       >
                         <NavLink
                           item={item}
-                          className={`${tabBase} border-foreground/6 border-r ${active ? tabActive : tabInactive}`}
+                          className={`${tabBase} ${active ? tabActive : tabInactive}`}
                         >
                           <span className={`${labelBase} ${active ? "text-foreground" : ""}`}>
                             {item.name}
@@ -180,7 +191,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       className={`${tabBase} gap-1 ${linksOpen ? "text-foreground/70" : tabInactive}`}
                     >
                       <span className={`${labelBase}`}>links</span>
-                      <ChevronDown
+                      <RiArrowDownSLine
                         className={`size-3 transition-transform duration-150 ${linksOpen ? "rotate-180" : ""}`}
                       />
                     </button>
@@ -201,10 +212,13 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                               className="text-foreground/60 hover:text-foreground hover:bg-foreground/3 flex items-center justify-between px-4 py-2 text-sm transition-colors"
                               onClick={() => setLinksOpen(false)}
                             >
-                              {link.name}
-                              {link.external && (
-                                <ExternalLink className="text-foreground/20 size-3" />
-                              )}
+                              <span className="flex items-center gap-2.5">
+                                <span className="text-foreground/35 flex size-4 items-center justify-center">
+                                  {link.icon}
+                                </span>
+                                {link.name}
+                              </span>
+                              <RiExternalLinkLine className="text-foreground/20 size-3" />
                             </NavLink>
                           ))}
                         </motion.div>
@@ -215,15 +229,16 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
               </div>
 
               {/* Right */}
-              <div className="relative z-10 flex items-center gap-2">
+              <div className="relative z-10 flex items-center gap-0.">
                 <Button
                   render={<Link href={URLs.githubRepo} target="_blank" rel="noopener noreferrer" />}
                   nativeButton={false}
-                  variant={"outline"}
+                  variant="ghost"
                   size="sm"
+                  className="px-2 -mr-2"
                 >
-                  <Github className="size-3.5" />
-                  <span>GitHub</span>
+                  <Icons.GitHubIcon className="size-4.5" />
+                  <span className="font-sans text-sm">{stars ?? "1k"}</span>
                 </Button>
               </div>
             </div>
@@ -242,7 +257,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
             transition={{ duration: 0.15 }}
             className="bg-background/95 pointer-events-auto fixed inset-0 z-98 backdrop-blur-sm lg:hidden"
           >
-            <div className="flex h-full flex-col overflow-y-auto pt-13">
+            <div className="flex h-full flex-col overflow-y-auto pt-11">
               {mobileLinks.map((item, i) => (
                 <motion.div
                   key={item.name}
@@ -252,11 +267,16 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                 >
                   <NavLink
                     item={item}
-                    className={`border-foreground/6 flex items-center gap-2.5 border-b px-5 py-3.5 transition-colors ${
+                    className={`flex items-center gap-2.5 px-5 py-3.5 transition-colors ${
                       isActive(item.path || item.href) ? "bg-foreground/4" : "hover:bg-foreground/3"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >
+                    {item.icon && (
+                      <span className="text-foreground/35 dark:text-foreground/25 flex size-4 items-center justify-center">
+                        {item.icon}
+                      </span>
+                    )}
                     <span
                       className={`text-base tracking-wider uppercase ${
                         isActive(item.path || item.href)
@@ -267,7 +287,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
                       {item.name}
                     </span>
                     {item.external && (
-                      <ExternalLink className="text-foreground/35 dark:text-foreground/20 ml-auto size-3" />
+                      <RiExternalLinkLine className="text-foreground/35 dark:text-foreground/20 ml-auto size-3" />
                     )}
                   </NavLink>
                 </motion.div>

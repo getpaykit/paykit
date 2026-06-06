@@ -6,6 +6,8 @@ import { ImageResponse } from "next/og";
 
 import { source } from "@/lib/source";
 
+export const revalidate = false;
+
 export function generateStaticParams() {
   return source.generateParams();
 }

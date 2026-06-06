@@ -294,49 +294,47 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
 
   return (
     <Section>
-      <SectionContent>
+      <SectionContent className="relative border-b px-5 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
         <div className="max-w-lg space-y-2">
-          <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
+          <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
             How it works
           </h2>
-          <p className="text-foreground/45 text-sm leading-relaxed sm:text-base">
-            Click around the app below. Every interaction shows the PayKit code that runs and the
-            steps it orchestrates, in real time.
-          </p>
         </div>
+      </SectionContent>
 
+      <SectionContent className="px-5 py-6 sm:px-8 sm:py-8 lg:px-8 lg:py-8">
         <div
           ref={sectionRef}
-          className="mt-6 flex flex-col-reverse gap-2 md:flex-row md:items-stretch md:gap-4 lg:mt-12"
+          className="flex flex-col-reverse gap-2 md:flex-row md:items-stretch md:gap-4"
         >
-          <div className="border-foreground/[0.08] rounded-[10px] border p-[4px] md:w-1/2 lg:w-[73%]">
-            <DemoAppWindow
-              plan={plan}
-              downgradeScheduled={downgradeScheduled}
-              busy={busy}
-              messages={messages}
-              used={used}
-              input={input}
-              limit={limit}
-              blocked={blocked}
-              aiState={aiState}
-              streamingText={streamingText}
-              upgradeBanner={upgradeBanner}
-              autoTyping={autoTyping}
-              chatRef={chatRef}
-              className={WINDOW_HEIGHT}
-              onInputChange={setInput}
-              onSend={handleSend}
-              onUpgrade={() => void handleUpgrade()}
-              onDowngrade={() => void handleDowngrade()}
-              onResubscribe={() => void handleResubscribe()}
-              onPortal={() => void handlePortal()}
-            />
-          </div>
+          <DemoAppWindow
+            plan={plan}
+            downgradeScheduled={downgradeScheduled}
+            busy={busy}
+            messages={messages}
+            used={used}
+            input={input}
+            limit={limit}
+            blocked={blocked}
+            aiState={aiState}
+            streamingText={streamingText}
+            upgradeBanner={upgradeBanner}
+            autoTyping={autoTyping}
+            chatRef={chatRef}
+            className={`${WINDOW_HEIGHT} md:w-1/2 lg:w-[73%]`}
+            onInputChange={setInput}
+            onSend={handleSend}
+            onUpgrade={() => void handleUpgrade()}
+            onDowngrade={() => void handleDowngrade()}
+            onResubscribe={() => void handleResubscribe()}
+            onPortal={() => void handlePortal()}
+          />
 
-          <div className="border-foreground/[0.08] rounded-[10px] border p-[4px] md:w-1/2 lg:w-[37%]">
-            <DemoBackendPanel cards={cards} snippets={snippets} className="h-58 md:h-144" />
-          </div>
+          <DemoBackendPanel
+            cards={cards}
+            snippets={snippets}
+            className="h-58 md:h-144 md:w-1/2 lg:w-[37%]"
+          />
         </div>
       </SectionContent>
     </Section>

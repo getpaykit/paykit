@@ -1,35 +1,22 @@
-import { Callout as BaseCallout } from "fumadocs-ui/components/callout";
-import { Card, Cards } from "fumadocs-ui/components/card";
-import { Step, Steps } from "fumadocs-ui/components/steps";
-import { Tab, Tabs } from "fumadocs-ui/components/tabs";
-import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "fumadocs-ui/layouts/docs/page";
-import defaultMdxComponents from "fumadocs-ui/mdx";
 import type { Metadata } from "next";
-import { notFound, redirect } from "next/navigation";
-import type { ComponentPropsWithoutRef } from "react";
+import { notFound } from "next/navigation";
 
 import { CopyMarkdownButton } from "@/components/docs/copy-markdown-button";
-import { Features } from "@/components/docs/features";
-import { PackageInstall, PackageRun } from "@/components/docs/package-command";
-import { TocFooter } from "@/components/docs/toc-footer";
+import { docsMdxComponents } from "@/components/docs/docs-mdx-components";
+import { DocsBody, DocsDescription, DocsPage, DocsTitle } from "@/components/docs/docs-page";
+import { PackageManagerProvider } from "@/components/docs/package-command";
+import { fallbackPackageManager } from "@/components/docs/package-manager-state";
 import type { SourcePage } from "@/lib/source";
 import { source } from "@/lib/source";
-import { cn } from "@/lib/utils";
 
 interface DocsPageProps {
   params: Promise<{ slug?: string[] }>;
 }
 
-function Callout(props: ComponentPropsWithoutRef<typeof BaseCallout>) {
-  return <BaseCallout {...props} className={cn("rounded-lg", props.className)} />;
-}
+export const revalidate = false;
 
 export default async function Page({ params }: DocsPageProps) {
   const { slug } = await params;
-
-  if (!slug || slug.length === 0) {
-    redirect("/docs/get-started");
-  }
 
   const page = source.getPage(slug ?? []) as SourcePage | undefined;
 
@@ -45,38 +32,21 @@ export default async function Page({ params }: DocsPageProps) {
       }}
       toc={page.data.toc}
       full={page.data.full}
-      tableOfContent={{
-        footer: <TocFooter />,
-        style: "clerk",
-      }}
-      tableOfContentPopover={{
-        style: "clerk",
-      }}
     >
-      <DocsTitle>{page.data.title}</DocsTitle>
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between md:gap-4">
+        <DocsTitle>{page.data.title}</DocsTitle>
+        <div className="hidden md:block">
+          <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
+        </div>
+      </div>
       <DocsDescription>{page.data.description}</DocsDescription>
-      <div className="-mt-6 border-b pb-5 mb-4">
+      <div className="mt-3 self-start md:hidden">
         <CopyMarkdownButton markdownUrl={`${page.url}.md`} />
       </div>
       <DocsBody>
-        <MDXContent
-          components={{
-            ...defaultMdxComponents,
-            h1: ({ children, ...props }: ComponentPropsWithoutRef<"h1">) => (
-              <h2 {...props}>{children}</h2>
-            ),
-            Callout,
-            Card,
-            Cards,
-            Step,
-            Steps,
-            Tab,
-            Tabs,
-            Features,
-            PackageInstall,
-            PackageRun,
-          }}
-        />
+        <PackageManagerProvider initialManager={fallbackPackageManager}>
+          <MDXContent components={docsMdxComponents} />
+        </PackageManagerProvider>
       </DocsBody>
     </DocsPage>
   );
@@ -89,16 +59,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: DocsPageProps): Promise<Metadata> {
   const { slug } = await params;
 
-  if (!slug || slug.length === 0) {
-    return {
-      title: "Documentation",
-      description: "PayKit documentation",
-    };
-  }
-
   const page = source.getPage(slug ?? []);
 
   if (!page) notFound();
+
+  const ogPath = slug?.length ? `/${slug.join("/")}` : "";
 
   return {
     title: page.data.title,
@@ -108,7 +73,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
       description: page.data.description,
       images: [
         {
-          url: `/api/og/${slug.join("/")}`,
+          url: `/api/og${ogPath}`,
           width: 1200,
           height: 600,
           alt: page.data.title,
@@ -118,7 +83,7 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
     twitter: {
       title: page.data.title,
       description: page.data.description,
-      images: [`/api/og/${slug.join("/")}`],
+      images: [`/api/og${ogPath}`],
     },
   };
 }

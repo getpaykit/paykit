@@ -2,16 +2,24 @@
   "root": true,
   "pages": [
     "---Get Started---",
-    "get-started",
+    "introduction",
+    "installation",
+    "quickstart",
     "---Concepts---",
-    "concepts",
-    "---Flows---",
-    "flows",
-    "---Providers---",
-    "providers",
-    "---Plugins---",
+    "plans-and-features",
+    "customers",
+    "subscriptions",
+    "entitlements",
+    "webhook-events",
+    "database",
     "plugins",
-    "---Guides---",
-    "guides"
+    "client",
+    "cli",
+    "typescript",
+    "---Flows---",
+    "subscription-billing",
+    "metered-usage",
+    "---Plugins---",
+    "dashboard"
   ]
 }

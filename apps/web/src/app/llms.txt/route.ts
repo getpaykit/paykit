@@ -8,7 +8,7 @@ const suffix = `
 
 ## AI Access
 
-- Append \`.mdx\` to any documentation page URL to get raw Markdown content (e.g. \`/docs/get-started/installation.mdx\`)
+- Append \`.mdx\` to any documentation page URL to get raw Markdown content (e.g. \`/docs/introduction.mdx\`)
 - Full documentation as a single file: \`/llms-full.txt\`
 `;
 

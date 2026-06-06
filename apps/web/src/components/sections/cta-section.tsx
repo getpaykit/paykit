@@ -1,9 +1,9 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronRight, Copy } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useState } from "react";
+import { RiArrowRightSLine, RiCheckLine, RiFileCopyLine } from "react-icons/ri";
 
 import { Section, SectionContent } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
@@ -22,15 +22,15 @@ export function CTASection() {
     <Section>
       <SectionContent>
         <div className="flex flex-col items-center gap-5 text-center">
-          <h2 className="text-foreground/90 text-xl font-semibold tracking-tight sm:text-2xl">
+          <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
             Ready to add billing?
           </h2>
-          <p className="text-foreground/45 max-w-md text-sm leading-relaxed sm:text-base">
+          <p className="text-foreground/80 max-w-md text-sm leading-relaxed sm:text-base">
             One command to get started. Define your plans, connect Stripe, and ship billing in
             minutes.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <Button render={<Link href="/docs" />} nativeButton={false} size="lg" className="px-4">
+            <Button render={<Link href="/docs" />} nativeButton={false} size="lg" className="px-5">
               Get Started
             </Button>
             <Button
@@ -52,7 +52,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <Check className="text-foreground/50 size-3.5" />
+                      <RiCheckLine className="text-foreground/50 size-3.5" />
                     </motion.span>
                   ) : hovered ? (
                     <motion.span
@@ -63,7 +63,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <Copy className="text-foreground/50 size-3.5" />
+                      <RiFileCopyLine className="text-foreground/50 size-3.5" />
                     </motion.span>
                   ) : (
                     <motion.span
@@ -74,7 +74,7 @@ export function CTASection() {
                       transition={{ duration: 0.15 }}
                       className="absolute"
                     >
-                      <ChevronRight className="text-foreground/30 size-4" />
+                      <RiArrowRightSLine className="text-foreground/30 size-4" />
                     </motion.span>
                   )}
                 </AnimatePresence>
