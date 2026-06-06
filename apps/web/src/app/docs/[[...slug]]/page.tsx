@@ -63,27 +63,8 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
 
   if (!page) notFound();
 
-  const ogPath = slug?.length ? `/${slug.join("/")}` : "";
-
   return {
     title: page.data.title,
     description: page.data.description,
-    openGraph: {
-      title: page.data.title,
-      description: page.data.description,
-      images: [
-        {
-          url: `/api/og${ogPath}`,
-          width: 1200,
-          height: 600,
-          alt: page.data.title,
-        },
-      ],
-    },
-    twitter: {
-      title: page.data.title,
-      description: page.data.description,
-      images: [`/api/og${ogPath}`],
-    },
   };
 }
