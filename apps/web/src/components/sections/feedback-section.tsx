@@ -59,7 +59,7 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
 export function FeedbackSection() {
   return (
     <Section>
-      <SectionContent className="relative border-b px-6 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
+      <SectionContent className="relative border-b px-5 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
         <div className="max-w-lg space-y-2">
           <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
             Feedback

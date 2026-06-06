@@ -294,7 +294,7 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
 
   return (
     <Section>
-      <SectionContent className="relative border-b px-6 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
+      <SectionContent className="relative border-b px-5 py-5 sm:px-8 sm:py-6 lg:px-8 lg:py-6">
         <div className="max-w-lg space-y-2">
           <h2 className="text-foreground/90 text-xl font-medium tracking-tight sm:text-2xl">
             How it works
@@ -302,7 +302,7 @@ export function DemoSection({ snippets }: { snippets: Record<SnippetKey, ReactNo
         </div>
       </SectionContent>
 
-      <SectionContent className="px-6 py-6 sm:px-8 sm:py-8 lg:px-8 lg:py-8">
+      <SectionContent className="px-5 py-6 sm:px-8 sm:py-8 lg:px-8 lg:py-8">
         <div
           ref={sectionRef}
           className="flex flex-col-reverse gap-2 md:flex-row md:items-stretch md:gap-4"
