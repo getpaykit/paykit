@@ -385,8 +385,8 @@ function SidebarItem({
       className={cn(
         "flex h-6.75 items-center gap-2 rounded-sm px-2 text-[13px] transition-none",
         active
-          ? "bg-secondary text-foreground"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground dark:hover:bg-muted/50",
+          ? "bg-accent/50 text-accent-foreground/80"
+          : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground/80",
       )}
     >
       {getDocsPageIcon(String(item.name))}
