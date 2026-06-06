@@ -129,15 +129,15 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
           className="bg-background pointer-events-auto w-full lg:hidden"
         >
           <SectionShell className="border-border border-b">
-            <div className="flex w-full items-center justify-between pl-2.5">
-              <BrandMenu linkClassName="rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+            <div className="flex h-11 w-full items-center justify-between px-5">
+              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
               <button
                 type="button"
                 aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
                 aria-controls="mobile-navigation-menu"
                 aria-expanded={mobileMenuOpen}
                 onClick={() => setMobileMenuOpen((prev) => !prev)}
-                className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 px-5 py-3 transition-colors"
+                className="text-foreground/65 dark:text-foreground/50 hover:text-foreground/80 -mr-5.5 h-full px-5.5 transition-colors"
               >
                 {mobileMenuOpen ? <RiCloseLine size={18} /> : <RiMenuLine size={18} />}
               </button>
@@ -265,7 +265,7 @@ export function NavigationBar({ stars: _stars }: { stars: number | null }) {
             transition={{ duration: 0.15 }}
             className="bg-background/95 pointer-events-auto fixed inset-0 z-98 backdrop-blur-sm lg:hidden"
           >
-            <div className="flex h-full flex-col overflow-y-auto pt-13">
+            <div className="flex h-full flex-col overflow-y-auto pt-11">
               {mobileLinks.map((item, i) => (
                 <motion.div
                   key={item.name}

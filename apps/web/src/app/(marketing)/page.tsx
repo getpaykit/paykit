@@ -17,7 +17,7 @@ export default function HomePage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
       ))}
-      <div className="relative pt-[45px] lg:pt-0">
+      <div className="relative pt-11 lg:pt-0">
         <HeroSection />
         <DemoSection
           snippets={{
