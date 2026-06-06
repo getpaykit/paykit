@@ -9,5 +9,3 @@ export const shikiHighlightOptions = {
   themes: shikiThemes,
   defaultColor: false,
 } as const;
-
-export const shikiInlineTheme = shikiThemes.dark;

@@ -19,13 +19,8 @@ export function DemoBackendPanel({
   className?: string;
 }) {
   return (
-    <div
-      className={cn(
-        "border-foreground/[0.12] bg-card flex flex-col overflow-hidden rounded-none border border-dashed",
-        className,
-      )}
-    >
-      <div className="border-foreground/[0.08] flex h-10 shrink-0 items-center border-b border-dashed px-4">
+    <div className={cn("bg-card flex flex-col overflow-hidden rounded-sm border", className)}>
+      <div className="flex h-9.5 shrink-0 items-center border-b px-4">
         <span className="text-foreground/45 font-mono text-xs uppercase tracking-wider">
           Backend
         </span>
@@ -60,9 +55,9 @@ function FlowLog({
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               transition={{ duration: 0.3, ease: "easeOut" }}
-              className="border-foreground/[0.08] shrink-0 overflow-hidden rounded-none border"
+              className="shrink-0 overflow-hidden rounded-xs border"
             >
-              <div className="text-foreground/45 border-foreground/[0.06] flex items-center gap-2 border-b py-1.5 pr-1.5 pl-3 text-xs">
+              <div className="text-foreground/45 flex items-center gap-2 border-b py-1.5 pr-1.5 pl-3 text-xs">
                 <RiUserLine className="size-3 shrink-0" />
                 {card.trigger}
               </div>
@@ -82,7 +77,7 @@ function FlowLog({
                           initial={{ opacity: 0.5 }}
                           animate={{ opacity: 1 }}
                           transition={{ duration: 0.3 }}
-                          className="bg-foreground/[0.03] flex items-center overflow-hidden rounded-none px-2 py-2"
+                          className="bg-foreground/[0.03] flex items-center overflow-hidden rounded-xs px-2 py-2"
                         >
                           {snippets[entry.snippet]}
                         </motion.div>

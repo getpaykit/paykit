@@ -13,10 +13,10 @@ type View = "code" | "terminal";
 type Segment = { text: string; color?: string };
 type PushStep = { segments: Segment[]; type: string; delay?: number };
 
-const bar = "text-white/15";
-const normal = "text-white/85";
-const green = "text-emerald-400";
-const purple = "text-violet-400";
+const bar = "text-muted-foreground/30";
+const normal = "text-foreground/85";
+const green = "text-foreground";
+const purple = "text-muted-foreground";
 
 const pushSteps: PushStep[] = [
   {
@@ -212,7 +212,7 @@ export function HeroCodeBlock({
                 </div>
               </>
             ) : (
-              <div className="h-full bg-[#0e0e0e] p-4 font-mono text-[12px] leading-relaxed">
+              <div className="h-full bg-secondary/60 p-4 font-mono text-[12px] leading-relaxed">
                 <AnimatePresence initial={false}>
                   {terminalLines.map((line, i) => (
                     <motion.div
@@ -231,7 +231,7 @@ export function HeroCodeBlock({
                   ))}
                 </AnimatePresence>
                 {pushing && terminalLines.length > 0 && (
-                  <RiLoader4Line className="mt-1 size-3 animate-spin text-white/30" />
+                  <RiLoader4Line className="mt-1 size-3 animate-spin text-muted-foreground" />
                 )}
               </div>
             )}

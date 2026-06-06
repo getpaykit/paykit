@@ -4,7 +4,7 @@ import type { ComponentProps } from "react";
 import type { BundledLanguage } from "shiki";
 
 import { CodeBlock, type CodeBlockProps, Pre } from "@/components/ui/code-block";
-import { shikiHighlightOptions, shikiInlineTheme } from "@/lib/shiki-themes";
+import { shikiHighlightOptions, shikiThemes } from "@/lib/shiki-themes";
 import { cn } from "@/lib/utils";
 
 const defaultCodeBlockProps: CodeBlockProps = {
@@ -34,18 +34,33 @@ function createPre(codeblock: CodeBlockProps, allowCopy: boolean) {
 
 export async function InlineCode({ lang, code }: { lang: string; code: string }) {
   const { codeToTokens } = await import("shiki");
-  const { tokens } = await codeToTokens(code, {
-    lang: lang as BundledLanguage,
-    theme: shikiInlineTheme,
-  });
+  const [{ tokens: lightTokens }, { tokens: darkTokens }] = await Promise.all([
+    codeToTokens(code, {
+      lang: lang as BundledLanguage,
+      theme: shikiThemes.light,
+    }),
+    codeToTokens(code, {
+      lang: lang as BundledLanguage,
+      theme: shikiThemes.dark,
+    }),
+  ]);
 
   return (
     <span className="font-mono text-[11px] leading-none whitespace-nowrap">
-      {tokens[0]?.map((token, i) => (
-        <span key={i} style={{ color: token.color }}>
-          {token.content}
-        </span>
-      ))}
+      <span className="dark:hidden">
+        {lightTokens[0]?.map((token, i) => (
+          <span key={i} style={{ color: token.color }}>
+            {token.content}
+          </span>
+        ))}
+      </span>
+      <span className="hidden dark:inline">
+        {darkTokens[0]?.map((token, i) => (
+          <span key={i} style={{ color: token.color }}>
+            {token.content}
+          </span>
+        ))}
+      </span>
     </span>
   );
 }
