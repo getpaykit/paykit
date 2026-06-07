@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import { Section, SectionContent } from "@/components/layout/section";
 import { tweets } from "@/components/sections/feedback-content";
 import type { Tweet } from "@/components/sections/feedback-content";
@@ -33,10 +35,12 @@ function TweetCard({ tweet }: { tweet: Tweet }) {
       </a>
       <div className="flex items-center gap-2">
         <span className="relative flex size-8 shrink-0 overflow-hidden rounded-full bg-secondary">
-          <img
+          <Image
             className="size-full aspect-square"
             alt={`${tweet.name}'s profile picture`}
             src={tweet.avatar}
+            width={96}
+            height={96}
           />
         </span>
         <figcaption className="min-w-0">
