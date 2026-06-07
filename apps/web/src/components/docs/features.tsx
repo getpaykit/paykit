@@ -67,17 +67,18 @@ export function Features() {
   return (
     <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {features.map((feature) => (
-        <div
-          key={feature.title}
-          className="group relative flex h-full flex-col gap-3 rounded-none border border-border p-5 transition-colors hover:border-foreground/[0.08] hover:bg-foreground/[0.01]"
-        >
-          <FrameCorners />
-          <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
-            {feature.icon}
-          </span>
-          <div className="flex flex-col gap-1">
-            <h3 className="!m-0 text-foreground/90 text-sm font-semibold">{feature.title}</h3>
-            <p className="!m-0 text-foreground/45 text-sm leading-relaxed">{feature.description}</p>
+        <div key={feature.title} className="relative h-full">
+          <FrameCorners radius="xs" />
+          <div className="group flex h-full flex-col gap-3 rounded-xs border border-border p-5 transition-colors hover:border-foreground/[0.08] hover:bg-foreground/[0.01]">
+            <span className="text-foreground/40 transition-colors group-hover:text-foreground/50">
+              {feature.icon}
+            </span>
+            <div className="flex flex-col gap-1">
+              <h3 className="!m-0 text-foreground/90 text-sm font-semibold">{feature.title}</h3>
+              <p className="!m-0 text-foreground/45 text-sm leading-relaxed">
+                {feature.description}
+              </p>
+            </div>
           </div>
         </div>
       ))}

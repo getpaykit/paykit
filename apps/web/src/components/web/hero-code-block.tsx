@@ -146,8 +146,8 @@ export function HeroCodeBlock({
 
   return (
     <div className="relative w-full max-w-full min-w-0 sm:w-[37rem] lg:w-full lg:max-w-[37rem]">
-      <FrameCorners />
-      <div className="border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-none border">
+      <FrameCorners radius="xs" spanClassName="size-2.25" />
+      <div className="border-foreground/[0.1] bg-card flex flex-col overflow-hidden rounded-xs border">
         {/* Tab bar */}
         <div className="border-foreground/[0.08] flex items-center border-b">
           <div className="flex flex-1 pl-0.5">
