@@ -1,8 +1,8 @@
 import type { BundledTheme } from "shiki";
 
 export const shikiThemes = {
-  light: "github-light" satisfies BundledTheme,
-  dark: "github-dark" satisfies BundledTheme,
+  light: "gruvbox-light-medium" satisfies BundledTheme,
+  dark: "vesper" satisfies BundledTheme,
 } as const;
 
 export const shikiHighlightOptions = {
