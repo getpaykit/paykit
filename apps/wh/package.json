@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.10.1"
+    "hono": "^4.13.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260503.1",
