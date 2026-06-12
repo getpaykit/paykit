@@ -17,10 +17,10 @@
     "hono": "^4.13.7"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260503.1",
+    "@cloudflare/workers-types": "^5.20260911.1",
     "better-sqlite3": "^11.10.0",
     "drizzle-kit": "^0.31.5",
     "typescript": "catalog:",
-    "wrangler": "^4.42.1"
+    "wrangler": "^4.131.1"
   }
 }
