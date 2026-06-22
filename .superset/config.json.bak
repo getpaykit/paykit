@@ -1,7 +1,0 @@
-{
-  "setup": [
-    "ROOT_PATH=\"$SUPERSET_ROOT_PATH\" pnpm run tree-setup"
-  ],
-  "teardown": [],
-  "run": []
-}
