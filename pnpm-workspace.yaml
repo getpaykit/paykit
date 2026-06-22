@@ -3,6 +3,8 @@ packages:
   - apps/*
   - e2e
 
+pmOnFail: ignore
+
 overrides:
   '@babel/core@': 7.29.6
   '@hono/node-server@': 1.19.15
