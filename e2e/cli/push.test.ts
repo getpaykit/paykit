@@ -73,12 +73,13 @@ describe("paykitjs push", () => {
           name: product.name,
           group: product.group,
           is_default: product.isDefault,
+          priceCurrency: product.priceCurrency,
         })
         .from(product)
         .orderBy(asc(product.id));
       expect(dbRows).toEqual([
-        { id: "free", name: "Free", group: "base", is_default: true },
-        { id: "pro", name: "Pro", group: "base", is_default: false },
+        { id: "free", name: "Free", group: "base", is_default: true, priceCurrency: null },
+        { id: "pro", name: "Pro", group: "base", is_default: false, priceCurrency: "usd" },
       ]);
 
       // Verify paid plan (pro) was synced to Stripe.
@@ -112,6 +113,48 @@ describe("paykitjs push", () => {
 
       const hasChanges = diffs.some((d) => d.action !== "unchanged");
       expect(hasChanges).toBe(false);
+    } finally {
+      await database.end();
+    }
+  });
+
+  it("should sync eur prices to the database and Stripe", async () => {
+    const config = await getPayKitConfig({ cwd: fixture.cwd });
+    const database = resolveDatabase(config.options.database);
+    try {
+      const ctx = await createContext({
+        ...config.options,
+        database,
+        stripe: {
+          ...config.options.stripe,
+          currency: "eur",
+        },
+      });
+      const results = await syncProducts(ctx);
+
+      const proResult = results.find((r) => r.id === "pro");
+      expect(proResult).toMatchObject({ action: "created", version: 2 });
+
+      const proRows = await ctx.database
+        .select({
+          priceCurrency: product.priceCurrency,
+          stripePriceId: product.stripePriceId,
+        })
+        .from(product)
+        .where(eq(product.id, "pro"))
+        .orderBy(desc(product.version))
+        .limit(1);
+      const proProduct = proRows[0];
+      expect(proProduct?.priceCurrency).toBe("eur");
+      if (!proProduct?.stripePriceId) {
+        throw new Error("Missing Stripe price metadata for synced EUR plan");
+      }
+
+      const stripePrice = await fixture.stripeClient.prices.retrieve(proProduct.stripePriceId);
+      expect(stripePrice.currency).toBe("eur");
+
+      const diffs = await dryRunSyncProducts(ctx);
+      expect(diffs.find((d) => d.id === "pro")?.action).toBe("unchanged");
     } finally {
       await database.end();
     }

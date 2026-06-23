@@ -2,6 +2,7 @@ import { Pool } from "pg";
 
 import { createDatabase, type PayKitDatabase } from "../database/index";
 import type { PaymentProvider } from "../providers/provider";
+import { getStripeCurrency } from "../stripe/currency";
 import { createStripeAdapter } from "../stripe/stripe-provider";
 import type { PayKitOptions } from "../types/options";
 import { normalizeSchema, type NormalizedSchema } from "../types/schema";
@@ -43,7 +44,9 @@ export async function createContext(options: PayKitOptions): Promise<PayKitConte
     basePath,
     database,
     provider,
-    products: normalizeSchema(options.products),
+    products: normalizeSchema(options.products, {
+      priceCurrency: getStripeCurrency(options.stripe),
+    }),
     logger: createPayKitLogger(options.logging),
   };
 }

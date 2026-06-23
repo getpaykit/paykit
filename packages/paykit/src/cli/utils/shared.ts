@@ -81,7 +81,9 @@ export function formatProductDiffs(
   const productsById = new Map(products.map((pl) => [pl.id, pl]));
   return diffs.map((diff) => {
     const plan = productsById.get(diff.id);
-    const price = plan ? deps.formatPrice(plan.priceAmount ?? 0, plan.priceInterval) : "$0";
+    const price = plan
+      ? deps.formatPrice(plan.priceAmount ?? 0, plan.priceInterval, plan.priceCurrency ?? "usd")
+      : "$0";
     return deps.formatPlanLine(diff.action, diff.id, price);
   });
 }

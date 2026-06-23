@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 
 import * as z from "zod";
 
+import { DEFAULT_STRIPE_CURRENCY } from "../stripe/currency";
+
 const payKitFeatureSymbol = Symbol.for("paykit.feature");
 const payKitFeatureIncludeSymbol = Symbol.for("paykit.feature_include");
 const payKitPlanSymbol = Symbol.for("paykit.plan");
@@ -132,6 +134,7 @@ export interface NormalizedPlan {
   isDefault: boolean;
   name: string;
   priceAmount: number | null;
+  priceCurrency: string | null;
   priceInterval: PriceInterval | null;
   trialDays: number | null;
 }
@@ -325,6 +328,7 @@ export function computePlanHash(plan: Omit<NormalizedPlan, "hash">): string {
     group: plan.group,
     isDefault: plan.isDefault,
     priceAmount: plan.priceAmount,
+    priceCurrency: plan.priceCurrency,
     priceInterval: plan.priceInterval,
     features: plan.includes.map((f) => ({
       id: f.id,
@@ -336,7 +340,10 @@ export function computePlanHash(plan: Omit<NormalizedPlan, "hash">): string {
   return createHash("sha256").update(payload).digest("hex").slice(0, 16);
 }
 
-export function normalizeSchema(products: PayKitProductsModule | undefined): NormalizedSchema {
+export function normalizeSchema(
+  products: PayKitProductsModule | undefined,
+  input?: { priceCurrency?: string },
+): NormalizedSchema {
   if (!products) {
     return {
       features: [],
@@ -424,6 +431,7 @@ export function normalizeSchema(products: PayKitProductsModule | undefined): Nor
       isDefault,
       name: exportedPlan.name ?? deriveNameFromId(exportedPlan.id),
       priceAmount: exportedPlan.price ? Math.round(exportedPlan.price.amount * 100) : null,
+      priceCurrency: exportedPlan.price ? (input?.priceCurrency ?? DEFAULT_STRIPE_CURRENCY) : null,
       priceInterval: exportedPlan.price?.interval ?? null,
       trialDays: null,
     };

@@ -5,7 +5,7 @@ import { generateId } from "../core/utils";
 import type { PayKitDatabase } from "../database";
 import { feature, product, productFeature } from "../database/schema";
 import type { StoredFeature, StoredProduct, StoredProductFeature } from "../types/models";
-import type { NormalizedFeature, NormalizedPlanFeature } from "../types/schema";
+import type { NormalizedFeature, NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
 
 export interface StoredProductSnapshot {
   features: readonly StoredProductFeature[];
@@ -109,6 +109,62 @@ export async function getProductByHash(
   return result ?? null;
 }
 
+function serializeFeatureConfig(config: Record<string, unknown> | null): string {
+  return JSON.stringify(config ?? null);
+}
+
+function productFeaturesMatch(
+  existing: readonly StoredProductFeature[],
+  next: readonly NormalizedPlanFeature[],
+): boolean {
+  if (existing.length !== next.length) {
+    return false;
+  }
+
+  return existing.every((storedFeature, index) => {
+    const nextFeature = next[index];
+    return (
+      nextFeature != null &&
+      storedFeature.featureId === nextFeature.id &&
+      storedFeature.limit === nextFeature.limit &&
+      storedFeature.resetInterval === nextFeature.resetInterval &&
+      serializeFeatureConfig(storedFeature.config) === serializeFeatureConfig(nextFeature.config)
+    );
+  });
+}
+
+function productSnapshotMatchesPlan(
+  snapshot: StoredProductSnapshot,
+  plan: NormalizedPlan,
+): boolean {
+  return (
+    snapshot.product.group === plan.group &&
+    snapshot.product.isDefault === plan.isDefault &&
+    (snapshot.product.priceAmount ?? null) === plan.priceAmount &&
+    (snapshot.product.priceCurrency ?? null) === plan.priceCurrency &&
+    (snapshot.product.priceInterval ?? null) === plan.priceInterval &&
+    productFeaturesMatch(snapshot.features, plan.includes)
+  );
+}
+
+/** Finds the stored product for a normalized plan, including old hash-compatible rows. */
+export async function getProductByPlan(
+  database: PayKitDatabase,
+  plan: NormalizedPlan,
+): Promise<StoredProduct | null> {
+  const exact = await getProductByHash(database, plan.id, plan.hash);
+  if (exact) {
+    return exact;
+  }
+
+  const latest = await getLatestProductSnapshot(database, plan.id);
+  if (!latest || !productSnapshotMatchesPlan(latest, plan)) {
+    return null;
+  }
+
+  return latest.product;
+}
+
 export async function getProductByInternalId(
   database: PayKitDatabase,
   internalId: string,
@@ -146,6 +202,7 @@ export async function insertProductVersion(
     isDefault: boolean;
     name: string;
     priceAmount: number | null;
+    priceCurrency: string | null;
     priceInterval: string | null;
     version: number;
   },
@@ -161,6 +218,7 @@ export async function insertProductVersion(
     isDefault: input.isDefault,
     name: input.name,
     priceAmount: input.priceAmount,
+    priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
     updatedAt: now,
     version: input.version,
@@ -175,6 +233,7 @@ export async function insertProductVersion(
     isDefault: input.isDefault,
     name: input.name,
     priceAmount: input.priceAmount,
+    priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
     stripePriceId: null,
     stripeProductId: null,

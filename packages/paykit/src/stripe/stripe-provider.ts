@@ -3,6 +3,7 @@ import StripeSdk from "stripe";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { PaymentProvider, ProviderTestClock } from "../providers/provider";
 import type { NormalizedWebhookEvent } from "../types/events";
+import { DEFAULT_STRIPE_CURRENCY, getStripeCurrency, type StripeCurrency } from "./currency";
 
 /**
  * Stripe API version PayKit is tested against. Users can override via
@@ -27,6 +28,11 @@ const STRIPE_WEBHOOK_EVENTS: StripeSdk.WebhookEndpointCreateParams.EnabledEvent[
 export interface StripeOptions {
   secretKey: string;
   webhookSecret: string;
+  /**
+   * Currency used for new Stripe prices and PayKit-created invoices.
+   * @default "usd"
+   */
+  currency?: StripeCurrency;
   /** Override the Stripe API version (e.g. for preview features). */
   apiVersion?: string;
   /** Enable Stripe Managed Payments (requires a preview API version). */
@@ -586,7 +592,7 @@ export function createStripeProvider(
   client: StripeSdk,
   options: StripeAdapterOptions,
 ): PaymentProvider {
-  const currency = "usd";
+  const currency = getStripeCurrency(options);
 
   return {
     id: "stripe",
@@ -927,7 +933,7 @@ export function createStripeProvider(
           }
 
           const priceParams: StripeSdk.PriceCreateParams = {
-            currency,
+            currency: product.priceCurrency,
             product: productId,
             unit_amount: product.priceAmount,
           };
@@ -1078,6 +1084,7 @@ export function createStripeProvider(
 }
 
 export function createStripeAdapter(options: StripeAdapterOptions): PaymentProvider {
+  const optionsWithDefaults = { ...options, currency: options.currency ?? DEFAULT_STRIPE_CURRENCY };
   const apiVersion = options.apiVersion ?? PAYKIT_STRIPE_API_VERSION;
   if (options.managedPayments) {
     if (!apiVersion.endsWith(".preview") || apiVersion < STRIPE_MANAGED_PAYMENTS_MIN_VERSION) {
@@ -1093,5 +1100,5 @@ export function createStripeAdapter(options: StripeAdapterOptions): PaymentProvi
     maxNetworkRetries: 3,
   });
 
-  return createStripeProvider(client, options);
+  return createStripeProvider(client, optionsWithDefaults);
 }

@@ -157,6 +157,7 @@ export interface PaymentProvider {
       id: string;
       name: string;
       priceAmount: number;
+      priceCurrency: string;
       priceInterval?: string | null;
       existingProviderProduct?: Record<string, string> | null;
     }>;

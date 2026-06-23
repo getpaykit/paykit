@@ -1,3 +1,4 @@
+import { isSupportedStripeCurrency, SUPPORTED_STRIPE_CURRENCIES } from "../stripe/currency";
 import type { PayKitOptions } from "../types/options";
 
 function hasLegacyPlansOption(options: object): options is { plans: unknown } {
@@ -27,6 +28,30 @@ export function assertValidPayKitOptions(
 
   for (const origin of options.trustedOrigins ?? []) {
     assertValidTrustedOrigin(origin);
+  }
+
+  const currency = options.stripe?.currency;
+  if (currency !== undefined) {
+    assertValidStripeCurrency(currency);
+  }
+}
+
+function assertValidStripeCurrency(currency: unknown): void {
+  if (
+    typeof currency !== "string" ||
+    currency !== currency.toLowerCase() ||
+    !/^[a-z]{3}$/.test(currency)
+  ) {
+    const received = typeof currency === "string" ? currency : String(currency);
+    throw new Error(
+      `PayKit option \`stripe.currency\` must be a lowercase three-letter currency code. Received "${received}".`,
+    );
+  }
+
+  if (!isSupportedStripeCurrency(currency)) {
+    throw new Error(
+      `PayKit currently supports Stripe currencies: ${SUPPORTED_STRIPE_CURRENCIES.join(", ")}. Received "${currency}".`,
+    );
   }
 }
 
