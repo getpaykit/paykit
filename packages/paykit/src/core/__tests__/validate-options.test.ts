@@ -7,7 +7,7 @@ function createOptions(currency?: string): PayKitOptions {
   return {
     database: "postgresql://localhost:5432/paykit",
     stripe: {
-      ...(currency ? { currency: currency as never } : {}),
+      ...(currency !== undefined ? { currency: currency as never } : {}),
       secretKey: "sk_test_123",
       webhookSecret: "whsec_123",
     },
@@ -28,6 +28,12 @@ describe("core/validate-options", () => {
 
   it("rejects non-lowercase Stripe currencies", () => {
     expect(() => assertValidPayKitOptions(createOptions("EUR"))).toThrow(
+      "must be a lowercase three-letter currency code",
+    );
+  });
+
+  it("rejects empty Stripe currency", () => {
+    expect(() => assertValidPayKitOptions(createOptions(""))).toThrow(
       "must be a lowercase three-letter currency code",
     );
   });

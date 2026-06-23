@@ -11,7 +11,7 @@ import {
   product,
   subscription,
 } from "../database/schema";
-import { getProductByHash } from "../product/product.service";
+import { getProductByPlan } from "../product/product.service";
 import type { ProviderCustomer } from "../providers/provider";
 import {
   getActiveSubscriptionInGroup,
@@ -160,7 +160,7 @@ export async function ensureDefaultPlansForCustomer(
       continue;
     }
 
-    const storedPlan = await getProductByHash(ctx.database, defaultPlan.id, defaultPlan.hash);
+    const storedPlan = await getProductByPlan(ctx.database, defaultPlan);
     if (!storedPlan) {
       continue;
     }

@@ -13,7 +13,7 @@ import { upsertInvoiceRecord } from "../invoice/invoice.service";
 import { getDefaultPaymentMethod } from "../payment-method/payment-method.service";
 import {
   getDefaultProductInGroup,
-  getProductByHash,
+  getProductByPlan,
   getProductByInternalId,
   getProductByProviderData,
   getProductFeatures,
@@ -103,7 +103,7 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
   const matchingProduct = input.productInternalId
     ? await getProductByInternalId(ctx.database, input.productInternalId)
     : normalizedPlan
-      ? await getProductByHash(ctx.database, input.planId, normalizedPlan.hash)
+      ? await getProductByPlan(ctx.database, normalizedPlan)
       : null;
   const storedPlan = matchingProduct ? withProviderInfo(matchingProduct, providerId) : null;
 
@@ -245,11 +245,11 @@ async function cancelExistingProviderSubscriptionForCheckout(
     return;
   }
 
-  if (!completion.subCtx.isUpgrade) {
+  if (!completion.subCtx.isUpgrade && !completion.subCtx.isPaidCurrencyChange) {
     throw PayKitError.from(
       "BAD_REQUEST",
       PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
-      `Checkout completion is only valid for new paid subscriptions or upgrades to "${completion.subCtx.storedPlan.id}"`,
+      `Checkout completion is only valid for new paid subscriptions, upgrades, or cross-currency changes to "${completion.subCtx.storedPlan.id}"`,
     );
   }
 

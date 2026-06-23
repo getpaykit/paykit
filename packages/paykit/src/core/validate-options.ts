@@ -30,15 +30,21 @@ export function assertValidPayKitOptions(
     assertValidTrustedOrigin(origin);
   }
 
-  if (options.stripe?.currency) {
-    assertValidStripeCurrency(options.stripe.currency);
+  const currency = options.stripe?.currency;
+  if (currency !== undefined) {
+    assertValidStripeCurrency(currency);
   }
 }
 
-function assertValidStripeCurrency(currency: string): void {
-  if (currency !== currency.toLowerCase() || !/^[a-z]{3}$/.test(currency)) {
+function assertValidStripeCurrency(currency: unknown): void {
+  if (
+    typeof currency !== "string" ||
+    currency !== currency.toLowerCase() ||
+    !/^[a-z]{3}$/.test(currency)
+  ) {
+    const received = typeof currency === "string" ? currency : String(currency);
     throw new Error(
-      `PayKit option \`stripe.currency\` must be a lowercase three-letter currency code. Received "${currency}".`,
+      `PayKit option \`stripe.currency\` must be a lowercase three-letter currency code. Received "${received}".`,
     );
   }
 

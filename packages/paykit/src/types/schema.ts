@@ -2,6 +2,8 @@ import { createHash } from "node:crypto";
 
 import * as z from "zod";
 
+import { DEFAULT_STRIPE_CURRENCY } from "../stripe/currency";
+
 const payKitFeatureSymbol = Symbol.for("paykit.feature");
 const payKitFeatureIncludeSymbol = Symbol.for("paykit.feature_include");
 const payKitPlanSymbol = Symbol.for("paykit.plan");
@@ -429,7 +431,7 @@ export function normalizeSchema(
       isDefault,
       name: exportedPlan.name ?? deriveNameFromId(exportedPlan.id),
       priceAmount: exportedPlan.price ? Math.round(exportedPlan.price.amount * 100) : null,
-      priceCurrency: exportedPlan.price ? (input?.priceCurrency ?? "usd") : null,
+      priceCurrency: exportedPlan.price ? (input?.priceCurrency ?? DEFAULT_STRIPE_CURRENCY) : null,
       priceInterval: exportedPlan.price?.interval ?? null,
       trialDays: null,
     };
