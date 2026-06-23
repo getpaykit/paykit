@@ -1,6 +1,6 @@
 {
   "name": "paykitjs",
-  "version": "0.0.6",
+  "version": "0.1.6",
   "description": "Stripe billing framework for TypeScript apps",
   "keywords": [
     "billing",
