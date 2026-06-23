@@ -26,6 +26,7 @@ export type {
   ReportResult,
 } from "./entitlement/entitlement.service";
 export { PAYKIT_STRIPE_API_VERSION } from "./stripe/stripe-provider";
+export type { StripeCurrency } from "./stripe/currency";
 export type { StripeOptions } from "./stripe/stripe-provider";
 export type {
   Customer,

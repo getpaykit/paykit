@@ -146,6 +146,7 @@ export async function insertProductVersion(
     isDefault: boolean;
     name: string;
     priceAmount: number | null;
+    priceCurrency: string | null;
     priceInterval: string | null;
     version: number;
   },
@@ -161,6 +162,7 @@ export async function insertProductVersion(
     isDefault: input.isDefault,
     name: input.name,
     priceAmount: input.priceAmount,
+    priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
     updatedAt: now,
     version: input.version,
@@ -175,6 +177,7 @@ export async function insertProductVersion(
     isDefault: input.isDefault,
     name: input.name,
     priceAmount: input.priceAmount,
+    priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
     stripePriceId: null,
     stripeProductId: null,

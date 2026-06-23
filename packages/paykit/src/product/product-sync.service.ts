@@ -57,9 +57,35 @@ function planChanged(
     existing.product.group !== next.group ||
     existing.product.isDefault !== next.isDefault ||
     (existing.product.priceAmount ?? null) !== next.priceAmount ||
+    (existing.product.priceCurrency ?? null) !== next.priceCurrency ||
     (existing.product.priceInterval ?? null) !== next.priceInterval ||
     featuresChanged(existing.features, next.includes)
   );
+}
+
+function priceChanged(
+  existing: Awaited<ReturnType<typeof getLatestProductSnapshot>>,
+  next: NormalizedPlan,
+): boolean {
+  if (!existing) {
+    return true;
+  }
+
+  return (
+    (existing.product.priceAmount ?? null) !== next.priceAmount ||
+    (existing.product.priceCurrency ?? null) !== next.priceCurrency ||
+    (existing.product.priceInterval ?? null) !== next.priceInterval
+  );
+}
+
+function withoutExistingPrice(
+  providerProduct: Record<string, string> | null,
+): Record<string, string> | null {
+  if (!providerProduct?.productId) {
+    return null;
+  }
+
+  return { productId: providerProduct.productId };
 }
 
 export async function dryRunSyncProducts(ctx: PayKitContext): Promise<SyncProductResult[]> {
@@ -99,6 +125,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
     id: string;
     name: string;
     priceAmount: number;
+    priceCurrency: string;
     priceInterval: string;
     existingProviderProduct: Record<string, string> | null;
     storedProductInternalId: string;
@@ -112,6 +139,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
 
     let storedProduct = existing?.product ?? null;
     let action: SyncProductResult["action"] = "unchanged";
+    let providerProductForSync = existingProviderProduct;
 
     if (!existing) {
       storedProduct = await insertProductVersion(ctx.database, {
@@ -121,6 +149,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         isDefault: plan.isDefault,
         name: plan.name,
         priceAmount: plan.priceAmount,
+        priceCurrency: plan.priceCurrency,
         priceInterval: plan.priceInterval,
         version: 1,
       });
@@ -130,6 +159,9 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
       });
       action = "created";
     } else if (planChanged(existing, plan)) {
+      if (priceChanged(existing, plan)) {
+        providerProductForSync = withoutExistingPrice(existingProviderProduct);
+      }
       storedProduct = await insertProductVersion(ctx.database, {
         group: plan.group,
         hash: plan.hash,
@@ -137,6 +169,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         isDefault: plan.isDefault,
         name: plan.name,
         priceAmount: plan.priceAmount,
+        priceCurrency: plan.priceCurrency,
         priceInterval: plan.priceInterval,
         version: existing.product.version + 1,
       });
@@ -159,12 +192,17 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
       );
     }
 
-    if (storedProduct.priceAmount !== null && storedProduct.priceInterval !== null) {
+    if (
+      storedProduct.priceAmount !== null &&
+      storedProduct.priceCurrency !== null &&
+      storedProduct.priceInterval !== null
+    ) {
       paidPlansToSync.push({
-        existingProviderProduct: existingProviderProduct ?? null,
+        existingProviderProduct: providerProductForSync ?? null,
         id: plan.id,
         name: plan.name,
         priceAmount: storedProduct.priceAmount,
+        priceCurrency: storedProduct.priceCurrency,
         priceInterval: storedProduct.priceInterval,
         storedProductInternalId: storedProduct.internalId,
       });
@@ -184,6 +222,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         id: p.id,
         name: p.name,
         priceAmount: p.priceAmount,
+        priceCurrency: p.priceCurrency,
         priceInterval: p.priceInterval,
       })),
     });

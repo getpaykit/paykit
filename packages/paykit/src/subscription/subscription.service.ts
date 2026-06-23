@@ -58,6 +58,9 @@ export async function subscribeToPlan(
     } else if (subCtx.isFreeTarget) {
       // Switching from paid to free always happens at period end.
       result = await handleCancelToFree(ctx, subCtx);
+    } else if (subCtx.isPaidCurrencyChange) {
+      // Cross-currency paid changes need a new checkout-backed subscription.
+      result = await createCheckoutSubscribe(ctx, subCtx);
     } else if (!subCtx.isUpgrade) {
       // Paid downgrades stay active now and schedule the cheaper plan for later.
       result = await handleScheduledDowngrade(ctx, subCtx);
@@ -148,9 +151,15 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
 
   const activeAmount = activeSubscription?.priceAmount ?? 0;
   const targetAmount = storedPlan.priceAmount ?? 0;
+  const isPaidCurrencyChange =
+    activeSubscription != null &&
+    activeSubscription.priceCurrency !== null &&
+    storedPlan.priceCurrency !== null &&
+    activeSubscription.priceCurrency !== storedPlan.priceCurrency;
   const isUpgrade =
     activeSubscription != null &&
     hasProviderSubscription(activeSubscription) &&
+    !isPaidCurrencyChange &&
     targetAmount > activeAmount;
 
   const planFeatures = normalizedPlan
@@ -163,6 +172,7 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
     customerId: input.customerId,
     isFreeTarget,
     isPaidTarget,
+    isPaidCurrencyChange,
     isUpgrade,
     normalizedPlan,
     planFeatures,
@@ -1236,6 +1246,7 @@ function mapJoinRowToSubscriptionWithCatalog(row: {
     planIsDefault: row.product.isDefault,
     planName: row.product.name,
     priceAmount: row.product.priceAmount,
+    priceCurrency: row.product.priceCurrency,
     priceInterval: row.product.priceInterval,
     providerProduct: stripeProduct,
   };

@@ -15,6 +15,13 @@
       "when": 1780368513363,
       "tag": "0001_stripe_only_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1782216653893,
+      "tag": "0002_add-product-price-currency",
+      "breakpoints": true
     }
   ]
 }

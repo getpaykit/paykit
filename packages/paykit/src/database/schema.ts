@@ -85,6 +85,7 @@ export const product = pgTable(
     group: text("group").notNull().default(""),
     isDefault: boolean("is_default").notNull().default(false),
     priceAmount: integer("price_amount"),
+    priceCurrency: text("price_currency"),
     priceInterval: text("price_interval"),
     hash: text("hash"),
     stripeProductId: text("stripe_product_id"),

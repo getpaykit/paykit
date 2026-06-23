@@ -12,9 +12,18 @@ export function maskConnectionString(url: string): string {
   }
 }
 
-export function formatPrice(amountCents: number, interval: string | null): string {
+export function formatPrice(
+  amountCents: number,
+  interval: string | null,
+  currency = "usd",
+): string {
   const dollars = amountCents / 100;
-  const formatted = dollars % 1 === 0 ? `$${dollars}` : `$${dollars.toFixed(2)}`;
+  const formatted = new Intl.NumberFormat("en-US", {
+    currency: currency.toUpperCase(),
+    maximumFractionDigits: dollars % 1 === 0 ? 0 : 2,
+    minimumFractionDigits: dollars % 1 === 0 ? 0 : 2,
+    style: "currency",
+  }).format(dollars);
   if (!interval) {
     return formatted;
   }
