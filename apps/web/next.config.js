@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 
 import { createMDX } from "fumadocs-mdx/next";
 
+import "../../scripts/load-root-env.js";
 import "./src/env.js";
 
 const withMDX = createMDX();

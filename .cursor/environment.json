@@ -1,0 +1,4 @@
+{
+  "name": "paykit",
+  "install": "bash scripts/setup-worktree.sh"
+}
