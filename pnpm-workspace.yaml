@@ -13,7 +13,7 @@ allowBuilds:
 
 catalog:
   typescript: 5.9.2
-  zod: ^4.3.6
+  zod: ^4.5.4
   '@types/node': ^25.0.3
 
 catalogs:
