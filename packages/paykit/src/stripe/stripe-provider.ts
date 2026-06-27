@@ -189,6 +189,7 @@ function normalizeStripeSubscription(subscription: StripeSubscriptionWithExtras)
       (typeof subscription.schedule === "string"
         ? subscription.schedule
         : subscription.schedule?.id) ?? null,
+    quantity: firstItem?.quantity ?? 1,
     status: subscription.status,
   };
 }
@@ -686,7 +687,7 @@ export function createStripeProvider(
         cancel_url: data.cancelUrl ?? data.successUrl,
         client_reference_id: data.providerCustomerId,
         customer: data.providerCustomerId,
-        line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+        line_items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
         metadata: data.metadata,
         mode: "subscription",
         success_url: data.successUrl,
@@ -709,7 +710,7 @@ export function createStripeProvider(
     async createSubscription(data) {
       const createParams: StripeSdk.SubscriptionCreateParams = {
         customer: data.providerCustomerId,
-        items: [{ price: data.providerProduct.priceId }],
+        items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
         payment_behavior: "default_incomplete",
         expand: ["latest_invoice.payment_intent"],
       };
@@ -753,6 +754,7 @@ export function createStripeProvider(
           {
             id: currentItem.id,
             price: data.providerProduct.priceId,
+            quantity: data.quantity,
           },
         ],
         payment_behavior: "pending_if_incomplete",
@@ -794,10 +796,12 @@ export function createStripeProvider(
         );
       }
 
-      const currentItems = currentSub.items.data.map((item: { price: { id: string } }) => ({
-        price: item.price.id,
-        quantity: 1,
-      }));
+      const currentItems = currentSub.items.data.map(
+        (item: { price: { id: string }; quantity?: number | null }) => ({
+          price: item.price.id,
+          quantity: item.quantity ?? 1,
+        }),
+      );
 
       let schedule: StripeSdk.SubscriptionSchedule;
       if (data.providerSubscriptionScheduleId) {
@@ -827,7 +831,7 @@ export function createStripeProvider(
             end_date: periodEndSeconds,
           },
           {
-            items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+            items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
             start_date: periodEndSeconds,
           },
         ],

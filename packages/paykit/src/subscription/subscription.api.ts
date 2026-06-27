@@ -18,6 +18,7 @@ export const subscribe = definePayKitMethod(
       customerId: ctx.customer.id,
       forceCheckout: ctx.input.forceCheckout,
       planId: ctx.input.planId,
+      quantity: ctx.input.quantity,
       successUrl: ctx.input.successUrl,
       cancelUrl: ctx.input.cancelUrl,
     });
