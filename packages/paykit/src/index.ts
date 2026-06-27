@@ -12,6 +12,8 @@ export type {
   PayKitClientGetTestClockInput,
   PayKitClientSubscribeInput,
   PayKitGetTestClockInput,
+  PayKitExpireCheckoutSessionInput,
+  PayKitExpireCheckoutSessionResult,
   PayKitInstance,
   PayKitCheckInput,
   PayKitCustomerPortalInput,
@@ -19,7 +21,11 @@ export type {
   PayKitSubscribeInput,
   PayKitSubscribeResult,
 } from "./types/instance";
-export type { SubscribeResult } from "./subscription/subscription.types";
+export type {
+  ExpireCheckoutSessionResult,
+  SubscribeResult,
+  SubscriptionCheckoutOptions,
+} from "./subscription/subscription.types";
 export type {
   CheckResult,
   EntitlementBalance,

@@ -9,7 +9,7 @@ import {
   upsertCustomer,
 } from "../customer/customer.api";
 import { check, report } from "../entitlement/entitlement.api";
-import { subscribe } from "../subscription/subscription.api";
+import { expireCheckoutSession, subscribe } from "../subscription/subscription.api";
 import { advanceTestClock, getTestClock } from "../testing/testing.api";
 import type { PayKitOptions } from "../types/options";
 import { receiveWebhook } from "../webhook/webhook.api";
@@ -17,6 +17,7 @@ import type { PayKitMethod } from "./define-route";
 
 export const baseMethods = {
   subscribe,
+  expireCheckoutSession,
   customerPortal,
   upsertCustomer,
   getCustomer,

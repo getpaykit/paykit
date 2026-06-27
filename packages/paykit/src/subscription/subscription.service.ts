@@ -177,6 +177,7 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
   return {
     activeSubscription,
     cancelUrl: input.cancelUrl,
+    checkout: input.checkout,
     customerId: input.customerId,
     isFreeTarget,
     isPaidTarget,
@@ -198,6 +199,7 @@ type SubscribeContext = Awaited<ReturnType<typeof loadSubscribeContext>>;
 type ActiveSubscription = Awaited<ReturnType<typeof getActiveSubscriptionInGroup>>;
 
 function buildSubscribeResult(input: {
+  checkoutSessionId?: string;
   invoice?: {
     currency: string;
     hostedUrl?: string | null;
@@ -211,6 +213,7 @@ function buildSubscribeResult(input: {
   requiredAction?: ProviderRequiredAction | null;
 }): SubscribeResult {
   return {
+    checkoutSessionId: input.checkoutSessionId,
     invoice: input.invoice
       ? {
           currency: input.invoice.currency,
@@ -1146,6 +1149,7 @@ async function createCheckoutSubscribe(
 ): Promise<SubscribeResult> {
   const checkoutResult = await ctx.provider.createSubscriptionCheckout({
     cancelUrl: subCtx.cancelUrl,
+    checkout: subCtx.checkout,
     metadata: {
       paykit_customer_id: subCtx.customerId,
       paykit_intent: "subscribe",
@@ -1158,7 +1162,10 @@ async function createCheckoutSubscribe(
     successUrl: subCtx.successUrl,
   });
 
-  return buildSubscribeResult({ paymentUrl: checkoutResult.paymentUrl });
+  return buildSubscribeResult({
+    checkoutSessionId: checkoutResult.providerCheckoutSessionId,
+    paymentUrl: checkoutResult.paymentUrl,
+  });
 }
 
 async function insertLocalTargetSubscription(

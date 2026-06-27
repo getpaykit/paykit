@@ -31,6 +31,13 @@ function createStripeClientMock() {
     checkout: {
       sessions: {
         create: vi.fn().mockResolvedValue({ id: "cs_123", url: "https://checkout.test/session" }),
+        expire: vi.fn().mockResolvedValue({ id: "cs_123", status: "expired" }),
+        retrieve: vi.fn().mockResolvedValue({
+          client_reference_id: "cus_123",
+          customer: "cus_123",
+          id: "cs_123",
+          status: "open",
+        }),
       },
     },
     invoices: {
@@ -130,6 +137,157 @@ describe("stripe-provider", () => {
         line_items: [{ price: "price_123", quantity: 3 }],
       }),
     );
+  });
+
+  it("passes checkout hardening options to Stripe Checkout", async () => {
+    const client = createStripeClientMock();
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    await provider.createSubscriptionCheckout({
+      checkout: {
+        allowPromotionCodes: true,
+        automaticTax: { enabled: true },
+        billingAddressCollection: "required",
+        customerUpdate: {
+          address: "auto",
+          name: "auto",
+          shipping: "never",
+        },
+        idempotencyKey: "checkout_123",
+        taxIdCollection: {
+          enabled: true,
+          required: "if_supported",
+        },
+      },
+      metadata: {
+        paykit_customer_id: "cust_123",
+        paykit_intent: "subscribe",
+      },
+      providerCustomerId: "cus_123",
+      providerProduct: { priceId: "price_123", productId: "prod_123" },
+      quantity: 3,
+      successUrl: "https://app.test/success",
+    });
+
+    expect(client.checkout.sessions.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        allow_promotion_codes: true,
+        automatic_tax: { enabled: true },
+        billing_address_collection: "required",
+        customer_update: {
+          address: "auto",
+          name: "auto",
+          shipping: "never",
+        },
+        subscription_data: {
+          metadata: {
+            paykit_customer_id: "cust_123",
+            paykit_intent: "subscribe",
+          },
+        },
+        tax_id_collection: {
+          enabled: true,
+          required: "if_supported",
+        },
+      }),
+      { idempotencyKey: "checkout_123" },
+    );
+  });
+
+  it("expires open checkout sessions that belong to the provider customer", async () => {
+    const client = createStripeClientMock();
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    const result = await provider.expireCheckoutSession({
+      providerCheckoutSessionId: "cs_123",
+      providerCustomerId: "cus_123",
+    });
+
+    expect(client.checkout.sessions.retrieve).toHaveBeenCalledWith("cs_123");
+    expect(client.checkout.sessions.expire).toHaveBeenCalledWith("cs_123");
+    expect(result).toEqual({
+      providerCheckoutSessionId: "cs_123",
+      status: "expired",
+    });
+  });
+
+  it("treats already expired checkout sessions as idempotent success", async () => {
+    const client = createStripeClientMock();
+    client.checkout.sessions.retrieve.mockResolvedValueOnce({
+      client_reference_id: "cus_123",
+      customer: "cus_123",
+      id: "cs_123",
+      status: "expired",
+    });
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    const result = await provider.expireCheckoutSession({
+      providerCheckoutSessionId: "cs_123",
+      providerCustomerId: "cus_123",
+    });
+
+    expect(client.checkout.sessions.expire).not.toHaveBeenCalled();
+    expect(result).toEqual({
+      providerCheckoutSessionId: "cs_123",
+      status: "expired",
+    });
+  });
+
+  it("blocks checkout session expiration when customer ownership does not match", async () => {
+    const client = createStripeClientMock();
+    client.checkout.sessions.retrieve.mockResolvedValueOnce({
+      client_reference_id: "cus_other",
+      customer: "cus_other",
+      id: "cs_123",
+      status: "open",
+    });
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    await expect(
+      provider.expireCheckoutSession({
+        providerCheckoutSessionId: "cs_123",
+        providerCustomerId: "cus_123",
+      }),
+    ).rejects.toMatchObject({
+      code: "PROVIDER_CHECKOUT_SESSION_CUSTOMER_MISMATCH",
+    });
+    expect(client.checkout.sessions.expire).not.toHaveBeenCalled();
+  });
+
+  it("blocks checkout session expiration after completion", async () => {
+    const client = createStripeClientMock();
+    client.checkout.sessions.retrieve.mockResolvedValueOnce({
+      client_reference_id: "cus_123",
+      customer: "cus_123",
+      id: "cs_123",
+      status: "complete",
+    });
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    await expect(
+      provider.expireCheckoutSession({
+        providerCheckoutSessionId: "cs_123",
+        providerCustomerId: "cus_123",
+      }),
+    ).rejects.toMatchObject({
+      code: "PROVIDER_CHECKOUT_SESSION_NOT_EXPIREABLE",
+    });
+    expect(client.checkout.sessions.expire).not.toHaveBeenCalled();
   });
 
   it("passes quantity to direct Stripe subscription creation", async () => {

@@ -76,6 +76,24 @@ export interface ProviderSubscriptionResult {
   subscription?: ProviderSubscription | null;
 }
 
+export interface ProviderSubscriptionCheckoutOptions {
+  allowPromotionCodes?: boolean;
+  automaticTax?: {
+    enabled: boolean;
+  };
+  billingAddressCollection?: "auto" | "required";
+  customerUpdate?: {
+    address?: "auto" | "never";
+    name?: "auto" | "never";
+    shipping?: "auto" | "never";
+  };
+  idempotencyKey?: string;
+  taxIdCollection?: {
+    enabled: boolean;
+    required?: "if_supported" | "never";
+  };
+}
+
 export interface PaymentProvider {
   readonly id: string;
   readonly name: string;
@@ -107,6 +125,7 @@ export interface PaymentProvider {
   }): Promise<{ url: string }>;
 
   createSubscriptionCheckout(data: {
+    checkout?: ProviderSubscriptionCheckoutOptions;
     providerCustomerId: string;
     providerProduct: Record<string, string>;
     successUrl: string;
@@ -120,6 +139,11 @@ export interface PaymentProvider {
     providerProduct: Record<string, string>;
     quantity: number;
   }): Promise<ProviderSubscriptionResult>;
+
+  expireCheckoutSession(data: {
+    providerCheckoutSessionId: string;
+    providerCustomerId: string;
+  }): Promise<{ providerCheckoutSessionId: string; status: "expired" }>;
 
   updateSubscription(data: {
     providerProduct: Record<string, string>;

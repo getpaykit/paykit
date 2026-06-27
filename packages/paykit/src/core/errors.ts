@@ -21,6 +21,10 @@ export const PAYKIT_ERROR_CODES = defineErrorCodes({
   PROVIDER_REQUIRED: "A provider is required",
   PROVIDER_INVALID_CONFIG: "Provider config is invalid",
   PROVIDER_CUSTOMER_NOT_FOUND: "Customer not found in provider",
+  PROVIDER_CHECKOUT_SESSION_CUSTOMER_MISMATCH:
+    "Provider checkout session does not belong to customer",
+  PROVIDER_CHECKOUT_SESSION_NOT_EXPIREABLE: "Provider checkout session cannot be expired",
+  PROVIDER_CHECKOUT_SESSION_NOT_FOUND: "Provider checkout session not found",
   PROVIDER_SESSION_INVALID: "Provider session did not include a URL",
   PROVIDER_SIGNATURE_MISSING: "Missing provider webhook signature",
   PROVIDER_SUBSCRIPTION_MISSING_ITEMS: "Provider subscription did not include any items",

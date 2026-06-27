@@ -157,6 +157,64 @@ function createSamePlanSubscribeContext() {
   return { ctx, provider };
 }
 
+function createInitialCheckoutSubscribeContext() {
+  const product = createProductRow();
+  const selectResults = [
+    createSelectChain([], "where"),
+    createSelectChain([], "limit"),
+    createSelectChain([], "orderBy"),
+  ];
+  const database = {
+    select: vi.fn(() => selectResults.shift()),
+  } as unknown as PayKitDatabase;
+  const provider = {
+    id: "stripe",
+    name: "Stripe",
+    createSubscriptionCheckout: vi.fn().mockResolvedValue({
+      paymentUrl: "https://checkout.test/session",
+      providerCheckoutSessionId: "cs_123",
+    }),
+  };
+  const trace = vi.fn() as unknown as PayKitContext["logger"]["trace"];
+  trace.run = (_prefix, callback) => callback();
+  const ctx = {
+    database,
+    logger: { info: vi.fn(), trace, warn: vi.fn() },
+    options: {},
+    products: {
+      planMap: new Map([
+        [
+          "restaurant-live",
+          {
+            group: "default",
+            hash: "hash_123",
+            id: "restaurant-live",
+            includes: [],
+            isDefault: false,
+            name: "Restaurant Live",
+            price: { amount: 900, currency: "eur", interval: "month" },
+          },
+        ],
+      ]),
+    },
+    provider,
+  } as unknown as PayKitContext;
+
+  mocks.customer.upsertProviderCustomer.mockResolvedValue({
+    customerId: "cust_123",
+    providerCustomer: { id: "cus_123" },
+    providerCustomerId: "cus_123",
+  });
+  mocks.paymentMethod.getDefaultPaymentMethod.mockResolvedValue(null);
+  mocks.product.getProductByPlan.mockResolvedValue(product);
+  mocks.product.withProviderInfo.mockReturnValue({
+    ...product,
+    providerProduct: { priceId: "price_123", productId: "prod_123" },
+  });
+
+  return { ctx, provider };
+}
+
 describe("subscription/service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -173,6 +231,35 @@ describe("subscription/service", () => {
 
     expect(provider.updateSubscription).not.toHaveBeenCalled();
     expect(provider.resumeSubscription).not.toHaveBeenCalled();
+  });
+
+  it("passes checkout options to provider checkout and returns checkout session id", async () => {
+    const { ctx, provider } = createInitialCheckoutSubscribeContext();
+
+    const result = await subscribeToPlan(ctx, {
+      checkout: {
+        automaticTax: { enabled: true },
+        idempotencyKey: "checkout_123",
+      },
+      customerId: "cust_123",
+      planId: "restaurant-live",
+      quantity: 2,
+      successUrl: "https://app.example.com/success",
+    });
+
+    expect(provider.createSubscriptionCheckout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        checkout: {
+          automaticTax: { enabled: true },
+          idempotencyKey: "checkout_123",
+        },
+        quantity: 2,
+      }),
+    );
+    expect(result).toMatchObject({
+      checkoutSessionId: "cs_123",
+      paymentUrl: "https://checkout.test/session",
+    });
   });
 
   it("syncs provider subscription quantity into the local subscription", async () => {
