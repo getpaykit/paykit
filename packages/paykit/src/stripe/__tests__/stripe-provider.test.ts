@@ -26,6 +26,15 @@ function createStripeSubscription(quantity = 1) {
   };
 }
 
+function createStripeSubscriptionWithoutItems() {
+  return {
+    ...createStripeSubscription(),
+    items: {
+      data: [],
+    },
+  };
+}
+
 function createStripeClientMock() {
   return {
     checkout: {
@@ -173,6 +182,23 @@ describe("stripe-provider", () => {
       }),
     );
     expect(result.subscription?.quantity).toBe(4);
+  });
+
+  it("does not synthesize quantity when a Stripe subscription has no items", async () => {
+    const client = createStripeClientMock();
+    client.subscriptions.update.mockResolvedValue(createStripeSubscriptionWithoutItems());
+    const provider = createStripeProvider(client as never, {
+      currency: "eur",
+      secretKey: "sk_test_123",
+    });
+
+    const result = await provider.updateSubscription({
+      providerProduct: { priceId: "price_456", productId: "prod_456" },
+      providerSubscriptionId: "sub_123",
+      quantity: 4,
+    });
+
+    expect(result.subscription?.quantity).toBeUndefined();
   });
 
   it("preserves current quantity and applies target quantity for scheduled changes", async () => {

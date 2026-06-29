@@ -189,7 +189,7 @@ function normalizeStripeSubscription(subscription: StripeSubscriptionWithExtras)
       (typeof subscription.schedule === "string"
         ? subscription.schedule
         : subscription.schedule?.id) ?? null,
-    quantity: firstItem?.quantity ?? 1,
+    quantity: firstItem ? (firstItem.quantity ?? 1) : undefined,
     status: subscription.status,
   };
 }
