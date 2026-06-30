@@ -1,7 +1,7 @@
-import { spawn } from "node:child_process";
 import path from "node:path";
 
 import { Command } from "commander";
+import concurrently, { type CloseEvent as ConcurrentlyCloseEvent } from "concurrently";
 import dotenv from "dotenv";
 import picocolors from "picocolors";
 
@@ -21,7 +21,7 @@ const STABLE_SOCKET_RESET_MS = 30_000;
 const FORWARD_REPLAY_TIMEOUT_MS = 5_000;
 const REPLAY_HEADER = "x-paykit-cloud-replay";
 const REPLACED_SESSION_CLOSE_CODE = 4001;
-const CHILD_SHUTDOWN_TIMEOUT_MS = 5_000;
+const NO_SPINNER_ENV = "PAYKIT_NO_SPINNER";
 
 interface TunnelResponse {
   found: boolean;
@@ -86,16 +86,6 @@ interface RelayRuntimeContext {
   config?: Awaited<ReturnType<typeof getPayKitConfig>>;
   deviceToken: string;
   provider: TunnelCapableProvider;
-}
-
-interface ChildCommandExit {
-  code: number | null;
-  signal: NodeJS.Signals | null;
-}
-
-interface SpawnedChildCommand {
-  exited: Promise<ChildCommandExit>;
-  stop(signal?: NodeJS.Signals): void;
 }
 
 function loadDotEnv(cwd: string): void {
@@ -762,7 +752,9 @@ async function listenAction(options: {
 }): Promise<void> {
   const cwd = path.resolve(options.cwd);
   capture("cli_command", { command: "listen" });
-  const devLogger = createDevLogger({ spinner: options.useSpinner });
+  const devLogger = createDevLogger({
+    spinner: options.useSpinner ?? process.env[NO_SPINNER_ENV] !== "1",
+  });
   const retryWindowMs = parseRetryWindowMs(options.retry);
   const relayStartedAt = Date.now();
 
@@ -885,81 +877,6 @@ async function listenAction(options: {
   }
 }
 
-function spawnChildCommand(command: string, args: string[], cwd: string): SpawnedChildCommand {
-  const child = spawn(command, args, {
-    cwd,
-    detached: process.platform !== "win32",
-    env: process.env,
-    stdio: "inherit",
-  });
-
-  const exited = new Promise<ChildCommandExit>((resolve, reject) => {
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      resolve({ code, signal });
-    });
-  });
-
-  let shutdownTimer: NodeJS.Timeout | undefined;
-
-  function kill(signal: NodeJS.Signals) {
-    if (child.exitCode !== null || child.signalCode !== null) {
-      return;
-    }
-
-    try {
-      if (process.platform === "win32" || !child.pid) {
-        child.kill(signal);
-      } else {
-        process.kill(-child.pid, signal);
-      }
-    } catch {
-      // ignore races where the child exits before the forwarded signal arrives
-    }
-  }
-
-  void exited.then(
-    () => {
-      if (shutdownTimer) {
-        clearTimeout(shutdownTimer);
-      }
-    },
-    () => {
-      if (shutdownTimer) {
-        clearTimeout(shutdownTimer);
-      }
-    },
-  );
-
-  return {
-    exited,
-    stop(signal = "SIGTERM") {
-      kill(signal);
-      shutdownTimer ??= setTimeout(() => kill("SIGKILL"), CHILD_SHUTDOWN_TIMEOUT_MS);
-      shutdownTimer.unref();
-    },
-  };
-}
-
-function signalExitCode(signal: NodeJS.Signals): number {
-  switch (signal) {
-    case "SIGINT":
-      return 130;
-    case "SIGTERM":
-      return 143;
-    default:
-      return 1;
-  }
-}
-
-async function waitForListenToStop(listenPromise: Promise<void>): Promise<void> {
-  try {
-    await listenPromise;
-  } catch {
-    // listen errors are handled by the caller that owns the promise race
-  }
-}
-
 async function listenWithRunCommand(
   runCommand: string[],
   options: {
@@ -976,75 +893,100 @@ async function listenWithRunCommand(
   }
 
   const cwd = path.resolve(options.cwd);
-  const controller = new AbortController();
-  const child = spawnChildCommand(command, args, cwd);
-  let interruptedSignal: NodeJS.Signals | undefined;
-
-  const onSignal = (signal: NodeJS.Signals) => {
-    interruptedSignal = signal;
-    process.exitCode = signalExitCode(signal);
-    controller.abort();
-    child.stop(signal);
-  };
-
-  process.once("SIGINT", onSignal);
-  process.once("SIGTERM", onSignal);
-
-  const listenPromise = listenAction({
-    ...options,
-    cwd,
-    signal: controller.signal,
-    useSpinner: false,
-  });
+  const { result } = concurrently(
+    [
+      {
+        command: buildStandaloneListenCommand({ ...options, cwd }),
+        env: { [NO_SPINNER_ENV]: "1" },
+        name: "pay",
+        prefixColor: "cyan",
+      },
+      {
+        command: buildShellCommand([command, ...args]),
+        name: "app",
+        prefixColor: "blue",
+      },
+    ],
+    {
+      cwd,
+      killOthersOn: ["success", "failure"],
+      killSignal: "SIGINT",
+      prefix: "name",
+      successCondition: "first",
+    },
+  );
 
   try {
-    const result = await Promise.race([
-      listenPromise.then(
-        () => ({ type: "listen" as const }),
-        (error: unknown) => ({ error, type: "listen_error" as const }),
-      ),
-      child.exited.then(
-        (exit) => ({ exit, type: "child_exit" as const }),
-        (error: unknown) => ({ error, type: "child_error" as const }),
-      ),
-    ]);
-
-    if (result.type === "listen_error") {
-      controller.abort();
-      child.stop();
-      throw result.error;
+    await result;
+  } catch (error) {
+    if (!Array.isArray(error)) {
+      throw error;
     }
 
-    if (result.type === "child_error") {
-      controller.abort();
-      await waitForListenToStop(listenPromise);
-      throw result.error;
-    }
+    process.exitCode = getConcurrentlyExitCode(error);
+  }
+}
 
-    if (result.type === "child_exit") {
-      controller.abort();
-      await waitForListenToStop(listenPromise);
+function buildStandaloneListenCommand(options: {
+  config?: string;
+  cwd: string;
+  forwardTo?: string;
+  retry: string;
+}): string {
+  const command = [process.execPath];
+  if (process.argv[1]) {
+    command.push(process.argv[1]);
+  } else {
+    command[0] = "paykitjs";
+  }
 
-      if (interruptedSignal) {
-        process.exitCode = signalExitCode(interruptedSignal);
-        return;
-      }
+  command.push("listen", "--cwd", options.cwd, "--retry", options.retry);
+  if (options.config) {
+    command.push("--config", options.config);
+  }
+  if (options.forwardTo) {
+    command.push("--forward-to", options.forwardTo);
+  }
 
-      if (result.exit.signal) {
-        process.exitCode = signalExitCode(result.exit.signal);
-        return;
-      }
+  return buildShellCommand(command);
+}
 
-      process.exitCode = result.exit.code ?? 1;
-      return;
-    }
+function buildShellCommand(command: string[]): string {
+  return command.map(quoteShellArg).join(" ");
+}
 
-    controller.abort();
-    child.stop();
-    await child.exited.catch(() => undefined);
-  } finally {
-    process.removeListener("SIGINT", onSignal);
-    process.removeListener("SIGTERM", onSignal);
+function quoteShellArg(value: string): string {
+  if (/^[\w./:@%+=,-]+$/.test(value)) {
+    return value;
+  }
+
+  if (process.platform === "win32") {
+    return `"${value.replace(/"/g, '\\"')}"`;
+  }
+
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function getConcurrentlyExitCode(events: ConcurrentlyCloseEvent[]): number {
+  const failedEvent =
+    events.find((event) => !event.killed && getExitCode(event.exitCode) !== 0) ??
+    events.find((event) => getExitCode(event.exitCode) !== 0);
+
+  return getExitCode(failedEvent?.exitCode ?? 1);
+}
+
+function getExitCode(exitCode: ConcurrentlyCloseEvent["exitCode"]): number {
+  if (typeof exitCode === "number") {
+    return exitCode;
+  }
+
+  switch (exitCode) {
+    case "SIGINT":
+      return 130;
+    case "SIGTERM":
+      return 143;
+    default:
+      return 1;
   }
 }
 
