@@ -20,7 +20,7 @@
     "typecheck": "tsc --noEmit",
     "push": "pnpm push:auth && pnpm push:paykit && pnpm push:autumn",
     "push:auth": "auth migrate --config src/lib/auth.ts --yes",
-    "push:paykit": "set -a; [ -f .env ] && . ./.env; set +a; pnpm paykitjs push --config paykit.config.ts --yes",
+    "push:paykit": "set -a; [ -f .env ] && . ./.env; set +a; pnpm paykitjs push --yes",
     "push:autumn": "set -a; [ -f .env ] && . ./.env; set +a; if [ -n \"$AUTUMN_SECRET_KEY\" ]; then atmn push; else printf '%s\\n' 'Skipping Autumn push: provider env incomplete'; fi",
     "db:studio": "drizzle-kit studio"
   },
