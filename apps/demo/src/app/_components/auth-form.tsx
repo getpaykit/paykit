@@ -26,8 +26,12 @@ async function copyCredentials(credentials: { email: string; password: string })
   const text = formatCredentials(credentials);
 
   if (navigator.clipboard) {
-    await navigator.clipboard.writeText(text);
-    return;
+    try {
+      await navigator.clipboard.writeText(text);
+      return;
+    } catch {
+      // Fall back to the textarea path when clipboard permissions reject writes.
+    }
   }
 
   const textarea = document.createElement("textarea");
@@ -57,6 +61,10 @@ export function AuthForm({ redirectTo }: { redirectTo: string }) {
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading || randomAccountLoading) {
+      return;
+    }
+
     setError("");
     setLoading(true);
 
@@ -88,6 +96,10 @@ export function AuthForm({ redirectTo }: { redirectTo: string }) {
   }
 
   async function handleRandomAccount() {
+    if (loading || randomAccountLoading) {
+      return;
+    }
+
     setError("");
     setRandomAccountLoading(true);
 

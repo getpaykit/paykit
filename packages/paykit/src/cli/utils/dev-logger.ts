@@ -24,6 +24,7 @@ export function createDevLogger(options: { spinner?: boolean } = {}) {
   let status: string | undefined;
 
   function flushSpinner() {
+    status = undefined;
     if (useSpinner) {
       spinner.stop();
     }

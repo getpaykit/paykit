@@ -82,15 +82,14 @@ function getDevCommand(pm: PackageManager): string {
   return "pnpm dev";
 }
 
-export function getWebhookListenCommand(
-  port: number,
-  hasPaykitCli = detectPaykitCli(),
+export function getPaykitListenCommand(
   pm: PackageManager = detectPackageManager(process.cwd()),
 ): string {
-  const path = `localhost:${String(port)}/paykit/webhook`;
-  return hasPaykitCli
-    ? `${getExecPrefix(pm)} paykitjs listen -- ${getDevCommand(pm)}`
-    : `stripe listen --forward-to ${path}`;
+  return `${getExecPrefix(pm)} paykitjs listen -- ${getDevCommand(pm)}`;
+}
+
+export function getStripeListenCommand(port: number): string {
+  return `stripe listen --forward-to localhost:${String(port)}/paykit/webhook`;
 }
 
 function generateConfigFile(templateId: string, includeIdentify: boolean): string {
@@ -577,7 +576,9 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
   const exec = getExecPrefix(pm);
   const c = picocolors.cyan;
   const b = picocolors.bold;
-  const webhookCommand = getWebhookListenCommand(3000, detectPaykitCli(), pm);
+  const webhookCommand = detectPaykitCli()
+    ? getPaykitListenCommand(pm)
+    : getStripeListenCommand(3000);
 
   const isRerun = files.length === 0;
   const heading = isRerun

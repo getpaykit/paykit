@@ -455,7 +455,7 @@ async function consumeTunnelSocket(params: {
       processing.finally(() => settle(() => reject(new Error("websocket stream failed"))));
     };
     const onAbort = () => {
-      processing.finally(() => settle(() => resolve({ code: 1000, reason: "aborted" })));
+      settle(() => resolve({ code: 1000, reason: "aborted" }));
       try {
         params.socket.close(1000, "aborted");
       } catch {
