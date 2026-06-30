@@ -44,4 +44,5 @@ These directories already contain source checkouts for some packages:
 - Never edit past migrations; create a new migration instead.
 - Never run "deploy" scripts to test anything, only if explicitly asked
 - NEVER EVER publish or release packages yourself, ask double confirmation
-- No need to pass --config paykit.config.ts into paykitjs CLI, because it's one of the locations resolved by default
+- No need to pass --config paykit.ts into paykitjs CLI, because it's one of the locations resolved by default
+- If you just did some changes but later you see them different in the diff, it means the user likely adjusted the code intentionally, you should not restore them without asking the user
