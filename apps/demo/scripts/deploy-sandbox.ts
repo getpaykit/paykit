@@ -8,7 +8,7 @@ import {
 
 function printHelp() {
   console.log("Deploy standalone demo app copy to Vercel sandbox production");
-  console.log("Usage: bun deploy:sandbox --version <npm-spec>");
+  console.log("Usage: pnpm deploy:sandbox --version <npm-spec>");
 }
 
 async function main() {

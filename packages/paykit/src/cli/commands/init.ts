@@ -21,6 +21,7 @@ import {
   isPackageInstalled,
   resolveImportPath,
 } from "../utils/detect";
+import type { PackageManager } from "../utils/detect";
 import {
   createEnvFile,
   getEnvFiles,
@@ -31,7 +32,6 @@ import {
 import { capture } from "../utils/telemetry";
 
 const execAsync = promisify(exec);
-const require = createRequire(import.meta.url);
 
 function ensureDir(filePath: string): void {
   const dir = path.dirname(filePath);
@@ -65,20 +65,31 @@ function stripeConfig(): string {
   }`;
 }
 
-export function detectPaykitCli(): boolean {
+export function detectPaykitCli(cwd = process.cwd()): boolean {
   try {
-    require.resolve("paykitjs/package.json");
+    const projectRequire = createRequire(path.join(cwd, "package.json"));
+    projectRequire.resolve("paykitjs/package.json");
     return true;
   } catch {
     return false;
   }
 }
 
-export function getWebhookListenCommand(port: number, hasPaykitCli = detectPaykitCli()): string {
-  const path = `localhost:${String(port)}/paykit/webhook`;
-  return hasPaykitCli
-    ? `paykitjs listen --forward-to ${path}`
-    : `stripe listen --forward-to ${path}`;
+function getDevCommand(pm: PackageManager): string {
+  if (pm === "npm") return "npm run dev";
+  if (pm === "bun") return "bun dev";
+  if (pm === "yarn") return "yarn dev";
+  return "pnpm dev";
+}
+
+export function getPaykitListenCommand(
+  pm: PackageManager = detectPackageManager(process.cwd()),
+): string {
+  return `${getExecPrefix(pm)} paykitjs listen -- ${getDevCommand(pm)}`;
+}
+
+export function getStripeListenCommand(port: number): string {
+  return `stripe listen --forward-to localhost:${String(port)}/paykit/webhook`;
 }
 
 function generateConfigFile(templateId: string, includeIdentify: boolean): string {
@@ -565,7 +576,9 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
   const exec = getExecPrefix(pm);
   const c = picocolors.cyan;
   const b = picocolors.bold;
-  const webhookCommand = getWebhookListenCommand(3000);
+  const webhookCommand = detectPaykitCli(cwd)
+    ? getPaykitListenCommand(pm)
+    : getStripeListenCommand(3000);
 
   const isRerun = files.length === 0;
   const heading = isRerun
@@ -586,7 +599,7 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
       `   ${c("•")} Check status: ${b(`${exec} paykitjs status`)}`,
       `   ${c("•")} Sync updated products: ${b(`${exec} paykitjs push`)}`,
       `   ${c("•")} Add AI skills: ${b(`${getDlxPrefix(pm)} skills add getpaykit/skills`)}`,
-      `   ${c("•")} Forward dev webhooks: ${b(webhookCommand)}`,
+      `   ${c("•")} Run dev with webhooks: ${b(webhookCommand)}`,
       "",
       `   Please star us on github ${c("<3")}`,
       `   ${c("https://paykit.sh/github")}`,

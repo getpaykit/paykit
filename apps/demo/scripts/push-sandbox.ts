@@ -24,20 +24,15 @@ async function main() {
 
   console.log("Push auth migrations");
   await runCommand(
-    "bunx",
-    ["auth", "migrate", "--config", "src/lib/auth.ts", "--yes"],
+    "pnpm",
+    ["exec", "auth", "migrate", "--config", "src/lib/auth.ts", "--yes"],
     demoDir,
     env,
   );
 
   if (hasEnv(values, ["PAYKIT_DATABASE_URL", "STRIPE_SECRET_KEY", "STRIPE_WEBHOOK_SECRET"])) {
     console.log("Push PayKit config");
-    await runCommand(
-      "bunx",
-      ["paykitjs", "push", "--config", "paykit.config.ts", "--yes"],
-      demoDir,
-      env,
-    );
+    await runCommand("pnpm", ["paykitjs", "push", "--yes"], demoDir, env);
   } else {
     console.log("Skipping PayKit push: env incomplete");
   }

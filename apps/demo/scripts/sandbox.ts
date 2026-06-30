@@ -201,9 +201,9 @@ async function rewriteTempNextConfig(nextConfigPath: string) {
 
 async function writeTempVercelConfig(vercelConfigPath: string) {
   const vercelConfig = {
-    buildCommand: "bun run build",
+    buildCommand: "pnpm run build",
     framework: "nextjs",
-    installCommand: "bun install",
+    installCommand: "pnpm install",
   };
 
   await writeFile(vercelConfigPath, `${JSON.stringify(vercelConfig, null, 2)}\n`);

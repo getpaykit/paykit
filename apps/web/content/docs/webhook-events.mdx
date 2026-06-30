@@ -62,6 +62,20 @@ export const paykit = createPayKit({
 
 The webhook endpoint is exposed by paykit handler at `/paykit/webhook` by default. See the [installation page](/docs/installation) for details on mounting it.
 
+## Local development
+
+Use `paykitjs listen` to receive provider webhooks while your app runs locally:
+
+```bash
+pnpm paykitjs listen
+```
+
+Or run with the web server together:
+
+```bash
+pnpm paykitjs listen -- pnpm dev
+```
+
 ## Idempotency
 
 PayKit records each incoming webhook event and processes it idempotently. If your provider sends the same event more than once, PayKit skips the duplicate. Your `on` handlers won't fire twice for the same event.

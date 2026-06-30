@@ -124,7 +124,7 @@ async function loadModule(cwd: string, configPath: string): Promise<unknown> {
 
   const jiti = createJiti(configPath, {
     alias: getPathAliases(cwd),
-    interopDefault: false,
+    interopDefault: true,
     jsx: true,
     moduleCache: false,
   });

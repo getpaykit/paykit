@@ -46,6 +46,26 @@ paykitjs push -y && next build
 
 This is similar to how you'd run database migrations on deploy. The `-y` flag skips the confirmation prompt.
 
+## paykitjs listen
+
+```bash
+npx paykitjs listen
+```
+
+Runs PayKit's local webhook listener. It registers a provider webhook tunnel, replays missed events, and streams new webhooks while you develop.
+
+Pass your app's dev command after `--` to run together with dev server:
+
+```bash
+npx paykitjs listen -- pnpm dev
+```
+
+Useful options:
+
+- `--config <path>` loads a specific PayKit config file when default discovery is not enough
+- `--retry <window>` retries failed deliveries from a recent window, such as `5m`, `30s`, or `none`
+- `--forward-to <url>` forwards webhooks to a local app origin instead of applying them directly
+
 ## paykitjs status
 
 ```bash

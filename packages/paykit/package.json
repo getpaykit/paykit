@@ -24,23 +24,23 @@
   "types": "./src/index.ts",
   "exports": {
     ".": {
-      "paykit-source": "./src/index.ts",
       "types": "./src/index.ts",
+      "paykit-source": "./src/index.ts",
       "default": "./src/index.ts"
     },
     "./handlers/next": {
-      "paykit-source": "./src/handlers/next.ts",
       "types": "./src/handlers/next.ts",
+      "paykit-source": "./src/handlers/next.ts",
       "default": "./src/handlers/next.ts"
     },
     "./client": {
-      "paykit-source": "./src/client/index.ts",
       "types": "./src/client/index.ts",
+      "paykit-source": "./src/client/index.ts",
       "default": "./src/client/index.ts"
     },
     "./database": {
-      "paykit-source": "./src/database/schema.ts",
       "types": "./src/database/schema.ts",
+      "paykit-source": "./src/database/schema.ts",
       "default": "./src/database/schema.ts"
     }
   },
@@ -51,10 +51,11 @@
   },
   "dependencies": {
     "@better-fetch/fetch": "^1.1.21",
-    "@types/pg": "^8.18.0",
     "@clack/prompts": "^1.1.0",
+    "@types/pg": "^8.18.0",
     "better-call": "^2.0.2",
     "commander": "^12.1.0",
+    "concurrently": "^9.2.1",
     "dotenv": "^17.3.1",
     "drizzle-orm": "^0.45.1",
     "jiti": "^2.6.1",

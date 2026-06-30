@@ -1,6 +1,7 @@
 import path from "node:path";
 
 import { Command } from "commander";
+import concurrently, { type CloseEvent as ConcurrentlyCloseEvent } from "concurrently";
 import dotenv from "dotenv";
 import picocolors from "picocolors";
 
@@ -20,6 +21,7 @@ const STABLE_SOCKET_RESET_MS = 30_000;
 const FORWARD_REPLAY_TIMEOUT_MS = 5_000;
 const REPLAY_HEADER = "x-paykit-cloud-replay";
 const REPLACED_SESSION_CLOSE_CODE = 4001;
+const NO_SPINNER_ENV = "PAYKIT_NO_SPINNER";
 
 interface TunnelResponse {
   found: boolean;
@@ -109,8 +111,23 @@ function isConfigNotFound(error: unknown): boolean {
   return error instanceof Error && error.message.startsWith("No PayKit configuration file found.");
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (signal?.aborted) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(cleanup, ms);
+    const onAbort = () => cleanup();
+
+    function cleanup() {
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }
+
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
 }
 
 function parseRetryWindowMs(value: string): number {
@@ -404,6 +421,7 @@ async function consumeTunnelSocket(params: {
   devLogger: ReturnType<typeof createDevLogger>;
   forwardTo?: string;
   onReplayComplete: () => void;
+  signal?: AbortSignal;
   socket: WebSocket;
 }): Promise<{ code?: number; reason?: string }> {
   return new Promise<{ code?: number; reason?: string }>((resolve, reject) => {
@@ -415,6 +433,7 @@ async function consumeTunnelSocket(params: {
       params.socket.removeEventListener("close", onClose);
       params.socket.removeEventListener("error", onError);
       params.socket.removeEventListener("message", onMessage);
+      params.signal?.removeEventListener("abort", onAbort);
     };
 
     const settle = (callback: () => void) => {
@@ -434,6 +453,14 @@ async function consumeTunnelSocket(params: {
     };
     const onError = () => {
       processing.finally(() => settle(() => reject(new Error("websocket stream failed"))));
+    };
+    const onAbort = () => {
+      settle(() => resolve({ code: 1000, reason: "aborted" }));
+      try {
+        params.socket.close(1000, "aborted");
+      } catch {
+        // ignore close failures while aborting the socket loop
+      }
     };
     const onMessage = (event: MessageEvent) => {
       processing = processing.then(async () => {
@@ -504,6 +531,11 @@ async function consumeTunnelSocket(params: {
     params.socket.addEventListener("close", onClose);
     params.socket.addEventListener("error", onError);
     params.socket.addEventListener("message", onMessage);
+    params.signal?.addEventListener("abort", onAbort, { once: true });
+
+    if (params.signal?.aborted) {
+      onAbort();
+    }
   });
 }
 
@@ -715,10 +747,14 @@ async function listenAction(options: {
   cwd: string;
   forwardTo?: string;
   retry: string;
+  signal?: AbortSignal;
+  useSpinner?: boolean;
 }): Promise<void> {
   const cwd = path.resolve(options.cwd);
   capture("cli_command", { command: "listen" });
-  const devLogger = createDevLogger();
+  const devLogger = createDevLogger({
+    spinner: options.useSpinner ?? process.env[NO_SPINNER_ENV] !== "1",
+  });
   const retryWindowMs = parseRetryWindowMs(options.retry);
   const relayStartedAt = Date.now();
 
@@ -728,6 +764,11 @@ async function listenAction(options: {
     devLogger,
     requireConfig: !options.forwardTo,
   });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
+
   const tunnel = await ensureTunnel({
     account,
     createIfMissing: true,
@@ -735,6 +776,10 @@ async function listenAction(options: {
     includeFailedBefore: relayStartedAt,
     retryWindowMs,
   });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
 
   if (!tunnel) {
     devLogger.stop();
@@ -743,6 +788,10 @@ async function listenAction(options: {
 
   devLogger.update("Ensuring webhook endpoint");
   const { webhookSecret } = await syncProviderWebhook({ deviceToken, provider, tunnel });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
 
   const localWebhookUrl = options.forwardTo
     ? buildLocalWebhookUrl(normalizeLocalOrigin(options.forwardTo), basePath)
@@ -765,7 +814,7 @@ async function listenAction(options: {
   let errorBackoffMs = 0;
   let replayCompleteLogged = false;
 
-  for (;;) {
+  while (!options.signal?.aborted) {
     try {
       const socketConnectedAt = Date.now();
       const socket = await connectTunnelSocket({
@@ -774,6 +823,11 @@ async function listenAction(options: {
         retryWindowMs,
         tunnelId: tunnel.tunnelId,
       });
+
+      if (options.signal?.aborted) {
+        socket.close(1000, "aborted");
+        return;
+      }
 
       const close = await consumeTunnelSocket({
         config,
@@ -785,8 +839,13 @@ async function listenAction(options: {
             devLogger.info("replay complete, listening for new webhooks");
           }
         },
+        signal: options.signal,
         socket,
       });
+
+      if (options.signal?.aborted) {
+        return;
+      }
 
       if (Date.now() - socketConnectedAt >= STABLE_SOCKET_RESET_MS) {
         errorBackoffMs = 0;
@@ -804,13 +863,130 @@ async function listenAction(options: {
 
       devLogger.warn(`Listen connection closed: ${closeLabel}`);
       errorBackoffMs = getNextErrorBackoff(errorBackoffMs);
-      await sleep(errorBackoffMs);
+      await sleep(errorBackoffMs, options.signal);
     } catch (error) {
+      if (options.signal?.aborted) {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       devLogger.warn(`Listen loop failed: ${message}`);
       errorBackoffMs = getNextErrorBackoff(errorBackoffMs);
-      await sleep(errorBackoffMs);
+      await sleep(errorBackoffMs, options.signal);
     }
+  }
+}
+
+async function listenWithRunCommand(
+  runCommand: string[],
+  options: {
+    config?: string;
+    cwd: string;
+    forwardTo?: string;
+    retry: string;
+  },
+): Promise<void> {
+  const [command, ...args] = runCommand;
+  if (!command) {
+    await listenAction(options);
+    return;
+  }
+
+  const cwd = path.resolve(options.cwd);
+  const { result } = concurrently(
+    [
+      {
+        command: buildStandaloneListenCommand({ ...options, cwd }),
+        env: { [NO_SPINNER_ENV]: "1" },
+        name: "pay",
+        prefixColor: "cyan",
+      },
+      {
+        command: buildShellCommand([command, ...args]),
+        name: "app",
+        prefixColor: "blue",
+      },
+    ],
+    {
+      cwd,
+      killOthersOn: ["success", "failure"],
+      killSignal: "SIGINT",
+      prefix: "name",
+      successCondition: "first",
+    },
+  );
+
+  try {
+    await result;
+  } catch (error) {
+    if (!Array.isArray(error)) {
+      throw error;
+    }
+
+    process.exitCode = getConcurrentlyExitCode(error);
+  }
+}
+
+function buildStandaloneListenCommand(options: {
+  config?: string;
+  cwd: string;
+  forwardTo?: string;
+  retry: string;
+}): string {
+  const command = [process.execPath];
+  if (process.argv[1]) {
+    command.push(process.argv[1]);
+  } else {
+    command[0] = "paykitjs";
+  }
+
+  command.push("listen", "--cwd", options.cwd, "--retry", options.retry);
+  if (options.config) {
+    command.push("--config", options.config);
+  }
+  if (options.forwardTo) {
+    command.push("--forward-to", options.forwardTo);
+  }
+
+  return buildShellCommand(command);
+}
+
+function buildShellCommand(command: string[]): string {
+  return command.map(quoteShellArg).join(" ");
+}
+
+function quoteShellArg(value: string): string {
+  if (/^[\w./:@%+=,-]+$/.test(value)) {
+    return value;
+  }
+
+  if (process.platform === "win32") {
+    return `"${value.replace(/"/g, '\\"')}"`;
+  }
+
+  return `'${value.replace(/'/g, "'\\''")}'`;
+}
+
+function getConcurrentlyExitCode(events: ConcurrentlyCloseEvent[]): number {
+  const failedEvent =
+    events.find((event) => !event.killed && getExitCode(event.exitCode) !== 0) ??
+    events.find((event) => getExitCode(event.exitCode) !== 0);
+
+  return getExitCode(failedEvent?.exitCode ?? 1);
+}
+
+function getExitCode(exitCode: ConcurrentlyCloseEvent["exitCode"]): number {
+  if (typeof exitCode === "number") {
+    return exitCode;
+  }
+
+  switch (exitCode) {
+    case "SIGINT":
+      return 130;
+    case "SIGTERM":
+      return 143;
+    default:
+      return 1;
   }
 }
 
@@ -960,6 +1136,10 @@ function mergeRelaySubcommandOptions<
 
 export const listenCommand = new Command("listen")
   .description("Register a provider webhook tunnel, replay missed events, and stream new webhooks")
+  .argument(
+    "[command...]",
+    "command to run while listening. Use -- before the command, for example: paykitjs listen -- pnpm dev",
+  )
   .option(
     "-c, --cwd <cwd>",
     "the working directory. defaults to the current directory.",
@@ -975,7 +1155,7 @@ export const listenCommand = new Command("listen")
     "--forward-to <url>",
     "forward webhooks to a local app origin instead of applying directly",
   )
-  .action(listenAction)
+  .action((runCommand: string[], options) => listenWithRunCommand(runCommand, options))
   .addCommand(
     new Command("enable")
       .description("Ensure the webhook tunnel and provider webhook endpoint, then exit")
