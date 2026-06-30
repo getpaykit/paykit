@@ -22,13 +22,15 @@ describe("cli/init", () => {
     const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "paykit-init-"));
 
     try {
-      fs.writeFileSync(path.join(cwd, "package.json"), JSON.stringify({ dependencies: {} }));
-      expect(detectPaykitCli(cwd)).toBe(false);
-
       fs.writeFileSync(
         path.join(cwd, "package.json"),
         JSON.stringify({ dependencies: { paykitjs: "workspace:*" } }),
       );
+      expect(detectPaykitCli(cwd)).toBe(false);
+
+      const packageDir = path.join(cwd, "node_modules", "paykitjs");
+      fs.mkdirSync(packageDir, { recursive: true });
+      fs.writeFileSync(path.join(packageDir, "package.json"), JSON.stringify({ name: "paykitjs" }));
       expect(detectPaykitCli(cwd)).toBe(true);
     } finally {
       fs.rmSync(cwd, { force: true, recursive: true });

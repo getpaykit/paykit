@@ -1,5 +1,6 @@
 import { exec } from "node:child_process";
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -65,7 +66,13 @@ function stripeConfig(): string {
 }
 
 export function detectPaykitCli(cwd = process.cwd()): boolean {
-  return isPackageInstalled(cwd, "paykitjs");
+  try {
+    const projectRequire = createRequire(path.join(cwd, "package.json"));
+    projectRequire.resolve("paykitjs/package.json");
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function getDevCommand(pm: PackageManager): string {
