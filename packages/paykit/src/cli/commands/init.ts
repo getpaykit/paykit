@@ -1,6 +1,5 @@
 import { exec } from "node:child_process";
 import fs from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -32,7 +31,6 @@ import {
 import { capture } from "../utils/telemetry";
 
 const execAsync = promisify(exec);
-const require = createRequire(import.meta.url);
 
 function ensureDir(filePath: string): void {
   const dir = path.dirname(filePath);
@@ -66,13 +64,8 @@ function stripeConfig(): string {
   }`;
 }
 
-export function detectPaykitCli(): boolean {
-  try {
-    require.resolve("paykitjs/package.json");
-    return true;
-  } catch {
-    return false;
-  }
+export function detectPaykitCli(cwd = process.cwd()): boolean {
+  return isPackageInstalled(cwd, "paykitjs");
 }
 
 function getDevCommand(pm: PackageManager): string {
@@ -576,7 +569,7 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
   const exec = getExecPrefix(pm);
   const c = picocolors.cyan;
   const b = picocolors.bold;
-  const webhookCommand = detectPaykitCli()
+  const webhookCommand = detectPaykitCli(cwd)
     ? getPaykitListenCommand(pm)
     : getStripeListenCommand(3000);
 
