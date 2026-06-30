@@ -21,6 +21,7 @@ import {
   isPackageInstalled,
   resolveImportPath,
 } from "../utils/detect";
+import type { PackageManager } from "../utils/detect";
 import {
   createEnvFile,
   getEnvFiles,
@@ -74,10 +75,21 @@ export function detectPaykitCli(): boolean {
   }
 }
 
-export function getWebhookListenCommand(port: number, hasPaykitCli = detectPaykitCli()): string {
+function getDevCommand(pm: PackageManager): string {
+  if (pm === "npm") return "npm run dev";
+  if (pm === "bun") return "bun dev";
+  if (pm === "yarn") return "yarn dev";
+  return "pnpm dev";
+}
+
+export function getWebhookListenCommand(
+  port: number,
+  hasPaykitCli = detectPaykitCli(),
+  pm: PackageManager = detectPackageManager(process.cwd()),
+): string {
   const path = `localhost:${String(port)}/paykit/webhook`;
   return hasPaykitCli
-    ? `paykitjs listen --forward-to ${path}`
+    ? `${getExecPrefix(pm)} paykitjs listen -- ${getDevCommand(pm)}`
     : `stripe listen --forward-to ${path}`;
 }
 
@@ -565,7 +577,7 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
   const exec = getExecPrefix(pm);
   const c = picocolors.cyan;
   const b = picocolors.bold;
-  const webhookCommand = getWebhookListenCommand(3000);
+  const webhookCommand = getWebhookListenCommand(3000, detectPaykitCli(), pm);
 
   const isRerun = files.length === 0;
   const heading = isRerun
@@ -586,7 +598,7 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
       `   ${c("•")} Check status: ${b(`${exec} paykitjs status`)}`,
       `   ${c("•")} Sync updated products: ${b(`${exec} paykitjs push`)}`,
       `   ${c("•")} Add AI skills: ${b(`${getDlxPrefix(pm)} skills add getpaykit/skills`)}`,
-      `   ${c("•")} Forward dev webhooks: ${b(webhookCommand)}`,
+      `   ${c("•")} Run dev with webhooks: ${b(webhookCommand)}`,
       "",
       `   Please star us on github ${c("<3")}`,
       `   ${c("https://paykit.sh/github")}`,

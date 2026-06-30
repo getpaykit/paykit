@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import path from "node:path";
 
 import { Command } from "commander";
@@ -20,6 +21,7 @@ const STABLE_SOCKET_RESET_MS = 30_000;
 const FORWARD_REPLAY_TIMEOUT_MS = 5_000;
 const REPLAY_HEADER = "x-paykit-cloud-replay";
 const REPLACED_SESSION_CLOSE_CODE = 4001;
+const CHILD_SHUTDOWN_TIMEOUT_MS = 5_000;
 
 interface TunnelResponse {
   found: boolean;
@@ -86,6 +88,16 @@ interface RelayRuntimeContext {
   provider: TunnelCapableProvider;
 }
 
+interface ChildCommandExit {
+  code: number | null;
+  signal: NodeJS.Signals | null;
+}
+
+interface SpawnedChildCommand {
+  exited: Promise<ChildCommandExit>;
+  stop(signal?: NodeJS.Signals): void;
+}
+
 function loadDotEnv(cwd: string): void {
   dotenv.config({ path: path.join(cwd, ".env"), quiet: true });
   dotenv.config({ override: true, path: path.join(cwd, ".env.local"), quiet: true });
@@ -109,8 +121,23 @@ function isConfigNotFound(error: unknown): boolean {
   return error instanceof Error && error.message.startsWith("No PayKit configuration file found.");
 }
 
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (signal?.aborted) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve) => {
+    const timeout = setTimeout(cleanup, ms);
+    const onAbort = () => cleanup();
+
+    function cleanup() {
+      clearTimeout(timeout);
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }
+
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
 }
 
 function parseRetryWindowMs(value: string): number {
@@ -404,6 +431,7 @@ async function consumeTunnelSocket(params: {
   devLogger: ReturnType<typeof createDevLogger>;
   forwardTo?: string;
   onReplayComplete: () => void;
+  signal?: AbortSignal;
   socket: WebSocket;
 }): Promise<{ code?: number; reason?: string }> {
   return new Promise<{ code?: number; reason?: string }>((resolve, reject) => {
@@ -415,6 +443,7 @@ async function consumeTunnelSocket(params: {
       params.socket.removeEventListener("close", onClose);
       params.socket.removeEventListener("error", onError);
       params.socket.removeEventListener("message", onMessage);
+      params.signal?.removeEventListener("abort", onAbort);
     };
 
     const settle = (callback: () => void) => {
@@ -434,6 +463,14 @@ async function consumeTunnelSocket(params: {
     };
     const onError = () => {
       processing.finally(() => settle(() => reject(new Error("websocket stream failed"))));
+    };
+    const onAbort = () => {
+      processing.finally(() => settle(() => resolve({ code: 1000, reason: "aborted" })));
+      try {
+        params.socket.close(1000, "aborted");
+      } catch {
+        // ignore close failures while aborting the socket loop
+      }
     };
     const onMessage = (event: MessageEvent) => {
       processing = processing.then(async () => {
@@ -504,6 +541,11 @@ async function consumeTunnelSocket(params: {
     params.socket.addEventListener("close", onClose);
     params.socket.addEventListener("error", onError);
     params.socket.addEventListener("message", onMessage);
+    params.signal?.addEventListener("abort", onAbort, { once: true });
+
+    if (params.signal?.aborted) {
+      onAbort();
+    }
   });
 }
 
@@ -715,10 +757,12 @@ async function listenAction(options: {
   cwd: string;
   forwardTo?: string;
   retry: string;
+  signal?: AbortSignal;
+  useSpinner?: boolean;
 }): Promise<void> {
   const cwd = path.resolve(options.cwd);
   capture("cli_command", { command: "listen" });
-  const devLogger = createDevLogger();
+  const devLogger = createDevLogger({ spinner: options.useSpinner });
   const retryWindowMs = parseRetryWindowMs(options.retry);
   const relayStartedAt = Date.now();
 
@@ -728,6 +772,11 @@ async function listenAction(options: {
     devLogger,
     requireConfig: !options.forwardTo,
   });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
+
   const tunnel = await ensureTunnel({
     account,
     createIfMissing: true,
@@ -735,6 +784,10 @@ async function listenAction(options: {
     includeFailedBefore: relayStartedAt,
     retryWindowMs,
   });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
 
   if (!tunnel) {
     devLogger.stop();
@@ -743,6 +796,10 @@ async function listenAction(options: {
 
   devLogger.update("Ensuring webhook endpoint");
   const { webhookSecret } = await syncProviderWebhook({ deviceToken, provider, tunnel });
+  if (options.signal?.aborted) {
+    devLogger.stop();
+    return;
+  }
 
   const localWebhookUrl = options.forwardTo
     ? buildLocalWebhookUrl(normalizeLocalOrigin(options.forwardTo), basePath)
@@ -765,7 +822,7 @@ async function listenAction(options: {
   let errorBackoffMs = 0;
   let replayCompleteLogged = false;
 
-  for (;;) {
+  while (!options.signal?.aborted) {
     try {
       const socketConnectedAt = Date.now();
       const socket = await connectTunnelSocket({
@@ -774,6 +831,11 @@ async function listenAction(options: {
         retryWindowMs,
         tunnelId: tunnel.tunnelId,
       });
+
+      if (options.signal?.aborted) {
+        socket.close(1000, "aborted");
+        return;
+      }
 
       const close = await consumeTunnelSocket({
         config,
@@ -785,8 +847,13 @@ async function listenAction(options: {
             devLogger.info("replay complete, listening for new webhooks");
           }
         },
+        signal: options.signal,
         socket,
       });
+
+      if (options.signal?.aborted) {
+        return;
+      }
 
       if (Date.now() - socketConnectedAt >= STABLE_SOCKET_RESET_MS) {
         errorBackoffMs = 0;
@@ -804,13 +871,180 @@ async function listenAction(options: {
 
       devLogger.warn(`Listen connection closed: ${closeLabel}`);
       errorBackoffMs = getNextErrorBackoff(errorBackoffMs);
-      await sleep(errorBackoffMs);
+      await sleep(errorBackoffMs, options.signal);
     } catch (error) {
+      if (options.signal?.aborted) {
+        return;
+      }
+
       const message = error instanceof Error ? error.message : String(error);
       devLogger.warn(`Listen loop failed: ${message}`);
       errorBackoffMs = getNextErrorBackoff(errorBackoffMs);
-      await sleep(errorBackoffMs);
+      await sleep(errorBackoffMs, options.signal);
     }
+  }
+}
+
+function spawnChildCommand(command: string, args: string[], cwd: string): SpawnedChildCommand {
+  const child = spawn(command, args, {
+    cwd,
+    detached: process.platform !== "win32",
+    env: process.env,
+    stdio: "inherit",
+  });
+
+  const exited = new Promise<ChildCommandExit>((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      resolve({ code, signal });
+    });
+  });
+
+  let shutdownTimer: NodeJS.Timeout | undefined;
+
+  function kill(signal: NodeJS.Signals) {
+    if (child.exitCode !== null || child.signalCode !== null) {
+      return;
+    }
+
+    try {
+      if (process.platform === "win32" || !child.pid) {
+        child.kill(signal);
+      } else {
+        process.kill(-child.pid, signal);
+      }
+    } catch {
+      // ignore races where the child exits before the forwarded signal arrives
+    }
+  }
+
+  void exited.then(
+    () => {
+      if (shutdownTimer) {
+        clearTimeout(shutdownTimer);
+      }
+    },
+    () => {
+      if (shutdownTimer) {
+        clearTimeout(shutdownTimer);
+      }
+    },
+  );
+
+  return {
+    exited,
+    stop(signal = "SIGTERM") {
+      kill(signal);
+      shutdownTimer ??= setTimeout(() => kill("SIGKILL"), CHILD_SHUTDOWN_TIMEOUT_MS);
+      shutdownTimer.unref();
+    },
+  };
+}
+
+function signalExitCode(signal: NodeJS.Signals): number {
+  switch (signal) {
+    case "SIGINT":
+      return 130;
+    case "SIGTERM":
+      return 143;
+    default:
+      return 1;
+  }
+}
+
+async function waitForListenToStop(listenPromise: Promise<void>): Promise<void> {
+  try {
+    await listenPromise;
+  } catch {
+    // listen errors are handled by the caller that owns the promise race
+  }
+}
+
+async function listenWithRunCommand(
+  runCommand: string[],
+  options: {
+    config?: string;
+    cwd: string;
+    forwardTo?: string;
+    retry: string;
+  },
+): Promise<void> {
+  const [command, ...args] = runCommand;
+  if (!command) {
+    await listenAction(options);
+    return;
+  }
+
+  const cwd = path.resolve(options.cwd);
+  const controller = new AbortController();
+  const child = spawnChildCommand(command, args, cwd);
+  let interruptedSignal: NodeJS.Signals | undefined;
+
+  const onSignal = (signal: NodeJS.Signals) => {
+    interruptedSignal = signal;
+    process.exitCode = signalExitCode(signal);
+    controller.abort();
+    child.stop(signal);
+  };
+
+  process.once("SIGINT", onSignal);
+  process.once("SIGTERM", onSignal);
+
+  const listenPromise = listenAction({
+    ...options,
+    cwd,
+    signal: controller.signal,
+    useSpinner: false,
+  });
+
+  try {
+    const result = await Promise.race([
+      listenPromise.then(
+        () => ({ type: "listen" as const }),
+        (error: unknown) => ({ error, type: "listen_error" as const }),
+      ),
+      child.exited.then(
+        (exit) => ({ exit, type: "child_exit" as const }),
+        (error: unknown) => ({ error, type: "child_error" as const }),
+      ),
+    ]);
+
+    if (result.type === "listen_error") {
+      controller.abort();
+      child.stop();
+      throw result.error;
+    }
+
+    if (result.type === "child_error") {
+      controller.abort();
+      await waitForListenToStop(listenPromise);
+      throw result.error;
+    }
+
+    if (result.type === "child_exit") {
+      controller.abort();
+      await waitForListenToStop(listenPromise);
+
+      if (interruptedSignal) {
+        process.exitCode = signalExitCode(interruptedSignal);
+        return;
+      }
+
+      if (result.exit.signal) {
+        process.exitCode = signalExitCode(result.exit.signal);
+        return;
+      }
+
+      process.exitCode = result.exit.code ?? 1;
+      return;
+    }
+
+    controller.abort();
+    child.stop();
+    await child.exited.catch(() => undefined);
+  } finally {
+    process.removeListener("SIGINT", onSignal);
+    process.removeListener("SIGTERM", onSignal);
   }
 }
 
@@ -960,6 +1194,10 @@ function mergeRelaySubcommandOptions<
 
 export const listenCommand = new Command("listen")
   .description("Register a provider webhook tunnel, replay missed events, and stream new webhooks")
+  .argument(
+    "[command...]",
+    "command to run while listening. Use -- before the command, for example: paykitjs listen -- pnpm dev",
+  )
   .option(
     "-c, --cwd <cwd>",
     "the working directory. defaults to the current directory.",
@@ -975,7 +1213,7 @@ export const listenCommand = new Command("listen")
     "--forward-to <url>",
     "forward webhooks to a local app origin instead of applying directly",
   )
-  .action(listenAction)
+  .action((runCommand: string[], options) => listenWithRunCommand(runCommand, options))
   .addCommand(
     new Command("enable")
       .description("Ensure the webhook tunnel and provider webhook endpoint, then exit")
