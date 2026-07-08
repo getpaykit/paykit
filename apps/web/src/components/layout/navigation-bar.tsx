@@ -114,7 +114,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
 
   return (
     <>
-      <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start [scrollbar-gutter:stable]">
+      <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start">
         {/* Mobile */}
         <motion.div
           initial={{ opacity: 0 }}

@@ -42,6 +42,7 @@ const docsRedirects = [
 
 /** @type {import("next").NextConfig} */
 const config = {
+  agentRules: false,
   devIndicators: {
     position: "bottom-right",
   },
