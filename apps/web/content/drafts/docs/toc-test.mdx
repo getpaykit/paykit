@@ -55,9 +55,9 @@ export const paykit = createPayKit({
 
 This example is intentionally small. The important part for this test page is that the code block has normal spacing around it and does not interfere with heading detection.
 
-### Connect provider credentials
+### Connect Stripe credentials
 
-Provider credentials are usually read from environment variables. The documentation should make it clear which values are required locally and which values are only needed in production.
+Stripe credentials are usually read from environment variables. The documentation should make it clear which values are required locally and which values are only needed in production.
 
 A realistic guide often includes a short explanation here about test mode, webhook secrets, and how to avoid committing sensitive values to source control.
 
@@ -116,7 +116,7 @@ If this heading appears in the TOC, verify that the active marker moves from the
 
 This section exists mostly to provide scroll distance between heading groups. It should help test whether the TOC active state remains stable during long paragraphs without intermediate headings.
 
-PayKit is designed to feel like application code rather than a hosted billing dashboard. That means a documentation page may spend time explaining tradeoffs, data ownership, and how provider-specific details stay behind typed APIs.
+PayKit is designed to feel like application code rather than a hosted billing dashboard. That means a documentation page may spend time explaining tradeoffs, data ownership, and how Stripe-specific details stay behind typed APIs.
 
 A long content block also tests whether the TOC footer, if present, remains visible and whether the active indicator line can cover a long portion of the navigation without visual glitches.
 

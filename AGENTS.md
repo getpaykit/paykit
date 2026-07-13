@@ -2,13 +2,13 @@
 
 ## Project
 
-PayKit is an embedded billing framework for TypeScript apps. It runs inside the
-user's app, uses their database, and provides APIs for plans, subscriptions,
+PayKit is an embedded Stripe billing framework for TypeScript apps. It runs inside
+the user's app, uses their database, and provides APIs for plans, subscriptions,
 entitlements, and usage billing.
 
 PayKit should feel like application code, not a hosted billing platform or a thin
-provider SDK wrapper. Keep provider-specific details behind typed, composable
-APIs.
+Stripe SDK wrapper. Stripe is the supported payment provider. Keep Stripe-specific
+details behind typed, composable APIs.
 
 ## Code Style
 

@@ -37,9 +37,7 @@ pnpm format:check  # Check formatting without writing
 ```
 packages/
   paykit/       # Core orchestration package
-  stripe/       # Stripe provider
   dash/         # Dashboard
-  polar/  # Polar provider
 apps/
   demo/         # Demo app
   web/          # Next.js web app
@@ -81,13 +79,11 @@ Key rules:
 We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
-feat(stripe): add webhook handler
-fix(paykit): correct subscription renewal logic
+feat: add Stripe webhook handler
+fix: correct subscription renewal logic
 docs: update README setup steps
 chore: bump pnpm to 11.1.1
 ```
-
-The scope is the **package name** (`paykit`, `stripe`, `dash`, `polar`).
 
 - PRs target `main`
 - For bug fixes or non-breaking improvements, a PR is enough

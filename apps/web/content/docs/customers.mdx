@@ -1,9 +1,9 @@
 ---
 title: Customers
-description: Sync your app's billing identity into PayKit and keep provider mappings internal.
+description: Sync your app's billing identity into PayKit and keep Stripe mappings internal.
 ---
 
-A customer is your app's user or billing entity. It can be a user ID, an org ID, or any string that uniquely identifies who's paying. PayKit maps it to the underlying provider customer ID internally, so your app never has to think about Stripe IDs.
+A customer is your app's user or billing entity. It can be a user ID, an org ID, or any string that uniquely identifies who's paying. PayKit maps it to the Stripe customer ID internally, so your app never has to think about Stripe IDs.
 
 ## Creating customers
 
@@ -46,7 +46,7 @@ const { data, total, hasMore } = await paykit.listCustomers({
 
 ## Deleting customers
 
-`deleteCustomer` removes the customer from PayKit and cancels any active subscriptions at the provider.
+`deleteCustomer` removes the customer from PayKit and cancels any active subscriptions in Stripe.
 
 ```ts
 await paykit.deleteCustomer({ id: "user_123" });
