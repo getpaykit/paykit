@@ -5,13 +5,13 @@ import { env } from "@/env";
 export const OG_IMAGE_PATH = "/brand/og.png";
 export const SITE_NAME = "PayKit";
 
-export const SITE_TITLE = "PayKit – The billing framework for TypeScript";
+export const SITE_TITLE = "PayKit – Stripe billing framework for TypeScript";
 export const SITE_DESCRIPTION =
-  "Open-source billing framework for TypeScript. Define plans in code. Handles Stripe, webhooks, and subscriptions automatically. Runs inside your app.";
+  "Build Stripe billing in TypeScript without the glue code. Define plans in code while PayKit handles subscriptions, webhooks, entitlements, and usage.";
 
 export const OG_TITLE = SITE_TITLE;
 export const OG_DESCRIPTION =
-  "Define plans and features in code. Handles Stripe, webhooks, and usage state. Runs inside your app, writes to your database. Open source.";
+  "Define plans in code. PayKit handles Stripe subscriptions, webhooks, entitlements, and usage while billing state stays in your database.";
 
 export const URLs = {
   site: env.NEXT_PUBLIC_APP_URL,
