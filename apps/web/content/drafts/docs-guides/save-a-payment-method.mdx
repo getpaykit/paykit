@@ -1,6 +1,6 @@
 ---
 title: Save a Payment Method
-description: Collect a provider-hosted payment method so you can charge it later.
+description: Collect a Stripe-hosted payment method so you can charge it later.
 ---
 
 This guide covers the standalone save-method flow, separate from a checkout.
@@ -24,13 +24,13 @@ const result = await paykit.paymentMethod.attach({
 });
 ```
 
-## 3. Redirect to the provider flow
+## 3. Redirect to the Stripe flow
 
 Send the user to `result.url`.
 
 ## 4. Wait for webhook sync
 
-The provider webhook is what actually writes the normalized `paymentMethod` row into PayKit storage.
+The Stripe webhook is what actually writes the normalized `paymentMethod` row into PayKit storage.
 
 ## 5. Read the saved methods
 

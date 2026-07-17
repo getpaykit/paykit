@@ -8,7 +8,7 @@ import { SectionShell } from "./section";
 
 export function MiniNavBar() {
   return (
-    <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start [scrollbar-gutter:stable]">
+    <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start">
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

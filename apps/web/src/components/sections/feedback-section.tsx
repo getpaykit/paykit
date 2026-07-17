@@ -75,9 +75,12 @@ export function FeedbackSection() {
       </SectionContent>
 
       <div className="relative max-h-[31rem] overflow-hidden border-b border-l border-border">
-        <div className="grid grid-cols-1 gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-y-px bg-border sm:grid-cols-2 lg:grid-cols-4 lg:gap-y-0">
           {columns.map((column, columnIndex) => (
-            <div key={columnIndex} className="flex min-h-full flex-col bg-background">
+            <div
+              key={columnIndex}
+              className="flex min-h-full flex-col bg-background sm:even:border-l lg:border-l lg:first:border-l-0"
+            >
               {column.map((tweet) => (
                 <TweetCard key={tweet.link} tweet={tweet} />
               ))}

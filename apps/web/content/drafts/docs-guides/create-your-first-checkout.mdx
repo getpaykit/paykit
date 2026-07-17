@@ -1,6 +1,6 @@
 ---
 title: Create Your First Checkout
-description: Launch a provider-hosted checkout from one PayKit server call.
+description: Launch a Stripe-hosted checkout from one PayKit server call.
 ---
 
 This guide assumes you already created a PayKit instance and mounted the webhook route.
@@ -30,11 +30,11 @@ const checkout = await paykit.checkout.create({
 
 ## 3. Redirect the user
 
-Send the user to `checkout.url`. The provider owns the payment UI.
+Send the user to `checkout.url`. Stripe owns the payment UI.
 
 ## 4. Process the webhook
 
-When the provider calls back, PayKit verifies the signature, normalizes the event, and updates local
+When Stripe calls back, PayKit verifies the signature, normalizes the event, and updates local
 billing state.
 
 ## 5. React to completion
