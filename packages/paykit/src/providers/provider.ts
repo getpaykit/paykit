@@ -64,6 +64,7 @@ export interface ProviderSubscription {
   endedAt?: Date | null;
   providerSubscriptionId: string;
   providerSubscriptionScheduleId?: string | null;
+  quantity?: number;
   status: string;
 }
 
@@ -73,6 +74,24 @@ export interface ProviderSubscriptionResult {
   providerCheckoutSessionId?: string;
   requiredAction?: ProviderRequiredAction | null;
   subscription?: ProviderSubscription | null;
+}
+
+export interface ProviderSubscriptionCheckoutOptions {
+  allowPromotionCodes?: boolean;
+  automaticTax?: {
+    enabled: boolean;
+  };
+  billingAddressCollection?: "auto" | "required";
+  customerUpdate?: {
+    address?: "auto" | "never";
+    name?: "auto" | "never";
+    shipping?: "auto" | "never";
+  };
+  idempotencyKey?: string;
+  taxIdCollection?: {
+    enabled: boolean;
+    required?: "if_supported" | "never";
+  };
 }
 
 export interface PaymentProvider {
@@ -106,21 +125,30 @@ export interface PaymentProvider {
   }): Promise<{ url: string }>;
 
   createSubscriptionCheckout(data: {
+    checkout?: ProviderSubscriptionCheckoutOptions;
     providerCustomerId: string;
     providerProduct: Record<string, string>;
     successUrl: string;
     cancelUrl?: string;
     metadata?: Record<string, string>;
+    quantity: number;
   }): Promise<{ paymentUrl: string; providerCheckoutSessionId: string }>;
 
   createSubscription(data: {
     providerCustomerId: string;
     providerProduct: Record<string, string>;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
+
+  expireCheckoutSession(data: {
+    providerCheckoutSessionId: string;
+    providerCustomerId: string;
+  }): Promise<{ providerCheckoutSessionId: string; status: "expired" }>;
 
   updateSubscription(data: {
     providerProduct: Record<string, string>;
     providerSubscriptionId: string;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
 
   createInvoice(data: {
@@ -133,6 +161,7 @@ export interface PaymentProvider {
     providerProduct?: Record<string, string> | null;
     providerSubscriptionScheduleId?: string | null;
     providerSubscriptionId: string;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
 
   cancelSubscription(data: {

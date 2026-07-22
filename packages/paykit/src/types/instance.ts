@@ -95,6 +95,16 @@ export type PayKitSubscribeInput<TOptions extends PayKitOptions = PayKitOptions>
 
 export type PayKitSubscribeResult = InferMethodResult<RegisteredMethods["subscribe"]>;
 
+export type PayKitExpireCheckoutSessionInput = RefineServerMethodInput<
+  PayKitOptions,
+  "expireCheckoutSession",
+  InferMethodInput<RegisteredMethods["expireCheckoutSession"]>
+>;
+
+export type PayKitExpireCheckoutSessionResult = InferMethodResult<
+  RegisteredMethods["expireCheckoutSession"]
+>;
+
 export type PayKitCustomerInput = InferMethodInput<RegisteredMethods["upsertCustomer"]>;
 
 export type PayKitClientCustomerPortalInput = RefineClientMethodInput<

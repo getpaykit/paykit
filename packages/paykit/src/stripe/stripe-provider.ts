@@ -189,6 +189,7 @@ function normalizeStripeSubscription(subscription: StripeSubscriptionWithExtras)
       (typeof subscription.schedule === "string"
         ? subscription.schedule
         : subscription.schedule?.id) ?? null,
+    quantity: firstItem?.quantity ?? 1,
     status: subscription.status,
   };
 }
@@ -683,18 +684,29 @@ export function createStripeProvider(
       const sessionParams: StripeSdk.Checkout.SessionCreateParams & {
         managed_payments?: { enabled: boolean };
       } = {
+        allow_promotion_codes: data.checkout?.allowPromotionCodes,
+        automatic_tax: data.checkout?.automaticTax,
+        billing_address_collection: data.checkout?.billingAddressCollection,
         cancel_url: data.cancelUrl ?? data.successUrl,
         client_reference_id: data.providerCustomerId,
         customer: data.providerCustomerId,
-        line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+        customer_update: data.checkout?.customerUpdate,
+        line_items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
         metadata: data.metadata,
         mode: "subscription",
+        subscription_data: data.metadata ? { metadata: data.metadata } : undefined,
         success_url: data.successUrl,
+        tax_id_collection: data.checkout?.taxIdCollection,
       };
       if (options.managedPayments) {
         sessionParams.managed_payments = { enabled: true };
       }
-      const session = await client.checkout.sessions.create(sessionParams);
+      const requestOptions = data.checkout?.idempotencyKey
+        ? { idempotencyKey: data.checkout.idempotencyKey }
+        : undefined;
+      const session = requestOptions
+        ? await client.checkout.sessions.create(sessionParams, requestOptions)
+        : await client.checkout.sessions.create(sessionParams);
 
       if (!session.url) {
         throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_SESSION_INVALID);
@@ -706,10 +718,63 @@ export function createStripeProvider(
       };
     },
 
+    async expireCheckoutSession(data) {
+      let session: StripeSdk.Checkout.Session;
+      try {
+        session = await client.checkout.sessions.retrieve(data.providerCheckoutSessionId);
+      } catch (error) {
+        if (isStripeResourceMissingError(error)) {
+          throw PayKitError.from(
+            "NOT_FOUND",
+            PAYKIT_ERROR_CODES.PROVIDER_CHECKOUT_SESSION_NOT_FOUND,
+          );
+        }
+        throw error;
+      }
+
+      const sessionCustomerId = getStripeCustomerId(session.customer);
+      const isCustomerSession =
+        sessionCustomerId === data.providerCustomerId ||
+        session.client_reference_id === data.providerCustomerId;
+      if (!isCustomerSession) {
+        throw PayKitError.from(
+          "FORBIDDEN",
+          PAYKIT_ERROR_CODES.PROVIDER_CHECKOUT_SESSION_CUSTOMER_MISMATCH,
+        );
+      }
+
+      if (session.status === "expired") {
+        return {
+          providerCheckoutSessionId: session.id,
+          status: "expired",
+        };
+      }
+
+      if (session.status !== "open") {
+        throw PayKitError.from(
+          "BAD_REQUEST",
+          PAYKIT_ERROR_CODES.PROVIDER_CHECKOUT_SESSION_NOT_EXPIREABLE,
+        );
+      }
+
+      const expiredSession = await client.checkout.sessions.expire(data.providerCheckoutSessionId);
+      if (expiredSession.status !== "expired") {
+        throw PayKitError.from(
+          "BAD_REQUEST",
+          PAYKIT_ERROR_CODES.PROVIDER_CHECKOUT_SESSION_NOT_EXPIREABLE,
+        );
+      }
+
+      return {
+        providerCheckoutSessionId: expiredSession.id,
+        status: "expired",
+      };
+    },
+
     async createSubscription(data) {
       const createParams: StripeSdk.SubscriptionCreateParams = {
         customer: data.providerCustomerId,
-        items: [{ price: data.providerProduct.priceId }],
+        items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
         payment_behavior: "default_incomplete",
         expand: ["latest_invoice.payment_intent"],
       };
@@ -753,6 +818,7 @@ export function createStripeProvider(
           {
             id: currentItem.id,
             price: data.providerProduct.priceId,
+            quantity: data.quantity,
           },
         ],
         payment_behavior: "pending_if_incomplete",
@@ -794,10 +860,12 @@ export function createStripeProvider(
         );
       }
 
-      const currentItems = currentSub.items.data.map((item: { price: { id: string } }) => ({
-        price: item.price.id,
-        quantity: 1,
-      }));
+      const currentItems = currentSub.items.data.map(
+        (item: { price: { id: string }; quantity?: number | null }) => ({
+          price: item.price.id,
+          quantity: item.quantity ?? 1,
+        }),
+      );
 
       let schedule: StripeSdk.SubscriptionSchedule;
       if (data.providerSubscriptionScheduleId) {
@@ -827,7 +895,7 @@ export function createStripeProvider(
             end_date: periodEndSeconds,
           },
           {
-            items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+            items: [{ price: data.providerProduct.priceId, quantity: data.quantity }],
             start_date: periodEndSeconds,
           },
         ],
