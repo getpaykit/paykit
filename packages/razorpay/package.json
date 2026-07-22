@@ -1,0 +1,13 @@
+{
+  "name": "razorpay",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "razorpay": "^2.9.6"
+  }
+}
