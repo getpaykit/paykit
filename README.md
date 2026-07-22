@@ -79,7 +79,7 @@ Billing in the TypeScript ecosystem is either handled through low-level provider
 
 ## Contribution
 
-PayKit is free and open source project licensed under the [MIT License](./LICENSE). You are free to do whatever you want with it.
+PayKit is a free and open-source project licensed under the [MIT License](./LICENSE).
 
 You can help continue its development by:
 

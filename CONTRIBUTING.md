@@ -13,7 +13,7 @@ For questions or ideas, open a [GitHub issue](https://github.com/getpaykit/payki
 ## Local Setup
 
 ```bash
-# Fork then clone
+# Fork the repository, then clone your fork
 git clone https://github.com/<your-username>/paykit.git
 cd paykit
 
