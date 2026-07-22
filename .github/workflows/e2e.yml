@@ -22,7 +22,7 @@ jobs:
     if: ${{ github.event_name != 'workflow_dispatch' || inputs.target == 'all' || inputs.target == 'cli' }}
     runs-on: ubuntu-latest
     concurrency:
-      group: ${{ github.workflow }}-stripe
+      group: ${{ github.workflow }}-cli
       cancel-in-progress: false
     timeout-minutes: 30
     permissions:
