@@ -29,6 +29,7 @@ import type {
 import type { StoredSubscription } from "../types/models";
 import type { NormalizedPlanFeature } from "../types/schema";
 import type {
+  CancelSubscriptionInput,
   SubscribeInput,
   SubscribeResult,
   SubscriptionWithCatalog,
@@ -75,6 +76,103 @@ export async function subscribeToPlan(
   });
 }
 
+/** Cancels the current paid subscription for the requested plan group. */
+export async function cancelPlanSubscription(
+  ctx: PayKitContext,
+  input: CancelSubscriptionInput,
+): Promise<SubscribeResult> {
+  return ctx.logger.trace.run("cancel-sub", async () => {
+    const startTime = Date.now();
+    ctx.logger.info({ planId: input.planId, customerId: input.customerId }, "cancel started");
+
+    const { storedPlan } = await resolveRequestedPlan(ctx, input);
+    const activeSubscription = storedPlan.group
+      ? await getActiveSubscriptionInGroup(ctx.database, {
+          customerId: input.customerId,
+          group: storedPlan.group,
+        })
+      : null;
+
+    if (!activeSubscription) {
+      throw PayKitError.from(
+        "NOT_FOUND",
+        PAYKIT_ERROR_CODES.SUBSCRIPTION_NOT_FOUND,
+        `No active subscription found for plan "${input.planId}"`,
+      );
+    }
+
+    if (activeSubscription.priceAmount === null || activeSubscription.canceled) {
+      return buildSubscribeResult({ paymentUrl: null });
+    }
+
+    const activeSubscriptionRef = getProviderSubscriptionRef(activeSubscription);
+    if (!activeSubscriptionRef.subscriptionId) {
+      return buildSubscribeResult({ paymentUrl: null });
+    }
+
+    const defaultFreePlan = storedPlan.group
+      ? await resolveDefaultFreePlanInGroup(ctx, storedPlan.group)
+      : null;
+    const providerResult = await ctx.provider.cancelSubscription({
+      currentPeriodEndAt: activeSubscription.currentPeriodEndAt,
+      providerSubscriptionId: activeSubscriptionRef.subscriptionId,
+      providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
+    });
+
+    await ctx.database.transaction(async (tx) => {
+      if (storedPlan.group) {
+        await clearScheduledSubscriptionsInGroup(tx, {
+          customerId: input.customerId,
+          group: storedPlan.group,
+        });
+      }
+
+      if (defaultFreePlan) {
+        await insertSubscriptionRecord(tx, {
+          customerId: input.customerId,
+          planFeatures: defaultFreePlan.planFeatures,
+          productInternalId: defaultFreePlan.internalId,
+          startedAt: activeSubscription.currentPeriodEndAt ?? null,
+          status: "scheduled",
+        });
+      }
+
+      await scheduleSubscriptionCancellation(tx, {
+        canceledAt: new Date(),
+        currentPeriodEndAt: activeSubscription.currentPeriodEndAt ?? null,
+        subscriptionId: activeSubscription.id,
+      });
+      await replaceSubscriptionSchedule(tx, {
+        scheduledProductId: defaultFreePlan?.internalId ?? null,
+        subscriptionId: activeSubscription.id,
+      });
+
+      if (providerResult.subscription) {
+        await syncSubscriptionBillingState(tx, {
+          currentPeriodEndAt: providerResult.subscription.currentPeriodEndAt,
+          currentPeriodStartAt: providerResult.subscription.currentPeriodStartAt,
+          providerData: {
+            subscriptionId: providerResult.subscription.providerSubscriptionId,
+            subscriptionScheduleId:
+              providerResult.subscription.providerSubscriptionScheduleId ?? null,
+          },
+          status: providerResult.subscription.status,
+          subscriptionId: activeSubscription.id,
+        });
+      }
+    });
+
+    const duration = Date.now() - startTime;
+    ctx.logger.info({ duration }, "cancel completed");
+
+    return buildSubscribeResult({
+      invoice: providerResult.invoice,
+      paymentUrl: providerResult.paymentUrl,
+      requiredAction: providerResult.requiredAction,
+    });
+  });
+}
+
 async function resolveStoredPlanFeatures(
   database: PayKitDatabase,
   productInternalId: string,
@@ -97,7 +195,10 @@ async function resolveStoredPlanFeatures(
   }));
 }
 
-export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeInput) {
+async function resolveRequestedPlan(
+  ctx: PayKitContext,
+  input: { planId: string; productInternalId?: string },
+) {
   const providerId = ctx.provider.id;
   const normalizedPlan = ctx.products.planMap.get(input.planId);
   const matchingProduct = input.productInternalId
@@ -115,8 +216,7 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
     );
   }
 
-  const isFreeTarget = storedPlan.priceAmount === null;
-  const isPaidTarget = !isFreeTarget;
+  const isPaidTarget = storedPlan.priceAmount !== null;
   if (isPaidTarget && !storedPlan.providerProduct) {
     throw PayKitError.from(
       "INTERNAL_SERVER_ERROR",
@@ -124,6 +224,39 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
       `Plan "${input.planId}" is not synced with provider`,
     );
   }
+
+  return {
+    normalizedPlan,
+    providerId,
+    storedPlan,
+  };
+}
+
+async function resolveDefaultFreePlanInGroup(
+  ctx: PayKitContext,
+  group: string,
+): Promise<{ internalId: string; planFeatures: readonly NormalizedPlanFeature[] } | null> {
+  const defaultPlan = await getDefaultProductInGroup(ctx.database, group);
+  if (!defaultPlan || defaultPlan.priceAmount !== null) {
+    return null;
+  }
+
+  const normalizedPlan = ctx.products.planMap.get(defaultPlan.id);
+  const planFeatures = normalizedPlan
+    ? normalizedPlan.includes
+    : await resolveStoredPlanFeatures(ctx.database, defaultPlan.internalId);
+
+  return {
+    internalId: defaultPlan.internalId,
+    planFeatures,
+  };
+}
+
+export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeInput) {
+  const { normalizedPlan, providerId, storedPlan } = await resolveRequestedPlan(ctx, input);
+
+  const isFreeTarget = storedPlan.priceAmount === null;
+  const isPaidTarget = !isFreeTarget;
 
   await warnOnDuplicateActiveSubscriptionGroups(ctx, input.customerId);
 
