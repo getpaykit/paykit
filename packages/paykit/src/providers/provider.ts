@@ -64,6 +64,7 @@ export interface ProviderSubscription {
   endedAt?: Date | null;
   providerSubscriptionId: string;
   providerSubscriptionScheduleId?: string | null;
+  quantity?: number;
   status: string;
 }
 
@@ -111,16 +112,19 @@ export interface PaymentProvider {
     successUrl: string;
     cancelUrl?: string;
     metadata?: Record<string, string>;
+    quantity: number;
   }): Promise<{ paymentUrl: string; providerCheckoutSessionId: string }>;
 
   createSubscription(data: {
     providerCustomerId: string;
     providerProduct: Record<string, string>;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
 
   updateSubscription(data: {
     providerProduct: Record<string, string>;
     providerSubscriptionId: string;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
 
   createInvoice(data: {
@@ -133,6 +137,7 @@ export interface PaymentProvider {
     providerProduct?: Record<string, string> | null;
     providerSubscriptionScheduleId?: string | null;
     providerSubscriptionId: string;
+    quantity: number;
   }): Promise<ProviderSubscriptionResult>;
 
   cancelSubscription(data: {

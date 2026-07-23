@@ -27,6 +27,7 @@ export interface NormalizedSubscription {
   providerProduct?: Record<string, string> | null;
   providerSubscriptionId: string;
   providerSubscriptionScheduleId?: string | null;
+  quantity?: number;
   status: string;
 }
 

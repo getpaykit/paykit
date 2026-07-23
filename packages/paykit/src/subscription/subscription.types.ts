@@ -6,6 +6,7 @@ import type { StoredSubscription } from "../types/models";
 export const subscribeBodySchema = z.object({
   planId: z.string(),
   forceCheckout: z.boolean().optional(),
+  quantity: z.number().int().positive().optional(),
   successUrl: returnUrl(),
   cancelUrl: returnUrl().optional(),
 });

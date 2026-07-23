@@ -43,10 +43,17 @@ export async function subscribeToPlan(
     const startTime = Date.now();
     ctx.logger.info({ planId: input.planId, customerId: input.customerId }, "subscribe started");
 
-    const subCtx = await loadSubscribeContext(ctx, input);
+    let subCtx = await loadSubscribeContext(ctx, input);
 
     let result: SubscribeResult;
-    if (isSamePlan(subCtx)) {
+    if (input.quantity !== undefined && isSamePlan(subCtx) && !isSameQuantity(subCtx)) {
+      if (hasPendingSamePlanChange(subCtx)) {
+        await handleSamePlanSubscribe(ctx, subCtx);
+        subCtx = await loadSubscribeContext(ctx, input);
+      }
+      // Same plan with a different quantity updates the current provider subscription in place.
+      result = await handleQuantityChange(ctx, subCtx);
+    } else if (isSamePlan(subCtx)) {
       // Same plan means either a noop or resuming a pending cancellation.
       result = await handleSamePlanSubscribe(ctx, subCtx);
     } else if (!subCtx.activeSubscription) {
@@ -99,6 +106,7 @@ async function resolveStoredPlanFeatures(
 
 export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeInput) {
   const providerId = ctx.provider.id;
+  const quantity = input.quantity ?? 1;
   const normalizedPlan = ctx.products.planMap.get(input.planId);
   const matchingProduct = input.productInternalId
     ? await getProductByInternalId(ctx.database, input.productInternalId)
@@ -178,6 +186,7 @@ export async function loadSubscribeContext(ctx: PayKitContext, input: SubscribeI
     planFeatures,
     providerCustomerId,
     providerId,
+    quantity,
     scheduledSubscriptions,
     shouldUseCheckout: isPaidTarget && (input.forceCheckout === true || !hasDefaultPaymentMethod),
     storedPlan,
@@ -385,6 +394,19 @@ function isSamePlan(subCtx: SubscribeContext): boolean {
   return subCtx.activeSubscription?.planId === subCtx.storedPlan.id;
 }
 
+function isSameQuantity(subCtx: SubscribeContext): boolean {
+  return (subCtx.activeSubscription?.quantity ?? 1) === subCtx.quantity;
+}
+
+function hasPendingSamePlanChange(subCtx: SubscribeContext): boolean {
+  const activeSubscription = subCtx.activeSubscription;
+  return (
+    activeSubscription != null &&
+    hasProviderSubscription(activeSubscription) &&
+    (subCtx.scheduledSubscriptions.length > 0 || activeSubscription.canceled)
+  );
+}
+
 function getSubscriptionEffectiveDate(input: {
   currentPeriodEndAt?: Date | null;
   currentPeriodStartAt?: Date | null;
@@ -436,6 +458,7 @@ async function activateScheduledSubscriptionForGroup(
     subscriptionStatus: string;
     subscriptionCurrentPeriodEndAt?: Date | null;
     subscriptionCurrentPeriodStartAt?: Date | null;
+    subscriptionQuantity?: number | null;
     stripeSubscriptionId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
   },
@@ -484,6 +507,7 @@ async function activateScheduledSubscriptionForGroup(
     subscriptionId: targetSub.id,
     startedAt: targetSub.startedAt ?? activationDate,
     status: input.subscriptionStatus,
+    quantity: input.subscriptionQuantity ?? undefined,
     stripeSubscriptionId: input.stripeSubscriptionId,
     stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId,
   });
@@ -581,6 +605,7 @@ export async function applySubscriptionWebhookAction(
           stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
           stripeSubscriptionScheduleId:
             action.data.subscription.providerSubscriptionScheduleId ?? null,
+          quantity: action.data.subscription.quantity,
           status: action.data.subscription.status,
         })
       : null);
@@ -597,6 +622,7 @@ export async function applySubscriptionWebhookAction(
   await syncSubscriptionBillingState(ctx.database, {
     stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
     stripeSubscriptionScheduleId: action.data.subscription.providerSubscriptionScheduleId ?? null,
+    quantity: action.data.subscription.quantity,
     subscriptionId: targetSub.id,
   });
 
@@ -702,6 +728,7 @@ export async function applySubscriptionWebhookAction(
           action.data.subscription.providerSubscriptionScheduleId ?? null,
         subscriptionCurrentPeriodEndAt: action.data.subscription.currentPeriodEndAt,
         subscriptionCurrentPeriodStartAt: action.data.subscription.currentPeriodStartAt,
+        subscriptionQuantity: action.data.subscription.quantity,
         subscriptionStatus: action.data.subscription.status,
       });
 
@@ -735,6 +762,64 @@ function getProviderSubscriptionRef(subscription: ActiveSubscription): {
   };
 }
 
+/** Updates the quantity of the current subscription without changing its plan. */
+async function handleQuantityChange(
+  ctx: PayKitContext,
+  subCtx: SubscribeContext,
+): Promise<SubscribeResult> {
+  const activeSubscription = subCtx.activeSubscription;
+  if (!activeSubscription) {
+    throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
+  }
+
+  if (!hasProviderSubscription(activeSubscription) || !subCtx.storedPlan.providerProduct) {
+    await syncSubscriptionBillingState(ctx.database, {
+      subscriptionId: activeSubscription.id,
+      quantity: subCtx.quantity,
+    });
+    return buildSubscribeResult({ paymentUrl: null });
+  }
+
+  const activeSubscriptionRef = getProviderSubscriptionRef(activeSubscription);
+  if (!activeSubscriptionRef.subscriptionId) {
+    throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
+  }
+
+  const providerResult = await ctx.provider.updateSubscription({
+    providerProduct: subCtx.storedPlan.providerProduct,
+    providerSubscriptionId: activeSubscriptionRef.subscriptionId,
+    quantity: subCtx.quantity,
+  });
+
+  if (!providerResult.subscription) {
+    throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.SUBSCRIPTION_CREATE_FAILED);
+  }
+
+  await ctx.database.transaction(async (tx) => {
+    await deleteScheduledSubscriptionsInGroupIfNeeded(tx, subCtx);
+    await syncSubscriptionFromProvider(tx, {
+      providerSubscription: providerResult.subscription!,
+      subscriptionId: activeSubscription.id,
+    });
+    await syncSubscriptionBillingState(tx, {
+      currentPeriodEndAt: providerResult.subscription!.currentPeriodEndAt,
+      currentPeriodStartAt: providerResult.subscription!.currentPeriodStartAt,
+      quantity: providerResult.subscription!.quantity ?? subCtx.quantity,
+      stripeSubscriptionId: providerResult.subscription!.providerSubscriptionId,
+      stripeSubscriptionScheduleId:
+        providerResult.subscription!.providerSubscriptionScheduleId ?? null,
+      status: providerResult.subscription!.status,
+      subscriptionId: activeSubscription.id,
+    });
+  });
+
+  return buildSubscribeResult({
+    invoice: providerResult.invoice,
+    paymentUrl: providerResult.paymentUrl,
+    requiredAction: providerResult.requiredAction,
+  });
+}
+
 /** Returns a noop or resumes the current provider subscription. */
 async function handleSamePlanSubscribe(
   ctx: PayKitContext,
@@ -764,6 +849,7 @@ async function handleSamePlanSubscribe(
         cancelAtPeriodEnd: false,
         providerSubscriptionId: activeSubscriptionRef.subscriptionId!,
         providerSubscriptionScheduleId: null,
+        quantity: activeSubscription.quantity,
         status: activeSubscription.status,
       },
     });
@@ -778,6 +864,7 @@ async function handleSamePlanSubscribe(
         stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
         stripeSubscriptionScheduleId:
           providerResult.subscription.providerSubscriptionScheduleId ?? null,
+        quantity: providerResult.subscription.quantity,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -814,6 +901,7 @@ async function handleInitialSubscribe(
   const providerResult = await ctx.provider.createSubscription({
     providerCustomerId: subCtx.providerCustomerId,
     providerProduct: subCtx.storedPlan.providerProduct!,
+    quantity: subCtx.quantity,
   });
 
   await ctx.database.transaction(async (tx) => {
@@ -871,6 +959,7 @@ async function handleLocalPlanSwitch(
   const providerResult = await ctx.provider.createSubscription({
     providerCustomerId: subCtx.providerCustomerId,
     providerProduct: subCtx.storedPlan.providerProduct!,
+    quantity: subCtx.quantity,
   });
 
   await ctx.database.transaction(async (tx) => {
@@ -938,6 +1027,7 @@ async function handleCancelToFree(
         stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
         stripeSubscriptionScheduleId:
           providerResult.subscription.providerSubscriptionScheduleId ?? null,
+        quantity: providerResult.subscription.quantity,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -966,6 +1056,7 @@ async function handleScheduledDowngrade(
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
+    quantity: subCtx.quantity,
   });
 
   await ctx.database.transaction(async (tx) => {
@@ -990,6 +1081,7 @@ async function handleScheduledDowngrade(
         stripeSubscriptionId: providerResult.subscription.providerSubscriptionId,
         stripeSubscriptionScheduleId:
           providerResult.subscription.providerSubscriptionScheduleId ?? null,
+        quantity: providerResult.subscription.quantity,
         status: providerResult.subscription.status,
         subscriptionId: activeSubscription.id,
       });
@@ -1017,6 +1109,7 @@ async function handleUpgrade(
   const providerResult = await ctx.provider.updateSubscription({
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
+    quantity: subCtx.quantity,
   });
 
   await ctx.database.transaction(async (tx) => {
@@ -1061,6 +1154,7 @@ async function createCheckoutSubscribe(
     },
     providerCustomerId: subCtx.providerCustomerId,
     providerProduct: subCtx.storedPlan.providerProduct!,
+    quantity: subCtx.quantity,
     successUrl: subCtx.successUrl,
   });
 
@@ -1079,6 +1173,7 @@ async function insertLocalTargetSubscription(
     customerId: subCtx.customerId,
     planFeatures: subCtx.planFeatures,
     productInternalId: subCtx.storedPlan.internalId,
+    quantity: subCtx.quantity,
     startedAt: input.startedAt,
     status: input.status,
   });
@@ -1106,6 +1201,7 @@ async function upsertProviderBackedTargetSubscription(
         currentPeriodStartAt: input.subscription.currentPeriodStartAt ?? null,
         stripeSubscriptionId: input.subscription.providerSubscriptionId,
         stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
+        quantity: input.subscription.quantity ?? subCtx.quantity,
         status: input.subscription.status,
         subscriptionId: existingSub.id,
       });
@@ -1119,6 +1215,7 @@ async function upsertProviderBackedTargetSubscription(
       customerId: subCtx.customerId,
       planFeatures: subCtx.planFeatures,
       productInternalId: subCtx.storedPlan.internalId,
+      quantity: input.subscription.quantity ?? subCtx.quantity,
       startedAt: input.subscription.currentPeriodStartAt ?? new Date(),
       stripeSubscriptionId: input.subscription.providerSubscriptionId,
       stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
@@ -1349,6 +1446,7 @@ export async function insertSubscriptionRecord(
     currentPeriodStartAt?: Date | null;
     planFeatures: readonly NormalizedPlanFeature[];
     productInternalId: string;
+    quantity?: number;
     scheduledProductId?: string | null;
     startedAt?: Date | null;
     stripeSubscriptionId?: string | null;
@@ -1370,7 +1468,7 @@ export async function insertSubscriptionRecord(
       endedAt: null,
       id: generateId("sub"),
       productInternalId: input.productInternalId,
-      quantity: 1,
+      quantity: input.quantity ?? 1,
       scheduledProductId: input.scheduledProductId ?? null,
       startedAt: input.startedAt ?? now,
       stripeSubscriptionId: input.stripeSubscriptionId ?? null,
@@ -1517,6 +1615,7 @@ export async function activateScheduledSubscription(
     subscriptionId: string;
     startedAt?: Date | null;
     status: string;
+    quantity?: number;
     stripeSubscriptionId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
   },
@@ -1529,6 +1628,7 @@ export async function activateScheduledSubscription(
       currentPeriodEndAt: input.currentPeriodEndAt ?? null,
       currentPeriodStartAt: input.currentPeriodStartAt ?? null,
       endedAt: null,
+      ...(input.quantity !== undefined ? { quantity: input.quantity } : {}),
       startedAt: input.startedAt ?? new Date(),
       stripeSubscriptionId: input.stripeSubscriptionId ?? null,
       stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId ?? null,
@@ -1589,6 +1689,9 @@ export async function syncSubscriptionFromProvider(
       currentPeriodEndAt: input.providerSubscription.currentPeriodEndAt ?? null,
       currentPeriodStartAt: input.providerSubscription.currentPeriodStartAt ?? null,
       endedAt,
+      ...(input.providerSubscription.quantity !== undefined
+        ? { quantity: input.providerSubscription.quantity }
+        : {}),
       status: input.providerSubscription.status,
       updatedAt: new Date(),
     })
@@ -1604,6 +1707,7 @@ export async function syncSubscriptionBillingState(
     startedAt?: Date | null;
     stripeSubscriptionId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
+    quantity?: number | null;
     status?: string;
   },
 ): Promise<void> {
@@ -1634,6 +1738,7 @@ export async function syncSubscriptionBillingState(
         input.stripeSubscriptionScheduleId !== undefined
           ? input.stripeSubscriptionScheduleId
           : existing.stripeSubscriptionScheduleId,
+      quantity: input.quantity != null ? input.quantity : existing.quantity,
       status: input.status ?? existing.status,
       updatedAt: new Date(),
     })
