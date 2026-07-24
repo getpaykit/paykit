@@ -87,7 +87,7 @@ const tabInactive =
 const labelBase =
   "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
 
-export function NavigationBar({ stars }: { stars?: number | null }) {
+export function NavigationBar({ stars = "1k" }: { stars?: string }) {
   const routerPathname = usePathname();
   const [pathname, setPathname] = useState("/");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -257,7 +257,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
                   className="px-2 -mr-2"
                 >
                   <Icons.GitHubIcon className="size-4.5" />
-                  <span className="font-sans text-sm">{stars ?? "1k"}</span>
+                  <span className="font-sans text-sm">{stars}</span>
                 </Button>
               </div>
             </div>
