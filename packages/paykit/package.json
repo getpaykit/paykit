@@ -57,7 +57,7 @@
     "commander": "^12.1.0",
     "concurrently": "^10.0.5",
     "dotenv": "^17.3.1",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-orm": "^0.45.2",
     "jiti": "^2.6.1",
     "pg": "^8.23.0",
     "picocolors": "^1.1.1",
@@ -70,7 +70,7 @@
     "zod": "^4.6.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.5",
+    "drizzle-kit": "^0.31.10",
     "tsdown": "^0.21.1",
     "vitest": "^4.1.11"
   }

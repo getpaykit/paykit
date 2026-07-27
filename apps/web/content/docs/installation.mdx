@@ -166,7 +166,7 @@ export const paykit = createPayKit({
 
 Optionally. PayKit provides a code-first way to create your plans, and a very useful usage billing with `track()` and `report()` out of the box. 
 
-By defining you products in code don't have to touch Stripe's dashboard at all. It automatically syncs your pricing with your provider, and you unlock a full type-safety with inferred ID types!
+By defining your products in code, you don't have to touch Stripe's dashboard at all. PayKit automatically syncs your pricing with Stripe, and you get full type safety with inferred ID types!
 
 
 ```ts title="products.ts"
@@ -223,7 +223,7 @@ npx paykitjs push
 ```
 
 <Callout>
-  This applies database migrations and syncs your plan definitions to provider's
+  This applies database migrations and syncs your plan definitions to Stripe's
   products.
 <br/>Run it once on setup, and every time after you change your products configuration.
 <br/>For production deployments, see the [CLI reference](/docs/cli#production-usage).

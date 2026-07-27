@@ -19,7 +19,7 @@
     "push": "pnpm push:auth && pnpm push:paykit && pnpm push:autumn",
     "push:auth": "auth migrate --config src/lib/auth.ts --yes",
     "push:paykit": "pnpm paykitjs push --yes",
-    "push:autumn": "set -a; [ -f .env ] && . ./.env; set +a; if [ -n \"$AUTUMN_SECRET_KEY\" ]; then atmn push; else printf '%s\\n' 'Skipping Autumn push: provider env incomplete'; fi",
+    "push:autumn": "set -a; [ -f ../../.env ] && . ../../.env; [ -f ../../.env.local ] && . ../../.env.local; set +a; if [ -n \"$AUTUMN_SECRET_KEY\" ]; then atmn push; else printf '%s\\n' 'Skipping Autumn push: provider env incomplete'; fi",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
@@ -68,8 +68,8 @@
     "atmn": "^1.1.25",
     "concurrently": "^10.0.5",
     "dotenv": "^17.4.2",
-    "drizzle-kit": "^0.31.5",
-    "drizzle-orm": "^0.45.1",
+    "drizzle-kit": "^0.31.10",
+    "drizzle-orm": "^0.45.2",
     "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
     "typescript": "^5.8.2"

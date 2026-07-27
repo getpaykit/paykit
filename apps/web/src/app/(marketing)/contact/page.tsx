@@ -6,9 +6,12 @@ import { FooterSection } from "@/components/sections/footer-section";
 import { ContactForm } from "./contact-form";
 
 export const metadata: Metadata = {
-  title: "Get in touch – PayKit",
+  title: "Get in touch",
   description:
     "Get in touch with the PayKit team about your billing setup, onboarding, or integrations.",
+  alternates: {
+    canonical: "/contact",
+  },
 };
 
 export default function ContactPage() {

@@ -59,7 +59,7 @@ The customer ID can be your app's own user ID, or an organization ID.
 
 ## Subscribe to a plan
 
-To subscribe a customer to a plan, call `subscribe` with the plan ID. For paid plans without a saved payment method, it returns a `paymentUrl` pointing to the provider checkout.
+To subscribe a customer to a plan, call `subscribe` with the plan ID. For paid plans without a saved payment method, it returns a `paymentUrl` pointing to Stripe Checkout.
 
 <Tabs items={["Server", "Client"]}>
   <Tab value="Server">
@@ -72,7 +72,7 @@ To subscribe a customer to a plan, call `subscribe` with the plan ID. For paid p
     });
 
     if (result.paymentUrl) {
-      // redirect user to provider checkout
+      // redirect user to Stripe Checkout
     }
     ```
   </Tab>

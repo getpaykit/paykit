@@ -44,6 +44,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.1
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
       lefthook:
         specifier: ^2.1.12
         version: 2.1.12
@@ -202,10 +205,10 @@ importers:
         specifier: ^17.4.2
         version: 17.4.2
       drizzle-kit:
-        specifier: ^0.31.5
+        specifier: ^0.31.10
         version: 0.31.10
       drizzle-orm:
-        specifier: ^0.45.1
+        specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@types/pg@8.23.1)(better-sqlite3@11.10.0)(kysely@0.28.17)(pg@8.23.0)
       postcss:
         specifier: ^8.5.28
@@ -359,7 +362,7 @@ importers:
   apps/wh:
     dependencies:
       drizzle-orm:
-        specifier: ^0.45.1
+        specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@types/pg@8.23.1)(better-sqlite3@11.10.0)(kysely@0.28.17)(pg@8.23.0)
       hono:
         specifier: ^4.13.7
@@ -372,7 +375,7 @@ importers:
         specifier: ^11.10.0
         version: 11.10.0
       drizzle-kit:
-        specifier: ^0.31.5
+        specifier: ^0.31.10
         version: 0.31.10
       typescript:
         specifier: 'catalog:'
@@ -389,11 +392,8 @@ importers:
       '@types/pg':
         specifier: ^8.23.1
         version: 8.23.1
-      dotenv:
-        specifier: ^17.3.1
-        version: 17.4.2
       drizzle-orm:
-        specifier: ^0.45.1
+        specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@types/pg@8.23.1)(better-sqlite3@11.10.0)(kysely@0.28.17)(pg@8.23.0)
       paykitjs:
         specifier: workspace:*
@@ -496,7 +496,7 @@ importers:
         specifier: ^17.3.1
         version: 17.4.2
       drizzle-orm:
-        specifier: ^0.45.1
+        specifier: ^0.45.2
         version: 0.45.2(@cloudflare/workers-types@5.20260911.1)(@types/pg@8.23.1)(better-sqlite3@11.10.0)(kysely@0.28.17)(pg@8.23.0)
       jiti:
         specifier: ^2.6.1
@@ -530,7 +530,7 @@ importers:
         version: 4.6.4
     devDependencies:
       drizzle-kit:
-        specifier: ^0.31.5
+        specifier: ^0.31.10
         version: 0.31.10
       tsdown:
         specifier: ^0.21.1

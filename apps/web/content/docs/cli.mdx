@@ -52,7 +52,7 @@ This is similar to how you'd run database migrations on deploy. The `-y` flag sk
 npx paykitjs listen
 ```
 
-Runs PayKit's local webhook listener. It registers a provider webhook tunnel, replays missed events, and streams new webhooks while you develop.
+Runs PayKit's local webhook listener. It registers a Stripe webhook tunnel, replays missed events, and streams new webhooks while you develop.
 
 Pass your app's dev command after `--` to run together with dev server:
 
@@ -77,8 +77,8 @@ Validates your entire PayKit setup without making any changes. Useful when debug
 - Configuration file validity
 - Database connection
 - Migration status (whether `push` needs to be run)
-- Provider API connectivity
-- Sync status between your config, database, and provider
+- Stripe API connectivity
+- Sync status between your config, database, and Stripe
 
 Pass `--throw` to exit with code 1 on failures, useful for CI pipelines:
 

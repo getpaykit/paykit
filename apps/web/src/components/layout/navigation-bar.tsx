@@ -87,7 +87,7 @@ const tabInactive =
 const labelBase =
   "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
 
-export function NavigationBar({ stars }: { stars?: number | null }) {
+export function NavigationBar({ stars = "1k" }: { stars?: string }) {
   const routerPathname = usePathname();
   const [pathname, setPathname] = useState("/");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -114,7 +114,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
 
   return (
     <>
-      <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start [scrollbar-gutter:stable]">
+      <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start">
         {/* Mobile */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -257,7 +257,7 @@ export function NavigationBar({ stars }: { stars?: number | null }) {
                   className="px-2 -mr-2"
                 >
                   <Icons.GitHubIcon className="size-4.5" />
-                  <span className="font-sans text-sm">{stars ?? "1k"}</span>
+                  <span className="font-sans text-sm">{stars}</span>
                 </Button>
               </div>
             </div>

@@ -31,9 +31,6 @@ export const metadata: Metadata = {
   applicationName: SITE_NAME,
   title: { template: `%s | ${SITE_NAME}`, default: SITE_TITLE },
   description: SITE_DESCRIPTION,
-  alternates: {
-    canonical: "/",
-  },
   icons: {
     icon: [{ url: "/favicon/favicon.svg?v=4", type: "image/svg+xml" }],
     apple: "/favicon/apple-touch-icon.png",
@@ -41,7 +38,6 @@ export const metadata: Metadata = {
   manifest: "/favicon/site.webmanifest",
   openGraph: {
     type: "website",
-    url: URLs.site,
     siteName: SITE_NAME,
     title: OG_TITLE,
     description: OG_DESCRIPTION,

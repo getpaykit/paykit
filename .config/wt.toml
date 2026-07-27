@@ -1,2 +1,2 @@
 [pre-start]
-setup = "pnpm run worktree:setup"
+setup = "bash scripts/setup-worktree.sh"

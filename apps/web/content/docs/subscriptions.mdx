@@ -16,7 +16,7 @@ description: Subscribe, upgrade, downgrade, and cancel plans with a single metho
     });
 
     if (result.paymentUrl) {
-      // Redirect user to provider checkout
+      // Redirect user to Stripe Checkout
     }
     ```
   </Tab>
@@ -39,9 +39,9 @@ description: Subscribe, upgrade, downgrade, and cancel plans with a single metho
 
 What happens when you call `subscribe()` for the first time depends on the plan and whether the customer already has a payment method on file.
 
-- **Free plan:** activates immediately. No provider call is made, no subscription record is created. The customer is treated as on the default plan.
-- **Paid plan with a payment method:** PayKit creates the subscription directly through the provider.
-- **Paid plan without a payment method:** PayKit returns a `paymentUrl`. Redirect the user there to complete checkout. Once they do, the provider sends a webhook and PayKit activates the subscription.
+- **Free plan:** activates immediately. No Stripe call is made, no subscription record is created. The customer is treated as on the default plan.
+- **Paid plan with a payment method:** PayKit creates the subscription directly through Stripe.
+- **Paid plan without a payment method:** PayKit returns a `paymentUrl`. Redirect the user there to complete checkout. Once they do, Stripe sends a webhook and PayKit activates the subscription.
 
 ## Result shape
 
@@ -51,17 +51,17 @@ What happens when you call `subscribe()` for the first time depends on the plan 
 - `invoice`: present when a charge was created immediately.
 - `requiredAction`: set when additional authentication (like 3D Secure) is required.
 
-If `paymentUrl` is set, don't assume the subscription is active yet. It becomes active after the provider confirms payment via webhook.
+If `paymentUrl` is set, don't assume the subscription is active yet. It becomes active after Stripe confirms payment via webhook.
 
 ## Upgrades
 
-Moving to a higher-priced plan in the same group is an upgrade. PayKit switches the subscription immediately: the old plan ends and the new one starts. Any prorated amount is charged or credited depending on your provider settings.
+Moving to a higher-priced plan in the same group is an upgrade. PayKit switches the subscription immediately: the old plan ends and the new one starts. Any prorated amount is charged or credited according to your Stripe billing settings.
 
 ## Downgrades
 
 Moving to a lower-priced plan is a downgrade. PayKit doesn't switch immediately. The current plan stays active until the end of the billing period, and the target plan is stored as a scheduled change.
 
-When the period ends, PayKit processes the webhook from the provider and transitions the customer to the scheduled plan.
+When the period ends, PayKit processes the webhook from Stripe and transitions the customer to the scheduled plan.
 
 ## Cancel to free
 

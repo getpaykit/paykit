@@ -1,0 +1,3 @@
+{
+  "setup-worktree-unix": ["bash scripts/setup-worktree.sh"]
+}

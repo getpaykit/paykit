@@ -94,7 +94,7 @@ export async function requireFile(filePath: string) {
 
 /** Load sandbox env file with dotenv parsing. */
 export async function loadSandboxEnvFile() {
-  const filePath = path.join(demoDir, sandboxConfig.envFile);
+  const filePath = path.join(repoRootDir, sandboxConfig.envFile);
   await requireFile(filePath);
 
   const raw = await readFile(filePath);

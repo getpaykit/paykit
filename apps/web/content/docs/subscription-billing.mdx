@@ -134,13 +134,13 @@ This guide walks through a complete subscription billing flow: defining plans, s
       </Tab>
     </Tabs>
 
-    Don't treat the subscription as active yet if `paymentUrl` is set. It activates after the provider confirms payment via webhook.
+    Don't treat the subscription as active yet if `paymentUrl` is set. It activates after Stripe confirms payment via webhook.
   </Step>
 
   <Step>
     <StepTitle>Handle the webhook</StepTitle>
 
-    After checkout, your payment provider sends a webhook to PayKit's endpoint. PayKit verifies the signature, syncs the subscription locally, and fires a `customer.updated` event. This is fully automatic.
+    After checkout, Stripe sends a webhook to PayKit's endpoint. PayKit verifies the signature, syncs the subscription locally, and fires a `customer.updated` event. This is fully automatic.
 
     You don't need to manually process Stripe events or update your database. By the time `customer.updated` fires, the customer's subscriptions and entitlements are already up to date.
 
@@ -185,7 +185,7 @@ This guide walks through a complete subscription billing flow: defining plans, s
     // subscription is active immediately
     ```
 
-    Any prorated amount is handled by the provider based on your billing settings.
+    Any prorated amount is handled by Stripe based on your billing settings.
   </Step>
 
   <Step>
