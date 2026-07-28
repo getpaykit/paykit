@@ -61,4 +61,13 @@ describe("core/validate-options", () => {
       );
     },
   );
+
+  it("rejects non-HTTP trusted origins", () => {
+    const options = createOptions();
+    options.trustedOrigins = ["javascript:alert(1)"];
+
+    expect(() => assertValidPayKitOptions(options)).toThrow(
+      "trustedOrigins` only supports HTTP and HTTPS origins",
+    );
+  });
 });

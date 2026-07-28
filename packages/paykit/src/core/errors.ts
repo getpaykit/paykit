@@ -34,6 +34,9 @@ export const PAYKIT_ERROR_CODES = defineErrorCodes({
   CUSTOMER_ID_REQUIRED: "No customerId provided and no identify configured",
   SUCCESS_URL_REQUIRED:
     "A successUrl is required when subscribe is called without a request context",
+  RETURN_URL_INVALID: "Provider return URL is invalid",
+  RETURN_URL_ORIGIN_REQUIRED: "A trusted browser origin is required for a relative return URL",
+  REQUEST_ORIGIN_REQUIRED: "A browser origin is required for this authenticated request",
   TRUSTED_ORIGIN_INVALID: "Resolved origin is not in trustedOrigins",
   BASEPATH_INVALID: "basePath must start with a leading slash",
   TESTING_NOT_ENABLED: "Testing mode is not enabled",

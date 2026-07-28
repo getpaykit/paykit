@@ -70,6 +70,12 @@ function assertValidTrustedOrigin(origin: string): void {
     );
   }
 
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(
+      `PayKit option \`trustedOrigins\` only supports HTTP and HTTPS origins. Received "${origin}".`,
+    );
+  }
+
   if (parsed.pathname !== "/" || parsed.search || parsed.hash) {
     throw new Error(
       `PayKit option \`trustedOrigins\` must not include a path, query, or hash. Received "${origin}".`,

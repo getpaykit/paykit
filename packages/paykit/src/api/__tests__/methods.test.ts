@@ -15,6 +15,7 @@ function createTestContext() {
     logger: {
       error: vi.fn(),
       trace,
+      warn: vi.fn(),
     },
     options: {
       database: "postgres://paykit:test@localhost:5432/paykit",
@@ -89,5 +90,64 @@ describe("api/methods router", () => {
         "x-test": "1",
       },
     });
+  });
+
+  it("rejects form bodies on customer API routes", async () => {
+    const { ctx } = createTestContext();
+    const router = createPayKitRouter(ctx);
+
+    const response = await router.handler(
+      new Request("https://example.com/paykit/api/customer-portal", {
+        body: "returnUrl=%2Fbilling",
+        headers: {
+          "content-type": "application/x-www-form-urlencoded",
+          cookie: "session=test",
+          origin: "https://example.com",
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(415);
+  });
+
+  it("rejects cookie-authenticated customer requests without an origin", async () => {
+    const { ctx } = createTestContext();
+    const router = createPayKitRouter(ctx);
+
+    const response = await router.handler(
+      new Request("https://example.com/paykit/api/customer-portal", {
+        body: JSON.stringify({ returnUrl: "/billing" }),
+        headers: { "content-type": "application/json", cookie: "session=test" },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ code: "REQUEST_ORIGIN_REQUIRED" });
+    expect(ctx.logger.warn).toHaveBeenCalledWith(
+      expect.objectContaining({ code: "REQUEST_ORIGIN_REQUIRED" }),
+      expect.stringContaining("without a browser origin"),
+    );
+  });
+
+  it("rejects cookie-authenticated customer requests from untrusted origins", async () => {
+    const { ctx } = createTestContext();
+    const router = createPayKitRouter(ctx);
+
+    const response = await router.handler(
+      new Request("https://api.example.com/paykit/api/customer-portal", {
+        body: JSON.stringify({ returnUrl: "/billing" }),
+        headers: {
+          "content-type": "application/json",
+          cookie: "session=test",
+          origin: "https://evil.example.com",
+        },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ code: "TRUSTED_ORIGIN_INVALID" });
   });
 });
