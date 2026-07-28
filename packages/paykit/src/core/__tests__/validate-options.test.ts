@@ -37,4 +37,28 @@ describe("core/validate-options", () => {
       "must be a lowercase three-letter currency code",
     );
   });
+
+  it.each(["sk_test_123", "rk_test_123"])(
+    "accepts testing mode with Stripe test credential %s",
+    (secretKey) => {
+      const options = createOptions();
+      options.stripe.secretKey = secretKey;
+      options.testing = { enabled: true };
+
+      expect(() => assertValidPayKitOptions(options)).not.toThrow();
+    },
+  );
+
+  it.each(["sk_live_123", "rk_live_123", "invalid"])(
+    "rejects testing mode with non-test credential %s",
+    (secretKey) => {
+      const options = createOptions();
+      options.stripe.secretKey = secretKey;
+      options.testing = { enabled: true };
+
+      expect(() => assertValidPayKitOptions(options)).toThrow(
+        "testing mode requires a Stripe test-mode secret or restricted key",
+      );
+    },
+  );
 });

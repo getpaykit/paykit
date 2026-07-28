@@ -1,4 +1,5 @@
 import { isSupportedStripeCurrency, SUPPORTED_STRIPE_CURRENCIES } from "../stripe/currency";
+import { isStripeTestKey } from "../stripe/stripe-provider";
 import type { PayKitOptions } from "../types/options";
 
 function hasLegacyPlansOption(options: object): options is { plans: unknown } {
@@ -33,6 +34,10 @@ export function assertValidPayKitOptions(
   const currency = options.stripe?.currency;
   if (currency !== undefined) {
     assertValidStripeCurrency(currency);
+  }
+
+  if (options.testing?.enabled && !isStripeTestKey(options.stripe.secretKey)) {
+    throw new Error("PayKit testing mode requires a Stripe test-mode secret or restricted key.");
   }
 }
 

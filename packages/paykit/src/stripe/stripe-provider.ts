@@ -203,13 +203,18 @@ function normalizeStripeTestClock(clock: StripeSdk.TestHelpers.TestClock): Provi
 }
 
 function assertStripeTestKey(options: Pick<StripeOptions, "secretKey">): void {
-  if (!options.secretKey.startsWith("sk_test_")) {
+  if (!isStripeTestKey(options.secretKey)) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_TEST_KEY_REQUIRED);
   }
 }
 
+/** Returns whether a Stripe credential belongs to test mode. */
+export function isStripeTestKey(secretKey: string): boolean {
+  return secretKey.startsWith("sk_test_") || secretKey.startsWith("rk_test_");
+}
+
 function getStripeEnvironment(secretKey: string): string {
-  return secretKey.startsWith("sk_test_") || secretKey.startsWith("rk_test_") ? "test" : "live";
+  return isStripeTestKey(secretKey) ? "test" : "live";
 }
 
 function getStripeDisplayName(account: StripeSdk.Account): string {
