@@ -30,6 +30,7 @@ export const PAYKIT_ERROR_CODES = defineErrorCodes({
   PROVIDER_PRICE_REQUIRED: "A provider price ID is required",
   PROVIDER_TEST_KEY_REQUIRED: "Testing mode requires provider test credentials",
   PROVIDER_WEBHOOK_INVALID: "Provider webhook payload is invalid",
+  PROVIDER_OPERATION_UNSUPPORTED: "The configured provider does not support this operation",
 
   COMBINED_SUBSCRIBE_DUPLICATE_PLAN: "The same plan was listed more than once",
   COMBINED_SUBSCRIBE_DUPLICATE_GROUP: "Two or more plans belong to the same group",

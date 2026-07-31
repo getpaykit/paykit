@@ -59,7 +59,11 @@ describe("renewal-after-combined-checkout: both items roll forward together", ()
         .where(and(eq(subscription.customerId, customerId), ne(subscription.status, "ended")));
       expect(rowsBefore.length).toBeGreaterThanOrEqual(2);
 
-      const periodEnd = new Date(rowsBefore[0]!.currentPeriodEndAt as unknown as string);
+      const firstRow = rowsBefore[0];
+      if (!firstRow?.currentPeriodEndAt) {
+        throw new Error("Expected active subscription row to have a currentPeriodEndAt");
+      }
+      const periodEnd = new Date(firstRow.currentPeriodEndAt);
       const advanceTo = new Date(periodEnd.getTime() + 86_400_000);
       const beforeAdvance = new Date();
 
@@ -72,7 +76,7 @@ describe("renewal-after-combined-checkout: both items roll forward together", ()
       });
 
       // Poll until BOTH rows have rolled their period forward — not just one.
-      let rowsAfter: Array<{ currentPeriodEndAt: unknown; status: string }> = [];
+      let rowsAfter: Array<{ currentPeriodEndAt: Date | null; status: string }> = [];
       for (let i = 0; i < 60; i++) {
         rowsAfter = await t.database
           .select({
@@ -86,9 +90,7 @@ describe("renewal-after-combined-checkout: both items roll forward together", ()
           rowsAfter.length >= 2 &&
           rowsAfter.every((row) => {
             if (!row.currentPeriodEndAt) return false;
-            return (
-              new Date(row.currentPeriodEndAt as unknown as string).getTime() > periodEnd.getTime()
-            );
+            return new Date(row.currentPeriodEndAt).getTime() > periodEnd.getTime();
           });
         if (bothRolledForward) break;
 

@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { default as Stripe } from "stripe";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
@@ -47,7 +47,12 @@ describe.skipIf(harness.id !== "stripe")(
       const subRows = await t.database
         .select({ stripeSubscriptionId: subscription.stripeSubscriptionId })
         .from(subscription)
-        .where(eq(subscription.customerId, customerId))
+        .where(
+          and(
+            eq(subscription.customerId, customerId),
+            isNotNull(subscription.stripeSubscriptionId),
+          ),
+        )
         .orderBy(desc(subscription.updatedAt))
         .limit(1);
       const stripeSubscriptionId = subRows[0]?.stripeSubscriptionId;

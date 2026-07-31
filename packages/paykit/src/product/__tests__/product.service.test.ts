@@ -80,4 +80,16 @@ describe("product.service", () => {
 
     await expect(getProductByPlan(database, createPlan())).resolves.toBeNull();
   });
+
+  it("does not fall back when the stored product is licensed but the plan is metered", async () => {
+    const storedProduct = createStoredProduct();
+    const { database } = createDatabase(storedProduct);
+
+    await expect(
+      getProductByPlan(
+        database,
+        createPlan({ meteredFeatureId: "api_calls", priceUsageType: "metered" }),
+      ),
+    ).resolves.toBeNull();
+  });
 });

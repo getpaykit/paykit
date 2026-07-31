@@ -126,13 +126,15 @@ export interface PaymentProvider {
   }): Promise<ProviderSubscriptionResult>;
 
   /** Adds a new line item (e.g. an add-on) to an existing subscription, charging immediately. */
-  addSubscriptionItem(data: {
+  addSubscriptionItem?(data: {
     providerProduct: Record<string, string>;
     providerSubscriptionId: string;
+    /** Stable per-attempt key forwarded to the provider so retries cannot create duplicate items. */
+    idempotencyKey?: string;
   }): Promise<ProviderSubscriptionResult & { providerSubscriptionItemId: string }>;
 
   /** Removes one line item from an existing subscription, leaving the rest intact. */
-  removeSubscriptionItem(data: {
+  removeSubscriptionItem?(data: {
     providerSubscriptionId: string;
     providerSubscriptionItemId: string;
   }): Promise<ProviderSubscriptionResult>;
@@ -188,7 +190,7 @@ export interface PaymentProvider {
   }>;
 
   /** Reports a Stripe usage-based billing event for a metered price. */
-  reportUsageEvent(data: {
+  reportUsageEvent?(data: {
     providerCustomerId: string;
     meterEventName: string;
     value: number;

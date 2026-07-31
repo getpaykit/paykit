@@ -17,6 +17,7 @@ async function getActiveMeteredLinkForFeature(
     .where(
       and(
         eq(subscription.customerId, input.customerId),
+        eq(product.priceUsageType, "metered"),
         eq(product.meteredFeatureId, input.featureId),
         inArray(subscription.status, ["active", "trialing", "past_due"]),
         or(isNull(subscription.endedAt), sql`${subscription.endedAt} > now()`),
@@ -56,7 +57,12 @@ export async function reportUsageToProvider(
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.USAGE_NOT_METERED_FOR_CUSTOMER);
   }
 
-  const { providerEventId } = await ctx.provider.reportUsageEvent({
+  const reportUsageEvent = ctx.provider.reportUsageEvent;
+  if (!reportUsageEvent) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_OPERATION_UNSUPPORTED);
+  }
+
+  const { providerEventId } = await reportUsageEvent({
     identifier: input.eventId,
     meterEventName: input.featureId,
     providerCustomerId: link.providerCustomerId,

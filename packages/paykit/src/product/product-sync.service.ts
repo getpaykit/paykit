@@ -1,7 +1,7 @@
 import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { StoredProductFeature } from "../types/models";
-import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
+import type { NormalizedPlan, NormalizedPlanFeature, PriceUsageType } from "../types/schema";
 import {
   getLatestProductSnapshot,
   getProviderProduct,
@@ -131,7 +131,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
     priceAmount: number;
     priceCurrency: string;
     priceInterval: string;
-    usageType: string;
+    usageType: PriceUsageType;
     meterEventName: string | undefined;
     existingProviderProduct: Record<string, string> | null;
     storedProductInternalId: string;
@@ -216,7 +216,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         priceCurrency: storedProduct.priceCurrency,
         priceInterval: storedProduct.priceInterval,
         storedProductInternalId: storedProduct.internalId,
-        usageType: storedProduct.priceUsageType,
+        usageType: storedProduct.priceUsageType as PriceUsageType,
       });
     }
 
@@ -237,7 +237,7 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         priceAmount: p.priceAmount,
         priceCurrency: p.priceCurrency,
         priceInterval: p.priceInterval,
-        usageType: p.usageType as "licensed" | "metered",
+        usageType: p.usageType,
       })),
     });
 

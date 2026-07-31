@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { default as Stripe } from "stripe";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
@@ -89,7 +89,13 @@ describe.skipIf(harness.id !== "stripe")(
           .select({ stripeSubscriptionId: subscription.stripeSubscriptionId })
           .from(subscription)
           .innerJoin(product, eq(product.internalId, subscription.productInternalId))
-          .where(and(eq(subscription.customerId, customerId), eq(product.id, "extra_messages")))
+          .where(
+            and(
+              eq(subscription.customerId, customerId),
+              eq(product.id, "extra_messages"),
+              ne(subscription.status, "ended"),
+            ),
+          )
           .limit(1);
         const stripeSubscriptionId = subRows[0]?.stripeSubscriptionId;
         if (!stripeSubscriptionId) {

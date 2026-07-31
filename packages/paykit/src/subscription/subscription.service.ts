@@ -245,7 +245,9 @@ async function handleCombinedSubscribe(
     ),
   );
 
-  const groups = subCtxs.map((subCtx) => subCtx.storedPlan.group);
+  const groups = subCtxs
+    .map((subCtx) => subCtx.storedPlan.group)
+    .filter((group) => group.length > 0);
   if (new Set(groups).size !== groups.length) {
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_DUPLICATE_GROUP);
   }
@@ -1263,16 +1265,13 @@ async function upsertProviderBackedTargetSubscription(
 /**
  * Resolves the Stripe subscription an add-on should attach to: the customer's
  * one active provider-backed subscription, or `targetSubscriptionId` when given
- * to disambiguate a customer with more than one.
+ * to disambiguate a customer with more than one. A supplied target id is
+ * validated against the customer's active local rows before being returned.
  */
 async function resolveAnchorProviderSubscription(
   database: PayKitDatabase,
   input: { customerId: string; targetSubscriptionId?: string },
 ): Promise<string> {
-  if (input.targetSubscriptionId) {
-    return input.targetSubscriptionId;
-  }
-
   const rows = await database
     .select({ stripeSubscriptionId: subscription.stripeSubscriptionId })
     .from(subscription)
@@ -1281,6 +1280,7 @@ async function resolveAnchorProviderSubscription(
         eq(subscription.customerId, input.customerId),
         inArray(subscription.status, ["active", "trialing", "past_due"]),
         or(isNull(subscription.endedAt), sql`${subscription.endedAt} > now()`),
+        input.targetSubscriptionId ? eq(subscription.id, input.targetSubscriptionId) : undefined,
       ),
     );
 
@@ -1323,32 +1323,59 @@ export async function addSubscriptionAddOn(
     targetSubscriptionId: input.targetSubscriptionId,
   });
 
-  const providerResult = await ctx.provider.addSubscriptionItem({
-    providerProduct: subCtx.storedPlan.providerProduct!,
-    providerSubscriptionId: anchorSubscriptionId,
-  });
+  const addSubscriptionItem = ctx.provider.addSubscriptionItem;
+  if (!addSubscriptionItem) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_OPERATION_UNSUPPORTED);
+  }
 
-  await ctx.database.transaction(async (tx) => {
-    const inserted = await insertSubscriptionRecord(tx, {
-      currentPeriodEndAt: providerResult.subscription?.currentPeriodEndAt ?? null,
-      currentPeriodStartAt: providerResult.subscription?.currentPeriodStartAt ?? null,
-      customerId: input.customerId,
-      planFeatures: subCtx.planFeatures,
-      productInternalId: subCtx.storedPlan.internalId,
-      startedAt: providerResult.subscription?.currentPeriodStartAt ?? new Date(),
-      stripeSubscriptionId: anchorSubscriptionId,
-      stripeSubscriptionItemId: providerResult.providerSubscriptionItemId,
-      status: providerResult.subscription?.status ?? "active",
+  // Serialize concurrent requests for the same customer/plan so only one can
+  // attach the add-on, and tie the provider item creation to a pre-generated
+  // local row id so a retried attempt cannot create duplicate provider items.
+  const addOnSubscriptionId = generateId("addon");
+  const providerResult = await ctx.database.transaction(async (tx) => {
+    await tx.execute(
+      sql`select pg_advisory_xact_lock(hashtext(${`addon:${input.customerId}:${subCtx.storedPlan.internalId}`}))`,
+    );
+
+    const active = subCtx.storedPlan.group
+      ? await getActiveSubscriptionInGroup(tx, {
+          customerId: input.customerId,
+          group: subCtx.storedPlan.group,
+        })
+      : null;
+    if (active) {
+      throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_ALREADY_ACTIVE);
+    }
+
+    const result = await addSubscriptionItem({
+      idempotencyKey: `paykit_addon:${addOnSubscriptionId}`,
+      providerProduct: subCtx.storedPlan.providerProduct!,
+      providerSubscriptionId: anchorSubscriptionId,
     });
 
-    if (providerResult.invoice) {
+    const inserted = await insertSubscriptionRecord(tx, {
+      currentPeriodEndAt: result.subscription?.currentPeriodEndAt ?? null,
+      currentPeriodStartAt: result.subscription?.currentPeriodStartAt ?? null,
+      customerId: input.customerId,
+      id: addOnSubscriptionId,
+      planFeatures: subCtx.planFeatures,
+      productInternalId: subCtx.storedPlan.internalId,
+      startedAt: result.subscription?.currentPeriodStartAt ?? new Date(),
+      stripeSubscriptionId: anchorSubscriptionId,
+      stripeSubscriptionItemId: result.providerSubscriptionItemId,
+      status: result.subscription?.status ?? "active",
+    });
+
+    if (result.invoice) {
       await upsertInvoiceRecord(tx, {
         customerId: input.customerId,
-        invoice: providerResult.invoice,
+        invoice: result.invoice,
         providerId: subCtx.providerId,
         subscriptionId: inserted.id,
       });
     }
+
+    return result;
   });
 
   return buildSubscribeResult({
@@ -1379,7 +1406,12 @@ export async function removeSubscriptionAddOn(
     throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_NOT_ACTIVE);
   }
 
-  await ctx.provider.removeSubscriptionItem({
+  const removeSubscriptionItem = ctx.provider.removeSubscriptionItem;
+  if (!removeSubscriptionItem) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_OPERATION_UNSUPPORTED);
+  }
+
+  await removeSubscriptionItem({
     providerSubscriptionId: active.stripeSubscriptionId,
     providerSubscriptionItemId: active.stripeSubscriptionItemId,
   });
@@ -1646,6 +1678,7 @@ export async function insertSubscriptionRecord(
     customerId: string;
     currentPeriodEndAt?: Date | null;
     currentPeriodStartAt?: Date | null;
+    id?: string;
     planFeatures: readonly NormalizedPlanFeature[];
     productInternalId: string;
     scheduledProductId?: string | null;
@@ -1668,7 +1701,7 @@ export async function insertSubscriptionRecord(
       currentPeriodStartAt: input.currentPeriodStartAt ?? null,
       customerId: input.customerId,
       endedAt: null,
-      id: generateId("sub"),
+      id: input.id ?? generateId("sub"),
       productInternalId: input.productInternalId,
       quantity: 1,
       scheduledProductId: input.scheduledProductId ?? null,

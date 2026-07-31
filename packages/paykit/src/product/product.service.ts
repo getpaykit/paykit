@@ -5,7 +5,12 @@ import { generateId } from "../core/utils";
 import type { PayKitDatabase } from "../database";
 import { feature, product, productFeature } from "../database/schema";
 import type { StoredFeature, StoredProduct, StoredProductFeature } from "../types/models";
-import type { NormalizedFeature, NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
+import type {
+  NormalizedFeature,
+  NormalizedPlan,
+  NormalizedPlanFeature,
+  PriceUsageType,
+} from "../types/schema";
 
 export interface StoredProductSnapshot {
   features: readonly StoredProductFeature[];
@@ -207,7 +212,7 @@ export async function insertProductVersion(
     priceAmount: number | null;
     priceCurrency: string | null;
     priceInterval: string | null;
-    priceUsageType: string;
+    priceUsageType: PriceUsageType;
     version: number;
   },
 ): Promise<StoredProduct> {

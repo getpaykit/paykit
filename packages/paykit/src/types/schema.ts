@@ -20,17 +20,21 @@ const priceAmountSchema = z
   .number()
   .positive("Price amount must be positive")
   .max(999_999.99, "Price amount must not exceed $999,999.99");
-const licensedPriceSchema = z.object({
+const meteredUnitAmountSchema = z
+  .number()
+  .min(0.01, "Metered price unit amount must be at least $0.01")
+  .max(999_999.99, "Price amount must not exceed $999,999.99");
+const licensedPriceSchema = z.strictObject({
   amount: priceAmountSchema,
   interval: z.enum(["month", "year"]),
 });
 /** A price billed via Stripe usage-based billing: `unitAmount` charges per unit reported through `reportUsage()`. */
-const meteredPriceSchema = z.object({
+const meteredPriceSchema = z.strictObject({
   interval: z.enum(["month", "year"]),
   meteredBy: z.custom<PayKitFeature<MeteredFeatureDefinition>>(isPayKitFeature, {
     message: "meteredBy must be a metered feature returned by feature(...)",
   }),
-  unitAmount: priceAmountSchema,
+  unitAmount: meteredUnitAmountSchema,
 });
 const priceSchema = z.union([licensedPriceSchema, meteredPriceSchema]);
 
