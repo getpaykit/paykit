@@ -87,6 +87,8 @@ export const product = pgTable(
     priceAmount: integer("price_amount"),
     priceCurrency: text("price_currency"),
     priceInterval: text("price_interval"),
+    priceUsageType: text("price_usage_type").notNull().default("licensed"),
+    meteredFeatureId: text("metered_feature_id").references(() => feature.id),
     hash: text("hash"),
     stripeProductId: text("stripe_product_id"),
     stripePriceId: text("stripe_price_id"),
@@ -133,6 +135,7 @@ export const subscription = pgTable(
       .notNull()
       .references(() => product.internalId),
     stripeSubscriptionId: text("stripe_subscription_id"),
+    stripeSubscriptionItemId: text("stripe_subscription_item_id"),
     stripeSubscriptionScheduleId: text("stripe_subscription_schedule_id"),
     status: text("status").notNull(),
     canceled: boolean("canceled").notNull().default(false),
@@ -156,6 +159,11 @@ export const subscription = pgTable(
     ),
     index("paykit_subscription_product_idx").on(table.productInternalId),
     index("paykit_subscription_stripe_subscription_idx").on(table.stripeSubscriptionId),
+    index("paykit_subscription_stripe_item_idx").on(table.stripeSubscriptionItemId),
+    uniqueIndex("paykit_subscription_stripe_sub_item_unique").on(
+      table.stripeSubscriptionId,
+      table.stripeSubscriptionItemId,
+    ),
     index("paykit_subscription_stripe_schedule_idx").on(table.stripeSubscriptionScheduleId),
   ],
 );

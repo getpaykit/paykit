@@ -2,7 +2,7 @@ import StripeSdk from "stripe";
 
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { PaymentProvider, ProviderTestClock } from "../providers/provider";
-import type { NormalizedWebhookEvent } from "../types/events";
+import type { NormalizedSubscription, NormalizedWebhookEvent } from "../types/events";
 import { DEFAULT_STRIPE_CURRENCY, getStripeCurrency, type StripeCurrency } from "./currency";
 
 /**
@@ -156,34 +156,20 @@ function normalizeStripeInvoice(invoice: StripeInvoiceWithExtras) {
   };
 }
 
-function normalizeStripeSubscription(subscription: StripeSubscriptionWithExtras) {
-  const firstItem = subscription.items.data[0];
-  const price = firstItem?.price;
-  const providerPriceId = typeof price === "string" ? price : price?.id;
-  const providerProductId =
-    price && typeof price !== "string"
-      ? typeof price.product === "string"
-        ? price.product
-        : (price.product?.id ?? null)
-      : null;
+/** Normalizes every line item on a Stripe subscription, one entry per subscription item. */
+function normalizeStripeSubscriptionItems(
+  subscription: StripeSubscriptionWithExtras,
+): NormalizedSubscription[] {
   const periodStart = getEarliestPeriodStart(subscription);
   const periodEnd = getLatestPeriodEnd(subscription);
-
-  let providerProduct: Record<string, string> | null = null;
-  if (providerPriceId && providerProductId) {
-    providerProduct = { priceId: providerPriceId, productId: providerProductId };
-  } else if (providerPriceId) {
-    providerProduct = { priceId: providerPriceId };
-  }
-
   const cancelAt = (subscription as { cancel_at?: number | null }).cancel_at;
-  return {
+
+  const shared = {
     cancelAtPeriodEnd: subscription.cancel_at_period_end || (cancelAt != null && cancelAt > 0),
     canceledAt: toDate(subscription.canceled_at),
     currentPeriodEndAt: toDate(periodEnd),
     currentPeriodStartAt: toDate(periodStart),
     endedAt: toDate(subscription.ended_at),
-    providerProduct,
     providerSubscriptionId: subscription.id,
     providerSubscriptionScheduleId:
       (typeof subscription.schedule === "string"
@@ -191,6 +177,49 @@ function normalizeStripeSubscription(subscription: StripeSubscriptionWithExtras)
         : subscription.schedule?.id) ?? null,
     status: subscription.status,
   };
+
+  if (subscription.items.data.length === 0) {
+    return [{ ...shared, providerProduct: null, providerSubscriptionItemId: null }];
+  }
+
+  return subscription.items.data.map((item) => {
+    const price = item.price;
+    const providerPriceId = typeof price === "string" ? price : price?.id;
+    const providerProductId =
+      price && typeof price !== "string"
+        ? typeof price.product === "string"
+          ? price.product
+          : (price.product?.id ?? null)
+        : null;
+
+    let providerProduct: Record<string, string> | null = null;
+    if (providerPriceId && providerProductId) {
+      providerProduct = { priceId: providerPriceId, productId: providerProductId };
+    } else if (providerPriceId) {
+      providerProduct = { priceId: providerPriceId };
+    }
+
+    return { ...shared, providerProduct, providerSubscriptionItemId: item.id };
+  });
+}
+
+/** Normalizes a Stripe subscription to its first item. Use `normalizeStripeSubscriptionItems` for multi-item subscriptions. */
+function normalizeStripeSubscription(
+  subscription: StripeSubscriptionWithExtras,
+): NormalizedSubscription {
+  return normalizeStripeSubscriptionItems(subscription)[0]!;
+}
+
+/** Normalizes a Stripe subscription to the item matching `itemId`, falling back to the first item. */
+function normalizeStripeSubscriptionItem(
+  subscription: StripeSubscriptionWithExtras,
+  itemId?: string | null,
+): NormalizedSubscription {
+  const items = normalizeStripeSubscriptionItems(subscription);
+  return (
+    (itemId ? items.find((item) => item.providerSubscriptionItemId === itemId) : undefined) ??
+    items[0]!
+  );
 }
 
 function normalizeStripeTestClock(clock: StripeSdk.TestHelpers.TestClock): ProviderTestClock {
@@ -226,6 +255,34 @@ function isStripeResourceMissingError(error: unknown): boolean {
     error.code === "resource_missing" &&
     error.statusCode === 404
   );
+}
+
+/** Metered Stripe prices bill via reported usage and must never be given a `quantity`. */
+async function isMeteredPriceId(client: StripeSdk, priceId: string): Promise<boolean> {
+  const price = await client.prices.retrieve(priceId);
+  return price.recurring?.usage_type === "metered";
+}
+
+function isMeteredSubscriptionItemPrice(price: StripeSdk.Price | string): boolean {
+  return typeof price !== "string" && price.recurring?.usage_type === "metered";
+}
+
+/** Finds or creates the Stripe Billing Meter whose `event_name` matches the PayKit feature id. */
+async function ensureStripeMeter(client: StripeSdk, eventName: string): Promise<string> {
+  const existing = await client.billing.meters.list({ status: "active" });
+  const found = existing.data.find((meter) => meter.event_name === eventName);
+  if (found) {
+    return found.id;
+  }
+
+  const created = await client.billing.meters.create({
+    customer_mapping: { event_payload_key: "stripe_customer_id", type: "by_id" },
+    default_aggregation: { formula: "sum" },
+    display_name: eventName,
+    event_name: eventName,
+    value_settings: { event_payload_key: "value" },
+  });
+  return created.id;
 }
 
 async function retrieveExpandedSubscription(
@@ -431,10 +488,16 @@ async function createCheckoutCompletedEvents(
   }
 
   const sessionMetadata = session.metadata ?? {};
+  const expandedSubscriptionItems = expandedSubscription
+    ? normalizeStripeSubscriptionItems(expandedSubscription)
+    : null;
 
   events.push({
     name: "checkout.completed",
     payload: {
+      activeProviderSubscriptionItemIds: expandedSubscription
+        ? expandedSubscription.items.data.map((item) => item.id)
+        : undefined,
       checkoutSessionId: session.id,
       invoice: expandedInvoice ? normalizeStripeInvoice(expandedInvoice) : undefined,
       metadata: Object.keys(sessionMetadata).length > 0 ? sessionMetadata : undefined,
@@ -445,9 +508,8 @@ async function createCheckoutCompletedEvents(
       providerInvoiceId: providerInvoiceId ?? undefined,
       providerSubscriptionId: providerSubscriptionId ?? undefined,
       status: session.status,
-      subscription: expandedSubscription
-        ? normalizeStripeSubscription(expandedSubscription)
-        : undefined,
+      subscription: expandedSubscriptionItems ? expandedSubscriptionItems[0] : undefined,
+      subscriptions: expandedSubscriptionItems ?? undefined,
     },
   });
 
@@ -496,22 +558,22 @@ async function createSubscriptionEvents(event: StripeSdk.Event): Promise<Normali
     ];
   }
 
-  const normalizedSubscription = normalizeStripeSubscription(subscription);
+  const normalizedItems = normalizeStripeSubscriptionItems(subscription);
   const normalizedEvent: NormalizedWebhookEvent<"subscription.updated"> = {
-    actions: [
-      {
-        data: {
-          providerCustomerId,
-          subscription: normalizedSubscription,
-        },
-        type: "subscription.upsert",
+    actions: normalizedItems.map((item) => ({
+      data: {
+        providerCustomerId,
+        subscription: item,
       },
-    ],
+      type: "subscription.upsert",
+    })),
     name: "subscription.updated",
     payload: {
+      activeProviderSubscriptionItemIds: subscription.items.data.map((item) => item.id),
       providerCustomerId,
       providerEventId: event.id,
-      subscription: normalizedSubscription,
+      subscription: normalizedItems[0]!,
+      subscriptions: normalizedItems,
     },
   };
   return [normalizedEvent];
@@ -680,13 +742,24 @@ export function createStripeProvider(
     },
 
     async createSubscriptionCheckout(data) {
+      const lineItems = await Promise.all(
+        data.providerProducts.map(async (providerProduct) => {
+          const priceId = providerProduct.priceId;
+          if (!priceId) {
+            throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_PRICE_REQUIRED);
+          }
+          const isMetered = await isMeteredPriceId(client, priceId);
+          return isMetered ? { price: priceId } : { price: priceId, quantity: 1 };
+        }),
+      );
+
       const sessionParams: StripeSdk.Checkout.SessionCreateParams & {
         managed_payments?: { enabled: boolean };
       } = {
         cancel_url: data.cancelUrl ?? data.successUrl,
         client_reference_id: data.providerCustomerId,
         customer: data.providerCustomerId,
-        line_items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+        line_items: lineItems,
         metadata: data.metadata,
         mode: "subscription",
         success_url: data.successUrl,
@@ -707,9 +780,14 @@ export function createStripeProvider(
     },
 
     async createSubscription(data) {
+      const priceId = data.providerProduct.priceId;
+      if (!priceId) {
+        throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_PRICE_REQUIRED);
+      }
+      const isMetered = await isMeteredPriceId(client, priceId);
       const createParams: StripeSdk.SubscriptionCreateParams = {
         customer: data.providerCustomerId,
-        items: [{ price: data.providerProduct.priceId }],
+        items: [isMetered ? { price: priceId } : { price: priceId, quantity: 1 }],
         payment_behavior: "default_incomplete",
         expand: ["latest_invoice.payment_intent"],
       };
@@ -740,11 +818,21 @@ export function createStripeProvider(
         client,
         data.providerSubscriptionId,
       );
-      const currentItem = currentSubscription.items.data[0];
+      const currentItem =
+        (data.providerSubscriptionItemId
+          ? currentSubscription.items.data.find(
+              (item) => item.id === data.providerSubscriptionItemId,
+            )
+          : undefined) ??
+        (currentSubscription.items.data.length === 1
+          ? currentSubscription.items.data[0]
+          : undefined);
       if (!currentItem) {
         throw PayKitError.from(
           "BAD_REQUEST",
-          PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_MISSING_ITEMS,
+          currentSubscription.items.data.length === 0
+            ? PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_MISSING_ITEMS
+            : PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_ITEM_AMBIGUOUS,
         );
       }
 
@@ -774,12 +862,73 @@ export function createStripeProvider(
         invoice,
         paymentUrl: null,
         requiredAction: normalizeRequiredAction(paymentIntent ?? null),
+        subscription: normalizeStripeSubscriptionItem(updatedSubscription, currentItem.id),
+      };
+    },
+
+    async addSubscriptionItem(data) {
+      const createdItem = await client.subscriptionItems.create({
+        payment_behavior: "pending_if_incomplete",
+        price: data.providerProduct.priceId,
+        proration_behavior: "always_invoice",
+        subscription: data.providerSubscriptionId,
+      });
+
+      const updatedSubscription = await retrieveExpandedSubscription(
+        client,
+        data.providerSubscriptionId,
+      );
+      const latestInvoice = updatedSubscription.latest_invoice;
+      const invoice =
+        latestInvoice && typeof latestInvoice !== "string"
+          ? normalizeStripeInvoice(latestInvoice)
+          : null;
+      const paymentIntent =
+        latestInvoice && typeof latestInvoice !== "string"
+          ? (latestInvoice.payment_intent as StripeSdk.PaymentIntent | null | undefined)
+          : null;
+
+      return {
+        invoice,
+        paymentUrl: null,
+        providerSubscriptionItemId: createdItem.id,
+        requiredAction: normalizeRequiredAction(paymentIntent ?? null),
+        subscription: normalizeStripeSubscriptionItem(updatedSubscription, createdItem.id),
+      };
+    },
+
+    async removeSubscriptionItem(data) {
+      try {
+        await client.subscriptionItems.del(data.providerSubscriptionItemId, {
+          proration_behavior: "create_prorations",
+        });
+      } catch (error) {
+        if (error instanceof StripeSdk.errors.StripeInvalidRequestError) {
+          // e.g. Stripe rejects removing a subscription's last remaining item.
+          throw PayKitError.from(
+            "BAD_REQUEST",
+            PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_ITEM_REMOVAL_REJECTED,
+            error.message,
+          );
+        }
+        throw error;
+      }
+
+      const updatedSubscription = await retrieveExpandedSubscription(
+        client,
+        data.providerSubscriptionId,
+      );
+
+      return {
+        paymentUrl: null,
+        requiredAction: null,
         subscription: normalizeStripeSubscription(updatedSubscription),
       };
     },
 
     async scheduleSubscriptionChange(data) {
-      if (!data.providerProduct?.priceId) {
+      const targetPriceId = data.providerProduct?.priceId;
+      if (!targetPriceId) {
         throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.PROVIDER_PRICE_REQUIRED);
       }
 
@@ -794,10 +943,35 @@ export function createStripeProvider(
         );
       }
 
-      const currentItems = currentSub.items.data.map((item: { price: { id: string } }) => ({
-        price: item.price.id,
-        quantity: 1,
-      }));
+      const targetItem =
+        (data.providerSubscriptionItemId
+          ? currentSub.items.data.find((item) => item.id === data.providerSubscriptionItemId)
+          : undefined) ??
+        (currentSub.items.data.length === 1 ? currentSub.items.data[0] : undefined);
+      if (!targetItem) {
+        throw PayKitError.from(
+          "BAD_REQUEST",
+          PAYKIT_ERROR_CODES.PROVIDER_SUBSCRIPTION_ITEM_AMBIGUOUS,
+        );
+      }
+
+      const buildPhaseItem = (
+        priceId: string,
+        isMetered: boolean,
+      ): { price: string; quantity?: number } =>
+        isMetered ? { price: priceId } : { price: priceId, quantity: 1 };
+
+      const currentItems = currentSub.items.data.map((item) =>
+        buildPhaseItem(item.price.id, isMeteredSubscriptionItemPrice(item.price)),
+      );
+      // Only the target item's price changes for the next phase; every other item
+      // (e.g. add-ons on the same subscription) must carry over unchanged.
+      const targetPriceIsMetered = await isMeteredPriceId(client, targetPriceId);
+      const nextPhaseItems = currentSub.items.data.map((item) =>
+        item.id === targetItem.id
+          ? buildPhaseItem(targetPriceId, targetPriceIsMetered)
+          : buildPhaseItem(item.price.id, isMeteredSubscriptionItemPrice(item.price)),
+      );
 
       let schedule: StripeSdk.SubscriptionSchedule;
       if (data.providerSubscriptionScheduleId) {
@@ -827,7 +1001,7 @@ export function createStripeProvider(
             end_date: periodEndSeconds,
           },
           {
-            items: [{ price: data.providerProduct.priceId, quantity: 1 }],
+            items: nextPhaseItems,
             start_date: periodEndSeconds,
           },
         ],
@@ -841,7 +1015,7 @@ export function createStripeProvider(
       return {
         paymentUrl: null,
         requiredAction: null,
-        subscription: normalizeStripeSubscription(updatedSubscription),
+        subscription: normalizeStripeSubscriptionItem(updatedSubscription, targetItem.id),
       };
     },
 
@@ -937,7 +1111,14 @@ export function createStripeProvider(
             product: productId,
             unit_amount: product.priceAmount,
           };
-          if (product.priceInterval) {
+          if (product.usageType === "metered" && product.meterEventName) {
+            const meterId = await ensureStripeMeter(client, product.meterEventName);
+            priceParams.recurring = {
+              interval: (product.priceInterval as "month" | "year") ?? "month",
+              meter: meterId,
+              usage_type: "metered",
+            };
+          } else if (product.priceInterval) {
             priceParams.recurring = {
               interval: product.priceInterval as "month" | "year",
             };
@@ -949,6 +1130,20 @@ export function createStripeProvider(
       );
 
       return { results };
+    },
+
+    async reportUsageEvent(data) {
+      const event = await client.billing.meterEvents.create({
+        event_name: data.meterEventName,
+        identifier: data.identifier,
+        payload: {
+          stripe_customer_id: data.providerCustomerId,
+          value: String(data.value),
+        },
+        timestamp: data.timestamp ? Math.floor(data.timestamp.getTime() / 1000) : undefined,
+      });
+
+      return { providerEventId: event.identifier };
     },
 
     async createInvoice(data) {

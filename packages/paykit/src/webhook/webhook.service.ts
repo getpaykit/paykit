@@ -12,6 +12,7 @@ import {
   handleSubscribeCheckoutCompleted,
   applySubscriptionWebhookAction,
   prepareSubscribeCheckoutCompleted,
+  reconcileRemovedSubscriptionItems,
 } from "../subscription/subscription.service";
 import type { AnyNormalizedWebhookEvent, WebhookApplyAction } from "../types/events";
 
@@ -143,7 +144,7 @@ async function processWebhookEvent(
 
   try {
     // Provider calls must happen before the DB transaction opens.
-    const checkoutCompletion =
+    const checkoutCompletions =
       event.name === "checkout.completed"
         ? await prepareSubscribeCheckoutCompleted(ctx, event)
         : null;
@@ -152,8 +153,8 @@ async function processWebhookEvent(
       const txCtx = { ...ctx, database: tx } as PayKitContext;
       const ids = new Set<string>();
 
-      if (checkoutCompletion) {
-        const customerId = await handleSubscribeCheckoutCompleted(txCtx, checkoutCompletion);
+      for (const completion of checkoutCompletions ?? []) {
+        const customerId = await handleSubscribeCheckoutCompleted(txCtx, completion);
         if (customerId) {
           ids.add(customerId);
         }
@@ -165,6 +166,16 @@ async function processWebhookEvent(
         if (customerId) {
           ids.add(customerId);
         }
+      }
+
+      if (
+        event.name === "subscription.updated" &&
+        event.payload.activeProviderSubscriptionItemIds
+      ) {
+        await reconcileRemovedSubscriptionItems(txCtx, {
+          activeProviderSubscriptionItemIds: event.payload.activeProviderSubscriptionItemIds,
+          providerSubscriptionId: event.payload.subscription.providerSubscriptionId,
+        });
       }
 
       return ids;

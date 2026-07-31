@@ -43,6 +43,13 @@ export async function subscribeToPlan(
     const startTime = Date.now();
     ctx.logger.info({ planId: input.planId, customerId: input.customerId }, "subscribe started");
 
+    if (input.addOnPlanIds && input.addOnPlanIds.length > 0) {
+      const result = await handleCombinedSubscribe(ctx, input);
+      const duration = Date.now() - startTime;
+      ctx.logger.info({ duration }, "subscribe completed");
+      return result;
+    }
+
     const subCtx = await loadSubscribeContext(ctx, input);
 
     let result: SubscribeResult;
@@ -216,6 +223,62 @@ function buildSubscribeResult(input: {
   };
 }
 
+/** Starts one combined checkout for a base plan plus one or more add-on plans. */
+async function handleCombinedSubscribe(
+  ctx: PayKitContext,
+  input: SubscribeInput,
+): Promise<SubscribeResult> {
+  const allPlanIds = [input.planId, ...(input.addOnPlanIds ?? [])];
+  if (new Set(allPlanIds).size !== allPlanIds.length) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_DUPLICATE_PLAN);
+  }
+
+  const subCtxs = await Promise.all(
+    allPlanIds.map((planId) =>
+      loadSubscribeContext(ctx, {
+        customerId: input.customerId,
+        cancelUrl: input.cancelUrl,
+        forceCheckout: input.forceCheckout,
+        planId,
+        successUrl: input.successUrl,
+      }),
+    ),
+  );
+
+  const groups = subCtxs.map((subCtx) => subCtx.storedPlan.group);
+  if (new Set(groups).size !== groups.length) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_DUPLICATE_GROUP);
+  }
+  if (subCtxs.some((subCtx) => subCtx.isFreeTarget)) {
+    throw PayKitError.from(
+      "BAD_REQUEST",
+      PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_REQUIRES_PAID_PLANS,
+    );
+  }
+  if (subCtxs.some((subCtx) => subCtx.activeSubscription)) {
+    throw PayKitError.from(
+      "BAD_REQUEST",
+      PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_EXISTING_SUBSCRIPTION,
+    );
+  }
+
+  const primary = subCtxs[0]!;
+  const checkoutResult = await ctx.provider.createSubscriptionCheckout({
+    cancelUrl: primary.cancelUrl,
+    metadata: {
+      paykit_customer_id: primary.customerId,
+      paykit_intent: "subscribe",
+      paykit_plan_ids: allPlanIds.join(","),
+      paykit_product_internal_ids: subCtxs.map((subCtx) => subCtx.storedPlan.internalId).join(","),
+    },
+    providerCustomerId: primary.providerCustomerId,
+    providerProducts: subCtxs.map((subCtx) => subCtx.storedPlan.providerProduct!),
+    successUrl: primary.successUrl,
+  });
+
+  return buildSubscribeResult({ paymentUrl: checkoutResult.paymentUrl });
+}
+
 interface SubscribeCheckoutCompletion {
   customerId: string;
   invoice?: Parameters<typeof buildSubscribeResult>[0]["invoice"];
@@ -304,10 +367,26 @@ export async function applyCheckoutSubscription(
   });
 }
 
+/** Resolves the Stripe subscription item matching a plan's price, for combined checkouts with multiple items. */
+function matchCheckoutSubscriptionToPlan(
+  checkoutSubscriptions: readonly ProviderSubscription[],
+  storedProviderProduct: Record<string, string> | null,
+): ProviderSubscription | undefined {
+  if (checkoutSubscriptions.length === 1) {
+    return checkoutSubscriptions[0];
+  }
+
+  return checkoutSubscriptions.find(
+    (sub) =>
+      storedProviderProduct != null &&
+      (sub as NormalizedSubscription).providerProduct?.priceId === storedProviderProduct.priceId,
+  );
+}
+
 export async function prepareSubscribeCheckoutCompleted(
   ctx: PayKitContext,
   event: NormalizedWebhookEvent<"checkout.completed">,
-): Promise<SubscribeCheckoutCompletion | null> {
+): Promise<SubscribeCheckoutCompletion[] | null> {
   if (event.payload.mode !== "subscription") {
     return null;
   }
@@ -318,9 +397,10 @@ export async function prepareSubscribeCheckoutCompleted(
   }
 
   const customerId = event.payload.metadata?.paykit_customer_id;
-  const planId = event.payload.metadata?.paykit_plan_id;
-  const productInternalId = event.payload.metadata?.paykit_product_internal_id;
-  if (!customerId || !planId) {
+  const planIdsMeta = event.payload.metadata?.paykit_plan_ids;
+  const singlePlanId = event.payload.metadata?.paykit_plan_id;
+  const planIds = planIdsMeta ? planIdsMeta.split(",") : singlePlanId ? [singlePlanId] : null;
+  if (!customerId || !planIds || planIds.length === 0) {
     throw PayKitError.from(
       "BAD_REQUEST",
       PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
@@ -328,8 +408,17 @@ export async function prepareSubscribeCheckoutCompleted(
     );
   }
 
-  const checkoutSubscription = event.payload.subscription ?? null;
-  if (!checkoutSubscription) {
+  const productInternalIdsMeta = event.payload.metadata?.paykit_product_internal_ids;
+  const singleProductInternalId = event.payload.metadata?.paykit_product_internal_id;
+  const productInternalIds = productInternalIdsMeta
+    ? productInternalIdsMeta.split(",")
+    : singleProductInternalId
+      ? [singleProductInternalId]
+      : [];
+
+  const checkoutSubscriptions: ProviderSubscription[] =
+    event.payload.subscriptions ?? (event.payload.subscription ? [event.payload.subscription] : []);
+  if (checkoutSubscriptions.length === 0) {
     throw PayKitError.from(
       "BAD_REQUEST",
       PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
@@ -337,39 +426,59 @@ export async function prepareSubscribeCheckoutCompleted(
     );
   }
 
-  const subCtx = await loadSubscribeContext(ctx, {
-    customerId,
-    planId,
-    productInternalId: productInternalId ?? undefined,
-    successUrl: "https://paykit.invalid/checkout",
-  });
-  const checkoutProviderProduct = checkoutSubscription.providerProduct;
-  const storedProviderProduct = subCtx.storedPlan.providerProduct;
-  if (checkoutProviderProduct && storedProviderProduct) {
-    const checkoutKeys = Object.keys(checkoutProviderProduct);
-    const storedKeys = Object.keys(storedProviderProduct);
-    const mismatch =
-      checkoutKeys.length !== storedKeys.length ||
-      checkoutKeys.some((key) => checkoutProviderProduct[key] !== storedProviderProduct[key]);
-    if (mismatch) {
+  const completions: SubscribeCheckoutCompletion[] = [];
+  for (let i = 0; i < planIds.length; i++) {
+    const planId = planIds[i]!;
+    const productInternalId = productInternalIds[i];
+
+    const subCtx = await loadSubscribeContext(ctx, {
+      customerId,
+      planId,
+      productInternalId: productInternalId || undefined,
+      successUrl: "https://paykit.invalid/checkout",
+    });
+    const storedProviderProduct = subCtx.storedPlan.providerProduct;
+    const checkoutSubscription = matchCheckoutSubscriptionToPlan(
+      checkoutSubscriptions,
+      storedProviderProduct,
+    );
+    if (!checkoutSubscription) {
       throw PayKitError.from(
         "BAD_REQUEST",
         PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
-        `Checkout product mismatch for plan "${planId}"`,
+        `Checkout completion did not include a matching subscription item for plan "${planId}"`,
       );
     }
+
+    const checkoutProviderProduct = (checkoutSubscription as NormalizedSubscription)
+      .providerProduct;
+    if (checkoutProviderProduct && storedProviderProduct) {
+      const checkoutKeys = Object.keys(checkoutProviderProduct);
+      const storedKeys = Object.keys(storedProviderProduct);
+      const mismatch =
+        checkoutKeys.length !== storedKeys.length ||
+        checkoutKeys.some((key) => checkoutProviderProduct[key] !== storedProviderProduct[key]);
+      if (mismatch) {
+        throw PayKitError.from(
+          "BAD_REQUEST",
+          PAYKIT_ERROR_CODES.PROVIDER_WEBHOOK_INVALID,
+          `Checkout product mismatch for plan "${planId}"`,
+        );
+      }
+    }
+
+    const completion: SubscribeCheckoutCompletion = {
+      customerId,
+      invoice: event.payload.invoice ?? null,
+      subCtx,
+      subscription: checkoutSubscription,
+    };
+
+    await cancelExistingProviderSubscriptionForCheckout(ctx, completion);
+    completions.push(completion);
   }
 
-  const completion = {
-    customerId,
-    invoice: event.payload.invoice ?? null,
-    subCtx,
-    subscription: checkoutSubscription,
-  };
-
-  await cancelExistingProviderSubscriptionForCheckout(ctx, completion);
-
-  return completion;
+  return completions;
 }
 
 export async function handleSubscribeCheckoutCompleted(
@@ -437,6 +546,7 @@ async function activateScheduledSubscriptionForGroup(
     subscriptionCurrentPeriodEndAt?: Date | null;
     subscriptionCurrentPeriodStartAt?: Date | null;
     stripeSubscriptionId?: string | null;
+    stripeSubscriptionItemId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
   },
 ): Promise<string | null> {
@@ -485,6 +595,7 @@ async function activateScheduledSubscriptionForGroup(
     startedAt: targetSub.startedAt ?? activationDate,
     status: input.subscriptionStatus,
     stripeSubscriptionId: input.stripeSubscriptionId,
+    stripeSubscriptionItemId: input.stripeSubscriptionItemId,
     stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId,
   });
 
@@ -504,51 +615,53 @@ export async function applySubscriptionWebhookAction(
   }
 
   if (action.type === "subscription.delete") {
-    const existingSub = await getSubscriptionByProviderSubscriptionId(ctx.database, {
-      providerId: ctx.provider.id,
+    const existingSubs = await getSubscriptionsByProviderSubscriptionId(ctx.database, {
       providerSubscriptionId: action.data.providerSubscriptionId,
     });
-    if (!existingSub) {
+    if (existingSubs.length === 0) {
       return customerRow.id;
     }
 
-    const effectiveEndDate = existingSub.currentPeriodEndAt ?? new Date();
+    for (const existingSub of existingSubs) {
+      const effectiveEndDate = existingSub.currentPeriodEndAt ?? new Date();
 
-    await endSubscriptions(ctx.database, [existingSub.id], {
-      canceled: true,
-      endedAt: effectiveEndDate,
-      status: "canceled",
-    });
-
-    const existingStoredProduct = await ctx.database.query.product.findFirst({
-      where: eq(product.internalId, existingSub.productInternalId),
-    });
-    const productGroup = existingStoredProduct?.group ?? "";
-
-    if (productGroup) {
-      const effectiveDate = existingSub.currentPeriodEndAt ?? new Date();
-
-      await ensureScheduledDefaultPlan(ctx, {
-        customerId: customerRow.id,
-        group: productGroup,
-        startsAt: effectiveDate,
+      await endSubscriptions(ctx.database, [existingSub.id], {
+        canceled: true,
+        endedAt: effectiveEndDate,
+        status: "canceled",
       });
 
-      await activateScheduledSubscriptionForGroup(ctx, {
-        customerId: customerRow.id,
-        productGroup,
-        subscriptionCurrentPeriodEndAt: null,
-        subscriptionCurrentPeriodStartAt: effectiveDate,
-        subscriptionStatus: "active",
+      const existingStoredProduct = await ctx.database.query.product.findFirst({
+        where: eq(product.internalId, existingSub.productInternalId),
       });
+      const productGroup = existingStoredProduct?.group ?? "";
+
+      if (productGroup) {
+        const effectiveDate = existingSub.currentPeriodEndAt ?? new Date();
+
+        await ensureScheduledDefaultPlan(ctx, {
+          customerId: customerRow.id,
+          group: productGroup,
+          startsAt: effectiveDate,
+        });
+
+        await activateScheduledSubscriptionForGroup(ctx, {
+          customerId: customerRow.id,
+          productGroup,
+          subscriptionCurrentPeriodEndAt: null,
+          subscriptionCurrentPeriodStartAt: effectiveDate,
+          subscriptionStatus: "active",
+        });
+      }
     }
 
     return customerRow.id;
   }
 
-  const existingSub = await getSubscriptionByProviderSubscriptionId(ctx.database, {
+  const existingSub = await resolveExistingSubscriptionForItem(ctx.database, {
     providerId: ctx.provider.id,
     providerSubscriptionId: action.data.subscription.providerSubscriptionId,
+    providerSubscriptionItemId: action.data.subscription.providerSubscriptionItemId,
   });
   const providerProduct = action.data.subscription.providerProduct;
   const storedProduct = providerProduct
@@ -579,6 +692,7 @@ export async function applySubscriptionWebhookAction(
           productInternalId: storedProduct.internalId,
           startedAt: action.data.subscription.currentPeriodStartAt ?? new Date(),
           stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+          stripeSubscriptionItemId: action.data.subscription.providerSubscriptionItemId ?? null,
           stripeSubscriptionScheduleId:
             action.data.subscription.providerSubscriptionScheduleId ?? null,
           status: action.data.subscription.status,
@@ -596,6 +710,7 @@ export async function applySubscriptionWebhookAction(
 
   await syncSubscriptionBillingState(ctx.database, {
     stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+    stripeSubscriptionItemId: action.data.subscription.providerSubscriptionItemId ?? null,
     stripeSubscriptionScheduleId: action.data.subscription.providerSubscriptionScheduleId ?? null,
     subscriptionId: targetSub.id,
   });
@@ -698,6 +813,7 @@ export async function applySubscriptionWebhookAction(
         productGroup: storedProduct.group,
         productInternalId: storedProduct.internalId,
         stripeSubscriptionId: action.data.subscription.providerSubscriptionId,
+        stripeSubscriptionItemId: action.data.subscription.providerSubscriptionItemId ?? null,
         stripeSubscriptionScheduleId:
           action.data.subscription.providerSubscriptionScheduleId ?? null,
         subscriptionCurrentPeriodEndAt: action.data.subscription.currentPeriodEndAt,
@@ -727,10 +843,12 @@ function hasProviderSubscription(subscription: ActiveSubscription): boolean {
 
 function getProviderSubscriptionRef(subscription: ActiveSubscription): {
   subscriptionId: string | null;
+  subscriptionItemId: string | null;
   subscriptionScheduleId: string | null;
 } {
   return {
     subscriptionId: subscription?.stripeSubscriptionId ?? null,
+    subscriptionItemId: subscription?.stripeSubscriptionItemId ?? null,
     subscriptionScheduleId: subscription?.stripeSubscriptionScheduleId ?? null,
   };
 }
@@ -965,6 +1083,7 @@ async function handleScheduledDowngrade(
   const providerResult = await ctx.provider.scheduleSubscriptionChange({
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
+    providerSubscriptionItemId: activeSubscriptionRef.subscriptionItemId,
     providerSubscriptionScheduleId: activeSubscriptionRef.subscriptionScheduleId,
   });
 
@@ -1017,6 +1136,7 @@ async function handleUpgrade(
   const providerResult = await ctx.provider.updateSubscription({
     providerProduct: subCtx.storedPlan.providerProduct!,
     providerSubscriptionId: activeSubscriptionRef.subscriptionId,
+    providerSubscriptionItemId: activeSubscriptionRef.subscriptionItemId,
   });
 
   await ctx.database.transaction(async (tx) => {
@@ -1060,7 +1180,7 @@ async function createCheckoutSubscribe(
       paykit_product_internal_id: subCtx.storedPlan.internalId,
     },
     providerCustomerId: subCtx.providerCustomerId,
-    providerProduct: subCtx.storedPlan.providerProduct!,
+    providerProducts: [subCtx.storedPlan.providerProduct!],
     successUrl: subCtx.successUrl,
   });
 
@@ -1095,9 +1215,10 @@ async function upsertProviderBackedTargetSubscription(
 ): Promise<void> {
   let subscriptionId: string | null = null;
   if (options?.deferred) {
-    const existingSub = await getSubscriptionByProviderSubscriptionId(database, {
+    const existingSub = await resolveExistingSubscriptionForItem(database, {
       providerId: subCtx.providerId,
       providerSubscriptionId: input.subscription.providerSubscriptionId,
+      providerSubscriptionItemId: input.subscription.providerSubscriptionItemId,
     });
     if (existingSub) {
       subscriptionId = existingSub.id;
@@ -1105,6 +1226,7 @@ async function upsertProviderBackedTargetSubscription(
         currentPeriodEndAt: input.subscription.currentPeriodEndAt ?? null,
         currentPeriodStartAt: input.subscription.currentPeriodStartAt ?? null,
         stripeSubscriptionId: input.subscription.providerSubscriptionId,
+        stripeSubscriptionItemId: input.subscription.providerSubscriptionItemId ?? null,
         stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
         status: input.subscription.status,
         subscriptionId: existingSub.id,
@@ -1121,6 +1243,7 @@ async function upsertProviderBackedTargetSubscription(
       productInternalId: subCtx.storedPlan.internalId,
       startedAt: input.subscription.currentPeriodStartAt ?? new Date(),
       stripeSubscriptionId: input.subscription.providerSubscriptionId,
+      stripeSubscriptionItemId: input.subscription.providerSubscriptionItemId ?? null,
       stripeSubscriptionScheduleId: input.subscription.providerSubscriptionScheduleId ?? null,
       status: input.subscription.status,
     });
@@ -1135,6 +1258,137 @@ async function upsertProviderBackedTargetSubscription(
       subscriptionId,
     });
   }
+}
+
+/**
+ * Resolves the Stripe subscription an add-on should attach to: the customer's
+ * one active provider-backed subscription, or `targetSubscriptionId` when given
+ * to disambiguate a customer with more than one.
+ */
+async function resolveAnchorProviderSubscription(
+  database: PayKitDatabase,
+  input: { customerId: string; targetSubscriptionId?: string },
+): Promise<string> {
+  if (input.targetSubscriptionId) {
+    return input.targetSubscriptionId;
+  }
+
+  const rows = await database
+    .select({ stripeSubscriptionId: subscription.stripeSubscriptionId })
+    .from(subscription)
+    .where(
+      and(
+        eq(subscription.customerId, input.customerId),
+        inArray(subscription.status, ["active", "trialing", "past_due"]),
+        or(isNull(subscription.endedAt), sql`${subscription.endedAt} > now()`),
+      ),
+    );
+
+  const distinctIds = new Set(
+    rows.map((row) => row.stripeSubscriptionId).filter((id): id is string => id != null),
+  );
+
+  if (distinctIds.size === 0) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_ANCHOR_NOT_FOUND);
+  }
+  if (distinctIds.size > 1) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_ANCHOR_AMBIGUOUS);
+  }
+  return [...distinctIds][0]!;
+}
+
+/** Attaches a new add-on plan to the customer's existing subscription, charging their saved card immediately. */
+export async function addSubscriptionAddOn(
+  ctx: PayKitContext,
+  input: { customerId: string; planId: string; targetSubscriptionId?: string },
+): Promise<SubscribeResult> {
+  const subCtx = await loadSubscribeContext(ctx, {
+    customerId: input.customerId,
+    planId: input.planId,
+    successUrl: "https://paykit.invalid/addon",
+  });
+
+  if (subCtx.isFreeTarget) {
+    throw PayKitError.from(
+      "BAD_REQUEST",
+      PAYKIT_ERROR_CODES.COMBINED_SUBSCRIBE_REQUIRES_PAID_PLANS,
+    );
+  }
+  if (subCtx.activeSubscription) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_ALREADY_ACTIVE);
+  }
+
+  const anchorSubscriptionId = await resolveAnchorProviderSubscription(ctx.database, {
+    customerId: input.customerId,
+    targetSubscriptionId: input.targetSubscriptionId,
+  });
+
+  const providerResult = await ctx.provider.addSubscriptionItem({
+    providerProduct: subCtx.storedPlan.providerProduct!,
+    providerSubscriptionId: anchorSubscriptionId,
+  });
+
+  await ctx.database.transaction(async (tx) => {
+    const inserted = await insertSubscriptionRecord(tx, {
+      currentPeriodEndAt: providerResult.subscription?.currentPeriodEndAt ?? null,
+      currentPeriodStartAt: providerResult.subscription?.currentPeriodStartAt ?? null,
+      customerId: input.customerId,
+      planFeatures: subCtx.planFeatures,
+      productInternalId: subCtx.storedPlan.internalId,
+      startedAt: providerResult.subscription?.currentPeriodStartAt ?? new Date(),
+      stripeSubscriptionId: anchorSubscriptionId,
+      stripeSubscriptionItemId: providerResult.providerSubscriptionItemId,
+      status: providerResult.subscription?.status ?? "active",
+    });
+
+    if (providerResult.invoice) {
+      await upsertInvoiceRecord(tx, {
+        customerId: input.customerId,
+        invoice: providerResult.invoice,
+        providerId: subCtx.providerId,
+        subscriptionId: inserted.id,
+      });
+    }
+  });
+
+  return buildSubscribeResult({
+    invoice: providerResult.invoice,
+    paymentUrl: null,
+    requiredAction: providerResult.requiredAction,
+  });
+}
+
+/**
+ * Removes an active add-on plan from the customer's subscription. The local row ends
+ * synchronously so the caller's next read is correct without waiting on webhook latency;
+ * `reconcileRemovedSubscriptionItems` is the eventual-consistency backstop for removals
+ * made outside this call (e.g. directly in the Stripe Dashboard).
+ */
+export async function removeSubscriptionAddOn(
+  ctx: PayKitContext,
+  input: { customerId: string; planId: string },
+): Promise<void> {
+  const subCtx = await loadSubscribeContext(ctx, {
+    customerId: input.customerId,
+    planId: input.planId,
+    successUrl: "https://paykit.invalid/addon",
+  });
+
+  const active = subCtx.activeSubscription;
+  if (!active?.stripeSubscriptionId || !active.stripeSubscriptionItemId) {
+    throw PayKitError.from("BAD_REQUEST", PAYKIT_ERROR_CODES.ADDON_NOT_ACTIVE);
+  }
+
+  await ctx.provider.removeSubscriptionItem({
+    providerSubscriptionId: active.stripeSubscriptionId,
+    providerSubscriptionItemId: active.stripeSubscriptionItemId,
+  });
+
+  await endSubscriptions(ctx.database, [active.id], {
+    canceled: false,
+    endedAt: new Date(),
+    status: "ended",
+  });
 }
 
 async function clearScheduledSubscriptionsInGroupIfNeeded(
@@ -1320,14 +1574,59 @@ export async function getScheduledSubscriptionsInGroup(
 
 export async function getSubscriptionByProviderSubscriptionId(
   database: PayKitDatabase,
-  input: { providerId: string; providerSubscriptionId: string },
+  input: {
+    providerId: string;
+    providerSubscriptionId: string;
+    providerSubscriptionItemId?: string | null;
+  },
 ): Promise<StoredSubscription | null> {
   return (
     (await database.query.subscription.findFirst({
       orderBy: (s, { desc: d }) => [d(s.createdAt)],
-      where: eq(subscription.stripeSubscriptionId, input.providerSubscriptionId),
+      where: input.providerSubscriptionItemId
+        ? and(
+            eq(subscription.stripeSubscriptionId, input.providerSubscriptionId),
+            eq(subscription.stripeSubscriptionItemId, input.providerSubscriptionItemId),
+          )
+        : eq(subscription.stripeSubscriptionId, input.providerSubscriptionId),
     })) ?? null
   );
+}
+
+/** All local rows sharing one Stripe subscription id, across every line item. */
+export async function getSubscriptionsByProviderSubscriptionId(
+  database: PayKitDatabase,
+  input: { providerSubscriptionId: string },
+): Promise<StoredSubscription[]> {
+  return database.query.subscription.findMany({
+    where: eq(subscription.stripeSubscriptionId, input.providerSubscriptionId),
+  });
+}
+
+/**
+ * Resolves the local row for one Stripe subscription item, self-healing legacy
+ * rows created before item ids existed: if exactly one row for the Stripe
+ * subscription has no item id yet, it's adopted rather than treated as missing
+ * (which would otherwise insert a duplicate row for the same item).
+ */
+async function resolveExistingSubscriptionForItem(
+  database: PayKitDatabase,
+  input: {
+    providerId: string;
+    providerSubscriptionId: string;
+    providerSubscriptionItemId?: string | null;
+  },
+): Promise<StoredSubscription | null> {
+  const exact = await getSubscriptionByProviderSubscriptionId(database, input);
+  if (exact || !input.providerSubscriptionItemId) {
+    return exact;
+  }
+
+  const allForSubscription = await getSubscriptionsByProviderSubscriptionId(database, {
+    providerSubscriptionId: input.providerSubscriptionId,
+  });
+  const legacyCandidates = allForSubscription.filter((sub) => sub.stripeSubscriptionItemId == null);
+  return legacyCandidates.length === 1 ? legacyCandidates[0]! : null;
 }
 
 async function getSubscriptionById(
@@ -1352,6 +1651,7 @@ export async function insertSubscriptionRecord(
     scheduledProductId?: string | null;
     startedAt?: Date | null;
     stripeSubscriptionId?: string | null;
+    stripeSubscriptionItemId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
     status: string;
     trialEndsAt?: Date | null;
@@ -1374,6 +1674,7 @@ export async function insertSubscriptionRecord(
       scheduledProductId: input.scheduledProductId ?? null,
       startedAt: input.startedAt ?? now,
       stripeSubscriptionId: input.stripeSubscriptionId ?? null,
+      stripeSubscriptionItemId: input.stripeSubscriptionItemId ?? null,
       stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId ?? null,
       status: input.status,
       trialEndsAt: input.trialEndsAt ?? null,
@@ -1518,6 +1819,7 @@ export async function activateScheduledSubscription(
     startedAt?: Date | null;
     status: string;
     stripeSubscriptionId?: string | null;
+    stripeSubscriptionItemId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
   },
 ): Promise<void> {
@@ -1531,6 +1833,7 @@ export async function activateScheduledSubscription(
       endedAt: null,
       startedAt: input.startedAt ?? new Date(),
       stripeSubscriptionId: input.stripeSubscriptionId ?? null,
+      stripeSubscriptionItemId: input.stripeSubscriptionItemId ?? null,
       stripeSubscriptionScheduleId: input.stripeSubscriptionScheduleId ?? null,
       status: input.status,
       updatedAt: new Date(),
@@ -1603,6 +1906,7 @@ export async function syncSubscriptionBillingState(
     currentPeriodStartAt?: Date | null;
     startedAt?: Date | null;
     stripeSubscriptionId?: string | null;
+    stripeSubscriptionItemId?: string | null;
     stripeSubscriptionScheduleId?: string | null;
     status?: string;
   },
@@ -1630,6 +1934,10 @@ export async function syncSubscriptionBillingState(
         input.stripeSubscriptionId !== undefined
           ? input.stripeSubscriptionId
           : existing.stripeSubscriptionId,
+      stripeSubscriptionItemId:
+        input.stripeSubscriptionItemId !== undefined
+          ? input.stripeSubscriptionItemId
+          : existing.stripeSubscriptionItemId,
       stripeSubscriptionScheduleId:
         input.stripeSubscriptionScheduleId !== undefined
           ? input.stripeSubscriptionScheduleId
@@ -1638,6 +1946,53 @@ export async function syncSubscriptionBillingState(
       updatedAt: new Date(),
     })
     .where(eq(subscription.id, input.subscriptionId));
+}
+
+/** Ends any local row for this Stripe subscription whose item no longer exists on it (e.g. a removed add-on). */
+export async function reconcileRemovedSubscriptionItems(
+  ctx: PayKitContext,
+  input: { providerSubscriptionId: string; activeProviderSubscriptionItemIds: readonly string[] },
+): Promise<void> {
+  const rows = await getSubscriptionsByProviderSubscriptionId(ctx.database, {
+    providerSubscriptionId: input.providerSubscriptionId,
+  });
+  const stale = rows.filter(
+    (row) =>
+      row.stripeSubscriptionItemId != null &&
+      row.endedAt == null &&
+      !input.activeProviderSubscriptionItemIds.includes(row.stripeSubscriptionItemId),
+  );
+  if (stale.length === 0) {
+    return;
+  }
+
+  await endSubscriptions(
+    ctx.database,
+    stale.map((row) => row.id),
+    { canceled: false, endedAt: new Date(), status: "ended" },
+  );
+
+  for (const row of stale) {
+    const storedProduct = await ctx.database.query.product.findFirst({
+      where: eq(product.internalId, row.productInternalId),
+    });
+    const productGroup = storedProduct?.group ?? "";
+    if (!productGroup) {
+      continue;
+    }
+
+    await ensureScheduledDefaultPlan(ctx, {
+      customerId: row.customerId,
+      group: productGroup,
+      startsAt: new Date(),
+    });
+    await activateScheduledSubscriptionForGroup(ctx, {
+      customerId: row.customerId,
+      productGroup,
+      subscriptionCurrentPeriodStartAt: new Date(),
+      subscriptionStatus: "active",
+    });
+  }
 }
 
 export async function getCurrentSubscriptions(

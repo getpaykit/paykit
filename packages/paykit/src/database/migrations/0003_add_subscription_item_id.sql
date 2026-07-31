@@ -1,0 +1,3 @@
+ALTER TABLE "paykit_subscription" ADD COLUMN "stripe_subscription_item_id" text;--> statement-breakpoint
+CREATE INDEX "paykit_subscription_stripe_item_idx" ON "paykit_subscription" USING btree ("stripe_subscription_item_id");--> statement-breakpoint
+CREATE UNIQUE INDEX "paykit_subscription_stripe_sub_item_unique" ON "paykit_subscription" USING btree ("stripe_subscription_id","stripe_subscription_item_id");

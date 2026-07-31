@@ -95,6 +95,38 @@ Groups let you model common billing patterns:
 
 Every plan that has `default: true` must belong to a group. Without a group, PayKit doesn't know which set of plans a customer is being placed into.
 
+### Combining groups in one checkout
+
+Groups are mutually exclusive within themselves, but a customer can hold one active plan per group at the same time — that's how a `base` plan and an `addons` plan coexist. Pass `addOnPlanIds` to `subscribe()` to combine a plan from each group into a single checkout, instead of running a separate checkout per group:
+
+```ts
+export const pro = plan({
+  id: "pro",
+  name: "Pro",
+  group: "base",
+  price: { amount: 19, interval: "month" },
+  includes: [messages({ limit: 2_000, reset: "month" })],
+});
+
+export const extraMessages = plan({
+  id: "extra_messages",
+  name: "Extra Messages",
+  group: "addons",
+  price: { amount: 5, interval: "month" },
+  includes: [messages({ limit: 500, reset: "month" })],
+});
+
+// One checkout, one payment, both plans active afterward.
+await paykit.subscribe({
+  customerId: "user_123",
+  planId: "pro",
+  addOnPlanIds: ["extra_messages"],
+  successUrl: "https://myapp.com/billing/success",
+});
+```
+
+The customer's `messages` balance pools across both plans — 2,000 from `pro` plus 500 from `extra_messages`, 2,500 total — since [entitlements](/docs/entitlements) aggregate every active subscription for a feature, not just one. See [Combined checkout](/docs/subscriptions#combined-checkout-add-ons) for the full behavior, constraints, and how to add or remove a single add-on later.
+
 ## Default plans
 
 The default plan is the fallback for a group. It's typically your free tier.
@@ -124,6 +156,25 @@ price: { amount: 19, interval: "month" }
 
 - `interval` can be `month` or `year`
 - `amount` is in dollars, max $999,999.99
+
+### Metered Stripe pricing
+
+For pay-as-you-go pricing where Stripe calculates the bill from reported usage, use `meteredBy` and `unitAmount` instead of `amount`:
+
+```ts
+const apiCalls = feature({ id: "api_calls", type: "metered" });
+
+export const usagePlan = plan({
+  id: "usage",
+  name: "API Usage",
+  group: "usage",
+  price: { meteredBy: apiCalls, unitAmount: 0.01, interval: "month" },
+});
+```
+
+`unitAmount` is the price per unit, charged for whatever quantity you report via `paykit.reportUsage()`. See [Stripe usage-based billing](/docs/metered-usage#stripe-usage-based-billing) for how reporting works and how this differs from the local metered quotas above.
+
+This is a separate concept from a `metered`-type feature's `limit`/`reset` — that's a local quota PayKit tracks and gates on for you, with no Stripe involvement. `meteredBy` prices are for genuine usage-based billing, where Stripe itself computes the charge. You can combine both: a licensed base plan with a local quota, plus a `meteredBy` add-on for usage beyond it, joined into one checkout via `addOnPlanIds`.
 
 ## Passing products to PayKit
 

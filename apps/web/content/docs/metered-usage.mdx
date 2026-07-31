@@ -146,3 +146,68 @@ export async function POST(request: Request) {
 <Callout type="info">
   If you just need on/off access without tracking usage, use `boolean` type instead. `check` still returns `allowed`, but there's no balance to track or reset.
 </Callout>
+
+## Stripe usage-based billing
+
+Everything above is a **local quota**: PayKit tracks a balance in your database and gates access with `check()`/`report()`. Stripe is never involved, and there's nothing to bill — the plan's price, if any, is a flat recurring fee.
+
+Stripe usage-based billing is a different thing: Stripe itself calculates a charge from usage you report, with no cap. Define it with a `meteredBy` price instead of a flat `amount`:
+
+```ts title="products.ts"
+const apiCalls = feature({ id: "api_calls", type: "metered" });
+
+export const usagePlan = plan({
+  id: "usage",
+  name: "API Usage",
+  group: "usage",
+  price: { meteredBy: apiCalls, unitAmount: 0.01, interval: "month" },
+});
+```
+
+When you sync this plan, PayKit creates a Stripe [Billing Meter](https://docs.stripe.com/billing/subscriptions/usage-based) and a metered Price for it automatically. Report usage with `reportUsage()` instead of `report()`:
+
+```ts
+await paykit.reportUsage({
+  customerId: userId,
+  featureId: "api_calls",
+  quantity: 1,
+});
+```
+
+Stripe aggregates reported usage and bills it on the customer's next invoice at `unitAmount` per unit. There's no local balance to check beforehand — `reportUsage()` fails only if the customer has no active subscription for a plan metered by that feature.
+
+<Callout type="warn">
+  Unlike `report()`, `reportUsage()` doesn't swallow failures — its entire purpose is the billing side effect, so a failed call throws. If you need at-least-once delivery, pass a stable `eventId`; PayKit forwards it as Stripe's `identifier`, which Stripe deduplicates on.
+</Callout>
+
+### Combining a quota with billed overage
+
+A single price can't be both a flat fee and metered overage in Stripe. To offer "some usage included, then billed per unit beyond that," compose two plans and combine them into one checkout with `addOnPlanIds`:
+
+```ts title="products.ts"
+export const pro = plan({
+  id: "pro",
+  name: "Pro",
+  group: "base",
+  price: { amount: 19, interval: "month" },
+  includes: [messages({ limit: 2_000, reset: "month" })], // included quota
+});
+
+export const overage = plan({
+  id: "overage",
+  name: "Extra Usage",
+  group: "usage",
+  price: { meteredBy: apiCalls, unitAmount: 0.01, interval: "month" }, // billed beyond it
+});
+```
+
+```ts
+await paykit.subscribe({
+  customerId: "user_123",
+  planId: "pro",
+  addOnPlanIds: ["overage"],
+  successUrl: "https://myapp.com/billing/success",
+});
+```
+
+Gate the included quota with `check()`/`report()` as usual. Once a customer exceeds it, call `reportUsage()` for the extra units instead — Stripe bills those separately at `unitAmount`.

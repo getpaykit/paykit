@@ -143,6 +143,8 @@ function productSnapshotMatchesPlan(
     (snapshot.product.priceAmount ?? null) === plan.priceAmount &&
     (snapshot.product.priceCurrency ?? null) === plan.priceCurrency &&
     (snapshot.product.priceInterval ?? null) === plan.priceInterval &&
+    snapshot.product.priceUsageType === plan.priceUsageType &&
+    (snapshot.product.meteredFeatureId ?? null) === plan.meteredFeatureId &&
     productFeaturesMatch(snapshot.features, plan.includes)
   );
 }
@@ -200,10 +202,12 @@ export async function insertProductVersion(
     hash: string;
     id: string;
     isDefault: boolean;
+    meteredFeatureId: string | null;
     name: string;
     priceAmount: number | null;
     priceCurrency: string | null;
     priceInterval: string | null;
+    priceUsageType: string;
     version: number;
   },
 ): Promise<StoredProduct> {
@@ -216,10 +220,12 @@ export async function insertProductVersion(
     id: input.id,
     internalId,
     isDefault: input.isDefault,
+    meteredFeatureId: input.meteredFeatureId,
     name: input.name,
     priceAmount: input.priceAmount,
     priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
+    priceUsageType: input.priceUsageType,
     updatedAt: now,
     version: input.version,
   });
@@ -231,10 +237,12 @@ export async function insertProductVersion(
     id: input.id,
     internalId,
     isDefault: input.isDefault,
+    meteredFeatureId: input.meteredFeatureId,
     name: input.name,
     priceAmount: input.priceAmount,
     priceCurrency: input.priceCurrency,
     priceInterval: input.priceInterval,
+    priceUsageType: input.priceUsageType,
     stripePriceId: null,
     stripeProductId: null,
     updatedAt: now,

@@ -25,9 +25,27 @@ export const PAYKIT_ERROR_CODES = defineErrorCodes({
   PROVIDER_SIGNATURE_MISSING: "Missing provider webhook signature",
   PROVIDER_SUBSCRIPTION_MISSING_ITEMS: "Provider subscription did not include any items",
   PROVIDER_SUBSCRIPTION_MISSING_PERIOD: "Provider subscription did not include period end",
+  PROVIDER_SUBSCRIPTION_ITEM_AMBIGUOUS: "Could not determine which subscription item to update",
+  PROVIDER_SUBSCRIPTION_ITEM_REMOVAL_REJECTED: "Provider rejected removing this subscription item",
   PROVIDER_PRICE_REQUIRED: "A provider price ID is required",
   PROVIDER_TEST_KEY_REQUIRED: "Testing mode requires provider test credentials",
   PROVIDER_WEBHOOK_INVALID: "Provider webhook payload is invalid",
+
+  COMBINED_SUBSCRIBE_DUPLICATE_PLAN: "The same plan was listed more than once",
+  COMBINED_SUBSCRIBE_DUPLICATE_GROUP: "Two or more plans belong to the same group",
+  COMBINED_SUBSCRIBE_REQUIRES_PAID_PLANS: "Combined checkout requires all plans to be paid plans",
+  COMBINED_SUBSCRIBE_EXISTING_SUBSCRIPTION:
+    "Customer already has an active subscription for one of these plans",
+
+  ADDON_ALREADY_ACTIVE: "Customer already has an active subscription for this plan",
+  ADDON_NOT_ACTIVE: "Customer does not have an active subscription for this plan",
+  ADDON_ANCHOR_NOT_FOUND:
+    "Customer has no active provider-backed subscription to attach an add-on to",
+  ADDON_ANCHOR_AMBIGUOUS:
+    "Customer has more than one active provider subscription; specify targetSubscriptionId",
+
+  USAGE_NOT_METERED_FOR_CUSTOMER:
+    "Customer has no active subscription for a Stripe-metered plan on this feature",
 
   IDENTIFY_REQUIRED: "identify must be configured to use HTTP API routes",
   CUSTOMER_ID_MISMATCH: "customerId does not match authenticated user",

@@ -5,6 +5,8 @@ import type { StoredSubscription } from "../types/models";
 
 export const subscribeBodySchema = z.object({
   planId: z.string(),
+  /** Additional plan IDs to combine with `planId` into one checkout (e.g. add-ons). */
+  addOnPlanIds: z.array(z.string()).optional(),
   forceCheckout: z.boolean().optional(),
   successUrl: returnUrl(),
   cancelUrl: returnUrl().optional(),

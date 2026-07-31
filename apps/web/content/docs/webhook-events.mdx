@@ -43,6 +43,10 @@ Payload shape:
 | `customerId` | `string` | Your internal customer identifier |
 | `subscriptions` | `Subscription[]` | The customer's updated subscriptions |
 
+<Callout type="info">
+  If the customer used [combined checkout or add-ons](/docs/subscriptions#combined-checkout-add-ons), `subscriptions` contains one entry per plan — the base plan and every add-on — even though they're billed together on a single provider subscription.
+</Callout>
+
 ## Wildcard handler
 
 `"*"` catches all PayKit events. Useful for logging or debugging.

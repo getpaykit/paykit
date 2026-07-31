@@ -3,6 +3,7 @@ import { feature, plan } from "paykitjs";
 const messagesFeature = feature({ id: "messages", type: "metered" });
 const dashboardFeature = feature({ id: "dashboard", type: "boolean" });
 const adminFeature = feature({ id: "admin", type: "boolean" });
+const apiCallsFeature = feature({ id: "api_calls", type: "metered" });
 
 export const freePlan = plan({
   default: true,
@@ -48,4 +49,18 @@ export const extraMessagesPlan = plan({
   price: { amount: 5, interval: "month" },
 });
 
-export const allProducts = [freePlan, proPlan, premiumPlan, ultraPlan, extraMessagesPlan] as const;
+export const meteredUsagePlan = plan({
+  group: "usage",
+  id: "metered_usage",
+  name: "Metered Usage",
+  price: { interval: "month", meteredBy: apiCallsFeature, unitAmount: 0.01 },
+});
+
+export const allProducts = [
+  freePlan,
+  proPlan,
+  premiumPlan,
+  ultraPlan,
+  extraMessagesPlan,
+  meteredUsagePlan,
+] as const;
