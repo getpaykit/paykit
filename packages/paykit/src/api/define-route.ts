@@ -326,7 +326,7 @@ function createRouteInputSchema(schema: PayKitMethodConfig["input"]) {
     overrides[key] = createRoutedReturnUrlSchema(key, fieldSchema);
   }
 
-  return Object.keys(overrides).length > 0 ? schema.extend(overrides) : schema;
+  return Object.keys(overrides).length > 0 ? schema.safeExtend(overrides) : schema;
 }
 
 function createRoutedReturnUrlSchema(field: string, schema: unknown): z.ZodTypeAny {

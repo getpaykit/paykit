@@ -47,6 +47,8 @@ PayKit creates tables prefixed with `paykit_`. The key ones are:
   PayKit owns these tables. Don't write to them directly. Use the PayKit API.
 </Callout>
 
+`paykit_subscription` rows can share one provider subscription: [combined checkout and add-ons](/docs/subscriptions#combined-checkout-add-ons) put a base plan and its add-ons on a single provider subscription, tracked as one row per plan. `paykit_product` records whether a plan is billed as a flat recurring price or [metered via Stripe usage-based billing](/docs/metered-usage#stripe-usage-based-billing).
+
 ## Migrations
 
 `paykitjs push` applies any pending migrations. Run it on initial setup and whenever you update your plan configuration.

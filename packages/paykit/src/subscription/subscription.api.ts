@@ -15,6 +15,7 @@ export const subscribe = definePayKitMethod(
   },
   async (ctx) => {
     return subscribeToPlan(ctx.paykit, {
+      addOnPlanIds: ctx.input.addOnPlanIds,
       customerId: ctx.customer.id,
       forceCheckout: ctx.input.forceCheckout,
       planId: ctx.input.planId,

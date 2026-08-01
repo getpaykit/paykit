@@ -99,3 +99,7 @@ export async function POST(request: Request) {
 ```
 
 This pattern ensures you don't charge usage for failed requests, and you don't serve responses to customers who've hit their limit.
+
+<Callout type="info">
+  `report()` decrements a local quota — it never involves your payment provider. If you need Stripe to actually calculate a bill from usage, see [Stripe usage-based billing](/docs/metered-usage#stripe-usage-based-billing).
+</Callout>

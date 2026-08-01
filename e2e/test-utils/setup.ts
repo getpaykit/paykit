@@ -232,10 +232,12 @@ export async function subscribeCustomer(input: {
   t: TestPayKit;
   customerId: string;
   planId: Parameters<TestPayKitInstance["subscribe"]>[0]["planId"];
+  addOnPlanIds?: Parameters<TestPayKitInstance["subscribe"]>[0]["addOnPlanIds"];
 }): Promise<void> {
   const beforeSubscribe = new Date();
 
   const result = await input.t.paykit.subscribe({
+    addOnPlanIds: input.addOnPlanIds,
     customerId: input.customerId,
     planId: input.planId,
     successUrl: "https://example.com/success",

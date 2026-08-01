@@ -63,6 +63,7 @@ export interface ProviderSubscription {
   currentPeriodStartAt?: Date | null;
   endedAt?: Date | null;
   providerSubscriptionId: string;
+  providerSubscriptionItemId?: string | null;
   providerSubscriptionScheduleId?: string | null;
   status: string;
 }
@@ -107,7 +108,7 @@ export interface PaymentProvider {
 
   createSubscriptionCheckout(data: {
     providerCustomerId: string;
-    providerProduct: Record<string, string>;
+    providerProducts: Array<Record<string, string>>;
     successUrl: string;
     cancelUrl?: string;
     metadata?: Record<string, string>;
@@ -121,6 +122,21 @@ export interface PaymentProvider {
   updateSubscription(data: {
     providerProduct: Record<string, string>;
     providerSubscriptionId: string;
+    providerSubscriptionItemId?: string | null;
+  }): Promise<ProviderSubscriptionResult>;
+
+  /** Adds a new line item (e.g. an add-on) to an existing subscription, charging immediately. */
+  addSubscriptionItem?(data: {
+    providerProduct: Record<string, string>;
+    providerSubscriptionId: string;
+    /** Stable per-attempt key forwarded to the provider so retries cannot create duplicate items. */
+    idempotencyKey?: string;
+  }): Promise<ProviderSubscriptionResult & { providerSubscriptionItemId: string }>;
+
+  /** Removes one line item from an existing subscription, leaving the rest intact. */
+  removeSubscriptionItem?(data: {
+    providerSubscriptionId: string;
+    providerSubscriptionItemId: string;
   }): Promise<ProviderSubscriptionResult>;
 
   createInvoice(data: {
@@ -131,6 +147,7 @@ export interface PaymentProvider {
 
   scheduleSubscriptionChange(data: {
     providerProduct?: Record<string, string> | null;
+    providerSubscriptionItemId?: string | null;
     providerSubscriptionScheduleId?: string | null;
     providerSubscriptionId: string;
   }): Promise<ProviderSubscriptionResult>;
@@ -159,6 +176,10 @@ export interface PaymentProvider {
       priceAmount: number;
       priceCurrency: string;
       priceInterval?: string | null;
+      /** @default "licensed" */
+      usageType?: "licensed" | "metered";
+      /** Required when `usageType` is `"metered"` — the Stripe Billing Meter's event name. */
+      meterEventName?: string;
       existingProviderProduct?: Record<string, string> | null;
     }>;
   }): Promise<{
@@ -167,6 +188,15 @@ export interface PaymentProvider {
       providerProduct: Record<string, string>;
     }>;
   }>;
+
+  /** Reports a Stripe usage-based billing event for a metered price. */
+  reportUsageEvent?(data: {
+    providerCustomerId: string;
+    meterEventName: string;
+    value: number;
+    identifier?: string;
+    timestamp?: Date;
+  }): Promise<{ providerEventId: string }>;
 
   handleWebhook(data: {
     allowUnsignedPayload?: boolean;

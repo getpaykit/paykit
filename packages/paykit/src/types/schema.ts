@@ -16,13 +16,27 @@ const entityIdSchema = z
 
 const planNameSchema = z.string().min(1, "Plan name must not be empty");
 const planGroupSchema = z.string().min(1, "Plan group must not be empty").max(64);
-const priceSchema = z.object({
-  amount: z
-    .number()
-    .positive("Price amount must be positive")
-    .max(999_999.99, "Price amount must not exceed $999,999.99"),
+const priceAmountSchema = z
+  .number()
+  .positive("Price amount must be positive")
+  .max(999_999.99, "Price amount must not exceed $999,999.99");
+const meteredUnitAmountSchema = z
+  .number()
+  .min(0.01, "Metered price unit amount must be at least $0.01")
+  .max(999_999.99, "Price amount must not exceed $999,999.99");
+const licensedPriceSchema = z.strictObject({
+  amount: priceAmountSchema,
   interval: z.enum(["month", "year"]),
 });
+/** A price billed via Stripe usage-based billing: `unitAmount` charges per unit reported through `reportUsage()`. */
+const meteredPriceSchema = z.strictObject({
+  interval: z.enum(["month", "year"]),
+  meteredBy: z.custom<PayKitFeature<MeteredFeatureDefinition>>(isPayKitFeature, {
+    message: "meteredBy must be a metered feature returned by feature(...)",
+  }),
+  unitAmount: meteredUnitAmountSchema,
+});
+const priceSchema = z.union([licensedPriceSchema, meteredPriceSchema]);
 
 const meteredFeatureConfigSchema = z.object({
   limit: z.number().int().positive("Feature limit must be a positive integer"),
@@ -52,6 +66,12 @@ export type PriceInterval = z.infer<typeof priceSchema>["interval"];
 export type MeteredResetInterval = z.infer<typeof meteredFeatureConfigSchema>["reset"];
 export type PlanPrice = z.infer<typeof priceSchema>;
 export type MeteredFeatureConfig = z.infer<typeof meteredFeatureConfigSchema>;
+/** "licensed" is a normal recurring price; "metered" is billed via Stripe usage-based billing. */
+export type PriceUsageType = "licensed" | "metered";
+
+function isMeteredPrice(price: PlanPrice): price is z.infer<typeof meteredPriceSchema> {
+  return "meteredBy" in price;
+}
 
 export interface PayKitFeatureDefinition<
   TId extends string = string,
@@ -132,10 +152,12 @@ export interface NormalizedPlan {
   id: string;
   includes: readonly NormalizedPlanFeature[];
   isDefault: boolean;
+  meteredFeatureId: string | null;
   name: string;
   priceAmount: number | null;
   priceCurrency: string | null;
   priceInterval: PriceInterval | null;
+  priceUsageType: PriceUsageType;
   trialDays: number | null;
 }
 
@@ -327,9 +349,11 @@ export function computePlanHash(plan: Omit<NormalizedPlan, "hash">): string {
   const payload = JSON.stringify({
     group: plan.group,
     isDefault: plan.isDefault,
+    meteredFeatureId: plan.meteredFeatureId,
     priceAmount: plan.priceAmount,
     priceCurrency: plan.priceCurrency,
     priceInterval: plan.priceInterval,
+    priceUsageType: plan.priceUsageType,
     features: plan.includes.map((f) => ({
       id: f.id,
       limit: f.limit,
@@ -422,6 +446,20 @@ export function normalizeSchema(
       } satisfies NormalizedPlanFeature;
     });
 
+    const price = exportedPlan.price;
+    let priceUsageType: PriceUsageType = "licensed";
+    let meteredFeatureId: string | null = null;
+    let priceAmountDollars: number | null = null;
+    if (price) {
+      if (isMeteredPrice(price)) {
+        priceUsageType = "metered";
+        meteredFeatureId = price.meteredBy.id;
+        priceAmountDollars = price.unitAmount;
+      } else {
+        priceAmountDollars = price.amount;
+      }
+    }
+
     // oxlint-disable-next-line unicorn/no-array-sort -- spread copy, original not mutated
     const sortedIncludes = [...includes].sort((left, right) => left.id.localeCompare(right.id));
     const planData = {
@@ -429,10 +467,12 @@ export function normalizeSchema(
       id: exportedPlan.id,
       includes: sortedIncludes,
       isDefault,
+      meteredFeatureId,
       name: exportedPlan.name ?? deriveNameFromId(exportedPlan.id),
-      priceAmount: exportedPlan.price ? Math.round(exportedPlan.price.amount * 100) : null,
-      priceCurrency: exportedPlan.price ? (input?.priceCurrency ?? DEFAULT_STRIPE_CURRENCY) : null,
-      priceInterval: exportedPlan.price?.interval ?? null,
+      priceAmount: priceAmountDollars != null ? Math.round(priceAmountDollars * 100) : null,
+      priceCurrency: price ? (input?.priceCurrency ?? DEFAULT_STRIPE_CURRENCY) : null,
+      priceInterval: price?.interval ?? null,
+      priceUsageType,
       trialDays: null,
     };
     plansById.set(exportedPlan.id, { ...planData, hash: computePlanHash(planData) });

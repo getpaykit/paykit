@@ -1,7 +1,7 @@
 import type { PayKitContext } from "../core/context";
 import { PayKitError, PAYKIT_ERROR_CODES } from "../core/errors";
 import type { StoredProductFeature } from "../types/models";
-import type { NormalizedPlan, NormalizedPlanFeature } from "../types/schema";
+import type { NormalizedPlan, NormalizedPlanFeature, PriceUsageType } from "../types/schema";
 import {
   getLatestProductSnapshot,
   getProviderProduct,
@@ -59,6 +59,8 @@ function planChanged(
     (existing.product.priceAmount ?? null) !== next.priceAmount ||
     (existing.product.priceCurrency ?? null) !== next.priceCurrency ||
     (existing.product.priceInterval ?? null) !== next.priceInterval ||
+    existing.product.priceUsageType !== next.priceUsageType ||
+    (existing.product.meteredFeatureId ?? null) !== next.meteredFeatureId ||
     featuresChanged(existing.features, next.includes)
   );
 }
@@ -74,7 +76,9 @@ function priceChanged(
   return (
     (existing.product.priceAmount ?? null) !== next.priceAmount ||
     (existing.product.priceCurrency ?? null) !== next.priceCurrency ||
-    (existing.product.priceInterval ?? null) !== next.priceInterval
+    (existing.product.priceInterval ?? null) !== next.priceInterval ||
+    existing.product.priceUsageType !== next.priceUsageType ||
+    (existing.product.meteredFeatureId ?? null) !== next.meteredFeatureId
   );
 }
 
@@ -127,6 +131,8 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
     priceAmount: number;
     priceCurrency: string;
     priceInterval: string;
+    usageType: PriceUsageType;
+    meterEventName: string | undefined;
     existingProviderProduct: Record<string, string> | null;
     storedProductInternalId: string;
   }> = [];
@@ -147,10 +153,12 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         hash: plan.hash,
         id: plan.id,
         isDefault: plan.isDefault,
+        meteredFeatureId: plan.meteredFeatureId,
         name: plan.name,
         priceAmount: plan.priceAmount,
         priceCurrency: plan.priceCurrency,
         priceInterval: plan.priceInterval,
+        priceUsageType: plan.priceUsageType,
         version: 1,
       });
       await replaceProductFeatures(ctx.database, {
@@ -167,10 +175,12 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
         hash: plan.hash,
         id: plan.id,
         isDefault: plan.isDefault,
+        meteredFeatureId: plan.meteredFeatureId,
         name: plan.name,
         priceAmount: plan.priceAmount,
         priceCurrency: plan.priceCurrency,
         priceInterval: plan.priceInterval,
+        priceUsageType: plan.priceUsageType,
         version: existing.product.version + 1,
       });
       await replaceProductFeatures(ctx.database, {
@@ -200,11 +210,13 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
       paidPlansToSync.push({
         existingProviderProduct: providerProductForSync ?? null,
         id: plan.id,
+        meterEventName: storedProduct.meteredFeatureId ?? undefined,
         name: plan.name,
         priceAmount: storedProduct.priceAmount,
         priceCurrency: storedProduct.priceCurrency,
         priceInterval: storedProduct.priceInterval,
         storedProductInternalId: storedProduct.internalId,
+        usageType: storedProduct.priceUsageType as PriceUsageType,
       });
     }
 
@@ -220,10 +232,12 @@ export async function syncProducts(ctx: PayKitContext): Promise<SyncProductResul
       products: paidPlansToSync.map((p) => ({
         existingProviderProduct: p.existingProviderProduct,
         id: p.id,
+        meterEventName: p.meterEventName,
         name: p.name,
         priceAmount: p.priceAmount,
         priceCurrency: p.priceCurrency,
         priceInterval: p.priceInterval,
+        usageType: p.usageType,
       })),
     });
 

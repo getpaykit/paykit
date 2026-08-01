@@ -95,6 +95,71 @@ await paykit.subscribe({ customerId: "user_123", planId: "pro" });
 // Scheduled target changes from "free" to "pro".
 ```
 
+## Combined checkout (add-ons)
+
+Pass `addOnPlanIds` alongside `planId` to combine a base plan with one or more add-ons into a single checkout. The customer sees every line item on the same provider-hosted page and confirms one payment for all of them.
+
+<Tabs items={["Server", "Client"]}>
+  <Tab value="Server">
+    ```ts
+    const result = await paykit.subscribe({
+      customerId: "user_123",
+      planId: "pro",
+      addOnPlanIds: ["extra_messages"],
+      successUrl: "https://myapp.com/billing/success",
+      cancelUrl: "https://myapp.com/billing",
+    });
+
+    if (result.paymentUrl) {
+      // Redirect user to provider checkout — one page, both line items
+    }
+    ```
+  </Tab>
+  <Tab value="Client">
+    ```tsx
+    const { paymentUrl } = await paykitClient.subscribe({
+      planId: "pro",
+      addOnPlanIds: ["extra_messages"],
+      successUrl: "/billing/success",
+      cancelUrl: "/billing",
+    });
+
+    if (paymentUrl) {
+      window.location.href = paymentUrl;
+    }
+    ```
+  </Tab>
+</Tabs>
+
+Behind the scenes, this creates one provider subscription with one line item per plan. Every plan in the list — the base plan and every add-on — is tracked as its own subscription record, so [entitlements](/docs/entitlements) and renewals stay correct for each of them independently.
+
+A few constraints apply to combined checkout:
+
+- Every plan must be paid. Free plans can't be combined this way.
+- Each plan must belong to a different [group](/docs/plans-and-features#plan-groups). You can't combine two plans from the same group in one call.
+- None of the plans can already have an active subscription for that customer. To add or remove a single plan on an already-active subscription, use `addAddOn`/`removeAddOn` below instead.
+
+<Callout type="info">
+  Combined checkout is for new subscriptions. Upgrading or downgrading the base plan afterward works exactly like a normal `subscribe()` call — see [Upgrades](#upgrades) and [Downgrades](#downgrades) above — and leaves any add-ons on the subscription untouched.
+</Callout>
+
+## Managing add-ons
+
+Once a customer has an active subscription, `addAddOn` and `removeAddOn` attach or detach a single add-on plan without touching the rest of the subscription.
+
+```ts
+// Attach extra_messages to the customer's existing subscription.
+// Charges their saved card immediately, the same way an upgrade does.
+await paykit.addAddOn({ customerId: "user_123", planId: "extra_messages" });
+
+// Detach it again. Ends immediately — no need to wait for a webhook.
+await paykit.removeAddOn({ customerId: "user_123", planId: "extra_messages" });
+```
+
+`addAddOn` requires the customer to already have an active provider-backed subscription to attach to. If they have more than one — for example, they subscribed to two groups separately instead of combining them — pass `targetSubscriptionId` to say which one to attach to.
+
+`removeAddOn` fails with a clear error if the plan is the subscription's only remaining item — Stripe doesn't allow removing the last item from a subscription. Cancel the whole subscription with `subscribe()` to the group's default plan instead.
+
 ## Behavior summary
 
 | Scenario | Behavior |
@@ -114,6 +179,7 @@ await paykit.subscribe({ customerId: "user_123", planId: "pro" });
 |---|---|---|
 | `planId` | Yes | The target plan ID. Must be a valid plan from your config. |
 | `customerId` | Server only | The customer to subscribe. Not needed on the client (resolved from `identify`). |
+| `addOnPlanIds` | No | Additional plan IDs to combine with `planId` into one checkout. See [Combined checkout](#combined-checkout-add-ons). |
 | `successUrl` | Recommended | Where to redirect after successful checkout. |
 | `cancelUrl` | Recommended | Where to redirect if the customer cancels checkout. |
 | `forceCheckout` | No | Forces a checkout flow even if the customer already has a payment method. |

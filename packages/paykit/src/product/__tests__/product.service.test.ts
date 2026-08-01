@@ -15,10 +15,12 @@ function createStoredProduct(overrides: Partial<StoredProduct> = {}): StoredProd
     id: "pro",
     internalId: "prod_123",
     isDefault: false,
+    meteredFeatureId: null,
     name: "Pro",
     priceAmount: 2900,
     priceCurrency: "usd",
     priceInterval: "month",
+    priceUsageType: "licensed",
     stripePriceId: "price_123",
     stripeProductId: "prod_stripe_123",
     updatedAt: now,
@@ -34,10 +36,12 @@ function createPlan(overrides: Partial<NormalizedPlan> = {}): NormalizedPlan {
     id: "pro",
     includes: [],
     isDefault: false,
+    meteredFeatureId: null,
     name: "Pro",
     priceAmount: 2900,
     priceCurrency: "usd",
     priceInterval: "month",
+    priceUsageType: "licensed",
     trialDays: null,
     ...overrides,
   };
@@ -75,5 +79,17 @@ describe("product.service", () => {
     const { database } = createDatabase(createStoredProduct({ priceAmount: 3900 }));
 
     await expect(getProductByPlan(database, createPlan())).resolves.toBeNull();
+  });
+
+  it("does not fall back when the stored product is licensed but the plan is metered", async () => {
+    const storedProduct = createStoredProduct();
+    const { database } = createDatabase(storedProduct);
+
+    await expect(
+      getProductByPlan(
+        database,
+        createPlan({ meteredFeatureId: "api_calls", priceUsageType: "metered" }),
+      ),
+    ).resolves.toBeNull();
   });
 });

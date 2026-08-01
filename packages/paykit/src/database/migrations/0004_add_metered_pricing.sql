@@ -1,0 +1,3 @@
+ALTER TABLE "paykit_product" ADD COLUMN "price_usage_type" text DEFAULT 'licensed' NOT NULL;--> statement-breakpoint
+ALTER TABLE "paykit_product" ADD COLUMN "metered_feature_id" text;--> statement-breakpoint
+ALTER TABLE "paykit_product" ADD CONSTRAINT "paykit_product_metered_feature_id_paykit_feature_id_fk" FOREIGN KEY ("metered_feature_id") REFERENCES "public"."paykit_feature"("id") ON DELETE no action ON UPDATE no action;

@@ -9,14 +9,18 @@ import {
   upsertCustomer,
 } from "../customer/customer.api";
 import { check, report } from "../entitlement/entitlement.api";
+import { addAddOn, removeAddOn } from "../subscription/addon.api";
 import { subscribe } from "../subscription/subscription.api";
 import { advanceTestClock, getTestClock } from "../testing/testing.api";
 import type { PayKitOptions } from "../types/options";
+import { reportUsage } from "../usage/usage.api";
 import { receiveWebhook } from "../webhook/webhook.api";
 import type { PayKitMethod } from "./define-route";
 
 export const baseMethods = {
   subscribe,
+  addAddOn,
+  removeAddOn,
   customerPortal,
   upsertCustomer,
   getCustomer,
@@ -24,6 +28,7 @@ export const baseMethods = {
   listCustomers: listCustomersMethod,
   check,
   report,
+  reportUsage,
   handleWebhook: receiveWebhook,
 } as const;
 

@@ -26,6 +26,7 @@ export interface NormalizedSubscription {
   endedAt?: Date | null;
   providerProduct?: Record<string, string> | null;
   providerSubscriptionId: string;
+  providerSubscriptionItemId?: string | null;
   providerSubscriptionScheduleId?: string | null;
   status: string;
 }
@@ -106,6 +107,7 @@ type EventByName<TEventMap extends object, TName extends keyof TEventMap> = {
 
 export interface NormalizedWebhookEventMap {
   "checkout.completed": {
+    activeProviderSubscriptionItemIds?: string[];
     checkoutSessionId: string;
     invoice?: CheckoutCompletedInvoice;
     metadata?: Record<string, string>;
@@ -117,6 +119,7 @@ export interface NormalizedWebhookEventMap {
     providerEventId?: string;
     status: string | null;
     subscription?: CheckoutCompletedSubscription;
+    subscriptions?: CheckoutCompletedSubscription[];
   };
   "payment_method.attached": {
     paymentMethod: NormalizedPaymentMethod;
@@ -129,9 +132,11 @@ export interface NormalizedWebhookEventMap {
     providerEventId?: string;
   };
   "subscription.updated": {
+    activeProviderSubscriptionItemIds?: string[];
     providerCustomerId: string;
     providerEventId?: string;
     subscription: NormalizedSubscription;
+    subscriptions?: NormalizedSubscription[];
   };
   "subscription.deleted": {
     providerCustomerId: string;

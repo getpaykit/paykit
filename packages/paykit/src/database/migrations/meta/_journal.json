@@ -22,6 +22,20 @@
       "when": 1782216653893,
       "tag": "0002_add-product-price-currency",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1785504155294,
+      "tag": "0003_add_subscription_item_id",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1785506840350,
+      "tag": "0004_add_metered_pricing",
+      "breakpoints": true
     }
   ]
 }
