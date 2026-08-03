@@ -88,30 +88,6 @@ export async function syncCustomer(
   },
 ): Promise<Customer> {
   const now = new Date();
-  const existing = await database.query.customer.findFirst({
-    where: eq(customer.id, input.id),
-  });
-
-  if (existing) {
-    const rows = await database
-      .update(customer)
-      .set({
-        email: input.email ?? existing.email ?? null,
-        name: input.name ?? existing.name ?? null,
-        metadata: input.metadata ?? existing.metadata ?? null,
-        deletedAt: null,
-        updatedAt: now,
-      })
-      .where(eq(customer.id, existing.id))
-      .returning();
-
-    const row = rows[0];
-    if (!row) {
-      throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.CUSTOMER_UPDATE_FAILED);
-    }
-    return row;
-  }
-
   const rows = await database
     .insert(customer)
     .values({
@@ -120,6 +96,16 @@ export async function syncCustomer(
       name: input.name ?? null,
       metadata: input.metadata ?? null,
       deletedAt: null,
+    })
+    .onConflictDoUpdate({
+      target: customer.id,
+      set: {
+        email: input.email ?? customer.email,
+        name: input.name ?? customer.name,
+        metadata: input.metadata ?? customer.metadata,
+        deletedAt: null,
+        updatedAt: now,
+      },
     })
     .returning();
 
@@ -187,8 +173,15 @@ export async function upsertCustomer(
   ctx: PayKitContext,
   input: Parameters<typeof syncCustomer>[1] & { upsertProviderCustomer?: boolean },
 ): Promise<Customer> {
-  const syncedCustomer = await syncCustomer(ctx.database, input);
-  await ensureDefaultPlansForCustomer(ctx, syncedCustomer.id);
+  const hasDefaultPlans = ctx.products.plans.some((plan) => plan.isDefault && plan.group);
+  const syncedCustomer = hasDefaultPlans
+    ? await ctx.database.transaction(async (tx) => {
+        const transactionalContext = { ...ctx, database: tx as PayKitDatabase };
+        const row = await syncCustomer(transactionalContext.database, input);
+        await ensureDefaultPlansForCustomer(transactionalContext, row.id);
+        return row;
+      })
+    : await syncCustomer(ctx.database, input);
 
   if (input.upsertProviderCustomer) {
     await upsertProviderCustomer(ctx, {

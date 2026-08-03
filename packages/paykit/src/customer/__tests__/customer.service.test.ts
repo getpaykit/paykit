@@ -39,6 +39,13 @@ function createUpdateChain(result: unknown) {
   return { returning, set, where };
 }
 
+function createInsertChain(result: unknown) {
+  const returning = vi.fn().mockResolvedValue(result);
+  const onConflictDoUpdate = vi.fn().mockReturnValue({ returning });
+  const values = vi.fn().mockReturnValue({ onConflictDoUpdate });
+  return { onConflictDoUpdate, returning, values };
+}
+
 const createSelectChain = (result: unknown, terminalMethod: "orderBy" | "where") => {
   const chain: Record<string, unknown> = {
     from: vi.fn(),
@@ -66,7 +73,7 @@ describe("customer/service", () => {
       email: "test@example.com",
       updatedAt: new Date("2024-01-02T00:00:00.000Z"),
     });
-    const syncUpdate = createUpdateChain([syncedCustomer]);
+    const syncInsert = createInsertChain([syncedCustomer]);
     const providerUpdate = createUpdateChain(undefined);
     const findFirst = vi
       .fn()
@@ -106,10 +113,8 @@ describe("customer/service", () => {
             findFirst,
           },
         },
-        update: vi
-          .fn()
-          .mockReturnValueOnce({ set: syncUpdate.set })
-          .mockReturnValueOnce({ set: providerUpdate.set }),
+        insert: vi.fn().mockReturnValue({ values: syncInsert.values }),
+        update: vi.fn().mockReturnValue({ set: providerUpdate.set }),
       },
       logger: {
         warn: vi.fn(),
@@ -156,7 +161,7 @@ describe("customer/service", () => {
       email: "prod@example.com",
       updatedAt: new Date("2024-01-02T00:00:00.000Z"),
     });
-    const syncUpdate = createUpdateChain([syncedCustomer]);
+    const syncInsert = createInsertChain([syncedCustomer]);
     const providerUpdate = createUpdateChain(undefined);
     const findFirst = vi
       .fn()
@@ -194,10 +199,8 @@ describe("customer/service", () => {
             findFirst,
           },
         },
-        update: vi
-          .fn()
-          .mockReturnValueOnce({ set: syncUpdate.set })
-          .mockReturnValueOnce({ set: providerUpdate.set }),
+        insert: vi.fn().mockReturnValue({ values: syncInsert.values }),
+        update: vi.fn().mockReturnValue({ set: providerUpdate.set }),
       },
       logger: {
         warn: vi.fn(),
@@ -356,7 +359,7 @@ describe("customer/service", () => {
       stripeSyncedMetadata: null,
       stripeSyncedName: "Same",
     });
-    const syncUpdate = createUpdateChain([existingCustomer]);
+    const syncInsert = createInsertChain([existingCustomer]);
     const findFirst = vi
       .fn()
       .mockResolvedValueOnce(existingCustomer)
@@ -370,7 +373,7 @@ describe("customer/service", () => {
     const ctx = {
       database: {
         query: { customer: { findFirst } },
-        update: vi.fn().mockReturnValueOnce({ set: syncUpdate.set }),
+        insert: vi.fn().mockReturnValue({ values: syncInsert.values }),
       },
       logger: { warn: vi.fn() },
       options: {
@@ -400,7 +403,7 @@ describe("customer/service", () => {
       stripeSyncedMetadata: null,
       stripeSyncedName: "Same",
     });
-    const syncUpdate = createUpdateChain([existingCustomer]);
+    const syncInsert = createInsertChain([existingCustomer]);
     const providerUpdate = createUpdateChain(undefined);
     const findFirst = vi
       .fn()
@@ -416,10 +419,8 @@ describe("customer/service", () => {
     const ctx = {
       database: {
         query: { customer: { findFirst } },
-        update: vi
-          .fn()
-          .mockReturnValueOnce({ set: syncUpdate.set })
-          .mockReturnValueOnce({ set: providerUpdate.set }),
+        insert: vi.fn().mockReturnValue({ values: syncInsert.values }),
+        update: vi.fn().mockReturnValue({ set: providerUpdate.set }),
       },
       logger: { warn: vi.fn() },
       options: {
@@ -445,7 +446,7 @@ describe("customer/service", () => {
       email: "test@example.com",
       stripeCustomerId: "cus_existing",
     });
-    const syncUpdate = createUpdateChain([existingCustomer]);
+    const syncInsert = createInsertChain([existingCustomer]);
     const providerUpdate = createUpdateChain(undefined);
     const findFirst = vi
       .fn()
@@ -461,10 +462,8 @@ describe("customer/service", () => {
     const ctx = {
       database: {
         query: { customer: { findFirst } },
-        update: vi
-          .fn()
-          .mockReturnValueOnce({ set: syncUpdate.set })
-          .mockReturnValueOnce({ set: providerUpdate.set }),
+        insert: vi.fn().mockReturnValue({ values: syncInsert.values }),
+        update: vi.fn().mockReturnValue({ set: providerUpdate.set }),
       },
       logger: { warn: vi.fn() },
       options: {
