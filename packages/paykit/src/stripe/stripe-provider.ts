@@ -642,7 +642,13 @@ export function createStripeProvider(
     },
 
     async deleteCustomer(data) {
-      await client.customers.del(data.providerCustomerId);
+      try {
+        await client.customers.del(data.providerCustomerId);
+      } catch (error) {
+        if (!isStripeResourceMissingError(error)) {
+          throw error;
+        }
+      }
     },
 
     async getTestClock(data) {

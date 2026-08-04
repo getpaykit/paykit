@@ -442,20 +442,20 @@ export async function deleteCustomerFromDatabase(
   database: PayKitDatabase,
   customerId: string,
 ): Promise<void> {
-  const subIds = await database
-    .select({ id: subscription.id })
-    .from(subscription)
-    .where(eq(subscription.customerId, customerId));
-  const sIds = subIds.map((row) => row.id);
+  await database.transaction(async (tx) => {
+    const locked = await tx.execute(
+      sql`select ${customer.id} from ${customer} where ${customer.id} = ${customerId} for update`,
+    );
+    if (locked.rows.length === 0) {
+      return;
+    }
 
-  if (sIds.length > 0) {
-    await database.delete(entitlement).where(inArray(entitlement.subscriptionId, sIds));
-  }
-
-  await database.delete(subscription).where(eq(subscription.customerId, customerId));
-  await database.delete(invoice).where(eq(invoice.customerId, customerId));
-  await database.delete(paymentMethod).where(eq(paymentMethod.customerId, customerId));
-  await database.delete(customer).where(eq(customer.id, customerId));
+    await tx.delete(entitlement).where(eq(entitlement.customerId, customerId));
+    await tx.delete(invoice).where(eq(invoice.customerId, customerId));
+    await tx.delete(paymentMethod).where(eq(paymentMethod.customerId, customerId));
+    await tx.delete(subscription).where(eq(subscription.customerId, customerId));
+    await tx.delete(customer).where(eq(customer.id, customerId));
+  });
 }
 
 export async function hardDeleteCustomer(ctx: PayKitContext, customerId: string): Promise<void> {
@@ -463,19 +463,7 @@ export async function hardDeleteCustomer(ctx: PayKitContext, customerId: string)
 
   const providerCustomerId = getProviderCustomerId(existingCustomer, ctx.provider.id);
   if (providerCustomerId) {
-    try {
-      const activeSubscriptions = await ctx.provider.listActiveSubscriptions({
-        providerCustomerId,
-      });
-      for (const sub of activeSubscriptions) {
-        await ctx.provider.cancelSubscription({
-          providerSubscriptionId: sub.providerSubscriptionId,
-        });
-      }
-      await ctx.provider.deleteCustomer({ providerCustomerId });
-    } catch (error) {
-      ctx.logger.error({ providerCustomerId, err: error }, "failed to clean up provider customer");
-    }
+    await ctx.provider.deleteCustomer({ providerCustomerId });
   }
 
   await deleteCustomerFromDatabase(ctx.database, customerId);
