@@ -1,10 +1,10 @@
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 
 import type { PayKitContext } from "../core/context";
 import { generateId } from "../core/utils";
 import { findCustomerByProviderCustomerId } from "../customer/customer.service";
 import type { PayKitDatabase } from "../database";
-import { paymentMethod } from "../database/schema";
+import { customer, paymentMethod } from "../database/schema";
 import type {
   DeletePaymentMethodAction,
   NormalizedPaymentMethod,
@@ -46,45 +46,37 @@ export async function syncPaymentMethodByProviderCustomer(
   }
 
   const now = new Date();
-  const existingRow = await database.query.paymentMethod.findFirst({
-    where: eq(paymentMethod.stripePaymentMethodId, input.paymentMethod.providerMethodId),
-  });
-
-  if (input.paymentMethod.isDefault) {
-    await database
-      .update(paymentMethod)
-      .set({ isDefault: false, updatedAt: now })
-      .where(eq(paymentMethod.customerId, customerRow.id));
-  }
-
-  if (existingRow) {
-    await database
-      .update(paymentMethod)
-      .set({
-        customerId: customerRow.id,
-        deletedAt: null,
-        expiryMonth: input.paymentMethod.expiryMonth ?? null,
-        expiryYear: input.paymentMethod.expiryYear ?? null,
-        isDefault: input.paymentMethod.isDefault ?? existingRow.isDefault,
-        last4: input.paymentMethod.last4 ?? null,
-        stripePaymentMethodId: input.paymentMethod.providerMethodId,
-        type: input.paymentMethod.type,
-        updatedAt: now,
-      })
-      .where(eq(paymentMethod.id, existingRow.id));
-    return;
-  }
-
-  await database.insert(paymentMethod).values({
+  const values = {
     customerId: customerRow.id,
     deletedAt: null,
     expiryMonth: input.paymentMethod.expiryMonth ?? null,
     expiryYear: input.paymentMethod.expiryYear ?? null,
-    id: generateId("pm"),
-    isDefault: input.paymentMethod.isDefault ?? false,
+    isDefault: input.paymentMethod.isDefault ?? paymentMethod.isDefault,
     last4: input.paymentMethod.last4 ?? null,
     stripePaymentMethodId: input.paymentMethod.providerMethodId,
     type: input.paymentMethod.type,
+    updatedAt: now,
+  };
+
+  await database.transaction(async (tx) => {
+    await tx.execute(
+      sql`select ${customer.id} from ${customer} where ${customer.id} = ${customerRow.id} for update`,
+    );
+    if (input.paymentMethod.isDefault) {
+      await tx
+        .update(paymentMethod)
+        .set({ isDefault: false, updatedAt: now })
+        .where(eq(paymentMethod.customerId, customerRow.id));
+    }
+
+    await tx
+      .insert(paymentMethod)
+      .values({
+        ...values,
+        id: generateId("pm"),
+        isDefault: input.paymentMethod.isDefault ?? false,
+      })
+      .onConflictDoUpdate({ target: paymentMethod.stripePaymentMethodId, set: values });
   });
 }
 

@@ -6,9 +6,13 @@ import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
+  createDatabase,
   getPendingMigrationCount,
   migrateDatabase,
 } from "../../packages/paykit/src/database/index";
+import { upsertInvoiceRecord } from "../../packages/paykit/src/invoice/invoice.service";
+import { syncPaymentMethodByProviderCustomer } from "../../packages/paykit/src/payment-method/payment-method.service";
+import { syncPaymentByProviderCustomer } from "../../packages/paykit/src/payment/payment.service";
 import { env } from "../test-utils/env";
 
 const migrationsFolder = fileURLToPath(
@@ -57,8 +61,8 @@ describe("PayKit database upgrade", () => {
     }
 
     await database.query(
-      `INSERT INTO paykit_customer (id, email, created_at, updated_at)
-       VALUES ('customer_migration', 'test@example.com', now(), now())`,
+      `INSERT INTO paykit_customer (id, email, stripe_customer_id, created_at, updated_at)
+       VALUES ('customer_migration', 'test@example.com', 'cus_migration', now(), now())`,
     );
     await database.query(`
       INSERT INTO paykit_invoice
@@ -138,5 +142,63 @@ describe("PayKit database upgrade", () => {
 
     await migrateDatabase(database);
     expect(await getPendingMigrationCount(database)).toBe(0);
+  });
+
+  it("atomically upserts concurrent Stripe billing events", async () => {
+    const db = await createDatabase(database);
+    await Promise.all(
+      Array.from({ length: 8 }, () =>
+        upsertInvoiceRecord(db, {
+          customerId: "customer_migration",
+          providerId: "stripe",
+          invoice: {
+            currency: "usd",
+            providerInvoiceId: "in_concurrent",
+            status: "paid",
+            totalAmount: 100,
+          },
+        }),
+      ),
+    );
+    await Promise.all(
+      Array.from({ length: 8 }, () =>
+        syncPaymentByProviderCustomer(db, {
+          providerId: "stripe",
+          providerCustomerId: "cus_migration",
+          payment: {
+            amount: 100,
+            createdAt: new Date(),
+            currency: "usd",
+            providerPaymentId: "ch_concurrent",
+            status: "paid",
+          },
+        }),
+      ),
+    );
+    await Promise.all(
+      Array.from({ length: 8 }, () =>
+        syncPaymentMethodByProviderCustomer(db, {
+          providerId: "stripe",
+          providerCustomerId: "cus_migration",
+          paymentMethod: {
+            isDefault: true,
+            providerMethodId: "pm_concurrent",
+            type: "card",
+          },
+        }),
+      ),
+    );
+
+    for (const [table, column, id] of [
+      ["paykit_invoice", "stripe_invoice_id", "in_concurrent"],
+      ["paykit_invoice", "stripe_payment_id", "ch_concurrent"],
+      ["paykit_payment_method", "stripe_payment_method_id", "pm_concurrent"],
+    ]) {
+      const result = await database.query<{ count: string }>(
+        `SELECT count(*)::text AS count FROM ${table} WHERE ${column} = $1`,
+        [id],
+      );
+      expect(result.rows[0]?.count).toBe("1");
+    }
   });
 });
