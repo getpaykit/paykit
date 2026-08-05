@@ -11,5 +11,5 @@
     "types": ["node"],
     "customConditions": ["paykit-source"]
   },
-  "include": ["smoke", "cli"]
+  "include": ["smoke", "cli", "database"]
 }
