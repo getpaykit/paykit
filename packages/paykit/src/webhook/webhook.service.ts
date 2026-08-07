@@ -1,7 +1,6 @@
 import { and, eq, sql } from "drizzle-orm";
 
 import type { PayKitContext } from "../core/context";
-import { getTraceId } from "../core/logger";
 import { generateId } from "../core/utils";
 import { emitCustomerUpdated } from "../customer/customer.service";
 import { webhookEvent } from "../database/schema";
@@ -28,20 +27,21 @@ async function beginWebhookEvent(
     providerEventId: string;
     type: string;
   },
-): Promise<boolean> {
+): Promise<string | null> {
+  const claimId = generateId("claim");
   try {
     await ctx.database.insert(webhookEvent).values({
       error: null,
       id: generateId("evt"),
       payload: input.payload,
       processedAt: null,
-      receivedAt: new Date(),
+      receivedAt: sql`now()`,
       status: "processing",
       stripeEventId: input.providerEventId,
-      traceId: getTraceId(),
+      traceId: claimId,
       type: input.type,
     });
-    return true;
+    return claimId;
   } catch (error: unknown) {
     const code =
       (error as { code?: string; cause?: { code?: string } }).code ??
@@ -52,7 +52,13 @@ async function beginWebhookEvent(
 
     const retried = await ctx.database
       .update(webhookEvent)
-      .set({ error: null, processedAt: null, status: "processing" })
+      .set({
+        error: null,
+        processedAt: null,
+        receivedAt: sql`now()`,
+        status: "processing",
+        traceId: claimId,
+      })
       .where(
         and(
           eq(webhookEvent.stripeEventId, input.providerEventId),
@@ -61,7 +67,7 @@ async function beginWebhookEvent(
       )
       .returning({ id: webhookEvent.id });
 
-    return retried.length > 0;
+    return retried.length > 0 ? claimId : null;
   }
 }
 
@@ -69,18 +75,24 @@ async function finishWebhookEvent(
   ctx: PayKitContext,
   input: {
     error?: string;
+    claimId: string;
     providerEventId: string;
-    status: "failed" | "processed";
   },
 ): Promise<void> {
   await ctx.database
     .update(webhookEvent)
     .set({
       error: input.error ?? null,
-      processedAt: new Date(),
-      status: input.status,
+      processedAt: sql`now()`,
+      status: "failed",
     })
-    .where(eq(webhookEvent.stripeEventId, input.providerEventId));
+    .where(
+      and(
+        eq(webhookEvent.stripeEventId, input.providerEventId),
+        eq(webhookEvent.traceId, input.claimId),
+        eq(webhookEvent.status, "processing"),
+      ),
+    );
 }
 
 function getProviderEventId(
@@ -131,12 +143,12 @@ async function processWebhookEvent(
   providerEventId: string,
 ): Promise<void> {
   // Record the webhook outside the business transaction so failures are preserved.
-  const shouldProcess = await beginWebhookEvent(ctx, {
+  const claimId = await beginWebhookEvent(ctx, {
     payload: event.payload as Record<string, unknown>,
     providerEventId,
     type: event.name,
   });
-  if (!shouldProcess) {
+  if (!claimId) {
     ctx.logger.info({ event: event.name, providerEventId }, "webhook skipped (duplicate)");
     return;
   }
@@ -149,6 +161,13 @@ async function processWebhookEvent(
         : null;
 
     const customerIds = await ctx.database.transaction(async (tx) => {
+      const locked = await tx.execute(
+        sql`select ${webhookEvent.traceId}, ${webhookEvent.status} from ${webhookEvent} where ${webhookEvent.stripeEventId} = ${providerEventId} for update`,
+      );
+      if (locked.rows[0]?.trace_id !== claimId || locked.rows[0]?.status !== "processing") {
+        return null;
+      }
+
       const txCtx = { ...ctx, database: tx } as PayKitContext;
       const ids = new Set<string>();
 
@@ -167,27 +186,34 @@ async function processWebhookEvent(
         }
       }
 
+      await tx
+        .update(webhookEvent)
+        .set({ error: null, processedAt: sql`now()`, status: "processed" })
+        .where(
+          and(eq(webhookEvent.stripeEventId, providerEventId), eq(webhookEvent.traceId, claimId)),
+        );
+
       return ids;
     });
+
+    if (!customerIds) {
+      ctx.logger.info({ event: event.name, providerEventId }, "webhook skipped (claim lost)");
+      return;
+    }
 
     for (const customerId of customerIds) {
       await emitCustomerUpdated(ctx, customerId);
     }
 
     ctx.logger.info({ event: event.name }, "webhook processed");
-
-    await finishWebhookEvent(ctx, {
-      providerEventId,
-      status: "processed",
-    });
   } catch (error) {
     const errorDetail = error instanceof Error ? (error.stack ?? error.message) : String(error);
     ctx.logger.error({ event: event.name, err: error }, "webhook failed");
 
     await finishWebhookEvent(ctx, {
+      claimId,
       error: errorDetail,
       providerEventId,
-      status: "failed",
     });
     throw error;
   }

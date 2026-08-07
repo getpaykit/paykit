@@ -5,6 +5,8 @@ import { readMigrationFiles } from "drizzle-orm/migrator";
 import { Pool } from "pg";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
+import type { PayKitContext } from "../../packages/paykit/src/core/context";
+import { createPayKitLogger } from "../../packages/paykit/src/core/logger";
 import {
   createDatabase,
   getPendingMigrationCount,
@@ -13,6 +15,7 @@ import {
 import { upsertInvoiceRecord } from "../../packages/paykit/src/invoice/invoice.service";
 import { syncPaymentMethodByProviderCustomer } from "../../packages/paykit/src/payment-method/payment-method.service";
 import { syncPaymentByProviderCustomer } from "../../packages/paykit/src/payment/payment.service";
+import { handleWebhook } from "../../packages/paykit/src/webhook/webhook.service";
 import { env } from "../test-utils/env";
 
 const migrationsFolder = fileURLToPath(
@@ -200,5 +203,107 @@ describe("PayKit database upgrade", () => {
       );
       expect(result.rows[0]?.count).toBe("1");
     }
+  });
+
+  it("lets only one worker reclaim a stale webhook event", async () => {
+    await database.query(`
+      INSERT INTO paykit_webhook_event
+        (id, stripe_event_id, type, payload, status, trace_id, received_at)
+      VALUES
+        ('event_stale', 'evt_stale', 'invoice.updated', '{}', 'processing', 'old_claim', now() - interval '10 minutes')
+    `);
+    const db = await createDatabase(database);
+    const ctx = {
+      database: db,
+      logger: createPayKitLogger({ level: "silent" }),
+      options: {},
+      provider: {
+        handleWebhook: async () => [
+          {
+            actions: [],
+            name: "invoice.updated",
+            payload: {
+              providerEventId: "evt_stale",
+              providerCustomerId: "cus_migration",
+            },
+          },
+        ],
+      },
+    } as unknown as PayKitContext;
+
+    await Promise.all(
+      Array.from({ length: 8 }, () => handleWebhook(ctx, { body: "{}", headers: {} })),
+    );
+
+    const result = await database.query<{
+      status: string;
+      trace_id: string;
+      lease_fresh: boolean;
+    }>(
+      "SELECT status, trace_id, received_at > now() - interval '1 minute' AS lease_fresh FROM paykit_webhook_event WHERE stripe_event_id = 'evt_stale'",
+    );
+    expect(result.rows[0]?.status).toBe("processed");
+    expect(result.rows[0]?.trace_id).not.toBe("old_claim");
+    expect(result.rows[0]?.lease_fresh).toBe(true);
+
+    await handleWebhook(ctx, { body: "{}", headers: {} });
+    const afterDuplicate = await database.query<{ trace_id: string }>(
+      "SELECT trace_id FROM paykit_webhook_event WHERE stripe_event_id = 'evt_stale'",
+    );
+    expect(afterDuplicate.rows[0]?.trace_id).toBe(result.rows[0]?.trace_id);
+  });
+
+  it("prevents a stale worker from finishing a newer webhook claim", async () => {
+    const db = await createDatabase(database);
+    const eventId = "evt_stale_owner";
+    const ctx = {
+      database: db,
+      logger: createPayKitLogger({ level: "silent" }),
+      options: {},
+      provider: {
+        handleWebhook: async () => [
+          {
+            actions: [],
+            name: "invoice.updated",
+            payload: { providerEventId: eventId, providerCustomerId: "cus_migration" },
+          },
+        ],
+      },
+    } as unknown as PayKitContext;
+    let releaseSlowWorker!: () => void;
+    let markSlowWorkerReady!: () => void;
+    const slowWorkerReady = new Promise<void>((resolve) => {
+      markSlowWorkerReady = resolve;
+    });
+    const slowWorkerRelease = new Promise<void>((resolve) => {
+      releaseSlowWorker = resolve;
+    });
+    const slowDatabase = Object.create(db) as typeof db;
+    slowDatabase.transaction = async (callback) => {
+      markSlowWorkerReady();
+      await slowWorkerRelease;
+      return db.transaction(callback);
+    };
+
+    const slowRun = handleWebhook({ ...ctx, database: slowDatabase }, { body: "{}", headers: {} });
+    await slowWorkerReady;
+    await database.query(
+      "UPDATE paykit_webhook_event SET received_at = now() - interval '10 minutes' WHERE stripe_event_id = $1",
+      [eventId],
+    );
+
+    await handleWebhook(ctx, { body: "{}", headers: {} });
+    const newerClaim = await database.query<{ trace_id: string; status: string }>(
+      "SELECT trace_id, status FROM paykit_webhook_event WHERE stripe_event_id = $1",
+      [eventId],
+    );
+    releaseSlowWorker();
+    await slowRun;
+    const finalRow = await database.query<{ trace_id: string; status: string }>(
+      "SELECT trace_id, status FROM paykit_webhook_event WHERE stripe_event_id = $1",
+      [eventId],
+    );
+    expect(finalRow.rows[0]).toEqual(newerClaim.rows[0]);
+    expect(finalRow.rows[0]?.status).toBe("processed");
   });
 });
