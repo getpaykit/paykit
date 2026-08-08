@@ -47,7 +47,14 @@ export function ContactForm() {
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Name *</Label>
-              <Input id="name" name="name" placeholder="Jane Doe" required className="rounded-sm" />
+              <Input
+                id="name"
+                name="name"
+                placeholder="Jane Doe"
+                required
+                maxLength={200}
+                className="rounded-sm"
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Work email *</Label>
@@ -55,6 +62,7 @@ export function ContactForm() {
                 id="email"
                 name="email"
                 type="email"
+                maxLength={254}
                 placeholder="jane@company.com"
                 required
                 className="rounded-sm"
@@ -69,6 +77,7 @@ export function ContactForm() {
               name="company"
               placeholder="Acme Inc."
               required
+              maxLength={200}
               className="rounded-sm"
             />
           </div>
@@ -80,6 +89,7 @@ export function ContactForm() {
               name="message"
               placeholder="Tell us about your use case, team size, or any questions."
               rows={4}
+              maxLength={5000}
               className="rounded-sm"
             />
           </div>

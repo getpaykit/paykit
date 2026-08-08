@@ -56,6 +56,7 @@ const config = {
     return config;
   },
   experimental: {
+    serverActions: { bodySizeLimit: "16kb" },
     optimizePackageImports: [
       "lucide-react",
       "framer-motion",
