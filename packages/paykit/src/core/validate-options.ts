@@ -76,7 +76,13 @@ function assertValidTrustedOrigin(origin: string): void {
     );
   }
 
-  if (parsed.pathname !== "/" || parsed.search || parsed.hash) {
+  if (
+    parsed.username ||
+    parsed.password ||
+    parsed.pathname !== "/" ||
+    parsed.search ||
+    parsed.hash
+  ) {
     throw new Error(
       `PayKit option \`trustedOrigins\` must not include a path, query, or hash. Received "${origin}".`,
     );

@@ -417,14 +417,15 @@ function resolveOrigin(
   const browserOrigin = getBrowserOrigin(headers ?? request?.headers);
 
   if (browserOrigin) {
-    if (!request) {
-      return `${browserOrigin}/`;
+    if (request) {
+      assertTrustedOrigin(browserOrigin, request, paykit, field);
     }
-    assertTrustedOrigin(browserOrigin, request, paykit, field);
     return `${browserOrigin}/`;
   }
 
-  return requestOrigin ? `${requestOrigin}/` : null;
+  return requestOrigin && request?.headers.get("sec-fetch-site") === "same-origin"
+    ? `${requestOrigin}/`
+    : null;
 }
 
 function assertTrustedOrigin(

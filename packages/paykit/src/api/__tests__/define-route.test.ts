@@ -158,4 +158,36 @@ describe("api/define-route", () => {
       expect.stringContaining("Could not resolve"),
     );
   });
+
+  it("does not resolve a relative return URL from an unverified request host", async () => {
+    const method = definePayKitMethod(
+      { input: z.object({ successUrl: returnUrl() }) },
+      async (ctx) => ctx.input,
+    );
+
+    await expect(
+      method(
+        createTestContext(),
+        { successUrl: "/success" },
+        new Request("https://attacker.example.com/paykit/subscribe"),
+      ),
+    ).rejects.toMatchObject({ code: "RETURN_URL_ORIGIN_REQUIRED" });
+  });
+
+  it("accepts same-origin Fetch Metadata when Origin is unavailable", async () => {
+    const method = definePayKitMethod(
+      { input: z.object({ successUrl: returnUrl() }) },
+      async (ctx) => ctx.input,
+    );
+
+    await expect(
+      method(
+        createTestContext(),
+        { successUrl: "/success" },
+        new Request("https://app.example.com/paykit/subscribe", {
+          headers: { "sec-fetch-site": "same-origin" },
+        }),
+      ),
+    ).resolves.toEqual({ successUrl: "https://app.example.com/success" });
+  });
 });
