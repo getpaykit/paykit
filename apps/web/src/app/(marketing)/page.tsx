@@ -7,6 +7,12 @@ import { demoSnippets } from "@/components/sections/readme-code-content";
 import { InlineCode } from "@/components/ui/code-block-content";
 import { homePageStructuredData } from "@/lib/consts";
 
+export const metadata = {
+  alternates: {
+    canonical: "/",
+  },
+};
+
 export default function HomePage() {
   return (
     <>

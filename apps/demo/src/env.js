@@ -1,6 +1,8 @@
 import { createEnv } from "@t3-oss/env-nextjs";
 import * as z from "zod";
 
+import "../../../scripts/load-root-env.js";
+
 export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app

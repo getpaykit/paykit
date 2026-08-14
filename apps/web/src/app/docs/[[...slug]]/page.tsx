@@ -65,6 +65,9 @@ export async function generateMetadata({ params }: DocsPageProps): Promise<Metad
 
   return {
     title: page.data.title,
-    description: page.data.description,
+    description: page.data.description ?? "PayKit documentation.",
+    alternates: {
+      canonical: page.url ?? "/docs",
+    },
   };
 }

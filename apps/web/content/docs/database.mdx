@@ -3,7 +3,7 @@ title: Database
 description: How PayKit stores and syncs billing state locally.
 ---
 
-PayKit uses your app's PostgreSQL database to store billing state. Entitlement checks are fast local queries, not provider API calls. No round-trips to Stripe on every `check()`.
+PayKit uses your app's PostgreSQL database to store billing state. Entitlement checks are fast local queries, not Stripe API calls. No round-trips to Stripe on every `check()`.
 
 ## Configuration
 
@@ -59,6 +59,6 @@ npx paykitjs push
 
 PayKit keeps two sources of truth in sync:
 
-**From webhooks** (provider to database): Subscriptions, invoices, payment methods, and customer-provider ID mappings are synced automatically when provider events arrive.
+**From webhooks** (Stripe to database): Subscriptions, invoices, payment methods, and customer-Stripe ID mappings are synced automatically when Stripe events arrive.
 
 **From your config** (code to database): Plans, products, and features are synced from your `createPayKit` configuration when you run `paykitjs push`. Each time you change a plan and push, a new version is created. Previous versions are kept so running instances can continue serving existing subscriptions.

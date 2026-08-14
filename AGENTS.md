@@ -2,13 +2,13 @@
 
 ## Project
 
-PayKit is an embedded billing framework for TypeScript apps. It runs inside the
-user's app, uses their database, and provides APIs for plans, subscriptions,
+PayKit is an embedded Stripe billing framework for TypeScript apps. It runs inside
+the user's app, uses their database, and provides APIs for plans, subscriptions,
 entitlements, and usage billing.
 
 PayKit should feel like application code, not a hosted billing platform or a thin
-provider SDK wrapper. Keep provider-specific details behind typed, composable
-APIs.
+Stripe SDK wrapper. Stripe is the supported payment provider. Keep Stripe-specific
+details behind typed, composable APIs.
 
 ## Code Style
 
@@ -32,7 +32,6 @@ These directories already contain source checkouts for some packages:
 
 ## Behavior
 
-- When asked opinion questions, answer only. Do not edit code unless explicitly asked.
 - Never commit, push, or run database migrations unless explicitly asked.
 - Never create a partial commit from files that also contain unstaged changes.
   If a requested commit overlaps dirty files, either commit the full intended
@@ -46,3 +45,5 @@ These directories already contain source checkouts for some packages:
 - NEVER EVER publish or release packages yourself, ask double confirmation
 - No need to pass --config paykit.ts into paykitjs CLI, because it's one of the locations resolved by default
 - If you just did some changes but later you see them different in the diff, it means the user likely adjusted the code intentionally, you should not restore them without asking the user
+
+- important: Do not push your branch and commits to the remote and do not create PRs unless told to.

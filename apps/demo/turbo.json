@@ -1,0 +1,18 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "env": [
+        "APP_URL",
+        "AUTH_DATABASE_URL",
+        "AUTUMN_SECRET_KEY",
+        "BETTER_AUTH_SECRET",
+        "PAYKIT_DATABASE_URL",
+        "SKIP_ENV_VALIDATION",
+        "STRIPE_SECRET_KEY",
+        "STRIPE_WEBHOOK_SECRET"
+      ]
+    }
+  }
+}

@@ -1,15 +1,7 @@
-import path from "node:path";
-
 import { createEnv } from "@t3-oss/env-core";
-import { config } from "dotenv";
 import * as z from "zod";
 
-config({ path: path.resolve(import.meta.dirname, "../../.env"), quiet: true });
-config({
-  path: path.resolve(import.meta.dirname, "../../.env.local"),
-  override: true,
-  quiet: true,
-});
+import "../../scripts/load-root-env.js";
 
 export const env = createEnv({
   server: {

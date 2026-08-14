@@ -24,7 +24,7 @@ const prompt = encodeURIComponent(`Explain what PayKit (paykit.sh) is and why I 
 
 Describe how it acts as a developer-first billing framework that simplifies subscriptions, usage-based billing, and payment integrations directly inside my app.
 
-Focus on how it helps me ship billing faster, avoid webhook complexity, keep data in my own database, and stay provider-agnostic.
+Focus on how it helps me ship Stripe billing faster, avoid webhook complexity, keep data in my own database, and keep billing logic in my app.
 
 Keep it short, sharp, and persuasive for indie hackers and SaaS founders.`);
 

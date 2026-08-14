@@ -3,12 +3,12 @@ title: Documentation
 description: "PayKit docs for the MVP orchestration loop: checkout, webhooks, local sync, and saved-method charges."
 ---
 
-PayKit is a TypeScript-first, server-side payments orchestration framework for modern SaaS.
-It sits between your app and payment providers, normalizes billing events, and keeps the
-minimum billing state your app needs locally.
+PayKit is a TypeScript-first, server-side Stripe billing framework for modern SaaS.
+It sits inside your app, handles the Stripe lifecycle, and keeps the billing state your
+application needs locally.
 
-PayKit does **not** process payments. Providers still run checkout, vault payment methods, and
-move money. PayKit owns the orchestration layer above them.
+PayKit does **not** process payments. Stripe still runs checkout, stores payment methods, and
+moves money. PayKit owns the application billing layer around it.
 
 <Callout type="warn">
   These docs describe the planned MVP surface. The package is not public yet, so code examples are
@@ -19,8 +19,8 @@ move money. PayKit owns the orchestration layer above them.
 
 The first docs story follows one narrow loop:
 
-1. Create a provider-hosted checkout or payment method flow
-2. Receive provider webhooks
+1. Create a Stripe-hosted checkout or payment method flow
+2. Receive Stripe webhooks
 3. Normalize those webhooks into one PayKit event model
 4. Sync billing state into PayKit-owned Postgres tables
 5. Charge a saved payment method later through one server API
@@ -34,28 +34,25 @@ Subscriptions are intentionally **not** the core docs story right now.
 - [Code](/docs/code/database)
   The local billing-state model plus the MVP APIs for checkout, customers, payment methods,
   charges, and webhooks.
-- [Payment Providers](/docs/concepts/payment-providers)
-  Stripe setup notes and current integration status.
 - [Code](/docs/code/sdks/server-sdk)
   The planned server SDK, future React SDK direction, and framework handler examples.
 
 ## Architecture
 
 ```txt
-Your App -> PayKit Core -> Provider Adapter -> External Provider
+Your App -> PayKit Core -> Stripe
 ```
 
 That split matters:
 
 - your app calls one server-side API
-- providers stay behind thin adapters
-- webhook payloads become provider-agnostic PayKit events
-- your app reads normalized billing state instead of stitching together provider APIs
+- Stripe details stay behind a typed integration
+- webhook payloads become normalized PayKit events
+- your app reads local billing state instead of stitching together Stripe APIs
 
 ## Core principles
 
-- **Orchestration, not processing** — PayKit coordinates providers, it does not move money
+- **Billing layer, not payment processing** — Stripe moves money while PayKit manages billing state
 - **Local state is part of the product** — PayKit persists the billing state your app needs
-- **Provider-agnostic** — business code should not depend on provider-native IDs or event names
 - **Postgres first** — the MVP assumes PayKit-owned `paykit_*` tables
 - **Keep the abstraction narrow** — the initial promise is checkout, saved methods, webhooks, and charges
