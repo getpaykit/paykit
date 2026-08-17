@@ -117,3 +117,9 @@ await paykit.subscribe({ customerId: "user_123", planId: "pro" });
 | `successUrl` | Recommended | Where to redirect after successful checkout. |
 | `cancelUrl` | Recommended | Where to redirect if the customer cancels checkout. |
 | `forceCheckout` | No | Forces a checkout flow even if the customer already has a payment method. |
+
+## Return URL security
+
+Browser calls may use paths such as `/billing/success`. PayKit resolves them against the verified browser origin, not the API server origin. Same-origin applications need no configuration. If the frontend and PayKit API have different origins, add the frontend to `trustedOrigins` in `createPayKit`.
+
+Absolute browser return URLs must use HTTP or HTTPS and match either the verified browser origin or `trustedOrigins`. Direct server API calls may use any absolute HTTP or HTTPS return URL because they run as trusted application code.

@@ -1,4 +1,5 @@
 import { isSupportedStripeCurrency, SUPPORTED_STRIPE_CURRENCIES } from "../stripe/currency";
+import { isStripeTestKey } from "../stripe/stripe-provider";
 import type { PayKitOptions } from "../types/options";
 
 function hasLegacyPlansOption(options: object): options is { plans: unknown } {
@@ -34,6 +35,10 @@ export function assertValidPayKitOptions(
   if (currency !== undefined) {
     assertValidStripeCurrency(currency);
   }
+
+  if (options.testing?.enabled && !isStripeTestKey(options.stripe.secretKey)) {
+    throw new Error("PayKit testing mode requires a Stripe test-mode secret or restricted key.");
+  }
 }
 
 function assertValidStripeCurrency(currency: unknown): void {
@@ -65,7 +70,19 @@ function assertValidTrustedOrigin(origin: string): void {
     );
   }
 
-  if (parsed.pathname !== "/" || parsed.search || parsed.hash) {
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+    throw new Error(
+      `PayKit option \`trustedOrigins\` only supports HTTP and HTTPS origins. Received "${origin}".`,
+    );
+  }
+
+  if (
+    parsed.username ||
+    parsed.password ||
+    parsed.pathname !== "/" ||
+    parsed.search ||
+    parsed.hash
+  ) {
     throw new Error(
       `PayKit option \`trustedOrigins\` must not include a path, query, or hash. Received "${origin}".`,
     );

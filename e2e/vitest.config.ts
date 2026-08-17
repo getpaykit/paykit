@@ -27,6 +27,14 @@ export default defineConfig({
           testTimeout: 120_000,
         },
       },
+      {
+        test: {
+          name: "database",
+          include: ["database/**/*.test.ts"],
+          sequence: { concurrent: false },
+          testTimeout: 60_000,
+        },
+      },
     ],
   },
 });

@@ -1,5 +1,3 @@
-import { eq } from "drizzle-orm";
-
 import type { PayKitContext } from "../core/context";
 import { generateId } from "../core/utils";
 import { findCustomerByProviderCustomerId } from "../customer/customer.service";
@@ -23,26 +21,7 @@ export async function syncPaymentByProviderCustomer(
     return;
   }
 
-  const existing = await database.query.invoice.findFirst({
-    where: eq(invoice.stripePaymentId, input.payment.providerPaymentId),
-  });
-
-  if (existing) {
-    await database
-      .update(invoice)
-      .set({
-        status: input.payment.status,
-        amount: input.payment.amount,
-        stripePaymentId: input.payment.providerPaymentId,
-        stripePaymentMethodId: input.payment.providerMethodId ?? null,
-        updatedAt: new Date(),
-      })
-      .where(eq(invoice.id, existing.id));
-    return;
-  }
-
-  await database.insert(invoice).values({
-    id: generateId("inv"),
+  const values = {
     customerId: customerRow.id,
     type: "charge",
     status: input.payment.status,
@@ -51,7 +30,13 @@ export async function syncPaymentByProviderCustomer(
     description: input.payment.description ?? null,
     stripePaymentId: input.payment.providerPaymentId,
     stripePaymentMethodId: input.payment.providerMethodId ?? null,
-  });
+    updatedAt: new Date(),
+  };
+
+  await database
+    .insert(invoice)
+    .values({ id: generateId("inv"), ...values })
+    .onConflictDoUpdate({ target: invoice.stripePaymentId, set: values });
 }
 
 export async function applyPaymentWebhookAction(

@@ -196,16 +196,23 @@ export function definePayKitMethod<const TConfig extends PayKitMethodConfig, TRe
   };
 
   if (config.route) {
+    const routeMetadata = config.requireCustomer
+      ? { ...config.route.metadata, allowedMediaTypes: ["application/json"] }
+      : config.route.metadata;
     const endpoint = createPayKitEndpoint(
       config.route.path,
       {
         body: createRouteInputSchema(config.input),
         ...config.route,
         client: undefined,
+        metadata: routeMetadata,
         path: undefined,
         resolveInput: undefined,
       },
       async (ctx) => {
+        if (config.requireCustomer && ctx.request) {
+          assertAuthenticatedRequestOrigin(ctx.context, ctx.request);
+        }
         const routeInput = normalizeMethodInput(
           config.input,
           config.route?.resolveInput
@@ -282,7 +289,7 @@ function normalizeMethodInput(
   input: unknown,
   request?: Request,
   headers?: Headers,
-  paykit?: Pick<PayKitContext, "options">,
+  paykit?: Pick<PayKitContext, "logger" | "options">,
 ): unknown {
   if (!(schema instanceof z.ZodObject) || !input || typeof input !== "object") {
     return input;
@@ -335,9 +342,7 @@ function createRoutedReturnUrlSchema(field: string, schema: unknown): z.ZodTypeA
     return createRoutedReturnUrlSchema(field, typedSchema.unwrap()).optional();
   }
 
-  const routedSchema = z.string().refine((value) => isAbsoluteUrl(value) || isAbsolutePath(value), {
-    message: "Invalid URL",
-  });
+  const routedSchema = z.string();
 
   return shouldDefaultReturnUrlField(field) ? routedSchema.optional() : routedSchema;
 }
@@ -362,13 +367,17 @@ function normalizeReturnUrlValue(
   value: string,
   request?: Request,
   headers?: Headers,
-  paykit?: Pick<PayKitContext, "options">,
+  paykit?: Pick<PayKitContext, "logger" | "options">,
 ): string {
   if (isAbsolutePath(value)) {
     return resolveAbsoluteUrl(value, request, headers, paykit, field);
   }
 
-  return value;
+  const parsed = parseHttpUrl(value, field, paykit);
+  if (request) {
+    assertTrustedOrigin(parsed.origin, request, paykit, field);
+  }
+  return parsed.toString();
 }
 
 function shouldDefaultReturnUrlField(field: string): boolean {
@@ -379,15 +388,19 @@ function resolveAbsoluteUrl(
   value: string,
   request: Request | undefined,
   headers: Headers | undefined,
-  paykit: Pick<PayKitContext, "options"> | undefined,
+  paykit: Pick<PayKitContext, "logger" | "options"> | undefined,
   field: string,
 ): string {
-  const origin = resolveOrigin(request, headers, paykit);
+  const origin = resolveOrigin(request, headers, paykit, field);
   if (!origin) {
+    paykit?.logger.warn(
+      { code: PAYKIT_ERROR_CODES.RETURN_URL_ORIGIN_REQUIRED.code, field },
+      "Could not resolve a relative PayKit provider return URL",
+    );
     throw PayKitError.from(
       "BAD_REQUEST",
-      PAYKIT_ERROR_CODES.SUCCESS_URL_REQUIRED,
-      `A ${field} is required when this method is called without a request context`,
+      PAYKIT_ERROR_CODES.RETURN_URL_ORIGIN_REQUIRED,
+      `${field} must be absolute when this method is called without a browser request context`,
     );
   }
 
@@ -397,64 +410,144 @@ function resolveAbsoluteUrl(
 function resolveOrigin(
   request?: Request,
   headers?: Headers,
-  paykit?: Pick<PayKitContext, "options">,
+  paykit?: Pick<PayKitContext, "logger" | "options">,
+  field?: string,
 ): string | null {
-  let origin: string | null = null;
+  const requestOrigin = request ? getHttpOrigin(request.url) : null;
+  const browserOrigin = getBrowserOrigin(headers ?? request?.headers);
 
-  if (request?.url) {
-    origin = new URL("/", request.url).toString();
-  } else {
-    const explicitOrigin = headers?.get("origin");
-    if (explicitOrigin && isAbsoluteUrl(explicitOrigin)) {
-      origin = explicitOrigin.endsWith("/") ? explicitOrigin : `${explicitOrigin}/`;
-    } else {
-      const host = headers?.get("x-forwarded-host") ?? headers?.get("host");
-      if (!host) {
-        return null;
-      }
-
-      const protocol = headers?.get("x-forwarded-proto") ?? "https";
-      origin = `${protocol}://${host}/`;
+  if (browserOrigin) {
+    if (request) {
+      assertTrustedOrigin(browserOrigin, request, paykit, field);
     }
+    return `${browserOrigin}/`;
   }
 
-  if (origin && paykit?.options.trustedOrigins?.length) {
-    assertTrustedOrigin(origin, paykit.options.trustedOrigins);
-  }
-
-  return origin;
+  return requestOrigin && request?.headers.get("sec-fetch-site") === "same-origin"
+    ? `${requestOrigin}/`
+    : null;
 }
 
-function assertTrustedOrigin(origin: string, trustedOrigins: readonly string[]): void {
+function assertTrustedOrigin(
+  origin: string,
+  request: Request,
+  paykit?: Pick<PayKitContext, "logger" | "options">,
+  field?: string,
+): void {
+  const requestOrigin = getHttpOrigin(request.url);
+  const trustedOrigins = [requestOrigin, ...(paykit?.options.trustedOrigins ?? [])].filter(
+    (value): value is string => Boolean(value),
+  );
   const normalizedOrigin = normalizeTrustedOrigin(origin);
-  const isAllowed = trustedOrigins.some((trustedOrigin) => {
-    return normalizeTrustedOrigin(trustedOrigin) === normalizedOrigin;
-  });
+  const isAllowed = trustedOrigins.some(
+    (trustedOrigin) => normalizeTrustedOrigin(trustedOrigin) === normalizedOrigin,
+  );
 
   if (!isAllowed) {
+    paykit?.logger.warn(
+      {
+        code: PAYKIT_ERROR_CODES.TRUSTED_ORIGIN_INVALID.code,
+        field,
+        origin: normalizedOrigin,
+        trustedOrigins: trustedOrigins.map(normalizeTrustedOrigin),
+      },
+      "Rejected untrusted PayKit browser or return URL origin",
+    );
     throw PayKitError.from(
-      "BAD_REQUEST",
+      "FORBIDDEN",
       PAYKIT_ERROR_CODES.TRUSTED_ORIGIN_INVALID,
-      `Resolved origin "${normalizedOrigin}" is not allowed by trustedOrigins`,
+      `Origin "${normalizedOrigin}" is not trusted. Add it to createPayKit({ trustedOrigins: ["${normalizedOrigin}"] }) when the frontend and PayKit API use different origins.`,
     );
   }
+}
+
+function assertAuthenticatedRequestOrigin(paykit: PayKitContext, request: Request): void {
+  if (!request.headers.has("cookie")) {
+    return;
+  }
+
+  const originHeader = request.headers.get("origin");
+  if (originHeader === "null" && request.headers.get("sec-fetch-site") === "same-origin") {
+    return;
+  }
+
+  const browserOrigin = getBrowserOrigin(request.headers);
+  if (!browserOrigin) {
+    paykit.logger.warn(
+      { code: PAYKIT_ERROR_CODES.REQUEST_ORIGIN_REQUIRED.code },
+      "Rejected authenticated PayKit request without a browser origin",
+    );
+    throw PayKitError.from(
+      "FORBIDDEN",
+      PAYKIT_ERROR_CODES.REQUEST_ORIGIN_REQUIRED,
+      "Authenticated browser requests must include a valid Origin or Referer header",
+    );
+  }
+
+  assertTrustedOrigin(browserOrigin, request, paykit);
 }
 
 function normalizeTrustedOrigin(origin: string): string {
   return new URL(origin).origin;
 }
 
-function isAbsoluteUrl(value: string): boolean {
+function isAbsolutePath(value: string): boolean {
+  return (
+    /^\/(?!\/)/u.test(value) &&
+    !value.includes("\\") &&
+    !hasControlCharacters(value) &&
+    !/%(?:2f|5c|0[0-9a-f]|1[0-9a-f]|7f)/iu.test(value)
+  );
+}
+
+function parseHttpUrl(
+  value: string,
+  field: string,
+  paykit?: Pick<PayKitContext, "logger" | "options">,
+): URL {
   try {
-    void new URL(value);
-    return true;
+    const parsed = new URL(value);
+    if (
+      (parsed.protocol !== "http:" && parsed.protocol !== "https:") ||
+      parsed.username ||
+      parsed.password ||
+      hasControlCharacters(value)
+    ) {
+      throw new TypeError("Unsupported URL");
+    }
+    return parsed;
   } catch {
-    return false;
+    paykit?.logger.warn(
+      { code: PAYKIT_ERROR_CODES.RETURN_URL_INVALID.code, field },
+      "Rejected invalid PayKit provider return URL",
+    );
+    throw PayKitError.from(
+      "BAD_REQUEST",
+      PAYKIT_ERROR_CODES.RETURN_URL_INVALID,
+      `${field} must be an HTTP(S) URL or a safe absolute path`,
+    );
   }
 }
 
-function isAbsolutePath(value: string): boolean {
-  return /^\/(?!\/)/u.test(value);
+function getBrowserOrigin(headers?: Headers): string | null {
+  const value = headers?.get("origin") ?? headers?.get("referer");
+  return value ? getHttpOrigin(value) : null;
+}
+
+function getHttpOrigin(value: string): string | null {
+  try {
+    const parsed = new URL(value);
+    return parsed.protocol === "http:" || parsed.protocol === "https:" ? parsed.origin : null;
+  } catch {
+    return null;
+  }
+}
+
+function hasControlCharacters(value: string): boolean {
+  return [...value].some((character) => {
+    const codePoint = character.codePointAt(0) ?? 0;
+    return codePoint <= 31 || codePoint === 127;
+  });
 }
 
 async function resolveCustomer(

@@ -4,17 +4,16 @@ import { Resend } from "resend";
 
 import { env } from "@/env";
 
+import { validateContactForm } from "./validate";
+
 const resend = new Resend(env.RESEND_API_KEY);
 
 export async function submitContactForm(formData: FormData) {
-  const name = formData.get("name") as string;
-  const email = formData.get("email") as string;
-  const company = formData.get("company") as string;
-  const message = formData.get("message") as string;
-
-  if (!name || !email || !company) {
-    return { error: "Please fill in all required fields." };
+  const validated = validateContactForm(formData);
+  if (!validated.success) {
+    return { error: validated.error };
   }
+  const { name, email, company, message } = validated.data;
 
   try {
     const response = await resend.emails.send({
@@ -35,7 +34,6 @@ export async function submitContactForm(formData: FormData) {
     if (response.error) {
       console.error("Failed to send contact inquiry", {
         error: response.error,
-        headers: response.headers,
       });
 
       return { error: "Something went wrong. Please try again or email us directly." };

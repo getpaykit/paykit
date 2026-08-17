@@ -28,7 +28,7 @@ Each plugin mounts its own endpoints under the PayKit API base path automaticall
 npm install @paykitjs/dash
 ```
 
-Pass an `authorize` function to control who can access it. Without `authorize`, the dashboard is open to any authenticated request.
+Pass an `authorize` function to control who can access it. Without `authorize`, the dashboard endpoint is public. PayKit does not run `identify` automatically for plugin endpoints.
 
 ```ts title="paykit.ts"
 import { dash } from "@paykitjs/dash";
@@ -49,6 +49,10 @@ export const paykit = createPayKit({
 ```
 
 Throwing inside `authorize` blocks access. Returning without throwing grants it.
+
+## Endpoint security
+
+Plugins choose their own access model. Endpoints created with `createPayKitEndpoint` receive no automatic customer authentication. Use `definePayKitMethod({ requireCustomer: true })` for customer-scoped endpoints, or verify a signature or custom authorization inside public callbacks and webhooks.
 
 ## Plugin interface
 

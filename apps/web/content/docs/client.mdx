@@ -70,6 +70,25 @@ The client derives its API URL automatically, so `baseURL: "/custom"` maps to `/
 
 You can also pass an absolute URL like `https://example.com/custom`.
 
+## Separate frontend and API origins
+
+When the browser application and PayKit API use different origins, add the browser origin to the server's `trustedOrigins`. This protects cookie-authenticated billing mutations and lets PayKit resolve relative provider return URLs against the browser application.
+
+```ts title="paykit.ts"
+export const paykit = createPayKit({
+  // ...
+  trustedOrigins: ["https://app.example.com"],
+});
+```
+
+```ts title="paykit-client.ts"
+export const paykitClient = createPayKitClient<typeof paykit>({
+  baseURL: "https://api.example.com/paykit",
+});
+```
+
+No `trustedOrigins` configuration is needed when the frontend and PayKit handler share an origin. If a cross-origin request is rejected, PayKit logs the rejected origin and the configuration needed to trust it.
+
 ## Type safety
 
 The client infers available plan IDs directly from your server instance type. If you pass an invalid `planId`, TypeScript catches it at compile time. See [TypeScript](/docs/typescript) for more on how type inference works across the stack.

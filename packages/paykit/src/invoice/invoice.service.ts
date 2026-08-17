@@ -21,10 +21,6 @@ export async function upsertInvoiceRecord(
 ): Promise<StoredInvoice> {
   const now = new Date();
 
-  const existing = await database.query.invoice.findFirst({
-    where: eq(invoice.stripeInvoiceId, input.invoice.providerInvoiceId),
-  });
-
   const values = {
     amount: input.invoice.totalAmount,
     currency: input.invoice.currency,
@@ -40,24 +36,15 @@ export async function upsertInvoiceRecord(
     updatedAt: now,
   };
 
-  if (existing) {
-    const rows = await database
-      .update(invoice)
-      .set(values)
-      .where(eq(invoice.id, existing.id))
-      .returning();
-    const row = rows[0];
-    if (!row) {
-      throw PayKitError.from("INTERNAL_SERVER_ERROR", PAYKIT_ERROR_CODES.INVOICE_UPSERT_FAILED);
-    }
-    return row;
-  }
-
   const rows = await database
     .insert(invoice)
     .values({
       ...values,
       id: generateId("inv"),
+    })
+    .onConflictDoUpdate({
+      target: invoice.stripeInvoiceId,
+      set: values,
     })
     .returning();
   const row = rows[0];

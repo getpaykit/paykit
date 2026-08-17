@@ -64,7 +64,9 @@ export const paymentMethod = pgTable(
   },
   (table) => [
     index("paykit_payment_method_customer_idx").on(table.customerId, table.deletedAt),
-    index("paykit_payment_method_stripe_payment_method_idx").on(table.stripePaymentMethodId),
+    uniqueIndex("paykit_payment_method_stripe_payment_method_unique").on(
+      table.stripePaymentMethodId,
+    ),
   ],
 );
 
@@ -209,8 +211,8 @@ export const invoice = pgTable(
   (table) => [
     index("paykit_invoice_customer_idx").on(table.customerId, table.createdAt),
     index("paykit_invoice_subscription_idx").on(table.subscriptionId),
-    index("paykit_invoice_stripe_invoice_idx").on(table.stripeInvoiceId),
-    index("paykit_invoice_stripe_payment_idx").on(table.stripePaymentId),
+    uniqueIndex("paykit_invoice_stripe_invoice_unique").on(table.stripeInvoiceId),
+    uniqueIndex("paykit_invoice_stripe_payment_unique").on(table.stripePaymentId),
   ],
 );
 
