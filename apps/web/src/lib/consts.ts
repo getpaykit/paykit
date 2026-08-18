@@ -17,6 +17,7 @@ export const URLs = {
   site: env.NEXT_PUBLIC_APP_URL,
   githubOrg: "https://github.com/getpaykit",
   githubRepo: "https://github.com/getpaykit/paykit",
+  githubReleases: "https://github.com/getpaykit/paykit/releases",
   roadmap: "https://github.com/orgs/getpaykit/projects/1",
   x: "https://x.com/paykit_sh",
   linkedin: "https://www.linkedin.com/company/paykit-sh",

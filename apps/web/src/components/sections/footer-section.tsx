@@ -9,6 +9,7 @@ import { URLs } from "@/lib/consts";
 
 const navLinks = [
   { label: "Docs", href: "/docs" },
+  { label: "Changelog", href: "/changelog" },
   { label: "Contact", href: "/contact" },
   { label: "Author", href: URLs.authorX, external: true },
 ];
