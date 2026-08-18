@@ -1,0 +1,58 @@
+name: Verify Changesets
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - unlabeled
+
+permissions: {}
+
+jobs:
+  verify:
+    if: ${{ !startsWith(github.head_ref, 'changeset-release/') }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Require a changeset for package changes
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          SKIP_CHANGESET: ${{ contains(github.event.pull_request.labels.*.name, 'skip-changeset') }}
+        run: |
+          set -euo pipefail
+
+          if ! git diff --quiet "origin/${BASE_REF}...HEAD" -- packages/paykit; then
+            if git diff --diff-filter=AM --name-only "origin/${BASE_REF}...HEAD" -- '.changeset/*.md' \
+              | grep -qv '/README.md$'; then
+              pnpm changeset status --since "origin/${BASE_REF}"
+              exit 0
+            fi
+
+            if [ "$SKIP_CHANGESET" = "true" ]; then
+              echo "Changeset requirement skipped by label"
+              exit 0
+            fi
+
+            echo "::error::Changes to packages/paykit require a changeset or the skip-changeset label"
+            exit 1
+          fi
+
+          echo "No published package changes"

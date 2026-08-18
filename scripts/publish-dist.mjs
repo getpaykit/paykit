@@ -1,4 +1,4 @@
-import { execSync } from "node:child_process";
+import { execFileSync, execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
 // Publishes each package's built `dist/` directory (which carries its own
@@ -6,6 +6,18 @@ import { readFileSync } from "node:fs";
 // We publish from `dist` rather than the package root because the root
 // package.json points at `src` for the workspace's source-condition dev setup.
 const packageDirs = ["packages/paykit"];
+
+/** Returns whether the package version changed in the current commit. */
+function versionChangedAtHead(dir, version) {
+  try {
+    const previousPackage = JSON.parse(
+      execFileSync("git", ["show", `HEAD^:${dir}/package.json`], { encoding: "utf8" }),
+    );
+    return previousPackage.version !== version;
+  } catch {
+    return false;
+  }
+}
 
 for (const dir of packageDirs) {
   const pkg = JSON.parse(readFileSync(`${dir}/dist/package.json`, "utf8"));
@@ -21,9 +33,14 @@ for (const dir of packageDirs) {
 
   if (alreadyPublished) {
     console.log(`✓ ${spec} already on npm, skipping`);
+    // Let changesets/action retry GitHub release creation for the same release commit.
+    if (versionChangedAtHead(dir, pkg.version)) {
+      console.log(`New tag: ${spec}`);
+    }
     continue;
   }
 
   console.log(`→ publishing ${spec}`);
   execSync("npm publish --access public", { cwd: `${dir}/dist`, stdio: "inherit" });
+  console.log(`New tag: ${spec}`);
 }

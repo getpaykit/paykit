@@ -35,13 +35,64 @@ jobs:
       - run: pnpm install --frozen-lockfile
 
       - name: Create Release Pull Request or Publish
+        id: changesets
         uses: changesets/action@63a615b9cd06ba9a3e6d13796c7fbcb080a60a0b # v1
         with:
           version: pnpm ci:version
           publish: pnpm ci:release
           title: "chore: release"
           commit: "chore: release"
+          createGithubReleases: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+
+      - name: Create GitHub Release
+        if: steps.changesets.outputs.published == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISHED_PACKAGES: ${{ steps.changesets.outputs.publishedPackages }}
+        run: |
+          set -euo pipefail
+
+          VERSION=$(jq -r 'map(select(.name == "paykitjs")) | first | .version // empty' <<< "$PUBLISHED_PACKAGES")
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Could not resolve the published paykitjs version"
+            exit 1
+          fi
+
+          TAG="v${VERSION}"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "GitHub release ${TAG} already exists, skipping"
+            exit 0
+          fi
+
+          NOTES_FILE=$(mktemp)
+          awk -v version="$VERSION" '
+            $0 == "## " version { found=1; next }
+            found && /^## / { exit }
+            found { print }
+          ' packages/paykit/CHANGELOG.md > "$NOTES_FILE"
+
+          if [ ! -s "$NOTES_FILE" ]; then
+            echo "::error::No changelog entry found for paykitjs ${VERSION}"
+            exit 1
+          fi
+
+          node scripts/format-github-release-notes.mjs "$NOTES_FILE"
+
+          TARGET_ARGS=(--target "$GITHUB_SHA")
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" >/dev/null 2>&1; then
+            TARGET_ARGS=(--verify-tag)
+          fi
+
+          RELEASE_ARGS=(--title "$TAG" --notes-file "$NOTES_FILE")
+          if [[ "$VERSION" == *-* ]]; then
+            RELEASE_ARGS+=(--prerelease)
+          else
+            RELEASE_ARGS+=(--latest)
+          fi
+
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" \
+            "${TARGET_ARGS[@]}" "${RELEASE_ARGS[@]}"

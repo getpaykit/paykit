@@ -6,3 +6,16 @@ find the full documentation for it [in our repository](https://github.com/change
 
 We have a quick list of common questions to get you started engaging with this project in
 [our documentation](https://github.com/changesets/changesets/blob/main/docs/common-questions.md)
+
+## PayKit release notes
+
+Changes to `packages/paykit` require a changeset unless a maintainer applies the
+`skip-changeset` label. Use the smallest SemVer bump that describes the user impact and
+write the summary for people upgrading PayKit. State required code, configuration, or
+database changes explicitly. Use plain section titles and prose without emoji. GitHub
+release notes use `Breaking Changes`, `Features`, and `Bug Fixes`, followed by contributor
+avatars on the changelog page.
+
+Merging the generated release PR publishes the package. The release workflow then uses
+that reviewed changelog entry to create the matching `v*` tag and GitHub Release. The
+website reads stable GitHub Releases into `/changelog` on an hourly cache.
