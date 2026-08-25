@@ -379,9 +379,10 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
       },
     });
 
-    if (p.isCancel(result)) {
+    if (typeof result === "symbol") {
       p.cancel("Aborted");
       process.exit(0);
+      return;
     }
     configPath = result;
   }
@@ -401,9 +402,10 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
           placeholder: routeDefault,
         });
 
-        if (p.isCancel(result)) {
+        if (typeof result === "symbol") {
           p.cancel("Aborted");
           process.exit(0);
+          return;
         }
         routePath = result;
       }
@@ -439,9 +441,10 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
           placeholder: clientDefault,
         });
 
-        if (p.isCancel(result)) {
+        if (typeof result === "symbol") {
           p.cancel("Aborted");
           process.exit(0);
+          return;
         }
         clientPath = result;
       }
@@ -486,6 +489,7 @@ async function initAction(options: { cwd: string; defaults: boolean }): Promise<
     if (p.isCancel(templateId)) {
       p.cancel("Aborted");
       process.exit(0);
+      return;
     }
   }
 
