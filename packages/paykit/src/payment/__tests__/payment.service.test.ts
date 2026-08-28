@@ -39,11 +39,13 @@ describe("payment/service", () => {
     mocks.findCustomerByProviderCustomerId.mockResolvedValue(null);
     const database = { insert: vi.fn() } as unknown as PayKitDatabase;
 
-    await syncPaymentByProviderCustomer(database, {
-      payment: normalizedPayment,
-      providerCustomerId: "cus_missing",
-      providerId: "stripe",
-    });
+    await expect(
+      syncPaymentByProviderCustomer(database, {
+        payment: normalizedPayment,
+        providerCustomerId: "cus_missing",
+        providerId: "stripe",
+      }),
+    ).resolves.toBeNull();
 
     expect(database.insert).not.toHaveBeenCalled();
   });
@@ -55,11 +57,13 @@ describe("payment/service", () => {
       insert: vi.fn().mockReturnValue({ values: insert.values }),
     } as unknown as PayKitDatabase;
 
-    await syncPaymentByProviderCustomer(database, {
-      payment: normalizedPayment,
-      providerCustomerId: "cus_123",
-      providerId: "stripe",
-    });
+    await expect(
+      syncPaymentByProviderCustomer(database, {
+        payment: normalizedPayment,
+        providerCustomerId: "cus_123",
+        providerId: "stripe",
+      }),
+    ).resolves.toBe("customer_123");
 
     expect(insert.values).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -93,6 +97,6 @@ describe("payment/service", () => {
         type: "payment.upsert",
       }),
     ).resolves.toBe("customer_123");
-    expect(mocks.findCustomerByProviderCustomerId).toHaveBeenCalledTimes(2);
+    expect(mocks.findCustomerByProviderCustomerId).toHaveBeenCalledOnce();
   });
 });

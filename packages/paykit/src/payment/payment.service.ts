@@ -12,13 +12,13 @@ export async function syncPaymentByProviderCustomer(
     providerCustomerId: string;
     providerId: string;
   },
-): Promise<void> {
+): Promise<string | null> {
   const customerRow = await findCustomerByProviderCustomerId(database, {
     providerCustomerId: input.providerCustomerId,
     providerId: input.providerId,
   });
   if (!customerRow) {
-    return;
+    return null;
   }
 
   const values = {
@@ -37,21 +37,17 @@ export async function syncPaymentByProviderCustomer(
     .insert(invoice)
     .values({ id: generateId("inv"), ...values })
     .onConflictDoUpdate({ target: invoice.stripePaymentId, set: values });
+
+  return customerRow.id;
 }
 
 export async function applyPaymentWebhookAction(
   ctx: PayKitContext,
   action: UpsertPaymentAction,
 ): Promise<string | null> {
-  await syncPaymentByProviderCustomer(ctx.database, {
+  return syncPaymentByProviderCustomer(ctx.database, {
     payment: action.data.payment,
     providerCustomerId: action.data.providerCustomerId,
     providerId: ctx.provider.id,
   });
-
-  const customerRow = await findCustomerByProviderCustomerId(ctx.database, {
-    providerCustomerId: action.data.providerCustomerId,
-    providerId: ctx.provider.id,
-  });
-  return customerRow?.id ?? null;
 }
