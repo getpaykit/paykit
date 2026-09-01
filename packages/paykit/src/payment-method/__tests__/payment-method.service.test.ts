@@ -58,11 +58,13 @@ describe("payment-method/service", () => {
     mocks.findCustomerByProviderCustomerId.mockResolvedValue(null);
     const database = { transaction: vi.fn() } as unknown as PayKitDatabase;
 
-    await syncPaymentMethodByProviderCustomer(database, {
-      paymentMethod: normalizedPaymentMethod,
-      providerCustomerId: "cus_missing",
-      providerId: "stripe",
-    });
+    await expect(
+      syncPaymentMethodByProviderCustomer(database, {
+        paymentMethod: normalizedPaymentMethod,
+        providerCustomerId: "cus_missing",
+        providerId: "stripe",
+      }),
+    ).resolves.toBeNull();
 
     expect(database.transaction).not.toHaveBeenCalled();
   });
@@ -82,11 +84,13 @@ describe("payment-method/service", () => {
       ),
     } as unknown as PayKitDatabase;
 
-    await syncPaymentMethodByProviderCustomer(database, {
-      paymentMethod: normalizedPaymentMethod,
-      providerCustomerId: "cus_123",
-      providerId: "stripe",
-    });
+    await expect(
+      syncPaymentMethodByProviderCustomer(database, {
+        paymentMethod: normalizedPaymentMethod,
+        providerCustomerId: "cus_123",
+        providerId: "stripe",
+      }),
+    ).resolves.toBe("customer_123");
 
     expect(tx.execute).toHaveBeenCalledOnce();
     expect(update.set).toHaveBeenCalledWith({ isDefault: false, updatedAt: expect.any(Date) });
@@ -145,6 +149,6 @@ describe("payment-method/service", () => {
         type: "payment_method.upsert",
       }),
     ).resolves.toBe("customer_123");
-    expect(mocks.findCustomerByProviderCustomerId).toHaveBeenCalledTimes(2);
+    expect(mocks.findCustomerByProviderCustomerId).toHaveBeenCalledOnce();
   });
 });

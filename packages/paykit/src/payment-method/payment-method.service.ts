@@ -36,13 +36,13 @@ export async function syncPaymentMethodByProviderCustomer(
     providerCustomerId: string;
     providerId: string;
   },
-): Promise<void> {
+): Promise<string | null> {
   const customerRow = await findCustomerByProviderCustomerId(database, {
     providerCustomerId: input.providerCustomerId,
     providerId: input.providerId,
   });
   if (!customerRow) {
-    return;
+    return null;
   }
 
   const now = new Date();
@@ -78,6 +78,8 @@ export async function syncPaymentMethodByProviderCustomer(
       })
       .onConflictDoUpdate({ target: paymentMethod.stripePaymentMethodId, set: values });
   });
+
+  return customerRow.id;
 }
 
 export async function deletePaymentMethodByProviderId(
@@ -102,17 +104,11 @@ export async function applyPaymentMethodWebhookAction(
   action: UpsertPaymentMethodAction | DeletePaymentMethodAction,
 ): Promise<string | null> {
   if (action.type === "payment_method.upsert") {
-    await syncPaymentMethodByProviderCustomer(ctx.database, {
+    return syncPaymentMethodByProviderCustomer(ctx.database, {
       paymentMethod: action.data.paymentMethod,
       providerCustomerId: action.data.providerCustomerId,
       providerId: ctx.provider.id,
     });
-
-    const customerRow = await findCustomerByProviderCustomerId(ctx.database, {
-      providerCustomerId: action.data.providerCustomerId,
-      providerId: ctx.provider.id,
-    });
-    return customerRow?.id ?? null;
   }
 
   await deletePaymentMethodByProviderId(ctx.database, {
