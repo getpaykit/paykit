@@ -78,7 +78,7 @@ describe("createChangelogReleases", () => {
       id: 1,
       name: "v1.0.0",
       prerelease: false,
-      published_at: "2026-05-08T13:32:55Z",
+      published_at: "2026-05-10T13:32:55Z",
       tag_name: "v1.0.0",
     };
 
@@ -91,7 +91,7 @@ describe("createChangelogReleases", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0]).toMatchObject({
-      date: "May 8, 2026",
+      date: "May 10, 2026",
       tag: "v1.0.0",
       contributors: ["maxktz"],
     });

@@ -163,7 +163,7 @@ export function createChangelogReleases(releases: GitHubRelease[]): ChangelogRel
           day: "numeric",
           month: "short",
           year: "numeric",
-        }).format(new Date(release.created_at)),
+        }).format(new Date(release.published_at!)),
         expandable: lineCount > EXPANDABLE_LINE_THRESHOLD,
         id: release.id,
         tag: release.tag_name,
