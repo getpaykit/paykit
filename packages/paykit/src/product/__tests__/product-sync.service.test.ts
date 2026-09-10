@@ -122,4 +122,47 @@ describe("product-sync.service", () => {
       providerProduct: { priceId: "price_eur", productId: "prod_123" },
     });
   });
+
+  it("rejects duplicate provider product mappings", async () => {
+    const ctx = createContext();
+    ctx.provider.syncProducts.mockResolvedValue({
+      results: [
+        { id: "pro", providerProduct: { priceId: "price_1", productId: "prod_123" } },
+        { id: "pro", providerProduct: { priceId: "price_2", productId: "prod_123" } },
+      ],
+    });
+
+    await expect(syncProducts(ctx as never)).rejects.toMatchObject({
+      code: "PLAN_SYNC_FAILED",
+      message: "Provider syncProducts returned duplicate mapping for id: pro",
+    });
+    expect(mocks.upsertProviderProduct).not.toHaveBeenCalled();
+  });
+
+  it("rejects missing provider product mappings", async () => {
+    const ctx = createContext();
+    ctx.provider.syncProducts.mockResolvedValue({ results: [] });
+
+    await expect(syncProducts(ctx as never)).rejects.toMatchObject({
+      code: "PLAN_SYNC_FAILED",
+      message: "Provider syncProducts returned invalid mapping: missing=[pro], expected=1, got=0",
+    });
+    expect(mocks.upsertProviderProduct).not.toHaveBeenCalled();
+  });
+
+  it("rejects mappings for products that were not requested", async () => {
+    const ctx = createContext();
+    ctx.provider.syncProducts.mockResolvedValue({
+      results: [
+        { id: "pro", providerProduct: { priceId: "price_1", productId: "prod_123" } },
+        { id: "enterprise", providerProduct: { priceId: "price_2", productId: "prod_456" } },
+      ],
+    });
+
+    await expect(syncProducts(ctx as never)).rejects.toMatchObject({
+      code: "PLAN_SYNC_FAILED",
+      message: "Provider syncProducts returned invalid mapping: missing=[], expected=1, got=2",
+    });
+    expect(mocks.upsertProviderProduct).not.toHaveBeenCalled();
+  });
 });
