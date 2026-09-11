@@ -5,6 +5,7 @@ import {
   createTestPayKit,
   dumpStateOnFailure,
   expectProduct,
+  expectProductNotPresent,
   expectSingleActivePlanInGroup,
   expectSingleScheduledPlanInGroup,
   subscribeCustomer,
@@ -87,10 +88,11 @@ describe("cancel-then-upgrade: pro → free (scheduled) → ultra (upgrade)", ()
         expected: { status: "ended" },
       });
 
-      // TODO: scheduled Free should be deleted on upgrade, but the subscribe
-      // flow computes "switch" instead of "upgrade" when the current subscription
-      // has cancel_at_period_end=true. This is a known PayKit issue.
-      // await expectProductNotPresent(t.database, customerId, "free");
+      await expectProductNotPresent({
+        database: t.database,
+        customerId,
+        planId: "free",
+      });
     } catch (error) {
       await dumpStateOnFailure(t.database, t.dbPath);
       throw error;
