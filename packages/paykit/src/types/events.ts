@@ -78,6 +78,7 @@ export interface DeleteSubscriptionAction {
   type: "subscription.delete";
   data: {
     providerCustomerId: string;
+    providerMethodId?: string;
     providerSubscriptionId: string;
   };
 }
@@ -136,6 +137,7 @@ export interface NormalizedWebhookEventMap {
   "subscription.deleted": {
     providerCustomerId: string;
     providerEventId?: string;
+    providerMethodId?: string;
     providerSubscriptionId: string;
   };
   "invoice.updated": {

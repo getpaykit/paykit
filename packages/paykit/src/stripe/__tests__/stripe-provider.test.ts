@@ -24,6 +24,51 @@ function createStripeClientMock() {
 }
 
 describe("stripe-provider", () => {
+  it("includes a deleted subscription's payment method in cleanup actions", async () => {
+    const provider = createStripeProvider(createStripeClientMock() as never, {
+      secretKey: "sk_test_123",
+    });
+    const event = {
+      data: {
+        object: {
+          customer: "cus_123",
+          default_payment_method: "pm_123",
+          id: "sub_123",
+        },
+      },
+      id: "evt_123",
+      type: "customer.subscription.deleted",
+    };
+
+    await expect(
+      provider.handleWebhook({
+        allowUnsignedPayload: true,
+        body: JSON.stringify(event),
+        headers: {},
+      }),
+    ).resolves.toEqual([
+      {
+        actions: [
+          {
+            data: {
+              providerCustomerId: "cus_123",
+              providerMethodId: "pm_123",
+              providerSubscriptionId: "sub_123",
+            },
+            type: "subscription.delete",
+          },
+        ],
+        name: "subscription.deleted",
+        payload: {
+          providerCustomerId: "cus_123",
+          providerEventId: "evt_123",
+          providerMethodId: "pm_123",
+          providerSubscriptionId: "sub_123",
+        },
+      },
+    ]);
+  });
+
   it("creates Stripe prices with the product currency", async () => {
     const client = createStripeClientMock();
     const provider = createStripeProvider(client as never, {

@@ -10,7 +10,10 @@ import {
 import type { PayKitDatabase } from "../database";
 import { entitlement, feature, product, subscription } from "../database/schema";
 import { upsertInvoiceRecord } from "../invoice/invoice.service";
-import { getDefaultPaymentMethod } from "../payment-method/payment-method.service";
+import {
+  clearDefaultPaymentMethodByProviderId,
+  getDefaultPaymentMethod,
+} from "../payment-method/payment-method.service";
 import {
   getDefaultProductInGroup,
   getProductByPlan,
@@ -504,6 +507,13 @@ export async function applySubscriptionWebhookAction(
   }
 
   if (action.type === "subscription.delete") {
+    if (action.data.providerMethodId) {
+      await clearDefaultPaymentMethodByProviderId(ctx.database, {
+        providerId: ctx.provider.id,
+        providerMethodId: action.data.providerMethodId,
+      });
+    }
+
     const existingSub = await getSubscriptionByProviderSubscriptionId(ctx.database, {
       providerId: ctx.provider.id,
       providerSubscriptionId: action.data.providerSubscriptionId,

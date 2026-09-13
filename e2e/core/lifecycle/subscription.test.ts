@@ -1,12 +1,7 @@
 import { and, count, desc, eq, sql } from "drizzle-orm";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import {
-  invoice,
-  paymentMethod,
-  product,
-  subscription,
-} from "../../../packages/paykit/src/database/schema";
+import { invoice, product, subscription } from "../../../packages/paykit/src/database/schema";
 import {
   advanceTestClock,
   createTestCustomer,
@@ -366,12 +361,6 @@ describe("subscription lifecycle", () => {
     });
 
     // ─── Step 7: Upgrade Free → Pro (checkout again) ───
-    // After full subscription cancellation, Stripe clears the customer's
-    // default payment method. Clear it in PayKit's DB too so it correctly
-    // routes through checkout instead of trying direct subscription creation.
-    // TODO: PayKit should handle this automatically on subscription.deleted.
-    await t.database.delete(paymentMethod).where(eq(paymentMethod.customerId, customerId));
-
     await step("upgrade free → pro", async () => {
       const beforeCheckout = new Date();
 

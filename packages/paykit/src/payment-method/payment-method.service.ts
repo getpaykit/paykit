@@ -99,6 +99,17 @@ export async function deletePaymentMethodByProviderId(
     .where(eq(paymentMethod.stripePaymentMethodId, input.providerMethodId));
 }
 
+/** Clears a provider method as the reusable default without marking it detached. */
+export async function clearDefaultPaymentMethodByProviderId(
+  database: PayKitDatabase,
+  input: { providerId: string; providerMethodId: string },
+): Promise<void> {
+  await database
+    .update(paymentMethod)
+    .set({ isDefault: false, updatedAt: new Date() })
+    .where(eq(paymentMethod.stripePaymentMethodId, input.providerMethodId));
+}
+
 export async function applyPaymentMethodWebhookAction(
   ctx: PayKitContext,
   action: UpsertPaymentMethodAction | DeletePaymentMethodAction,

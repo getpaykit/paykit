@@ -14,6 +14,7 @@ vi.mock("../../customer/customer.service", () => ({
 
 import {
   applyPaymentMethodWebhookAction,
+  clearDefaultPaymentMethodByProviderId,
   deletePaymentMethodByProviderId,
   getDefaultPaymentMethod,
   syncPaymentMethodByProviderCustomer,
@@ -121,6 +122,24 @@ describe("payment-method/service", () => {
 
     expect(update.set).toHaveBeenCalledWith({
       deletedAt: expect.any(Date),
+      isDefault: false,
+      updatedAt: expect.any(Date),
+    });
+    expect(update.where).toHaveBeenCalledOnce();
+  });
+
+  it("clears a subscription-scoped default without marking the method detached", async () => {
+    const update = createWriteChain();
+    const database = {
+      update: vi.fn().mockReturnValue({ set: update.set }),
+    } as unknown as PayKitDatabase;
+
+    await clearDefaultPaymentMethodByProviderId(database, {
+      providerId: "stripe",
+      providerMethodId: "pm_123",
+    });
+
+    expect(update.set).toHaveBeenCalledWith({
       isDefault: false,
       updatedAt: expect.any(Date),
     });

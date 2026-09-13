@@ -90,6 +90,16 @@ function getStripeCustomerId(
   return typeof customer === "string" ? customer : customer.id;
 }
 
+function getStripePaymentMethodId(
+  paymentMethod: string | StripeSdk.PaymentMethod | null,
+): string | null {
+  if (!paymentMethod) {
+    return null;
+  }
+
+  return typeof paymentMethod === "string" ? paymentMethod : paymentMethod.id;
+}
+
 function parseUnsignedStripeEvent(body: string): StripeSdk.Event {
   let parsed: unknown;
   try {
@@ -480,12 +490,14 @@ async function createSubscriptionEvents(event: StripeSdk.Event): Promise<Normali
   }
 
   if (event.type === "customer.subscription.deleted") {
+    const providerMethodId = getStripePaymentMethodId(subscription.default_payment_method);
     return [
       {
         actions: [
           {
             data: {
               providerCustomerId,
+              providerMethodId: providerMethodId ?? undefined,
               providerSubscriptionId: subscription.id,
             },
             type: "subscription.delete",
@@ -495,6 +507,7 @@ async function createSubscriptionEvents(event: StripeSdk.Event): Promise<Normali
         payload: {
           providerCustomerId,
           providerEventId: event.id,
+          providerMethodId: providerMethodId ?? undefined,
           providerSubscriptionId: subscription.id,
         },
       },
