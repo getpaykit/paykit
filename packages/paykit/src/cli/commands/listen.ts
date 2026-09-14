@@ -287,9 +287,31 @@ function assertTunnelProvider(provider: PaymentProvider): TunnelCapableProvider 
 
 export function sanitizeReplayHeaders(headers: Record<string, string>): Headers {
   const nextHeaders = new Headers();
+  const connectionHeader = Object.entries(headers).find(
+    ([key]) => key.toLowerCase() === "connection",
+  )?.[1];
+  const connectionHeaders = new Set(
+    (connectionHeader ?? "")
+      .split(",")
+      .map((header) => header.trim().toLowerCase())
+      .filter(Boolean),
+  );
+  const transportHeaders = new Set([
+    "connection",
+    "content-length",
+    "host",
+    "keep-alive",
+    "proxy-authenticate",
+    "proxy-authorization",
+    "te",
+    "trailer",
+    "transfer-encoding",
+    "upgrade",
+  ]);
+
   for (const [key, value] of Object.entries(headers)) {
     const lowerKey = key.toLowerCase();
-    if (lowerKey === "content-length" || lowerKey === "connection" || lowerKey === "host") {
+    if (transportHeaders.has(lowerKey) || connectionHeaders.has(lowerKey)) {
       continue;
     }
     nextHeaders.set(key, value);

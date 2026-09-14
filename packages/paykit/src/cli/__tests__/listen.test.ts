@@ -63,10 +63,15 @@ describe("cli/listen", () => {
 
   it("removes transport headers and marks replayed requests", () => {
     const headers = sanitizeReplayHeaders({
-      Connection: "keep-alive",
+      Connection: "keep-alive, X-Internal-Transport",
       "Content-Length": "100",
       Host: "example.com",
+      "Keep-Alive": "timeout=5",
       "Stripe-Signature": "signature",
+      TE: "trailers",
+      "Transfer-Encoding": "chunked",
+      Upgrade: "websocket",
+      "X-Internal-Transport": "remove-me",
     });
 
     expect(Object.fromEntries(headers)).toEqual({
