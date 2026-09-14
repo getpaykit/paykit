@@ -130,7 +130,7 @@ function sleep(ms: number, signal?: AbortSignal): Promise<void> {
   });
 }
 
-function parseRetryWindowMs(value: string): number {
+export function parseRetryWindowMs(value: string): number {
   const trimmed = value.trim().toLowerCase();
   if (trimmed === "0" || trimmed === "none") {
     return 0;
@@ -157,7 +157,7 @@ function parseRetryWindowMs(value: string): number {
   }
 }
 
-function normalizeLocalOrigin(url: string): string {
+export function normalizeLocalOrigin(url: string): string {
   const parsed = new URL(url);
   if (parsed.pathname !== "/" || parsed.search || parsed.hash) {
     throw new Error(`--forward-to must be an origin only, received "${url}"`);
@@ -166,7 +166,7 @@ function normalizeLocalOrigin(url: string): string {
   return parsed.origin;
 }
 
-function buildLocalWebhookUrl(origin: string, basePath: string): string {
+export function buildLocalWebhookUrl(origin: string, basePath: string): string {
   return new URL(`${basePath}/webhook`, `${origin}/`).toString();
 }
 
@@ -181,7 +181,7 @@ function formatEnvironment(environment: string): string {
   }
 }
 
-function parseDeliveryDetails(body: string): DeliveryDetails {
+export function parseDeliveryDetails(body: string): DeliveryDetails {
   try {
     const parsed = JSON.parse(body) as { id?: unknown; type?: unknown };
     return {
@@ -285,7 +285,7 @@ function assertTunnelProvider(provider: PaymentProvider): TunnelCapableProvider 
   return provider as TunnelCapableProvider;
 }
 
-function sanitizeReplayHeaders(headers: Record<string, string>): Headers {
+export function sanitizeReplayHeaders(headers: Record<string, string>): Headers {
   const nextHeaders = new Headers();
   for (const [key, value] of Object.entries(headers)) {
     const lowerKey = key.toLowerCase();
@@ -695,11 +695,11 @@ async function syncProviderWebhook(params: {
   return { webhookSecret: providerWebhook.webhookSecret };
 }
 
-function getNextErrorBackoff(currentMs: number): number {
+export function getNextErrorBackoff(currentMs: number): number {
   return currentMs === 0 ? DEFAULT_ERROR_BACKOFF_MS : Math.min(currentMs * 2, MAX_ERROR_BACKOFF_MS);
 }
 
-function isReplacedSessionClose(close: { code?: number; reason?: string }): boolean {
+export function isReplacedSessionClose(close: { code?: number; reason?: string }): boolean {
   return close.code === REPLACED_SESSION_CLOSE_CODE;
 }
 
@@ -951,7 +951,7 @@ function buildStandaloneListenCommand(options: {
   return buildShellCommand(command);
 }
 
-function buildShellCommand(command: string[]): string {
+export function buildShellCommand(command: string[]): string {
   return command.map(quoteShellArg).join(" ");
 }
 
