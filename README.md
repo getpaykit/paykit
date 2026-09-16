@@ -83,7 +83,6 @@ PayKit is a free and open-source project licensed under the [MIT License](./LICE
 
 You can help continue its development by:
 
-- [Contribute to the source code](./CONTRIBUTING.md)
 - [Suggest new features and report issues](https://github.com/getpaykit/paykit/issues)
 
 ## Security
