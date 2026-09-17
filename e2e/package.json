@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test:stripe": "PROVIDER=stripe vitest run --project=core",
-    "test:stripe:watch": "PROVIDER=stripe vitest --project=core",
+    "test:stripe": "node ./scripts/run-stripe-e2e.mjs",
+    "test:stripe:watch": "node ./scripts/run-stripe-e2e.mjs --watch",
     "test:cli": "vitest run --project=cli",
     "test:cli:watch": "vitest --project=cli",
     "test:database": "vitest run --project=database",
