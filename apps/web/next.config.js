@@ -4,12 +4,14 @@ import { fileURLToPath } from "node:url";
 import { createMDX } from "fumadocs-mdx/next";
 
 import "../../scripts/load-root-env.js";
-import "./src/env.js";
+import { env } from "./src/env.js";
 
 const withMDX = createMDX();
 const currentDir = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(currentDir, "../..");
 const remixLucideShim = join(currentDir, "src/lib/lucide-react-remix-shim.ts");
+const faviconDestination =
+  env.NODE_ENV === "development" ? "/favicon/development.svg" : "/favicon/production.svg";
 
 const docsRedirects = [
   { source: "/docs", destination: "/docs/introduction", permanent: true },
@@ -69,6 +71,14 @@ const config = {
       "@radix-ui/react-checkbox",
     ],
   },
+  rewrites: async () => ({
+    beforeFiles: [
+      { source: "/favicon.ico", destination: faviconDestination },
+      { source: "/favicon.svg", destination: faviconDestination },
+    ],
+    afterFiles: [],
+    fallback: [],
+  }),
   redirects: async () => [
     ...docsRedirects,
     { source: "/github", destination: "https://github.com/getpaykit/paykit", permanent: false },
@@ -84,8 +94,7 @@ const config = {
       destination: "https://github.com/orgs/getpaykit/projects/1",
       permanent: false,
     },
-    { source: "/donate", destination: "/sponsor", permanent: true },
-    { source: "/sponsors", destination: "/sponsor", permanent: true },
+    { source: "/donate", destination: "/#sponsors", permanent: true },
   ],
 };
 
