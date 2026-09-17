@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   title: { template: `%s | ${SITE_NAME}`, default: SITE_TITLE },
   description: SITE_DESCRIPTION,
   icons: {
-    icon: [{ url: "/favicon/favicon.svg?v=4", type: "image/svg+xml" }],
+    icon: [{ url: "/favicon.svg?v=5", type: "image/svg+xml" }],
     apple: "/favicon/apple-touch-icon.png",
   },
   manifest: "/favicon/site.webmanifest",
