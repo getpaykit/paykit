@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -34,7 +35,7 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
   const stripeClient = new Stripe(secretKey, { maxNetworkRetries: 3 });
 
   // Create a fresh test database
-  const dbName = `paykit_cli_${String(Date.now())}`;
+  const dbName = `paykit_cli_${randomUUID().replaceAll("-", "")}`;
   const adminUrl = env.TEST_DATABASE_URL;
   const adminPool = new Pool({ connectionString: adminUrl });
   await adminPool.query(`CREATE DATABASE "${dbName}"`);
@@ -89,21 +90,27 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
   );
 
   const cleanup = async () => {
-    // Clean up Stripe products created by push
+    // Clean up only Stripe products recorded by this fixture.
     try {
-      const products = await stripeClient.products.list({ limit: 100 });
-      for (const product of products.data) {
-        const paykitId = product.metadata.paykit_product_id;
-        if (paykitId === "free" || paykitId === "pro") {
-          // Archive prices first
-          const prices = await stripeClient.prices.list({ product: product.id, limit: 100 });
+      const fixturePool = new Pool({ connectionString: dbUrl });
+      try {
+        const result = await fixturePool.query<{ stripe_product_id: string }>(
+          "SELECT DISTINCT stripe_product_id FROM paykit_product WHERE stripe_product_id IS NOT NULL",
+        );
+        for (const row of result.rows) {
+          const prices = await stripeClient.prices.list({
+            product: row.stripe_product_id,
+            limit: 100,
+          });
           for (const price of prices.data) {
             if (price.active) {
               await stripeClient.prices.update(price.id, { active: false });
             }
           }
-          await stripeClient.products.update(product.id, { active: false });
+          await stripeClient.products.update(row.stripe_product_id, { active: false });
         }
+      } finally {
+        await fixturePool.end();
       }
     } catch {
       // Best effort cleanup
