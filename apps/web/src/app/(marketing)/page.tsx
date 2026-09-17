@@ -4,6 +4,7 @@ import { FeedbackSection } from "@/components/sections/feedback-section";
 import { FooterSection } from "@/components/sections/footer-section";
 import { HeroSection } from "@/components/sections/hero-section";
 import { demoSnippets } from "@/components/sections/readme-code-content";
+import { SponsorsSection } from "@/components/sections/sponsors-section";
 import { InlineCode } from "@/components/ui/code-block-content";
 import { homePageStructuredData } from "@/lib/consts";
 
@@ -36,6 +37,7 @@ export default function HomePage() {
           }}
         />
         <FeedbackSection />
+        <SponsorsSection />
         <CTASection />
         <FooterSection />
       </div>
