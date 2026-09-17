@@ -13,7 +13,6 @@ import {
   expectSingleActivePlanInGroup,
   subscribeCustomer,
   type TestPayKit,
-  waitForWebhook,
 } from "../../test-utils";
 
 describe("cancel-end-of-cycle: pro → free + clock advance", () => {
@@ -55,20 +54,13 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
 
       // Advance clock 1 day past period end
       const advanceTo = new Date(periodEnd.getTime() + 86_400_000);
-      const beforeAdvance = new Date();
       await advanceTestClock({
         t,
         customerId,
         frozenTime: advanceTo,
       });
-      await waitForWebhook({
-        after: beforeAdvance,
-        database: t.database,
-        eventType: "subscription.deleted",
-        timeout: 30_000,
-      });
 
-      // Poll until Free is active after the forwarded deletion event is processed
+      // Poll until webhook processing applies the scheduled plan transition.
       for (let i = 0; i < 60; i++) {
         const rows = await t.database
           .select({ status: subscription.status })
