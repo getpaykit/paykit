@@ -125,6 +125,16 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
         limit: 100,
         remaining: 100,
       });
+
+      const failedWebhook = await t.database.query.webhookEvent.findFirst({
+        where: and(eq(webhookEvent.status, "failed"), gt(webhookEvent.receivedAt, beforeAdvance)),
+        orderBy: (event, { desc: descending }) => [descending(event.receivedAt)],
+      });
+      if (failedWebhook) {
+        throw new Error(
+          `Webhook ${failedWebhook.type} failed after clock advance: ${String(failedWebhook.error)}`,
+        );
+      }
     } catch (error) {
       await dumpStateOnFailure(t.database, t.dbPath);
       throw error;
