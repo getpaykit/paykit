@@ -78,15 +78,27 @@ describe("paykitjs push", () => {
         .from(product)
         .orderBy(asc(product.id));
       expect(dbRows).toEqual([
-        { id: "free", name: "Free", group: "base", is_default: true, priceCurrency: null },
-        { id: "pro", name: "Pro", group: "base", is_default: false, priceCurrency: "usd" },
+        {
+          id: fixture.planIds.free,
+          name: "Free",
+          group: "base",
+          is_default: true,
+          priceCurrency: null,
+        },
+        {
+          id: fixture.planIds.pro,
+          name: "Pro",
+          group: "base",
+          is_default: false,
+          priceCurrency: "usd",
+        },
       ]);
 
       // Verify paid plan (pro) was synced to Stripe.
       const proRows = await ctx.database
         .select({ id: product.id, stripeProductId: product.stripeProductId })
         .from(product)
-        .where(eq(product.id, "pro"))
+        .where(eq(product.id, fixture.planIds.pro))
         .orderBy(desc(product.version))
         .limit(1);
       const proProduct = proRows[0] as { id: string; stripeProductId: string | null } | undefined;
@@ -132,7 +144,7 @@ describe("paykitjs push", () => {
       });
       const results = await syncProducts(ctx);
 
-      const proResult = results.find((r) => r.id === "pro");
+      const proResult = results.find((r) => r.id === fixture.planIds.pro);
       expect(proResult).toMatchObject({ action: "created", version: 2 });
 
       const proRows = await ctx.database
@@ -141,7 +153,7 @@ describe("paykitjs push", () => {
           stripePriceId: product.stripePriceId,
         })
         .from(product)
-        .where(eq(product.id, "pro"))
+        .where(eq(product.id, fixture.planIds.pro))
         .orderBy(desc(product.version))
         .limit(1);
       const proProduct = proRows[0];
@@ -154,7 +166,7 @@ describe("paykitjs push", () => {
       expect(stripePrice.currency).toBe("eur");
 
       const diffs = await dryRunSyncProducts(ctx);
-      expect(diffs.find((d) => d.id === "pro")?.action).toBe("unchanged");
+      expect(diffs.find((d) => d.id === fixture.planIds.pro)?.action).toBe("unchanged");
     } finally {
       await database.end();
     }

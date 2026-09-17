@@ -49,7 +49,6 @@ function NavLink({
 const navTabs: NavItem[] = [
   { name: "docs", href: "/docs", path: "/docs" },
   { name: "blog", href: "/blog", path: "/blog" },
-  { name: "sponsors", href: "/sponsor", path: "/sponsor" },
 ];
 
 const dropdownLinks: NavItem[] = [

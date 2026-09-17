@@ -122,25 +122,8 @@ jobs:
       - name: Install workspace dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Validate Stripe E2E configuration
-        env:
-          CF_TUNNEL_TOKEN: ${{ secrets.CF_TUNNEL_TOKEN_STRIPE }}
-          E2E_STRIPE_SK: ${{ secrets.E2E_STRIPE_SK }}
-          E2E_STRIPE_WHSEC: ${{ secrets.E2E_STRIPE_WHSEC }}
-        run: |
-          set -euo pipefail
-          for name in CF_TUNNEL_TOKEN E2E_STRIPE_SK E2E_STRIPE_WHSEC TEST_DATABASE_URL; do
-            if [ -z "${!name:-}" ]; then
-              echo "::error::Missing required configuration: $name"
-              exit 1
-            fi
-          done
-
       - name: Setup cloudflared
         uses: AnimMouse/setup-cloudflared@b80ad7aa7850e1ec9960d75831f32ac9855df988 # v2
-
-      - name: Check cloudflared version
-        run: cloudflared --version
 
       - name: Install Playwright Chromium
         run: pnpm --filter e2e exec playwright install --with-deps chromium
@@ -150,48 +133,7 @@ jobs:
           CF_TUNNEL_TOKEN: ${{ secrets.CF_TUNNEL_TOKEN_STRIPE }}
           E2E_STRIPE_SK: ${{ secrets.E2E_STRIPE_SK }}
           E2E_STRIPE_WHSEC: ${{ secrets.E2E_STRIPE_WHSEC }}
-        run: |
-          set -euo pipefail
-          cloudflared tunnel --url http://127.0.0.1:4567 run --token "$CF_TUNNEL_TOKEN" > cloudflared.log 2>&1 &
-          cloudflared_pid=$!
-
-          cleanup() {
-            if kill -0 "$cloudflared_pid" 2>/dev/null; then
-              kill "$cloudflared_pid" || true
-              wait "$cloudflared_pid" || true
-            fi
-          }
-
-          trap cleanup EXIT
-
-          readiness_timeout_s=30
-          readiness_deadline=$((SECONDS + readiness_timeout_s))
-
-          while true; do
-            if ! kill -0 "$cloudflared_pid" 2>/dev/null; then
-              echo "::error::cloudflared exited before tests started"
-              if [ -f cloudflared.log ]; then
-                cat cloudflared.log
-              fi
-              exit 1
-            fi
-
-            if [ -f cloudflared.log ] && grep -Eq 'Registered tunnel|Connection [A-Za-z0-9]+ registered|INF.*Registered tunnel connection' cloudflared.log; then
-              break
-            fi
-
-            if [ "$SECONDS" -ge "$readiness_deadline" ]; then
-              echo "::error::Timed out waiting for cloudflared readiness"
-              if [ -f cloudflared.log ]; then
-                cat cloudflared.log
-              fi
-              exit 1
-            fi
-
-            sleep 0.5
-          done
-
-          pnpm --filter e2e test:stripe
+        run: pnpm --filter e2e test:stripe
 
       - name: Upload cloudflared log
         if: failure()

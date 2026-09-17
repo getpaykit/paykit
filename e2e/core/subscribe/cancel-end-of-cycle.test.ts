@@ -1,7 +1,7 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
-import { product, subscription } from "../../../packages/paykit/src/database/schema";
+import { product, subscription, webhookEvent } from "../../../packages/paykit/src/database/schema";
 import {
   advanceTestClock,
   createTestCustomerWithPM,
@@ -13,7 +13,6 @@ import {
   expectSingleActivePlanInGroup,
   subscribeCustomer,
   type TestPayKit,
-  waitForWebhook,
 } from "../../test-utils";
 
 describe("cancel-end-of-cycle: pro → free + clock advance", () => {
@@ -61,15 +60,19 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
         customerId,
         frozenTime: advanceTo,
       });
-      await waitForWebhook({
-        after: beforeAdvance,
-        database: t.database,
-        eventType: "subscription.deleted",
-        timeout: 30_000,
-      });
 
-      // Poll until Free is active after the forwarded deletion event is processed
+      // Poll until webhook processing applies the scheduled plan transition.
       for (let i = 0; i < 60; i++) {
+        const failedWebhook = await t.database.query.webhookEvent.findFirst({
+          where: and(eq(webhookEvent.status, "failed"), gt(webhookEvent.receivedAt, beforeAdvance)),
+          orderBy: (event, { desc: descending }) => [descending(event.receivedAt)],
+        });
+        if (failedWebhook) {
+          throw new Error(
+            `Webhook ${failedWebhook.type} failed after clock advance: ${String(failedWebhook.error)}`,
+          );
+        }
+
         const rows = await t.database
           .select({ status: subscription.status })
           .from(subscription)
@@ -122,6 +125,16 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
         limit: 100,
         remaining: 100,
       });
+
+      const failedWebhook = await t.database.query.webhookEvent.findFirst({
+        where: and(eq(webhookEvent.status, "failed"), gt(webhookEvent.receivedAt, beforeAdvance)),
+        orderBy: (event, { desc: descending }) => [descending(event.receivedAt)],
+      });
+      if (failedWebhook) {
+        throw new Error(
+          `Webhook ${failedWebhook.type} failed after clock advance: ${String(failedWebhook.error)}`,
+        );
+      }
     } catch (error) {
       await dumpStateOnFailure(t.database, t.dbPath);
       throw error;

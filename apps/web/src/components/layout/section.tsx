@@ -17,9 +17,17 @@ export function SectionLine({ orientation }: { orientation: "horizontal" | "vert
   );
 }
 
-export function SectionShell({ children, className }: { children: ReactNode; className?: string }) {
+export function SectionShell({
+  children,
+  className,
+  id,
+}: {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}) {
   return (
-    <div className={cn("relative mx-auto max-w-[72rem]", sectionShellWidth, className)}>
+    <div id={id} className={cn("relative mx-auto max-w-[72rem]", sectionShellWidth, className)}>
       <SectionLine orientation="vertical" />
       <div className="absolute top-0 right-0 h-full">
         <SectionLine orientation="vertical" />
@@ -32,14 +40,16 @@ export function SectionShell({ children, className }: { children: ReactNode; cla
 export function Section({
   children,
   className,
+  id,
   last,
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
   last?: boolean;
 }) {
   return (
-    <SectionShell className={className}>
+    <SectionShell className={className} id={id}>
       {!last && (
         <div className="absolute bottom-0 left-0 h-px w-full">
           <SectionLine orientation="horizontal" />
