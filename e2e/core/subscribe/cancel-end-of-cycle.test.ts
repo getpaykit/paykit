@@ -1,7 +1,7 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt } from "drizzle-orm";
 import { afterAll, beforeAll, describe, it } from "vitest";
 
-import { product, subscription } from "../../../packages/paykit/src/database/schema";
+import { product, subscription, webhookEvent } from "../../../packages/paykit/src/database/schema";
 import {
   advanceTestClock,
   createTestCustomerWithPM,
@@ -54,6 +54,7 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
 
       // Advance clock 1 day past period end
       const advanceTo = new Date(periodEnd.getTime() + 86_400_000);
+      const beforeAdvance = new Date();
       await advanceTestClock({
         t,
         customerId,
@@ -62,6 +63,16 @@ describe("cancel-end-of-cycle: pro → free + clock advance", () => {
 
       // Poll until webhook processing applies the scheduled plan transition.
       for (let i = 0; i < 60; i++) {
+        const failedWebhook = await t.database.query.webhookEvent.findFirst({
+          where: and(eq(webhookEvent.status, "failed"), gt(webhookEvent.receivedAt, beforeAdvance)),
+          orderBy: (event, { desc: descending }) => [descending(event.receivedAt)],
+        });
+        if (failedWebhook) {
+          throw new Error(
+            `Webhook ${failedWebhook.type} failed after clock advance: ${String(failedWebhook.error)}`,
+          );
+        }
+
         const rows = await t.database
           .select({ status: subscription.status })
           .from(subscription)
