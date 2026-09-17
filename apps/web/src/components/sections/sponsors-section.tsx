@@ -4,7 +4,7 @@ import type { Sponsor } from "@/components/sections/sponsors-content";
 import { cn } from "@/lib/utils";
 
 const sponsorLinkClassName =
-  "group relative min-w-0 bg-background before:pointer-events-none before:absolute before:inset-0 before:bg-foreground/[0.03] before:opacity-0 before:transition-opacity hover:before:opacity-100 focus-visible:before:opacity-100 focus-visible:outline-none";
+  "group relative min-w-0 bg-background before:pointer-events-none before:absolute before:inset-0 before:bg-foreground/[0.03] before:opacity-0 before:transition-opacity hover:before:opacity-100 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring focus-visible:before:opacity-100 focus-visible:outline-none";
 
 function CompanySponsorLink({ sponsor }: { sponsor: Sponsor }) {
   return (
@@ -21,7 +21,9 @@ function CompanySponsorLink({ sponsor }: { sponsor: Sponsor }) {
         <img
           alt={sponsor.imageAlt}
           className="size-9 dark:invert"
+          decoding="async"
           height={36}
+          loading="lazy"
           src={sponsor.image}
           width={36}
         />
@@ -51,7 +53,9 @@ function IndividualSponsorLink({ sponsor }: { sponsor: Sponsor }) {
       <img
         alt={sponsor.imageAlt}
         className="size-9 shrink-0 rounded-full grayscale transition-[filter] group-hover:grayscale-0 group-focus-visible:grayscale-0"
+        decoding="async"
         height={36}
+        loading="lazy"
         src={sponsor.image}
         width={36}
       />

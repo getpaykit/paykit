@@ -4,7 +4,6 @@ export interface Sponsor {
   image: string;
   imageAlt: string;
   amount: string;
-  imageKind: "avatar" | "logo";
   kind: "company" | "individual";
   hideInSingleColumn?: boolean;
 }
@@ -16,7 +15,6 @@ export const sponsors: Sponsor[] = [
     image: "/companies/vercel-mark.svg",
     imageAlt: "Vercel logo",
     amount: "$10,000 credits",
-    imageKind: "logo",
     kind: "company",
   },
   {
@@ -25,7 +23,6 @@ export const sponsors: Sponsor[] = [
     image: "/companies/efferd.svg",
     imageAlt: "Efferd logo",
     amount: "$250 credits",
-    imageKind: "logo",
     kind: "company",
   },
   {
@@ -34,7 +31,6 @@ export const sponsors: Sponsor[] = [
     image: "https://pbs.twimg.com/profile_images/1991510200386207744/2Bfvjltn_200x200.jpg",
     imageAlt: "MrPancakes39's X avatar",
     amount: "$100",
-    imageKind: "avatar",
     kind: "individual",
   },
   {
@@ -43,7 +39,6 @@ export const sponsors: Sponsor[] = [
     image: "https://github.com/smorimoto.png?size=160",
     imageAlt: "smorimoto's GitHub avatar",
     amount: "$100",
-    imageKind: "avatar",
     kind: "individual",
   },
   {
@@ -52,7 +47,6 @@ export const sponsors: Sponsor[] = [
     image: "https://github.com/tedbrine.png?size=160",
     imageAlt: "Ted Brine's GitHub avatar",
     amount: "$20",
-    imageKind: "avatar",
     kind: "individual",
   },
   {
@@ -61,7 +55,6 @@ export const sponsors: Sponsor[] = [
     image: "https://github.com/leoisadev1.png?size=160",
     imageAlt: "Leo's GitHub avatar",
     amount: "$20",
-    imageKind: "avatar",
     kind: "individual",
   },
   {
@@ -70,7 +63,6 @@ export const sponsors: Sponsor[] = [
     image: "https://github.com/lassejlv.png?size=160",
     imageAlt: "Lasse's GitHub avatar",
     amount: "$10",
-    imageKind: "avatar",
     kind: "individual",
   },
   {
@@ -79,7 +71,6 @@ export const sponsors: Sponsor[] = [
     image: "https://github.com/Coobyk.png?size=160",
     imageAlt: "Coobyk's GitHub avatar",
     amount: "$5",
-    imageKind: "avatar",
     kind: "individual",
     hideInSingleColumn: true,
   },
