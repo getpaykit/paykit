@@ -87,7 +87,7 @@ export function FeedbackSection() {
             </div>
           ))}
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-px h-40 bg-linear-to-b from-transparent via-background/70 to-background" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent via-background/70 to-background" />
       </div>
     </Section>
   );
