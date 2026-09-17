@@ -24,7 +24,7 @@ const requiredEnvironment = [
   "TEST_DATABASE_URL",
 ];
 
-let stopping = false;
+let cleanupPromise;
 let receivedSignal;
 let tunnelProcess;
 let testProcess;
@@ -71,11 +71,12 @@ async function terminate(child) {
   }
 }
 
-async function stopChildren() {
-  if (stopping) return;
-  stopping = true;
-  await terminate(testProcess);
-  await terminate(tunnelProcess);
+function stopChildren() {
+  cleanupPromise ??= (async () => {
+    await terminate(testProcess);
+    await terminate(tunnelProcess);
+  })();
+  return cleanupPromise;
 }
 
 function validateEnvironment() {
@@ -240,16 +241,19 @@ async function run() {
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.once(signal, () => {
     receivedSignal = signal;
-    const exitCode = signal === "SIGINT" ? 130 : 143;
-    void stopChildren().finally(() => process.exit(exitCode));
+    const signalExitCode = signal === "SIGINT" ? 130 : 143;
+    if (process.exitCode === undefined || process.exitCode === 0) {
+      process.exitCode = signalExitCode;
+    }
+    void stopChildren().finally(() => process.exit(process.exitCode ?? signalExitCode));
   });
 }
 
 try {
   await run();
 } catch (error) {
+  console.error(error instanceof Error ? error.message : error);
   if (!receivedSignal) {
-    console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
   }
 } finally {
