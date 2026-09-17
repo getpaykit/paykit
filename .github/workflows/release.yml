@@ -30,7 +30,6 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-          registry-url: "https://registry.npmjs.org"
 
       - name: Upgrade npm for trusted publishing
         run: npm install --global npm@11.19.1
