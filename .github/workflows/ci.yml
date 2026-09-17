@@ -113,6 +113,8 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          RESEND_API_KEY: re_ci_build_placeholder
 
   unit:
     runs-on: ubuntu-latest
