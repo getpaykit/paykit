@@ -25,6 +25,7 @@ const requiredEnvironment = [
 ];
 
 let stopping = false;
+let receivedSignal;
 let tunnelProcess;
 let testProcess;
 
@@ -34,7 +35,21 @@ function waitForExit(child) {
   }
 
   return new Promise((resolve) => {
-    child.once("exit", (code, signal) => resolve({ code, signal }));
+    const cleanup = () => {
+      child.off("error", onError);
+      child.off("exit", onExit);
+    };
+    const onError = (error) => {
+      cleanup();
+      resolve({ code: null, error, signal: null });
+    };
+    const onExit = (code, signal) => {
+      cleanup();
+      resolve({ code, error: null, signal });
+    };
+
+    child.once("error", onError);
+    child.once("exit", onExit);
   });
 }
 
@@ -42,7 +57,13 @@ async function terminate(child) {
   if (!child || child.exitCode !== null || child.signalCode !== null) return;
 
   child.kill("SIGTERM");
-  await Promise.race([waitForExit(child), new Promise((resolve) => setTimeout(resolve, 5_000))]);
+  let graceTimer;
+  await Promise.race([
+    waitForExit(child),
+    new Promise((resolve) => {
+      graceTimer = setTimeout(resolve, 5_000);
+    }),
+  ]).finally(() => clearTimeout(graceTimer));
 
   if (child.exitCode === null && child.signalCode === null) {
     child.kill("SIGKILL");
@@ -82,10 +103,20 @@ async function validateDatabase() {
 
 async function validateHubPort() {
   const server = net.createServer();
-  await new Promise((resolve, reject) => {
-    server.once("error", reject);
-    server.listen(hubPort, "127.0.0.1", resolve);
-  });
+  try {
+    await new Promise((resolve, reject) => {
+      server.once("error", reject);
+      server.listen(hubPort, "127.0.0.1", resolve);
+    });
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "EADDRINUSE") {
+      throw new Error(
+        `Hub port ${String(hubPort)} already in use. Kill any stale webhook server before running tests.`,
+        { cause: error },
+      );
+    }
+    throw error;
+  }
   await new Promise((resolve, reject) => {
     server.close((error) => (error ? reject(error) : resolve()));
   });
@@ -114,9 +145,11 @@ async function waitForTunnel(child) {
 
   await new Promise((resolve, reject) => {
     let output = "";
+    const failure = (message) =>
+      new Error(`${message}\n\ncloudflared output:\n${output.trim() || "(no output)"}`);
     const timeout = setTimeout(() => {
       cleanup();
-      reject(new Error("Timed out waiting for cloudflared readiness"));
+      reject(failure("Timed out waiting for cloudflared readiness"));
     }, 30_000);
 
     const onData = (chunk) => {
@@ -129,13 +162,18 @@ async function waitForTunnel(child) {
     const onExit = (code, signal) => {
       cleanup();
       reject(
-        new Error(
+        failure(
           `cloudflared exited before tests started (code=${String(code)}, signal=${String(signal)})`,
         ),
       );
     };
+    const onError = (error) => {
+      cleanup();
+      reject(failure(`cloudflared failed to start: ${error.message}`));
+    };
     const cleanup = () => {
       clearTimeout(timeout);
+      child.off("error", onError);
       child.stdout.off("data", onData);
       child.stderr.off("data", onData);
       child.off("exit", onExit);
@@ -143,6 +181,7 @@ async function waitForTunnel(child) {
 
     child.stdout.on("data", onData);
     child.stderr.on("data", onData);
+    child.once("error", onError);
     child.once("exit", onExit);
   });
 }
@@ -167,7 +206,9 @@ async function run() {
   validateEnvironment();
   validateCloudflared();
   await validateDatabase();
+  if (receivedSignal) return;
   await validateHubPort();
+  if (receivedSignal) return;
 
   tunnelProcess = startTunnel();
   await waitForTunnel(tunnelProcess);
@@ -178,11 +219,18 @@ async function run() {
     waitForExit(testProcess).then((result) => ({ source: "tests", ...result })),
     waitForExit(tunnelProcess).then((result) => ({ source: "tunnel", ...result })),
   ]);
+  if (receivedSignal) return;
 
   if (outcome.source === "tunnel") {
-    throw new Error(
-      `cloudflared exited during tests (code=${String(outcome.code)}, signal=${String(outcome.signal)})`,
-    );
+    const failure = outcome.error
+      ? `cloudflared failed: ${outcome.error.message}`
+      : `cloudflared exited during tests (code=${String(outcome.code)}, signal=${String(outcome.signal)})`;
+    throw new Error(failure);
+  }
+  if (outcome.error) {
+    throw new Error(`Failed to start Stripe E2E tests: ${outcome.error.message}`, {
+      cause: outcome.error,
+    });
   }
   if (outcome.code !== 0) {
     process.exitCode = outcome.code ?? 1;
@@ -191,17 +239,19 @@ async function run() {
 
 for (const signal of ["SIGINT", "SIGTERM"]) {
   process.once(signal, () => {
-    void stopChildren().then(() => {
-      process.exitCode = signal === "SIGINT" ? 130 : 143;
-    });
+    receivedSignal = signal;
+    const exitCode = signal === "SIGINT" ? 130 : 143;
+    void stopChildren().finally(() => process.exit(exitCode));
   });
 }
 
 try {
   await run();
 } catch (error) {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
+  if (!receivedSignal) {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  }
 } finally {
   await stopChildren();
 }
