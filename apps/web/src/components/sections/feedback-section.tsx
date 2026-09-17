@@ -70,7 +70,7 @@ export function FeedbackSection() {
           </h2>
         </div>
         <div className="pointer-events-none absolute inset-0 z-0 flex h-full justify-center">
-          <div className="h-full w-px border-r border-dashed border-border" />
+          <div className="h-full w-px translate-x-px border-r border-dashed border-border" />
         </div>
       </SectionContent>
 
