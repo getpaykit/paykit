@@ -113,6 +113,14 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          APP_URL: https://example.invalid
+          AUTH_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          BETTER_AUTH_SECRET: ci-build-placeholder-not-for-runtime-0000000000000000
+          PAYKIT_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          RESEND_API_KEY: ci-build-placeholder
+          STRIPE_SECRET_KEY: ci-build-placeholder
+          STRIPE_WEBHOOK_SECRET: ci-build-placeholder
 
   unit:
     runs-on: ubuntu-latest

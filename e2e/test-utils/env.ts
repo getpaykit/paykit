@@ -6,7 +6,7 @@ import "../../scripts/load-root-env.js";
 export const env = createEnv({
   server: {
     PROVIDER: z.enum(["stripe"]).default("stripe"),
-    TEST_DATABASE_URL: z.string().default("postgresql://localhost:5432/postgres"),
+    TEST_DATABASE_URL: z.string().min(1),
 
     // Stripe
     E2E_STRIPE_SK: z.string().optional(),
