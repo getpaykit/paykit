@@ -17,6 +17,7 @@ export interface CliTestFixture {
   cwd: string;
   dbName: string;
   dbUrl: string;
+  planIds: { free: string; pro: string };
   stripeClient: Stripe;
   cleanup: () => Promise<void>;
 }
@@ -34,8 +35,11 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
 
   const stripeClient = new Stripe(secretKey, { maxNetworkRetries: 3 });
 
+  const fixtureId = randomUUID().replaceAll("-", "");
+  const planIds = { free: `free_${fixtureId}`, pro: `pro_${fixtureId}` };
+
   // Create a fresh test database
-  const dbName = `paykit_cli_${randomUUID().replaceAll("-", "")}`;
+  const dbName = `paykit_cli_${fixtureId}`;
   const adminUrl = env.TEST_DATABASE_URL;
   const adminPool = new Pool({ connectionString: adminUrl });
   await adminPool.query(`CREATE DATABASE "${dbName}"`);
@@ -63,7 +67,7 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
       `const messagesFeature = feature({ id: "messages", type: "metered" });`,
       "",
       `const free = plan({`,
-      `  id: "free",`,
+      `  id: ${JSON.stringify(planIds.free)},`,
       `  name: "Free",`,
       `  group: "base",`,
       `  default: true,`,
@@ -71,7 +75,7 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
       `});`,
       "",
       `const pro = plan({`,
-      `  id: "pro",`,
+      `  id: ${JSON.stringify(planIds.pro)},`,
       `  name: "Pro",`,
       `  group: "base",`,
       `  price: { amount: 2000, interval: "month" },`,
@@ -90,27 +94,20 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
   );
 
   const cleanup = async () => {
-    // Clean up only Stripe products recorded by this fixture.
+    // Clean up only Stripe products tagged with this fixture's unique plan ID.
     try {
-      const fixturePool = new Pool({ connectionString: dbUrl });
-      try {
-        const result = await fixturePool.query<{ stripe_product_id: string }>(
-          "SELECT DISTINCT stripe_product_id FROM paykit_product WHERE stripe_product_id IS NOT NULL",
-        );
-        for (const row of result.rows) {
-          const prices = await stripeClient.prices.list({
-            product: row.stripe_product_id,
-            limit: 100,
-          });
-          for (const price of prices.data) {
-            if (price.active) {
-              await stripeClient.prices.update(price.id, { active: false });
-            }
+      for await (const stripeProduct of stripeClient.products.list({ limit: 100 })) {
+        if (stripeProduct.metadata.paykit_product_id !== planIds.pro) continue;
+
+        for await (const price of stripeClient.prices.list({
+          product: stripeProduct.id,
+          limit: 100,
+        })) {
+          if (price.active) {
+            await stripeClient.prices.update(price.id, { active: false });
           }
-          await stripeClient.products.update(row.stripe_product_id, { active: false });
         }
-      } finally {
-        await fixturePool.end();
+        await stripeClient.products.update(stripeProduct.id, { active: false });
       }
     } catch {
       // Best effort cleanup
@@ -125,5 +122,5 @@ export async function createCliFixture(_globalKey: string): Promise<CliTestFixtu
     await fs.rm(cwd, { force: true, recursive: true });
   };
 
-  return { cwd, dbName, dbUrl, stripeClient, cleanup };
+  return { cwd, dbName, dbUrl, planIds, stripeClient, cleanup };
 }
