@@ -70,7 +70,7 @@ export function FeedbackSection() {
           </h2>
         </div>
         <div className="pointer-events-none absolute inset-0 z-0 flex h-full justify-center">
-          <div className="h-full w-px border-r border-dashed border-border" />
+          <div className="h-full w-px translate-x-px border-r border-dashed border-border" />
         </div>
       </SectionContent>
 
@@ -87,7 +87,7 @@ export function FeedbackSection() {
             </div>
           ))}
         </div>
-        <div className="pointer-events-none absolute inset-x-0 bottom-px h-40 bg-linear-to-b from-transparent via-background/70 to-background" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-linear-to-b from-transparent via-background/70 to-background" />
       </div>
     </Section>
   );

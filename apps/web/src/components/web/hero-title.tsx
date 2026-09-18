@@ -20,7 +20,7 @@ export function HeroTitle() {
   return (
     <div className="relative flex w-full flex-col items-center text-center lg:items-start lg:text-left">
       <div className="space-y-3.5 sm:space-y-5">
-        <h1 className="max-w-4xl text-3xl leading-tight tracking-tight text-neutral-800 sm:text-3xl md:text-3xl lg:text-[2.55rem] dark:text-neutral-200">
+        <h1 className="max-w-4xl text-3xl leading-tight tracking-tight text-neutral-800 sm:text-3xl md:text-3xl lg:text-[2.55rem] lg:max-[1074px]:text-[2.295rem]! dark:text-neutral-200">
           Build <span className="border-foreground/20 border-b border-dashed">Stripe</span> billing{" "}
           <br />
           without the glue code
