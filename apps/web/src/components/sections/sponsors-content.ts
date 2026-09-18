@@ -250,6 +250,7 @@ async function fetchGitHubSponsors(): Promise<Sponsor[]> {
   if (!token) return [];
 
   const sponsors: Sponsor[] = [];
+  const seenCursors = new Set<string>();
   let after: string | null = null;
 
   for (;;) {
@@ -273,6 +274,10 @@ async function fetchGitHubSponsors(): Promise<Sponsor[]> {
     const page = createGitHubSponsorsPage(await response.json());
     sponsors.push(...page.sponsors);
     if (!page.hasNextPage) return sponsors;
+    if (page.endCursor === null || seenCursors.has(page.endCursor)) {
+      throw new Error("GitHub sponsors pagination cursor did not advance");
+    }
+    seenCursors.add(page.endCursor);
     after = page.endCursor;
   }
 }

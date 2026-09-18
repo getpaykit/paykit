@@ -190,4 +190,27 @@ describe("getSponsors", () => {
 
     await expect(getSponsors()).resolves.not.toHaveLength(0);
   });
+
+  it("stops pagination when GitHub repeats a cursor", async () => {
+    vi.stubEnv("GITHUB_SPONSORS_TOKEN", "test-token");
+    const repeatedPage = {
+      json: vi
+        .fn()
+        .mockResolvedValue(
+          createGitHubResponse([], { endCursor: "same-cursor", hasNextPage: true }),
+        ),
+      ok: true,
+    };
+    const fetch = vi.fn().mockResolvedValue(repeatedPage);
+    vi.stubGlobal("fetch", fetch);
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    await getSponsors();
+
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(console.error).toHaveBeenCalledWith(
+      "GitHub sponsors fetch failed",
+      expect.objectContaining({ message: "GitHub sponsors pagination cursor did not advance" }),
+    );
+  });
 });
