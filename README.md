@@ -101,7 +101,7 @@ PayKit is supported by companies and individuals who help keep the project maint
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=dark&preset=surface" />
       <source media="(prefers-color-scheme: light)" srcset="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=light&preset=surface" />
-      <img alt="PayKit sponsors" src="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=dark&preset=surface" width="820" />
+      <img alt="PayKit sponsors" src="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=light&preset=surface" width="820" />
     </picture>
   </a>
 </p>

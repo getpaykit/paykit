@@ -87,7 +87,7 @@ export function SponsorsSection() {
       </SectionContent>
 
       <div className="border-b border-l border-border">
-        <div className="grid grid-cols-2 bg-border [&>*+*]:border-l [&>*+*]:border-border">
+        <div className="grid grid-cols-2 bg-border [&>*:nth-child(even)]:border-l [&>*:nth-child(even)]:border-border">
           {companySponsors.map((sponsor) => (
             <CompanySponsorLink key={sponsor.name} sponsor={sponsor} />
           ))}
