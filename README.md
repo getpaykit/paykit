@@ -90,3 +90,18 @@ You can help continue its development by:
 If you discover a security vulnerability within PayKit, please send an email to [security@paykit.sh](mailto:security@paykit.sh).
 
 All reports will be promptly addressed, and you'll be credited accordingly.
+
+## Sponsors
+
+PayKit is supported by companies and individuals who help keep the project maintained. Want to support PayKit? [Become a sponsor →](https://github.com/sponsors/maxktz)
+
+<!-- Pulled automatically from GitHub Sponsors via shieldcn.dev. Logos, names, and avatars are fetched live. -->
+<p align="center">
+  <a href="https://github.com/sponsors/maxktz">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=dark&preset=surface" />
+      <source media="(prefers-color-scheme: light)" srcset="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=light&preset=surface" />
+      <img alt="PayKit sponsors" src="https://shieldcn.dev/sponsors/maxktz.svg?title=false&mode=dark&preset=surface" width="820" />
+    </picture>
+  </a>
+</p>
