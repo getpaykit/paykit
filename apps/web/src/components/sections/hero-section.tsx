@@ -18,7 +18,7 @@ export function HeroSection() {
   return (
     <Section>
       <SectionContent className="py-12 sm:py-14 lg:pt-32 lg:pb-20">
-        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col items-center gap-10 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
           <div className="lg:min-w-0 lg:basis-[45%] lg:max-w-none">
             <HeroTitle />
           </div>
