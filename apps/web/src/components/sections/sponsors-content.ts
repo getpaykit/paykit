@@ -17,9 +17,9 @@ export const MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS = 10;
 const GITHUB_SPONSORS_API_URL = "https://api.github.com/graphql";
 const GITHUB_SPONSORABLE_LOGIN = "maxktz";
 const GITHUB_SPONSORS_QUERY = `
-  query PayKitSponsors($login: String!) {
+  query PayKitSponsors($login: String!, $after: String) {
     user(login: $login) {
-      sponsorshipsAsMaintainer(first: 100, includePrivate: false) {
+      sponsorshipsAsMaintainer(first: 100, after: $after, includePrivate: false) {
         nodes {
           sponsorEntity {
             ... on User {
@@ -39,6 +39,10 @@ const GITHUB_SPONSORS_QUERY = `
           tier {
             monthlyPriceInDollars
           }
+        }
+        pageInfo {
+          endCursor
+          hasNextPage
         }
       }
     }
@@ -136,6 +140,13 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
+function isInaccessibleTierError(value: unknown): boolean {
+  if (!isRecord(value) || value.type !== "FORBIDDEN" || !Array.isArray(value.path)) return false;
+
+  // Fine-grained tokens expose sponsors and cadence but can redact the optional tier per node.
+  return value.path[value.path.length - 1] === "tier";
+}
+
 function createGitHubSponsor(value: unknown): Sponsor | null {
   if (!isRecord(value) || !isRecord(value.sponsorEntity)) return null;
 
@@ -181,23 +192,62 @@ function createGitHubSponsor(value: unknown): Sponsor | null {
   };
 }
 
-/** Converts a GitHub Sponsors GraphQL response into display-ready sponsors. */
-export function createGitHubSponsors(value: unknown): Sponsor[] | null {
-  if (!isRecord(value) || !isRecord(value.data) || !isRecord(value.data.user)) return null;
-
-  const connection = value.data.user.sponsorshipsAsMaintainer;
-  if (!isRecord(connection) || !Array.isArray(connection.nodes)) return null;
-
-  return connection.nodes
-    .map(createGitHubSponsor)
-    .filter((sponsor): sponsor is Sponsor => sponsor !== null);
+interface GitHubSponsorsPage {
+  endCursor: string | null;
+  hasNextPage: boolean;
+  sponsors: Sponsor[];
 }
 
-async function fetchGitHubSponsors(): Promise<Sponsor[] | null> {
-  const token = process.env.GITHUB_SPONSORS_TOKEN;
-  if (!token) return null;
+function createGitHubSponsorsPage(value: unknown): GitHubSponsorsPage {
+  if (!isRecord(value)) throw new Error("Invalid GitHub sponsors response");
 
-  try {
+  if (
+    value.errors !== undefined &&
+    (!Array.isArray(value.errors) || value.errors.some((error) => !isInaccessibleTierError(error)))
+  ) {
+    throw new Error("GitHub sponsors response contained GraphQL errors");
+  }
+
+  if (!isRecord(value.data) || !isRecord(value.data.user)) {
+    throw new Error("Invalid GitHub sponsors response");
+  }
+
+  const connection = value.data.user.sponsorshipsAsMaintainer;
+  if (!isRecord(connection) || !Array.isArray(connection.nodes) || !isRecord(connection.pageInfo)) {
+    throw new Error("Invalid GitHub sponsors response");
+  }
+
+  const { endCursor, hasNextPage } = connection.pageInfo;
+  if (
+    typeof hasNextPage !== "boolean" ||
+    (endCursor !== null && typeof endCursor !== "string") ||
+    (hasNextPage && !endCursor)
+  ) {
+    throw new Error("Invalid GitHub sponsors pagination data");
+  }
+
+  return {
+    endCursor,
+    hasNextPage,
+    sponsors: connection.nodes
+      .map(createGitHubSponsor)
+      .filter((sponsor): sponsor is Sponsor => sponsor !== null),
+  };
+}
+
+/** Converts a GitHub Sponsors GraphQL response into display-ready sponsors. */
+export function createGitHubSponsors(value: unknown): Sponsor[] {
+  return createGitHubSponsorsPage(value).sponsors;
+}
+
+async function fetchGitHubSponsors(): Promise<Sponsor[]> {
+  const token = process.env.GITHUB_SPONSORS_TOKEN;
+  if (!token) return [];
+
+  const sponsors: Sponsor[] = [];
+  let after: string | null = null;
+
+  for (;;) {
     const response = await fetch(GITHUB_SPONSORS_API_URL, {
       method: "POST",
       headers: {
@@ -208,19 +258,17 @@ async function fetchGitHubSponsors(): Promise<Sponsor[] | null> {
       },
       body: JSON.stringify({
         query: GITHUB_SPONSORS_QUERY,
-        variables: { login: GITHUB_SPONSORABLE_LOGIN },
+        variables: { after, login: GITHUB_SPONSORABLE_LOGIN },
       }),
     });
 
-    if (!response.ok) {
-      console.error(`GitHub sponsors fetch failed with status ${response.status}`);
-      return null;
-    }
+    if (!response.ok)
+      throw new Error(`GitHub sponsors fetch failed with status ${response.status}`);
 
-    return createGitHubSponsors(await response.json());
-  } catch (error) {
-    console.error("GitHub sponsors fetch failed", error);
-    return null;
+    const page = createGitHubSponsorsPage(await response.json());
+    sponsors.push(...page.sponsors);
+    if (!page.hasNextPage) return sponsors;
+    after = page.endCursor;
   }
 }
 
@@ -228,7 +276,7 @@ const getCachedGitHubSponsors = unstable_cache(fetchGitHubSponsors, ["github-spo
   revalidate: SPONSORS_REVALIDATE_SECONDS,
 });
 
-function getGitHubSponsors(): Promise<Sponsor[] | null> {
+function getGitHubSponsors(): Promise<Sponsor[]> {
   return process.env.NODE_ENV === "development" ? fetchGitHubSponsors() : getCachedGitHubSponsors();
 }
 
@@ -250,7 +298,13 @@ function orderSponsorsByAmount(sponsors: Sponsor[]): Sponsor[] {
 
 /** Returns hard-coded sponsors plus the six-hour cached GitHub sponsor list. */
 export async function getSponsors(): Promise<Sponsor[]> {
-  const githubSponsors = (await getGitHubSponsors()) ?? [];
+  let githubSponsors: Sponsor[] = [];
+  try {
+    githubSponsors = await getGitHubSponsors();
+  } catch (error) {
+    console.error("GitHub sponsors fetch failed", error);
+  }
+
   const sponsors = [...hardCodedSponsors, ...githubSponsors].filter(
     (sponsor) => sponsor.amountInDollars >= MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS,
   );

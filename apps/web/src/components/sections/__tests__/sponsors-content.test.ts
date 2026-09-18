@@ -23,11 +23,17 @@ function createGitHubSponsorNode(login: string, price: number, isOneTimePayment:
   };
 }
 
-function createGitHubResponse(nodes: unknown[]) {
+function createGitHubResponse(
+  nodes: unknown[],
+  pageInfo: { endCursor: string | null; hasNextPage: boolean } = {
+    endCursor: null,
+    hasNextPage: false,
+  },
+) {
   return {
     data: {
       user: {
-        sponsorshipsAsMaintainer: { nodes },
+        sponsorshipsAsMaintainer: { nodes, pageInfo },
       },
     },
   };
@@ -51,7 +57,18 @@ describe("createGitHubSponsors", () => {
   });
 
   it("rejects an invalid GraphQL response", () => {
-    expect(createGitHubSponsors({ data: { user: null } })).toBeNull();
+    expect(() => createGitHubSponsors({ data: { user: null } })).toThrow(
+      "Invalid GitHub sponsors response",
+    );
+  });
+
+  it("rejects GraphQL errors outside the optional tier field", () => {
+    expect(() =>
+      createGitHubSponsors({
+        ...createGitHubResponse([]),
+        errors: [{ path: ["user"], type: "FORBIDDEN" }],
+      }),
+    ).toThrow("GitHub sponsors response contained GraphQL errors");
   });
 });
 
@@ -67,22 +84,34 @@ describe("getSponsors", () => {
     const monthlyLogin = "monthly-at-minimum";
     const oneTimeLogin = "one-time-at-minimum";
     const excludedLogin = "below-minimum";
-    const fetch = vi.fn().mockResolvedValue({
-      json: vi
-        .fn()
-        .mockResolvedValue(
-          createGitHubResponse([
-            createGitHubSponsorNode(oneTimeLogin, MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS, true),
-            createGitHubSponsorNode(monthlyLogin, MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS, false),
-            createGitHubSponsorNode(
-              excludedLogin,
-              MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS - 1,
-              false,
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce({
+        json: vi
+          .fn()
+          .mockResolvedValue(
+            createGitHubResponse(
+              [createGitHubSponsorNode(oneTimeLogin, MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS, true)],
+              { endCursor: "next-page", hasNextPage: true },
             ),
-          ]),
-        ),
-      ok: true,
-    });
+          ),
+        ok: true,
+      })
+      .mockResolvedValueOnce({
+        json: vi
+          .fn()
+          .mockResolvedValue(
+            createGitHubResponse([
+              createGitHubSponsorNode(monthlyLogin, MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS, false),
+              createGitHubSponsorNode(
+                excludedLogin,
+                MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS - 1,
+                false,
+              ),
+            ]),
+          ),
+        ok: true,
+      });
     vi.stubGlobal("fetch", fetch);
 
     const sponsors = await getSponsors();
@@ -92,6 +121,7 @@ describe("getSponsors", () => {
     expect(monthlyIndex).toBeGreaterThanOrEqual(0);
     expect(oneTimeIndex).toBeGreaterThan(monthlyIndex);
     expect(sponsors.some((sponsor) => sponsor.href.endsWith(`/${excludedLogin}`))).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(2);
     expect(fetch).toHaveBeenCalledWith(
       "https://api.github.com/graphql",
       expect.objectContaining({
@@ -99,6 +129,10 @@ describe("getSponsors", () => {
         method: "POST",
         headers: expect.objectContaining({ Authorization: "Bearer test-token" }),
       }),
+    );
+    expect(fetch).toHaveBeenLastCalledWith(
+      "https://api.github.com/graphql",
+      expect.objectContaining({ body: expect.stringContaining('"after":"next-page"') }),
     );
   });
 
@@ -110,5 +144,13 @@ describe("getSponsors", () => {
     await getSponsors();
 
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("falls back when GitHub fails", async () => {
+    vi.stubEnv("GITHUB_SPONSORS_TOKEN", "test-token");
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 }));
+    vi.spyOn(console, "error").mockImplementation(() => undefined);
+
+    await expect(getSponsors()).resolves.not.toHaveLength(0);
   });
 });
