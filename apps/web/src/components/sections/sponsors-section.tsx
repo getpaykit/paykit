@@ -20,7 +20,7 @@ function CompanySponsorLink({ sponsor }: { sponsor: Sponsor }) {
       <span className="flex size-12 shrink-0 items-center justify-center">
         <img
           alt={sponsor.imageAlt}
-          className="size-9 dark:invert"
+          className={cn("size-9", sponsor.invertImageInDarkMode && "dark:invert")}
           decoding="async"
           height={36}
           loading="lazy"
@@ -72,6 +72,7 @@ export async function SponsorsSection() {
   const sponsors = await getSponsors();
   const companySponsors = sponsors.filter((sponsor) => sponsor.kind === "company");
   const individualSponsors = sponsors.filter((sponsor) => sponsor.kind === "individual");
+  const companyFillers = companySponsors.length % 2;
   const twoColumnFillers = (2 - (individualSponsors.length % 2)) % 2;
   const threeColumnFillers = (3 - (individualSponsors.length % 3)) % 3;
 
@@ -89,9 +90,12 @@ export async function SponsorsSection() {
       </SectionContent>
 
       <div className="border-b border-l border-border">
-        <div className="grid grid-cols-2 bg-border [&>*:nth-child(even)]:border-l [&>*:nth-child(even)]:border-border">
+        <div className="grid grid-cols-2 gap-px bg-border">
           {companySponsors.map((sponsor) => (
             <CompanySponsorLink key={sponsor.href} sponsor={sponsor} />
+          ))}
+          {Array.from({ length: companyFillers }, (_, index) => (
+            <div aria-hidden="true" className="bg-background" key={`company-filler-${index}`} />
           ))}
         </div>
         <div className="grid grid-cols-1 gap-px border-t border-border bg-border min-[360px]:grid-cols-2 lg:grid-cols-3">

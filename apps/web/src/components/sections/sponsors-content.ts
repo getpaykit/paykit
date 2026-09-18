@@ -7,6 +7,7 @@ export interface Sponsor {
   imageAlt: string;
   amount: string;
   amountInDollars: number;
+  invertImageInDarkMode?: boolean;
   paymentCadence: "monthly" | "one-time" | null;
   kind: "company" | "individual";
 }
@@ -22,6 +23,7 @@ const GITHUB_SPONSORS_QUERY = `
       sponsorshipsAsMaintainer(first: 100, after: $after, includePrivate: false) {
         nodes {
           sponsorEntity {
+            __typename
             ... on User {
               login
               name
@@ -57,6 +59,7 @@ const hardCodedSponsors: Sponsor[] = [
     imageAlt: "Vercel logo",
     amount: "$10,000 credits",
     amountInDollars: 10_000,
+    invertImageInDarkMode: true,
     paymentCadence: null,
     kind: "company",
   },
@@ -67,6 +70,7 @@ const hardCodedSponsors: Sponsor[] = [
     imageAlt: "Efferd logo",
     amount: "$250 credits",
     amountInDollars: 250,
+    invertImageInDarkMode: true,
     paymentCadence: null,
     kind: "company",
   },
@@ -150,8 +154,9 @@ function isInaccessibleTierError(value: unknown): boolean {
 function createGitHubSponsor(value: unknown): Sponsor | null {
   if (!isRecord(value) || !isRecord(value.sponsorEntity)) return null;
 
-  const { avatarUrl, login, name, url } = value.sponsorEntity;
+  const { __typename, avatarUrl, login, name, url } = value.sponsorEntity;
   if (
+    (__typename !== "User" && __typename !== "Organization") ||
     typeof avatarUrl !== "string" ||
     typeof login !== "string" ||
     typeof url !== "string" ||
@@ -188,7 +193,7 @@ function createGitHubSponsor(value: unknown): Sponsor | null {
         : `$${priceInDollars.toLocaleString("en-US")}${cadence ? ` ${cadence}` : ""}`,
     amountInDollars: priceInDollars ?? 0,
     paymentCadence: cadence,
-    kind: "individual",
+    kind: __typename === "Organization" ? "company" : "individual",
   };
 }
 
@@ -296,6 +301,15 @@ function orderSponsorsByAmount(sponsors: Sponsor[]): Sponsor[] {
   }, []);
 }
 
+function deduplicateSponsors(sponsors: Sponsor[]): Sponsor[] {
+  const sponsorsByHref = new Map<string, Sponsor>();
+  for (const sponsor of sponsors) {
+    const key = sponsor.href.replace(/\/$/, "").toLowerCase();
+    if (!sponsorsByHref.has(key)) sponsorsByHref.set(key, sponsor);
+  }
+  return [...sponsorsByHref.values()];
+}
+
 /** Returns hard-coded sponsors plus the six-hour cached GitHub sponsor list. */
 export async function getSponsors(): Promise<Sponsor[]> {
   let githubSponsors: Sponsor[] = [];
@@ -305,7 +319,7 @@ export async function getSponsors(): Promise<Sponsor[]> {
     console.error("GitHub sponsors fetch failed", error);
   }
 
-  const sponsors = [...hardCodedSponsors, ...githubSponsors].filter(
+  const sponsors = deduplicateSponsors([...hardCodedSponsors, ...githubSponsors]).filter(
     (sponsor) => sponsor.amountInDollars >= MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS,
   );
   const companies = sponsors.filter((sponsor) => sponsor.kind === "company");

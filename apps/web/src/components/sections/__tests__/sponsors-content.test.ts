@@ -1,18 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("next/cache", () => ({
-  unstable_cache: <T extends (...args: never[]) => unknown>(callback: T) => callback,
+const { unstableCache } = vi.hoisted(() => ({
+  unstableCache: vi.fn((callback: (...args: never[]) => unknown) => callback),
 }));
+
+vi.mock("next/cache", () => ({ unstable_cache: unstableCache }));
 
 import {
   createGitHubSponsors,
   getSponsors,
   MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS,
+  SPONSORS_REVALIDATE_SECONDS,
 } from "../sponsors-content";
 
-function createGitHubSponsorNode(login: string, price: number, isOneTimePayment: boolean) {
+function createGitHubSponsorNode(
+  login: string,
+  price: number,
+  isOneTimePayment: boolean,
+  type: "Organization" | "User" = "User",
+) {
   return {
     sponsorEntity: {
+      __typename: type,
       avatarUrl: `https://avatars.githubusercontent.com/${login}`,
       login,
       name: login,
@@ -45,7 +54,7 @@ describe("createGitHubSponsors", () => {
     const oneTimeAmount = monthlyAmount + 5;
     const sponsors = createGitHubSponsors(
       createGitHubResponse([
-        createGitHubSponsorNode("monthly-sponsor", monthlyAmount, false),
+        createGitHubSponsorNode("monthly-sponsor", monthlyAmount, false, "Organization"),
         createGitHubSponsorNode("one-time-sponsor", oneTimeAmount, true),
       ]),
     );
@@ -54,6 +63,7 @@ describe("createGitHubSponsors", () => {
       `$${monthlyAmount} monthly`,
       `$${oneTimeAmount} one-time`,
     ]);
+    expect(sponsors[0]?.kind).toBe("company");
   });
 
   it("rejects an invalid GraphQL response", () => {
@@ -69,6 +79,33 @@ describe("createGitHubSponsors", () => {
         errors: [{ path: ["user"], type: "FORBIDDEN" }],
       }),
     ).toThrow("GitHub sponsors response contained GraphQL errors");
+  });
+
+  it("uses valid sponsor data when GitHub redacts tier fields", () => {
+    const response = {
+      ...createGitHubResponse([
+        createGitHubSponsorNode("valid-sponsor", MINIMUM_SPONSORSHIP_AMOUNT_IN_DOLLARS, false),
+        { sponsorEntity: null },
+      ]),
+      errors: [
+        {
+          path: ["user", "sponsorshipsAsMaintainer", "nodes", 0, "tier"],
+          type: "FORBIDDEN",
+        },
+      ],
+    };
+
+    expect(createGitHubSponsors(response).map((sponsor) => sponsor.name)).toEqual([
+      "valid-sponsor",
+    ]);
+  });
+});
+
+describe("sponsor cache", () => {
+  it("uses the GitHub sponsor cache key and six-hour revalidation", () => {
+    expect(unstableCache).toHaveBeenCalledWith(expect.any(Function), ["github-sponsors"], {
+      revalidate: SPONSORS_REVALIDATE_SECONDS,
+    });
   });
 });
 

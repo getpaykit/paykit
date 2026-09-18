@@ -3,7 +3,13 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "env": ["RESEND_API_KEY", "RESEND_FROM_EMAIL", "RESEND_TO_EMAIL", "SKIP_ENV_VALIDATION"]
+      "env": [
+        "GITHUB_SPONSORS_TOKEN",
+        "RESEND_API_KEY",
+        "RESEND_FROM_EMAIL",
+        "RESEND_TO_EMAIL",
+        "SKIP_ENV_VALIDATION"
+      ]
     }
   }
 }
