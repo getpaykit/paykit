@@ -1,5 +1,5 @@
 import { Section, SectionContent } from "@/components/layout/section";
-import { sponsors } from "@/components/sections/sponsors-content";
+import { getSponsors } from "@/components/sections/sponsors-content";
 import type { Sponsor } from "@/components/sections/sponsors-content";
 import { cn } from "@/lib/utils";
 
@@ -44,7 +44,6 @@ function IndividualSponsorLink({ sponsor }: { sponsor: Sponsor }) {
       className={cn(
         sponsorLinkClassName,
         "flex items-center gap-2.5 px-3 py-3 sm:gap-3 sm:px-5 sm:py-4",
-        sponsor.hideInSingleColumn && "hidden min-[360px]:flex",
       )}
       href={sponsor.href}
       rel="noopener noreferrer"
@@ -69,9 +68,12 @@ function IndividualSponsorLink({ sponsor }: { sponsor: Sponsor }) {
   );
 }
 
-export function SponsorsSection() {
+export async function SponsorsSection() {
+  const sponsors = await getSponsors();
   const companySponsors = sponsors.filter((sponsor) => sponsor.kind === "company");
   const individualSponsors = sponsors.filter((sponsor) => sponsor.kind === "individual");
+  const twoColumnFillers = (2 - (individualSponsors.length % 2)) % 2;
+  const threeColumnFillers = (3 - (individualSponsors.length % 3)) % 3;
 
   return (
     <Section className="scroll-mt-12" id="sponsors">
@@ -89,12 +91,26 @@ export function SponsorsSection() {
       <div className="border-b border-l border-border">
         <div className="grid grid-cols-2 bg-border [&>*:nth-child(even)]:border-l [&>*:nth-child(even)]:border-border">
           {companySponsors.map((sponsor) => (
-            <CompanySponsorLink key={sponsor.name} sponsor={sponsor} />
+            <CompanySponsorLink key={sponsor.href} sponsor={sponsor} />
           ))}
         </div>
         <div className="grid grid-cols-1 gap-px border-t border-border bg-border min-[360px]:grid-cols-2 lg:grid-cols-3">
           {individualSponsors.map((sponsor) => (
-            <IndividualSponsorLink key={sponsor.name} sponsor={sponsor} />
+            <IndividualSponsorLink key={sponsor.href} sponsor={sponsor} />
+          ))}
+          {Array.from({ length: twoColumnFillers }, (_, index) => (
+            <div
+              aria-hidden="true"
+              className="hidden bg-background min-[360px]:block lg:hidden"
+              key={`two-column-filler-${index}`}
+            />
+          ))}
+          {Array.from({ length: threeColumnFillers }, (_, index) => (
+            <div
+              aria-hidden="true"
+              className="hidden bg-background lg:block"
+              key={`three-column-filler-${index}`}
+            />
           ))}
         </div>
       </div>
