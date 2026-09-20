@@ -1,6 +1,4 @@
-import { llms } from "fumadocs-core/source";
-
-import { source } from "@/lib/source";
+import { docsLlms } from "@/lib/source";
 
 export const revalidate = false;
 
@@ -12,6 +10,6 @@ const suffix = `
 - Full documentation as a single file: \`/llms-full.txt\`
 `;
 
-export function GET() {
-  return new Response(llms(source).index() + suffix);
+export async function GET() {
+  return new Response((await docsLlms.index()) + suffix);
 }

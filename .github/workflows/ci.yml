@@ -114,10 +114,15 @@ jobs:
       - name: Build
         run: pnpm build
         env:
+          AI_GATEWAY_API_KEY: ci-build-placeholder
+          AI_GATEWAY_MODEL: openai/gpt-5.6-luna
           APP_URL: https://example.invalid
           AUTH_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
           BETTER_AUTH_SECRET: ci-build-placeholder-not-for-runtime-0000000000000000
+          MASTRA_CHAT_SECRET: ci-build-placeholder-not-for-runtime-0000000000000000
+          MASTRA_CHAT_URL: https://example.invalid/chat
           PAYKIT_DATABASE_URL: postgresql://ci:ci@127.0.0.1:5432/ci
+          PAYKIT_DOCS_MCP_URL: https://example.invalid/api/mcp
           RESEND_API_KEY: ci-build-placeholder
           STRIPE_SECRET_KEY: ci-build-placeholder
           STRIPE_WEBHOOK_SECRET: ci-build-placeholder

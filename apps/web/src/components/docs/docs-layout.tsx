@@ -13,6 +13,7 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { RiExternalLinkLine, RiRobot2Line, RiSearchLine, RiSideBarLine } from "react-icons/ri";
 
+import { DocsAssistant } from "@/components/docs/docs-assistant";
 import { getDocsPageIcon } from "@/components/docs/docs-icons";
 import { ThemeSwitcher } from "@/components/theme-switcher";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,22 @@ import { cn } from "@/lib/utils";
 type DocsLayoutStyle = CSSProperties & {
   "--fd-layout-width": string;
   "--fd-sidebar-col": string;
+  "--fd-toc-width"?: string;
 };
+
+function useDesktopAssistantLayout() {
+  const [desktop, setDesktop] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(min-width: 1024px)");
+    const update = () => setDesktop(query.matches);
+    update();
+    query.addEventListener("change", update);
+    return () => query.removeEventListener("change", update);
+  }, []);
+
+  return desktop;
+}
 
 function SearchButton({ className }: { className?: string }) {
   const { setOpenSearch } = useSearchContext();
@@ -396,11 +412,15 @@ function SidebarItem({
 }
 
 export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root }) {
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [previousAssistantOpen, setPreviousAssistantOpen] = useState(assistantOpen);
   const [previousSidebarOpen, setPreviousSidebarOpen] = useState(sidebarOpen);
+  const desktopAssistantLayout = useDesktopAssistantLayout();
   const { setOpenSearch } = useSearchContext();
-  const isColumnChanged = previousSidebarOpen !== sidebarOpen;
+  const isColumnChanged =
+    previousSidebarOpen !== sidebarOpen || previousAssistantOpen !== assistantOpen;
 
   useHotkey(
     "Mod+B",
@@ -413,13 +433,28 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
     },
   );
 
+  useHotkey(
+    "Mod+/",
+    () => {
+      setAssistantOpen((open) => !open);
+    },
+    {
+      ignoreInputs: true,
+      preventDefault: true,
+    },
+  );
+
   useEffect(() => {
-    if (isColumnChanged) setPreviousSidebarOpen(sidebarOpen);
-  }, [isColumnChanged, sidebarOpen]);
+    if (!isColumnChanged) return;
+    setPreviousAssistantOpen(assistantOpen);
+    setPreviousSidebarOpen(sidebarOpen);
+  }, [assistantOpen, isColumnChanged, sidebarOpen]);
 
   const layoutStyle = {
     "--fd-layout-width": "90rem",
     "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
+    "--fd-toc-width":
+      assistantOpen && desktopAssistantLayout ? "var(--fd-assistant-width)" : undefined,
     gridTemplateAreas: `
       "sidebar sidebar header toc toc"
       "sidebar sidebar toc-popover toc toc"
@@ -439,9 +474,11 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         className={cn(
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
-          "[--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
+          "[--fd-assistant-width:400px] [--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
           "data-[column-changed=true]:transition-[grid-template-columns] data-[column-changed=true]:duration-200 data-[column-changed=true]:ease-out",
           "max-md:[--fd-header-height:3rem]",
+          "2xl:[--fd-assistant-width:460px]",
+          assistantOpen && desktopAssistantLayout && "[&_#nd-toc]:hidden",
         )}
       >
         <DocsSidebar onCollapse={() => setSidebarOpen(false)} open={sidebarOpen} tree={tree} />
@@ -451,6 +488,11 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
           visible={!sidebarOpen}
         />
         <MobileSidebar open={mobileSidebarOpen} onOpenChange={setMobileSidebarOpen} tree={tree} />
+        <DocsAssistant
+          desktop={desktopAssistantLayout}
+          onOpenChange={setAssistantOpen}
+          open={assistantOpen}
+        />
         <header
           id="nd-subnav"
           data-transparent="false"
