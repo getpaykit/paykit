@@ -15,6 +15,45 @@ function chatError(message: string, status: number) {
   });
 }
 
+function streamWithInactivityTimeout(
+  body: ReadableStream<Uint8Array>,
+  upstreamController: AbortController,
+) {
+  const reader = body.getReader();
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+
+  const clearInactivityTimeout = () => clearTimeout(timeout);
+  const resetInactivityTimeout = () => {
+    clearInactivityTimeout();
+    timeout = setTimeout(() => upstreamController.abort(), 30_000);
+  };
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      resetInactivityTimeout();
+      try {
+        const { done, value } = await reader.read();
+        if (done) {
+          clearInactivityTimeout();
+          controller.close();
+          return;
+        }
+
+        controller.enqueue(value);
+        resetInactivityTimeout();
+      } catch (error) {
+        clearInactivityTimeout();
+        controller.error(error);
+      }
+    },
+    async cancel(reason) {
+      clearInactivityTimeout();
+      upstreamController.abort(reason);
+      await reader.cancel(reason);
+    },
+  });
+}
+
 export async function POST(request: Request) {
   let body: ReturnType<typeof parseDocsChatRequest>;
 
@@ -62,5 +101,8 @@ export async function POST(request: Request) {
   const streamVersion = upstream.headers.get("x-vercel-ai-ui-message-stream");
   if (streamVersion) headers.set("x-vercel-ai-ui-message-stream", streamVersion);
 
-  return new Response(upstream.body, { status: 200, headers });
+  return new Response(streamWithInactivityTimeout(upstream.body, timeoutController), {
+    status: 200,
+    headers,
+  });
 }

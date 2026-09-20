@@ -6,6 +6,7 @@ describe("buildDocsAgentInstructions", () => {
   it("requires retrieval, citations, and grounded abstention", () => {
     const instructions = buildDocsAgentInstructions();
 
+    expect(instructions).toContain("current documentation page is unknown");
     expect(instructions).toContain("Call paykitDocs_search exactly once");
     expect(instructions).toContain("paykitDocs_get_page");
     expect(instructions).toContain("Never finish a run with tool calls but no answer");

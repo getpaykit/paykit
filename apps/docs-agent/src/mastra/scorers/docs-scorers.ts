@@ -11,13 +11,24 @@ const groundTruthSchema = z.object({
   requiredFacts: z.array(z.string()),
 });
 
-function getOutputText(output: unknown) {
+function getFinalAssistantOutputText(output: unknown) {
   if (!Array.isArray(output)) return "";
 
-  return output
-    .map((message) => getTextContentFromMastraDBMessage(message))
-    .join("\n")
-    .trim();
+  for (let index = output.length - 1; index >= 0; index -= 1) {
+    const message = output[index];
+    if (!message || typeof message !== "object" || !("role" in message)) continue;
+    if (message.role !== "assistant") continue;
+
+    const text = getTextContentFromMastraDBMessage(message).trim();
+    if (text) return text;
+  }
+
+  return "";
+}
+
+function normalizeDocsPath(path: string) {
+  const pathname = new URL(path, "https://paykit.sh").pathname.toLowerCase();
+  return pathname === "/docs" ? pathname : pathname.replace(/\/$/, "");
 }
 
 export const docsToolUseScorer = createScorer({
@@ -38,9 +49,11 @@ export const docsCitationScorer = createScorer({
   type: "agent",
 }).generateScore(({ run }) => {
   const groundTruth = groundTruthSchema.safeParse(run.groundTruth);
-  if (!groundTruth.success) return 0;
+  if (!groundTruth.success) {
+    throw new Error(`Invalid docs citation ground truth: ${groundTruth.error.message}`);
+  }
 
-  const output = getOutputText(run.output).toLowerCase();
+  const output = getFinalAssistantOutputText(run.output).toLowerCase();
   if (groundTruth.data.expectAbstention) {
     return /not (documented|covered|available)|could(?: not|n't) find|does not (document|cover|mention)|docs do not/.test(
       output,
@@ -49,12 +62,12 @@ export const docsCitationScorer = createScorer({
       : 0;
   }
 
-  const citationPaths = [...output.matchAll(/\]\((\/docs(?:\/[^)\s]+)?)\)/g)].map(
-    ([, path]) => path,
-  );
+  const citationPaths = [
+    ...output.matchAll(/\]\(\s*(\/docs(?:\/[^)\s]+)?)(?:\s+["'][^)]*["'])?\s*\)/g),
+  ].flatMap(([, path]) => (path ? [normalizeDocsPath(path)] : []));
 
   return groundTruth.data.allowedCitationPaths.some((path) =>
-    citationPaths.includes(path.toLowerCase()),
+    citationPaths.includes(normalizeDocsPath(path)),
   )
     ? 1
     : 0;

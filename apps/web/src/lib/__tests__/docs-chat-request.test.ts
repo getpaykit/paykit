@@ -85,6 +85,14 @@ describe("parseDocsChatRequest", () => {
     ).toThrow(DocsChatValidationError);
   });
 
+  it("rejects null user parts through validation", () => {
+    expect(() =>
+      parseDocsChatRequest({
+        messages: [{ id: "user-1", role: "user", parts: [null] }],
+      }),
+    ).toThrow("User messages may contain text only.");
+  });
+
   it("reports an oversized user message accurately", () => {
     expect(() =>
       parseDocsChatRequest({

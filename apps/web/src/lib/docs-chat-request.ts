@@ -59,7 +59,6 @@ export async function readDocsChatRequest(request: Request): Promise<unknown> {
 
       totalBytes += value.byteLength;
       if (totalBytes > maxRequestBytes) {
-        await reader.cancel();
         throw new DocsChatRequestTooLargeError();
       }
       chunks.push(value);
@@ -111,8 +110,9 @@ export function parseDocsChatRequest(input: unknown) {
         return [{ ...textPart.data, text }];
       }
 
-      const rawPart = part as { text?: unknown; type?: unknown };
-      if (rawPart.type === "text" && typeof rawPart.text === "string") {
+      const rawPart =
+        part && typeof part === "object" ? (part as { text?: unknown; type?: unknown }) : undefined;
+      if (rawPart?.type === "text" && typeof rawPart.text === "string") {
         throw new DocsChatValidationError(
           message.role === "user"
             ? "The message is too long."

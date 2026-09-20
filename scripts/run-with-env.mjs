@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -16,11 +16,20 @@ const child = spawn(command, args, {
   stdio: "inherit",
 });
 
+function terminateChild(signal) {
+  if (child.exitCode !== null || child.signalCode !== null) return;
+
+  if (process.platform === "win32" && child.pid !== undefined) {
+    spawnSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], { stdio: "ignore" });
+    return;
+  }
+
+  child.kill(signal);
+}
+
 const signalHandlers = new Map();
 for (const signal of ["SIGINT", "SIGTERM"]) {
-  const handler = () => {
-    if (child.exitCode === null && child.signalCode === null) child.kill(signal);
-  };
+  const handler = () => terminateChild(signal);
   signalHandlers.set(signal, handler);
   process.on(signal, handler);
 }

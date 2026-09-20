@@ -489,7 +489,7 @@ function ChatPanel({ chat, onClose }: { chat: DocsChatState; onClose: () => void
         </form>
         {messages.length > 0 ? (
           <div className="flex items-center gap-1.5 p-1 pt-0">
-            {!busy && messages.at(-1)?.role === "assistant" ? (
+            {!busy && (error || messages.at(-1)?.role === "assistant") ? (
               <Button size="sm" type="button" variant="secondary" onClick={() => regenerate()}>
                 <RiRefreshLine />
                 Retry
@@ -541,6 +541,7 @@ export function DocsAssistant({
       <Button
         aria-keyshortcuts="Control+/ Meta+/"
         aria-label="Open PayKit Assistant"
+        inert={open}
         tabIndex={open ? -1 : undefined}
         className={cn(
           "fixed right-4 bottom-4 z-40 gap-1.5 border shadow-md transition-[opacity,translate]",

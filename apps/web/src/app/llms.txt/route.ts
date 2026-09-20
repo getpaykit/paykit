@@ -10,6 +10,6 @@ const suffix = `
 - Full documentation as a single file: \`/llms-full.txt\`
 `;
 
-export function GET() {
-  return new Response(docsLlms.index() + suffix);
+export async function GET() {
+  return new Response((await docsLlms.index()) + suffix);
 }
