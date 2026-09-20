@@ -59,6 +59,7 @@ export async function readDocsChatRequest(request: Request): Promise<unknown> {
 
       totalBytes += value.byteLength;
       if (totalBytes > maxRequestBytes) {
+        await reader.cancel().catch(() => undefined);
         throw new DocsChatRequestTooLargeError();
       }
       chunks.push(value);
