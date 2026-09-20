@@ -42,7 +42,7 @@ export const docsCitationScorer = createScorer({
 
   const output = getOutputText(run.output).toLowerCase();
   if (groundTruth.data.expectAbstention) {
-    return /not (documented|covered|available)|could(?: not|n't) find|does not (document|cover)|docs do not/.test(
+    return /not (documented|covered|available)|could(?: not|n't) find|does not (document|cover|mention)|docs do not/.test(
       output,
     )
       ? 1

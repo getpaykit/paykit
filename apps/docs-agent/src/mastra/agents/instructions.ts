@@ -1,7 +1,32 @@
+/** Returns a safe documentation pathname for use in agent instructions. */
+export function sanitizeDocsPageContext(value: unknown) {
+  const hasControlCharacters =
+    typeof value === "string" &&
+    [...value].some((character) => {
+      const codePoint = character.codePointAt(0) ?? 0;
+      return codePoint <= 31 || codePoint === 127;
+    });
+
+  if (
+    typeof value !== "string" ||
+    value.length > 512 ||
+    !value.startsWith("/") ||
+    value.startsWith("//") ||
+    value.includes("\\") ||
+    hasControlCharacters
+  ) {
+    return undefined;
+  }
+
+  const pathname = new URL(value, "https://paykit.sh").pathname;
+  return pathname === "/docs" || pathname.startsWith("/docs/") ? pathname : undefined;
+}
+
 /** Builds the grounded system instructions for the documentation agent. */
 export function buildDocsAgentInstructions(currentPage?: string) {
-  const pageContext = currentPage
-    ? `The reader is currently viewing ${currentPage}. Treat it as useful context, but do not assume it contains the answer.`
+  const safeCurrentPage = sanitizeDocsPageContext(currentPage);
+  const pageContext = safeCurrentPage
+    ? `The reader is currently viewing ${safeCurrentPage}. Treat it as useful context, but do not assume it contains the answer.`
     : "The reader's current documentation page is unknown.";
 
   return `You are the PayKit documentation assistant. Answer questions about PayKit using only the PayKit documentation tools.

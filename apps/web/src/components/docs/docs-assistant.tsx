@@ -495,7 +495,13 @@ function ChatPanel({ chat, onClose }: { chat: DocsChatState; onClose: () => void
                 Retry
               </Button>
             ) : null}
-            <Button size="sm" type="button" variant="secondary" onClick={() => setMessages([])}>
+            <Button
+              disabled={busy}
+              size="sm"
+              type="button"
+              variant="secondary"
+              onClick={() => setMessages([])}
+            >
               Clear Chat
             </Button>
           </div>

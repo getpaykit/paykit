@@ -11,6 +11,7 @@ import {
 
 import { env } from "../env";
 import { docsAgent } from "./agents/docs-agent";
+import { sanitizeDocsPageContext } from "./agents/instructions";
 import {
   docsAnswerQualityScorer,
   docsCitationScorer,
@@ -64,14 +65,9 @@ export const mastra = new Mastra({
               .clone()
               .json()
               .catch(() => undefined)) as { data?: { currentPage?: unknown } } | undefined;
-            const currentPage = body?.data?.currentPage;
+            const currentPage = sanitizeDocsPageContext(body?.data?.currentPage);
 
-            if (
-              typeof currentPage === "string" &&
-              currentPage.length <= 512 &&
-              (currentPage === "/docs" || currentPage.startsWith("/docs/")) &&
-              !currentPage.includes("\\")
-            ) {
+            if (currentPage) {
               context.get("requestContext").set("currentPage", currentPage);
             }
           }

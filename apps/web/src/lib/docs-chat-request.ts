@@ -2,6 +2,7 @@ import { z } from "zod";
 
 const maxMessages = 20;
 const maxPartCharacters = 4_000;
+const maxRequestBytes = 64 * 1024;
 const maxTotalCharacters = 20_000;
 
 const requestSchema = z.object({
@@ -32,6 +33,51 @@ export class DocsChatValidationError extends Error {
   }
 }
 
+export class DocsChatRequestTooLargeError extends Error {
+  constructor() {
+    super("The chat request is too large.");
+    this.name = "DocsChatRequestTooLargeError";
+  }
+}
+
+export async function readDocsChatRequest(request: Request): Promise<unknown> {
+  const contentLength = Number(request.headers.get("content-length"));
+  if (Number.isFinite(contentLength) && contentLength > maxRequestBytes) {
+    throw new DocsChatRequestTooLargeError();
+  }
+
+  const reader = request.body?.getReader();
+  if (!reader) return undefined;
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      totalBytes += value.byteLength;
+      if (totalBytes > maxRequestBytes) {
+        await reader.cancel();
+        throw new DocsChatRequestTooLargeError();
+      }
+      chunks.push(value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return JSON.parse(new TextDecoder().decode(bytes)) as unknown;
+}
+
 export function sanitizeCurrentPage(value: string) {
   if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\")) {
     throw new DocsChatValidationError("The current documentation page is invalid.");
@@ -58,15 +104,22 @@ export function parseDocsChatRequest(input: unknown) {
     const textParts = message.parts.flatMap((part) => {
       const textPart = textPartSchema.safeParse(part);
       if (textPart.success) {
-        totalCharacters += textPart.data.text.length;
-        return textPart.data.text.trim() ? [textPart.data] : [];
+        const text = textPart.data.text.trim();
+        if (!text) return [];
+
+        totalCharacters += text.length;
+        return [{ ...textPart.data, text }];
       }
 
+      const rawPart = part as { text?: unknown; type?: unknown };
+      if (rawPart.type === "text" && typeof rawPart.text === "string") {
+        throw new DocsChatValidationError(
+          message.role === "user"
+            ? "The message is too long."
+            : "The conversation contains an oversized message.",
+        );
+      }
       if (message.role === "user") {
-        const rawPart = part as { text?: unknown; type?: unknown };
-        if (rawPart.type === "text" && typeof rawPart.text === "string") {
-          throw new DocsChatValidationError("The message is too long.");
-        }
         throw new DocsChatValidationError("User messages may contain text only.");
       }
 

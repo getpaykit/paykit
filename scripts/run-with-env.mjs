@@ -12,13 +12,17 @@ if (!command) throw new Error("A command is required.");
 
 const child = spawn(command, args, {
   env: process.env,
+  shell: process.platform === "win32",
   stdio: "inherit",
 });
 
+const signalHandlers = new Map();
 for (const signal of ["SIGINT", "SIGTERM"]) {
-  process.on(signal, () => {
-    if (!child.killed) child.kill(signal);
-  });
+  const handler = () => {
+    if (child.exitCode === null && child.signalCode === null) child.kill(signal);
+  };
+  signalHandlers.set(signal, handler);
+  process.on(signal, handler);
 }
 
 child.on("error", (error) => {
@@ -26,6 +30,15 @@ child.on("error", (error) => {
   process.exitCode = 1;
 });
 
-child.on("exit", (code) => {
+child.on("exit", (code, signal) => {
+  for (const [forwardedSignal, handler] of signalHandlers) {
+    process.off(forwardedSignal, handler);
+  }
+
+  if (signal) {
+    process.kill(process.pid, signal);
+    return;
+  }
+
   process.exitCode = code ?? 1;
 });

@@ -51,7 +51,7 @@ catalogs:
     tailwindcss-animate: ^1.0.7
 
 minimumReleaseAgeExclude:
-  - tsx@4.23.15
+  - tsx@4.20.6
   - fumadocs-core@16.15.12
   - fumadocs-mdx@15.4.2
   - fumadocs-ui@16.15.12

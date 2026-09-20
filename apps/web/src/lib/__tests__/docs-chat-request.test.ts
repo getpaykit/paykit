@@ -1,8 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DocsChatRequestTooLargeError,
   DocsChatValidationError,
   parseDocsChatRequest,
+  readDocsChatRequest,
   sanitizeCurrentPage,
 } from "../docs-chat-request";
 
@@ -97,6 +99,35 @@ describe("parseDocsChatRequest", () => {
     ).toThrow("The message is too long.");
   });
 
+  it("rejects oversized assistant text instead of dropping conversation history", () => {
+    expect(() =>
+      parseDocsChatRequest({
+        messages: [
+          { id: "user-1", role: "user", parts: [{ type: "text", text: "Question" }] },
+          {
+            id: "assistant-1",
+            role: "assistant",
+            parts: [{ type: "text", text: "a".repeat(4_001) }],
+          },
+        ],
+      }),
+    ).toThrow("The conversation contains an oversized message.");
+  });
+
+  it("trims forwarded text and drops whitespace-only assistant parts", () => {
+    const result = parseDocsChatRequest({
+      messages: [
+        { id: "user-1", role: "user", parts: [{ type: "text", text: "  Question  " }] },
+        { id: "assistant-1", role: "assistant", parts: [{ type: "text", text: "   " }] },
+      ],
+      trigger: "regenerate-message",
+    });
+
+    expect(result.messages).toEqual([
+      { id: "user-1", role: "user", parts: [{ type: "text", text: "Question" }] },
+    ]);
+  });
+
   it("rejects conversations above the total character limit", () => {
     expect(() =>
       parseDocsChatRequest({
@@ -107,6 +138,17 @@ describe("parseDocsChatRequest", () => {
         })),
       }),
     ).toThrow("The conversation is too long.");
+  });
+});
+
+describe("readDocsChatRequest", () => {
+  it("rejects bodies above the byte limit", async () => {
+    const request = new Request("https://paykit.sh/api/chat", {
+      method: "POST",
+      body: "a".repeat(64 * 1024 + 1),
+    });
+
+    await expect(readDocsChatRequest(request)).rejects.toThrow(DocsChatRequestTooLargeError);
   });
 });
 

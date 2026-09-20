@@ -34,7 +34,6 @@ import { BrandMenu } from "@/components/web/brand-menu";
 import { cn } from "@/lib/utils";
 
 type DocsLayoutStyle = CSSProperties & {
-  "--fd-assistant-width": string;
   "--fd-layout-width": string;
   "--fd-sidebar-col": string;
   "--fd-toc-width"?: string;
@@ -452,7 +451,6 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
   }, [assistantOpen, isColumnChanged, sidebarOpen]);
 
   const layoutStyle = {
-    "--fd-assistant-width": "400px",
     "--fd-layout-width": "90rem",
     "--fd-sidebar-col": sidebarOpen ? "var(--fd-sidebar-width)" : "0px",
     "--fd-toc-width":
@@ -476,7 +474,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
         className={cn(
           "grid min-h-(--fd-docs-height) overflow-x-clip",
           "[--fd-docs-height:100dvh] [--fd-docs-row-1:0px] [--fd-docs-row-2:var(--fd-header-height)] [--fd-docs-row-3:calc(var(--fd-docs-row-2)+var(--fd-toc-popover-height))]",
-          "[--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
+          "[--fd-assistant-width:400px] [--fd-header-height:0px] [--fd-sidebar-width:0px] [--fd-toc-popover-height:0px] [--fd-toc-width:0px]",
           "data-[column-changed=true]:transition-[grid-template-columns] data-[column-changed=true]:duration-200 data-[column-changed=true]:ease-out",
           "max-md:[--fd-header-height:3rem]",
           "2xl:[--fd-assistant-width:460px]",

@@ -1,13 +1,24 @@
 import { MastraError } from "@mastra/core/error";
 
 import { mastra } from "../mastra";
+import {
+  docsAnswerQualityScorer,
+  docsCitationScorer,
+  docsToolUseScorer,
+} from "../mastra/scorers/docs-scorers";
 import { docsEvalCases } from "./cases";
 
 const datasetId = "paykit-docs-baseline";
+const scorerIds = [docsToolUseScorer.id, docsCitationScorer.id, docsAnswerQualityScorer.id];
 
 async function getOrCreateDataset() {
   try {
-    return await mastra.datasets.get({ id: datasetId });
+    const dataset = await mastra.datasets.get({ id: datasetId });
+    const details = await dataset.getDetails();
+    if (JSON.stringify(details.scorerIds) !== JSON.stringify(scorerIds)) {
+      await dataset.update({ scorerIds });
+    }
+    return dataset;
   } catch (error) {
     if (!(error instanceof MastraError) || error.id !== "DATASET_NOT_FOUND") throw error;
 
@@ -18,15 +29,28 @@ async function getOrCreateDataset() {
         "Regression questions for documentation retrieval, grounding, citations, and abstention.",
       targetType: "agent",
       targetIds: ["docs-agent"],
-      scorerIds: ["docsToolUse", "docsCitation", "docsAnswerQuality"],
+      scorerIds,
     });
   }
 }
 
 const dataset = await getOrCreateDataset();
 
-const listed = await dataset.listItems({ page: 0, perPage: 100 });
-const existingItems = Array.isArray(listed) ? listed : listed.items;
+const existingItems = [];
+let page = 0;
+
+while (true) {
+  const listed = await dataset.listItems({ page, perPage: 100 });
+  if (Array.isArray(listed)) {
+    existingItems.push(...listed);
+    break;
+  }
+
+  existingItems.push(...listed.items);
+  if (!listed.pagination.hasMore) break;
+  page += 1;
+}
+
 const existingByExternalId = new Map(existingItems.map((item) => [item.externalId, item]));
 
 for (const item of docsEvalCases) {

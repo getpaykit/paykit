@@ -5,12 +5,12 @@
   "type": "module",
   "scripts": {
     "build": "node ../../scripts/run-with-env.mjs mastra build",
-    "dev": "MASTRA_STORAGE_URL=file:$PWD/mastra.db node ../../scripts/run-with-env.mjs mastra dev",
-    "eval:seed": "MASTRA_STORAGE_URL=file:$PWD/mastra.db node ../../scripts/run-with-env.mjs tsx src/evals/seed.ts",
+    "dev": "node ../../scripts/run-with-env.mjs mastra dev",
+    "eval:seed": "node ../../scripts/run-with-env.mjs tsx src/evals/seed.ts",
     "format": "oxfmt --write",
     "format:check": "oxfmt --check",
     "lint": "oxlint --deny-warnings",
-    "start": "MASTRA_STORAGE_URL=file:$PWD/mastra.db node ../../scripts/run-with-env.mjs mastra start",
+    "start": "node ../../scripts/run-with-env.mjs mastra start",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

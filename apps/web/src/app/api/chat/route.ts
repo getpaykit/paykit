@@ -1,5 +1,10 @@
 import { env } from "@/env";
-import { DocsChatValidationError, parseDocsChatRequest } from "@/lib/docs-chat-request";
+import {
+  DocsChatRequestTooLargeError,
+  DocsChatValidationError,
+  parseDocsChatRequest,
+  readDocsChatRequest,
+} from "@/lib/docs-chat-request";
 
 export const maxDuration = 60;
 
@@ -14,11 +19,13 @@ export async function POST(request: Request) {
   let body: ReturnType<typeof parseDocsChatRequest>;
 
   try {
-    body = parseDocsChatRequest(await request.json());
+    body = parseDocsChatRequest(await readDocsChatRequest(request));
   } catch (error) {
     const message =
-      error instanceof DocsChatValidationError ? error.message : "The chat request is invalid.";
-    return chatError(message, 400);
+      error instanceof DocsChatValidationError || error instanceof DocsChatRequestTooLargeError
+        ? error.message
+        : "The chat request is invalid.";
+    return chatError(message, error instanceof DocsChatRequestTooLargeError ? 413 : 400);
   }
 
   let upstream: Response;
