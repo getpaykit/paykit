@@ -22,6 +22,9 @@ export async function POST(request: Request) {
   }
 
   let upstream: Response;
+  const timeoutController = new AbortController();
+  const timeout = setTimeout(() => timeoutController.abort(), 30_000);
+
   try {
     upstream = await fetch(env.MASTRA_CHAT_URL, {
       method: "POST",
@@ -31,17 +34,18 @@ export async function POST(request: Request) {
       },
       body: JSON.stringify(body),
       cache: "no-store",
-      signal: request.signal,
+      signal: AbortSignal.any([request.signal, timeoutController.signal]),
     });
   } catch {
     return chatError("The PayKit assistant is temporarily unavailable.", 502);
+  } finally {
+    clearTimeout(timeout);
   }
 
   if (!upstream.ok || !upstream.body) {
-    return chatError(
-      "The PayKit assistant could not complete this request.",
-      upstream.status === 401 || upstream.status === 403 ? 502 : upstream.status,
-    );
+    const status =
+      !upstream.ok && upstream.status !== 401 && upstream.status !== 403 ? upstream.status : 502;
+    return chatError("The PayKit assistant could not complete this request.", status);
   }
 
   const headers = new Headers({

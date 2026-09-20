@@ -83,6 +83,20 @@ describe("parseDocsChatRequest", () => {
     ).toThrow(DocsChatValidationError);
   });
 
+  it("reports an oversized user message accurately", () => {
+    expect(() =>
+      parseDocsChatRequest({
+        messages: [
+          {
+            id: "user-1",
+            role: "user",
+            parts: [{ type: "text", text: "a".repeat(4_001) }],
+          },
+        ],
+      }),
+    ).toThrow("The message is too long.");
+  });
+
   it("rejects conversations above the total character limit", () => {
     expect(() =>
       parseDocsChatRequest({

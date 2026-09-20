@@ -535,6 +535,7 @@ export function DocsAssistant({
       <Button
         aria-keyshortcuts="Control+/ Meta+/"
         aria-label="Open PayKit Assistant"
+        tabIndex={open ? -1 : undefined}
         className={cn(
           "fixed right-4 bottom-4 z-40 gap-1.5 border shadow-md transition-[opacity,translate]",
           open && "pointer-events-none translate-y-2 opacity-0",

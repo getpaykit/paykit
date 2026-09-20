@@ -49,7 +49,13 @@ export const docsCitationScorer = createScorer({
       : 0;
   }
 
-  return groundTruth.data.allowedCitationPaths.some((path) => output.includes(path.toLowerCase()))
+  const citationPaths = [...output.matchAll(/\]\((\/docs(?:\/[^)\s]+)?)\)/g)].map(
+    ([, path]) => path,
+  );
+
+  return groundTruth.data.allowedCitationPaths.some((path) =>
+    citationPaths.includes(path.toLowerCase()),
+  )
     ? 1
     : 0;
 });

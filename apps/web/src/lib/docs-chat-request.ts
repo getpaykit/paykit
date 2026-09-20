@@ -63,6 +63,10 @@ export function parseDocsChatRequest(input: unknown) {
       }
 
       if (message.role === "user") {
+        const rawPart = part as { text?: unknown; type?: unknown };
+        if (rawPart.type === "text" && typeof rawPart.text === "string") {
+          throw new DocsChatValidationError("The message is too long.");
+        }
         throw new DocsChatValidationError("User messages may contain text only.");
       }
 

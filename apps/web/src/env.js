@@ -5,10 +5,10 @@ export const env = createEnv({
   server: {
     NODE_ENV: z.enum(["development", "test", "production"]),
     MASTRA_CHAT_SECRET: z.string().min(24),
-    MASTRA_CHAT_URL: z
-      .string()
-      .url()
-      .default(process.env.NODE_ENV === "development" ? "http://localhost:4111/chat" : ""),
+    MASTRA_CHAT_URL:
+      process.env.NODE_ENV === "development"
+        ? z.url().default("http://localhost:4111/chat")
+        : z.url(),
     RESEND_API_KEY: z.string().min(1),
     RESEND_FROM_EMAIL: z.string().email().default("contact@paykit.sh"),
     RESEND_TO_EMAIL: z.string().email().default("contact@paykit.sh"),
