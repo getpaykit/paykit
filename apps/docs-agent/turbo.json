@@ -1,0 +1,29 @@
+{
+  "$schema": "https://turborepo.com/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "outputs": [".mastra/output/**"],
+      "env": [
+        "AI_GATEWAY_API_KEY",
+        "AI_GATEWAY_MODEL",
+        "MASTRA_CHAT_SECRET",
+        "MASTRA_PLATFORM_ACCESS_TOKEN",
+        "PAYKIT_DOCS_MCP_URL",
+        "TURSO_AUTH_TOKEN",
+        "TURSO_DATABASE_URL"
+      ]
+    },
+    "dev": {
+      "env": [
+        "AI_GATEWAY_API_KEY",
+        "AI_GATEWAY_MODEL",
+        "MASTRA_CHAT_SECRET",
+        "MASTRA_PLATFORM_ACCESS_TOKEN",
+        "PAYKIT_DOCS_MCP_URL",
+        "TURSO_AUTH_TOKEN",
+        "TURSO_DATABASE_URL"
+      ]
+    }
+  }
+}
