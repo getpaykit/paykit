@@ -5,16 +5,11 @@
     "build": {
       "env": [
         "GITHUB_SPONSORS_TOKEN",
-        "MASTRA_CHAT_SECRET",
-        "MASTRA_CHAT_URL",
         "RESEND_API_KEY",
         "RESEND_FROM_EMAIL",
         "RESEND_TO_EMAIL",
         "SKIP_ENV_VALIDATION"
       ]
-    },
-    "dev": {
-      "env": ["MASTRA_CHAT_SECRET", "MASTRA_CHAT_URL"]
     }
   }
 }
