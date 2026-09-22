@@ -10,11 +10,9 @@
   "type": "module",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev --filter=!docs-agent",
+    "dev": "turbo run dev",
     "dev:demo": "pnpm --filter demo dev",
-    "dev:docs-agent": "pnpm --filter docs-agent dev",
     "dev:web": "pnpm --filter web dev",
-    "dev:web-ai": "turbo run dev --filter=web --filter=docs-agent",
     "test:unit": "node ./node_modules/vitest/vitest.mjs run --config vitest.unit.config.ts",
     "typecheck": "turbo run typecheck",
     "format": "oxfmt --write '**/*.{ts,tsx,js,jsx}'",

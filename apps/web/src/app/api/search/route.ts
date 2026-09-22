@@ -1,3 +1,5 @@
-import { docsSearch } from "@/lib/source";
+import { createFromSource } from "fumadocs-core/search/server";
 
-export const { GET } = docsSearch;
+import { source } from "@/lib/source";
+
+export const { GET } = createFromSource(source);
