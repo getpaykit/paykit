@@ -85,11 +85,11 @@ export function BrandMenu({
           sideOffset={4}
           positionerClassName="z-100"
         >
-          <ContextMenuItem className="px-3" onClick={() => copyAsSvg("Logo")}>
-            <Logo className="text-muted-foreground" /> Copy logo as SVG
+          <ContextMenuItem onClick={() => copyAsSvg("Logo")}>
+            <Logo /> Copy logo as SVG
           </ContextMenuItem>
-          <ContextMenuItem className="px-3" onClick={() => copyAsSvg("Wordmark")}>
-            <RiCodeSSlashLine className="text-muted-foreground" /> Copy wordmark as SVG
+          <ContextMenuItem onClick={() => copyAsSvg("Wordmark")}>
+            <RiCodeSSlashLine /> Copy wordmark as SVG
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
