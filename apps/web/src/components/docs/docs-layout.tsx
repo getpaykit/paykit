@@ -60,7 +60,7 @@ function SearchButton({ className }: { className?: string }) {
     <button
       type="button"
       className={cn(
-        "text-primary/70 hover:bg-muted hover:text-primary/90 inline-flex h-7.5 items-center gap-1.5 rounded-sm border bg-secondary/50 px-2 text-[14px] transition-colors dark:hover:bg-muted/50",
+        "text-primary/70 hover:bg-subtle-hover hover:text-primary/90 inline-flex h-7.5 items-center gap-1.5 rounded-sm border bg-secondary/50 px-2 text-[14px] transition-colors",
         className,
       )}
       onClick={() => setOpenSearch(true)}
@@ -402,7 +402,7 @@ function SidebarItem({
         "flex h-6.75 items-center gap-2 rounded-sm px-2 text-[13px] transition-none",
         active
           ? "bg-accent/50 text-accent-foreground/80"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-accent-foreground/80",
+          : "text-muted-foreground hover:bg-subtle-hover hover:text-accent-foreground/80",
       )}
     >
       {getDocsPageIcon(String(item.name))}
