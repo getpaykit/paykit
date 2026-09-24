@@ -98,6 +98,7 @@
   --muted: oklch(0.97 0 0);
   --muted-foreground: oklch(0.556 0 0);
   --subtle-hover: var(--muted);
+  --subtle-hover-border: color-mix(in oklab, var(--primary) 14%, transparent);
   --subtle-hover-foreground: color-mix(in oklab, var(--primary) 80%, transparent);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
@@ -218,6 +219,7 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-subtle-hover: var(--subtle-hover);
+  --color-subtle-hover-border: var(--subtle-hover-border);
   --color-subtle-hover-foreground: var(--subtle-hover-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);

@@ -55,7 +55,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
       <Button
         variant="ghost"
         size="sm"
-        className="bg-background h-full hover:bg-background! hover:border-primary/14 w-23.5 justify-start gap-1.5 rounded-xs border px-1.5! text-xs duration-0"
+        className="bg-background h-full hover:bg-background! hover:border-subtle-hover-border w-23.5 justify-start gap-1.5 rounded-xs border px-1.5! text-xs duration-0"
         onClick={onClick}
       >
         {copied ? <RiCheckLine className="size-3" /> : <RiFileCopyLine className="size-3" />}
