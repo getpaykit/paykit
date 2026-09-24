@@ -67,7 +67,10 @@ export function BrandMenu({
               ref={logoRef}
               href="/"
               aria-label="PayKit home"
-              className={cn("flex items-center py-1.5", linkClassName)}
+              className={cn(
+                "flex items-center rounded-sm py-1.5 hover:bg-subtle-hover hover:text-foreground transition-colors",
+                linkClassName,
+              )}
             >
               <Wordmark
                 title={null}
@@ -86,7 +89,7 @@ export function BrandMenu({
           positionerClassName="z-100"
         >
           <ContextMenuItem onClick={() => copyAsSvg("Logo")}>
-            <Logo /> Copy logo as SVG
+            <Logo className="scale-90" /> Copy logo as SVG
           </ContextMenuItem>
           <ContextMenuItem onClick={() => copyAsSvg("Wordmark")}>
             <RiCodeSSlashLine /> Copy wordmark as SVG

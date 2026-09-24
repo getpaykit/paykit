@@ -60,7 +60,7 @@ function SearchButton({ className }: { className?: string }) {
     <button
       type="button"
       className={cn(
-        "text-primary/70 hover:bg-subtle-hover hover:text-primary/90 inline-flex h-7.5 items-center gap-1.5 rounded-sm border bg-secondary/50 px-2 text-[14px] transition-colors",
+        "text-primary/70 hover:bg-subtle-hover hover:text-subtle-hover-foreground inline-flex h-7.5 items-center gap-1.5 rounded-sm border bg-secondary/50 px-2 text-[14px] transition-colors",
         className,
       )}
       onClick={() => setOpenSearch(true)}
@@ -120,7 +120,7 @@ function LlmsDropdown() {
         render={
           <Button
             aria-label="Open LLM files"
-            className="size-7 text-muted-foreground"
+            className="text-muted-foreground"
             size="icon-sm"
             type="button"
             variant="ghost"
@@ -129,13 +129,13 @@ function LlmsDropdown() {
       >
         <RiRobot2Line />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="top" className="w-40">
+      <DropdownMenuContent align="start" side="top">
         <DropdownMenuItem render={<Link href="/llms.txt" target="_blank" rel="noreferrer" />}>
-          <RiExternalLinkLine className="size-3.5" />
+          <RiExternalLinkLine />
           llms.txt
         </DropdownMenuItem>
         <DropdownMenuItem render={<Link href="/llms-full.txt" target="_blank" rel="noreferrer" />}>
-          <RiExternalLinkLine className="size-3.5" />
+          <RiExternalLinkLine />
           llms-full.txt
         </DropdownMenuItem>
       </DropdownMenuContent>
@@ -166,10 +166,7 @@ function DocsSidebar({
       >
         <div className="flex h-full w-full flex-col">
           <div className="flex h-12 items-center justify-between px-2.5">
-            <BrandMenu
-              linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-              wordmarkBaseClassName="h-3.5"
-            />
+            <BrandMenu linkClassName="px-2" wordmarkBaseClassName="h-3.5" />
             <Button
               aria-label="Hide sidebar"
               className="size-7 text-muted-foreground"
@@ -260,10 +257,7 @@ function MobileSidebar({
         </SheetHeader>
         <div className="flex h-full flex-col">
           <div className="flex h-12 items-center border-b px-2.5">
-            <BrandMenu
-              linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-              wordmarkBaseClassName="h-3.5"
-            />
+            <BrandMenu linkClassName="px-2" wordmarkBaseClassName="h-3.5" />
           </div>
           <SidebarContent onItemClick={() => onOpenChange(false)} pathname={pathname} tree={tree} />
         </div>
@@ -401,8 +395,8 @@ function SidebarItem({
       className={cn(
         "flex h-6.75 items-center gap-2 rounded-sm px-2 text-[13px] transition-none",
         active
-          ? "bg-accent/50 text-accent-foreground/80"
-          : "text-muted-foreground hover:bg-subtle-hover hover:text-accent-foreground/80",
+          ? "bg-accent/50 text-accent-foreground/80 hover:text-subtle-hover-foreground"
+          : "text-muted-foreground hover:bg-subtle-hover hover:text-subtle-hover-foreground",
       )}
     >
       {getDocsPageIcon(String(item.name))}
@@ -498,11 +492,7 @@ export function DocsLayout({ children, tree }: { children: ReactNode; tree: Root
           data-transparent="false"
           className="fixed top-0 z-30 flex h-12 w-full flex-row items-center justify-between border-b bg-background px-2.5 [grid-area:header] md:hidden"
         >
-          <BrandMenu
-            className="md:hidden"
-            linkClassName="rounded-sm px-2 py-1.5 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-            wordmarkBaseClassName="h-3.5"
-          />
+          <BrandMenu className="md:hidden" linkClassName="px-2" wordmarkBaseClassName="h-3.5" />
           <div className="flex items-center gap-1 md:hidden">
             <Button
               aria-label="Open search"

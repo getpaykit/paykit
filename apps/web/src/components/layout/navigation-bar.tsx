@@ -124,7 +124,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
         >
           <SectionShell className="border-border border-b">
             <div className="flex h-11 w-full items-center justify-between px-5">
-              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <BrandMenu linkClassName="-ml-2.5 px-2.5 py-2" />
               <button
                 type="button"
                 aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -149,7 +149,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
           <SectionShell className="border-border border-b">
             <div className="flex h-12 items-center justify-between px-12">
               {/* Logo */}
-              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <BrandMenu linkClassName="-ml-2.5 px-2.5 py-2" />
 
               {/* Center tabs */}
               <div className="absolute inset-0 flex items-stretch justify-center">

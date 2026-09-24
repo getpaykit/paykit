@@ -20,8 +20,10 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { menuItemStyles } from "@/components/ui/menu-styles";
 import { cn } from "@/lib/utils";
+
+const menuItemStyles =
+  "relative flex cursor-default items-center gap-1.5 rounded-xs min-h-6.75 px-2 py-0.5 text-sm text-muted-foreground outline-hidden select-none focus:bg-subtle-hover focus:text-subtle-hover-foreground data-inset:pl-7 data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-3.5";
 
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (
@@ -169,7 +171,7 @@ function MenubarShortcut({
     <DropdownMenuShortcut
       data-slot="menubar-shortcut"
       className={cn(
-        "ml-auto text-xs tracking-widest text-muted-foreground group-focus/menubar-item:text-accent-foreground",
+        "ml-auto text-xs tracking-widest text-muted-foreground group-focus/menubar-item:text-subtle-hover-foreground",
         className,
       )}
       {...props}
