@@ -459,9 +459,14 @@ export function DocsAssistant({
     () =>
       new DefaultChatTransport({
         api: "/api/chat",
-        prepareSendMessagesRequest: ({ messages, trigger, messageId }) => ({
-          body: { currentPage: pathname, messageId, messages, trigger },
-        }),
+        prepareSendMessagesRequest: ({ messages, trigger, messageId }) => {
+          const recentMessages = messages.slice(-20);
+          if (recentMessages[0]?.role === "assistant") recentMessages.shift();
+
+          return {
+            body: { currentPage: pathname, messageId, messages: recentMessages, trigger },
+          };
+        },
       }),
     [pathname],
   );
