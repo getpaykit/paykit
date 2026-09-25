@@ -15,16 +15,14 @@ import { source } from "@/lib/source";
 const maxRequestSize = 64_000;
 const maxPageContentSize = 8_000;
 
-const requestSchema = z
-  .object({
-    currentPage: z
-      .string()
-      .max(200)
-      .regex(/^\/docs(?:\/[\w.-]+)*$/)
-      .optional(),
-    messages: z.array(z.unknown()).min(1).max(20),
-  })
-  .strict();
+const requestSchema = z.object({
+  currentPage: z
+    .string()
+    .max(200)
+    .regex(/^\/docs(?:\/[\w.-]+)*$/)
+    .optional(),
+  messages: z.array(z.unknown()).min(1).max(20),
+});
 
 const systemPrompt = [
   "You are the PayKit documentation assistant.",
