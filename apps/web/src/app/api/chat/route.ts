@@ -101,8 +101,10 @@ export async function POST(request: Request) {
     model: process.env.AI_GATEWAY_MODEL ?? "openai/gpt-5.6-luna",
     messages: await convertToModelMessages(messages.data),
     maxOutputTokens: 2_000,
+    prepareStep: ({ stepNumber }) => ({
+      toolChoice: stepNumber === 0 ? "required" : "auto",
+    }),
     stopWhen: stepCountIs(4),
-    toolChoice: "auto",
     tools: { search },
   });
 
