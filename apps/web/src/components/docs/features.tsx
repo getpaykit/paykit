@@ -35,11 +35,23 @@ export function Features({ children }: { children: ReactNode }) {
 
 /** Renders a feature's Markdown title and description in the card layout. */
 export function FeatureCard({ children }: { children: ReactNode }) {
-  const [titleNode, descriptionNode] = Children.toArray(children).filter(
-    isValidElement<{ children?: ReactNode }>,
-  );
-  const title = extractText(titleNode?.props.children);
-  const Icon = featureIcons[title] ?? RiBox3Line;
+  const blocks = Children.toArray(children);
+  const [titleNode, descriptionNode] = blocks;
+
+  if (
+    blocks.length !== 2 ||
+    !isValidElement<{ children?: ReactNode }>(titleNode) ||
+    !isValidElement<{ children?: ReactNode }>(descriptionNode)
+  ) {
+    throw new Error("FeatureCard needs a Markdown title and description paragraph.");
+  }
+
+  const title = extractText(titleNode.props.children).trim().replace(/\s+/g, " ");
+  const Icon = featureIcons[title];
+
+  if (!Icon || !extractText(descriptionNode.props.children).trim()) {
+    throw new Error(`FeatureCard has an unknown title or empty description: ${title}`);
+  }
 
   return (
     <div className="relative h-full">
@@ -51,7 +63,7 @@ export function FeatureCard({ children }: { children: ReactNode }) {
         <div className="flex flex-col gap-1">
           <h3 className="!m-0 text-foreground/90 text-sm font-semibold">{title}</h3>
           <p className="!m-0 text-foreground/45 text-sm leading-relaxed">
-            {descriptionNode?.props.children}
+            {descriptionNode.props.children}
           </p>
         </div>
       </div>
