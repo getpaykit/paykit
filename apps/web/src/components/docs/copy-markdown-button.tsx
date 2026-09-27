@@ -55,7 +55,7 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
       <Button
         variant="ghost"
         size="sm"
-        className="bg-background h-full hover:bg-background! hover:border-primary/14 w-23.5 justify-start gap-1.5 rounded-xs border px-1.5! text-xs duration-0"
+        className="bg-background h-full hover:bg-background! hover:border-subtle-hover-border w-23.5 justify-start gap-1.5 rounded-xs border px-1.5! text-xs duration-0"
         onClick={onClick}
       >
         {copied ? <RiCheckLine className="size-3" /> : <RiFileCopyLine className="size-3" />}
@@ -72,21 +72,21 @@ export function CopyMarkdownButton({ markdownUrl }: { markdownUrl: string }) {
             />
           }
         >
-          <RiArrowDownSLine className="size-3.5" />
+          <RiArrowDownSLine />
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-44">
+        <DropdownMenuContent align="end">
           <DropdownMenuItem render={<Link href={markdownUrl} target="_blank" rel="noreferrer" />}>
-            <RiMarkdownLine className="size-3.5" />
+            <RiMarkdownLine />
             View as markdown
           </DropdownMenuItem>
           <DropdownMenuItem render={<Link href="/llms.txt" target="_blank" rel="noreferrer" />}>
-            <RiExternalLinkLine className="size-3.5" />
+            <RiExternalLinkLine />
             View llms.txt
           </DropdownMenuItem>
           <DropdownMenuItem
             render={<Link href="/llms-full.txt" target="_blank" rel="noreferrer" />}
           >
-            <RiExternalLinkLine className="size-3.5" />
+            <RiExternalLinkLine />
             View llms-full.txt
           </DropdownMenuItem>
         </DropdownMenuContent>

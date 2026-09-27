@@ -83,7 +83,7 @@ const tabBase =
   "group/tab relative flex h-full items-center justify-center gap-1.5 px-4 py-3.5 transition-colors duration-150";
 const tabActive = "bg-background";
 const tabInactive =
-  "hover:bg-foreground/[0.03] bg-transparent text-foreground/60 dark:text-foreground/40 hover:text-foreground/70";
+  "hover:bg-subtle-hover bg-transparent text-foreground/60 dark:text-foreground/40 hover:text-foreground/70";
 const labelBase =
   "text-sm tracking-wider whitespace-nowrap uppercase transition-colors duration-150";
 
@@ -124,7 +124,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
         >
           <SectionShell className="border-border border-b">
             <div className="flex h-11 w-full items-center justify-between px-5">
-              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <BrandMenu linkClassName="-ml-2.5 px-2.5 py-2" />
               <button
                 type="button"
                 aria-label={mobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
@@ -149,7 +149,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
           <SectionShell className="border-border border-b">
             <div className="flex h-12 items-center justify-between px-12">
               {/* Logo */}
-              <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+              <BrandMenu linkClassName="-ml-2.5 px-2.5 py-2" />
 
               {/* Center tabs */}
               <div className="absolute inset-0 flex items-stretch justify-center">
@@ -228,7 +228,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
                             <NavLink
                               key={link.name}
                               item={link}
-                              className="text-foreground/60 hover:text-foreground hover:bg-foreground/3 flex items-center justify-between px-4 py-2 text-sm transition-colors"
+                              className="text-foreground/60 hover:text-foreground hover:bg-subtle-hover flex items-center justify-between px-4 py-2 text-sm transition-colors"
                               onClick={() => setLinksOpen(false)}
                             >
                               <span className="flex items-center gap-2.5">
@@ -287,7 +287,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
                   <NavLink
                     item={item}
                     className={`flex items-center gap-2.5 px-5 py-3.5 transition-colors ${
-                      isActive(item.path || item.href) ? "bg-foreground/4" : "hover:bg-foreground/3"
+                      isActive(item.path || item.href) ? "bg-foreground/4" : "hover:bg-subtle-hover"
                     }`}
                     onClick={() => setMobileMenuOpen(false)}
                   >

@@ -181,22 +181,29 @@ function DocsFooterItem({ item, index }: { item: FooterItem; index: 0 | 1 }) {
     <Link
       href={item.url}
       className={cn(
-        "flex flex-col gap-2 rounded-lg border p-4 text-sm transition-colors hover:bg-accent/80 hover:text-accent-foreground @max-lg:col-span-full",
-        index === 1 && "text-end",
+        "group focus-visible:ring-ring flex min-w-0 rounded-sm bg-secondary p-0.5 text-primary/70 focus-visible:ring-2 focus-visible:outline-none @max-lg:col-span-full",
+        index === 0 && "flex-row-reverse",
       )}
     >
-      <div
+      <div className="bg-background bg-clip-padding group-hover:border-subtle-hover-border flex min-w-0 flex-1 flex-col gap-0.5 rounded-xs border p-2.5 transition-colors duration-200">
+        <span
+          title={typeof item.name === "string" ? item.name : undefined}
+          className="line-clamp-1 text-[13px] transition-colors duration-200 group-hover:text-subtle-hover-foreground"
+        >
+          {item.name}
+        </span>
+        <span className="text-muted-foreground/70 line-clamp-1 text-xs">
+          {item.description ?? (index === 0 ? "Previous page" : "Next page")}
+        </span>
+      </div>
+      <span
         className={cn(
-          "inline-flex items-center gap-1.5 font-medium",
-          index === 1 && "flex-row-reverse",
+          "flex shrink-0 items-center text-foreground/65 transition-colors duration-200 group-hover:text-primary",
+          index === 0 ? "pr-2 pl-1.5" : "pr-1.5 pl-2",
         )}
       >
-        <Icon className="-mx-1 size-4 shrink-0" />
-        <p>{item.name}</p>
-      </div>
-      <p className="truncate text-muted-foreground">
-        {item.description ?? (index === 0 ? "Previous page" : "Next page")}
-      </p>
+        <Icon aria-hidden className="size-5" />
+      </span>
     </Link>
   );
 }

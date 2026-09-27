@@ -16,10 +16,7 @@ export function MiniNavBar() {
         className="bg-background border-border pointer-events-auto w-full border-b lg:hidden"
       >
         <SectionShell className="flex items-center">
-          <BrandMenu
-            linkClassName="gap-1 rounded-sm px-5 py-3 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors"
-            wordmarkClassName="scale-95"
-          />
+          <BrandMenu linkClassName="gap-1 px-5 py-3" wordmarkClassName="scale-95" />
         </SectionShell>
       </motion.div>
 
@@ -31,7 +28,7 @@ export function MiniNavBar() {
       >
         <SectionShell>
           <div className="flex h-12 items-center px-12">
-            <BrandMenu linkClassName="-ml-2.5 rounded-sm px-2.5 py-2 hover:bg-muted hover:text-foreground dark:hover:bg-muted/50 transition-colors" />
+            <BrandMenu linkClassName="-ml-2.5 px-2.5 py-2" />
           </div>
         </SectionShell>
       </motion.div>
