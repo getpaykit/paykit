@@ -61,15 +61,6 @@
   }
 }
 
-@keyframes theme-line-reveal {
-  from {
-    clip-path: inset(0 0 100% 0);
-  }
-  to {
-    clip-path: inset(0 0 0 0);
-  }
-}
-
 .animate-logo-marquee {
   animation: logo-marquee 25s linear infinite !important;
   animation-iteration-count: infinite !important;
@@ -140,7 +131,6 @@
   --shadow-2xl: 0px 1px 2px 0px hsl(0 0% 0% / 0.45);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
-  --theme-transition-line: oklch(0.145 0 0 / 0.16);
 }
 
 .dark {
@@ -179,25 +169,6 @@
   --selection: #4f4f4f;
   --selection-foreground: #ffffff;
   --path: oklch(0.269 0 0);
-  --theme-transition-line: oklch(0.985 0 0 / 0.22);
-}
-
-@supports (view-transition-name: root) {
-  html[data-theme-transition="active"]::view-transition-old(root),
-  html[data-theme-transition="active"]::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
-  }
-
-  html[data-theme-transition="active"]::view-transition-old(root) {
-    z-index: 1;
-  }
-
-  html[data-theme-transition="active"]::view-transition-new(root) {
-    z-index: 2;
-    animation: theme-line-reveal 720ms cubic-bezier(0.72, 0, 0.2, 1) both;
-    box-shadow: 0 1px 0 var(--theme-transition-line);
-  }
 }
 
 @theme inline {
