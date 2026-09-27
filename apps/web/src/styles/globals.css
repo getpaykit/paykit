@@ -449,8 +449,3 @@ input[type="search"]::-webkit-search-results-decoration {
     animation-iteration-count: 1 !important;
   }
 }
-
-/* Lift context menu positioner above fixed nav (z-49) */
-:has(> [data-slot="context-menu-content"]) {
-  z-index: 100 !important;
-}
