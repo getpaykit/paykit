@@ -114,7 +114,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
 
   return (
     <>
-      <div className="pointer-events-none fixed top-0 right-0 left-0 z-99 flex items-start">
+      <div className="pointer-events-none fixed top-0 right-0 left-0 z-49 flex items-start">
         {/* Mobile */}
         <motion.div
           initial={{ opacity: 0 }}
@@ -274,7 +274,7 @@ export function NavigationBar({ stars = "1k" }: { stars?: string }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15 }}
-            className="bg-background/95 pointer-events-auto fixed inset-0 z-98 backdrop-blur-sm lg:hidden"
+            className="bg-background/95 pointer-events-auto fixed inset-0 z-48 backdrop-blur-sm lg:hidden"
           >
             <div className="flex h-full flex-col overflow-y-auto pt-11">
               {mobileLinks.map((item, i) => (
