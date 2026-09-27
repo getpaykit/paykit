@@ -9,7 +9,7 @@ import {
   RiLinkM,
 } from "react-icons/ri";
 
-import { Features } from "@/components/docs/features";
+import { FeatureCard, Features } from "@/components/docs/features";
 import { MdxTab, MdxTabs, MdxTabsList, MdxTabsPanel, MdxTabsTab } from "@/components/docs/mdx-tabs";
 import {
   Anchor,
@@ -308,5 +308,6 @@ export const docsMdxComponents = {
   TabsList: MdxTabsList,
   TabsPanel: MdxTabsPanel,
   TabsTab: MdxTabsTab,
+  FeatureCard,
   Features,
 } satisfies MDXComponents;
