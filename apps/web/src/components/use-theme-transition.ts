@@ -50,7 +50,13 @@ export function useThemeTransition() {
       return;
     }
 
-    documentWithTransition.startViewTransition(() => flushSync(() => setTheme(nextMode)));
+    documentWithTransition.startViewTransition(() => {
+      const root = document.documentElement;
+      root.classList.remove("light", "dark");
+      root.classList.add(nextAppliedTheme);
+      root.style.colorScheme = nextAppliedTheme;
+      flushSync(() => setTheme(nextMode));
+    });
   };
 
   return {
