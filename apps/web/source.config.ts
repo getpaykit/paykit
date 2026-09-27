@@ -7,7 +7,16 @@ export const docs = defineDocs({
   dir: "./content/docs",
   docs: {
     postprocess: {
-      includeProcessedMarkdown: true,
+      includeProcessedMarkdown: {
+        stringify(node, _parent, state, info) {
+          if (
+            node.type === "mdxJsxFlowElement" &&
+            (node.name === "Features" || node.name === "FeatureCard")
+          ) {
+            return state.containerFlow(node, info);
+          }
+        },
+      },
     },
   },
 });
