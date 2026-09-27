@@ -186,7 +186,10 @@ function DocsFooterItem({ item, index }: { item: FooterItem; index: 0 | 1 }) {
       )}
     >
       <div className="bg-background bg-clip-padding group-hover:border-subtle-hover-border flex min-w-0 flex-1 flex-col gap-0.5 rounded-xs border p-2.5 transition-colors duration-200">
-        <span className="line-clamp-1 text-[13px] transition-colors duration-200 group-hover:text-subtle-hover-foreground">
+        <span
+          title={typeof item.name === "string" ? item.name : undefined}
+          className="line-clamp-1 text-[13px] transition-colors duration-200 group-hover:text-subtle-hover-foreground"
+        >
           {item.name}
         </span>
         <span className="text-muted-foreground/70 line-clamp-1 text-xs">
